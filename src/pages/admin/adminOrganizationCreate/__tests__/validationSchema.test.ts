@@ -6,6 +6,7 @@ const baseValues = {
   timezone: undefined,
   premiumIntegrations: [],
   featureFlags: [],
+  selfServe: false,
 }
 
 const errorPaths = (values: unknown): string[] => {
@@ -42,5 +43,26 @@ describe('adminOrganizationCreateValidationSchema', () => {
         featureFlags: [{ value: 'some_flag' }],
       }),
     ).toEqual([])
+  })
+
+  describe('GIVEN the selfServe field', () => {
+    it.each([
+      ['off', false],
+      ['on', true],
+    ])('THEN should accept the switch turned %s', (_, selfServe) => {
+      expect(errorPaths({ ...baseValues, selfServe })).toEqual([])
+    })
+
+    it('THEN should require the field', () => {
+      const valuesWithoutSelfServe: Partial<typeof baseValues> = { ...baseValues }
+
+      delete valuesWithoutSelfServe.selfServe
+
+      expect(errorPaths(valuesWithoutSelfServe)).toContain('selfServe')
+    })
+
+    it('THEN should reject a non-boolean value', () => {
+      expect(errorPaths({ ...baseValues, selfServe: 'true' })).toContain('selfServe')
+    })
   })
 })

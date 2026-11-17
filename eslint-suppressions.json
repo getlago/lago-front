@@ -94,11 +94,6 @@
       "count": 1
     }
   },
-  "src/components/subscriptions/realtimeUsage/lanes/Sparkline.tsx": {
-    "lago/use-design-system": {
-      "count": 1
-    }
-  },
   "src/components/wallets/WalletDetailsDrawer.tsx": {
     "lago/use-design-system": {
       "count": 2

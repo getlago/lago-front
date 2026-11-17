@@ -1,24 +1,32 @@
 import { gql } from '@apollo/client'
 import NiceModal from '@ebay/nice-modal-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router'
+import { generatePath, useParams } from 'react-router'
 
 import { REASON_MODAL_NAME } from '~/components/admin/const'
 import { ReasonModalProps } from '~/components/admin/ReasonModal'
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { Switch } from '~/components/form/Switch/Switch'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { addToast } from '~/core/apolloClient'
-import { ADMIN_ORGANIZATIONS_ROUTE } from '~/core/router'
+import { addToast, envGlobalVar } from '~/core/apolloClient'
+import {
+  ADMIN_ORGANIZATION_DETAIL_ROUTE,
+  ADMIN_ORGANIZATIONS_ROUTE,
+  useNavigate,
+} from '~/core/router'
 import {
   AdminFeatureTypeEnum,
   FeatureFlagEnum,
+  OrganizationEnvironmentEnum,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
+
+import { useLinkSandboxDialog } from './adminOrganizationDetail/useLinkSandboxDialog'
 
 gql`
   query AdminOrganization($organizationId: ID!) {
@@ -29,6 +37,15 @@ gql`
       createdAt
       premiumIntegrations
       featureFlags
+      environment
+      productionOrganization {
+        id
+        name
+      }
+      sandboxOrganization {
+        id
+        name
+      }
     }
   }
 
@@ -42,12 +59,29 @@ gql`
 const KNOWN_PREMIUM_INTEGRATIONS = Object.values(PremiumIntegrationTypeEnum)
 const KNOWN_FEATURE_FLAGS = Object.values(FeatureFlagEnum)
 
+export const ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID = 'admin-organization-detail-environment'
+export const ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID =
+  'admin-organization-detail-counterpart-link'
+export const ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID =
+  'admin-organization-detail-managed-by-production'
+export const ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID =
+  'admin-organization-detail-link-sandbox-button'
+export const ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID = 'admin-organization-detail-save-button'
+
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
+  const navigate = useNavigate()
+  const { selfServeEnabled } = envGlobalVar()
 
   const { data, loading, refetch } = useAdminOrganizationQuery({
     variables: { organizationId: organizationId ?? '' },
     skip: !organizationId,
+  })
+
+  const { openLinkSandboxDialog } = useLinkSandboxDialog({
+    onLinked: () => {
+      void refetch()
+    },
   })
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
@@ -215,6 +249,15 @@ const AdminOrganizationDetail = () => {
     )
   }
 
+  const isSandbox = org.environment === OrganizationEnvironmentEnum.Sandbox
+  const counterpart = isSandbox ? org.productionOrganization : org.sandboxOrganization
+
+  const openOrganization = (id: string): void => {
+    navigate(generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: id }), {
+      skipSlugPrepend: true,
+    })
+  }
+
   const getEntityMetadata = () => {
     if (org.email) {
       return `${org.id} - ${org.email}`
@@ -236,9 +279,60 @@ const AdminOrganizationDetail = () => {
           viewName: org.name,
           metadata: getEntityMetadata(),
         }}
+        actions={{
+          items: [
+            {
+              type: 'action',
+              label: 'Link a sandbox',
+              dataTest: ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID,
+              hidden: !selfServeEnabled || isSandbox || !!counterpart,
+              onClick: () => openLinkSandboxDialog({ id: org.id, name: org.name }),
+            },
+          ],
+        }}
       />
 
       <div className="max-w-200 mx-auto w-full p-4 md:p-12">
+        <div className="mb-8 flex flex-col gap-2">
+          {selfServeEnabled && (
+            <div className="flex items-center justify-between border-b border-grey-300 py-3">
+              <Typography variant="body">Environment</Typography>
+              <Typography
+                variant="body"
+                color="grey700"
+                data-test={ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID}
+              >
+                {isSandbox ? 'Sandbox' : 'Production'}
+              </Typography>
+            </div>
+          )}
+          {!!counterpart && (
+            <div className="flex items-center justify-between border-b border-grey-300 py-3">
+              <Typography variant="body">
+                {isSandbox ? 'Production organization' : 'Sandbox organization'}
+              </Typography>
+              <Button
+                variant="inline"
+                data-test={ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID}
+                disabled={isDirty}
+                onClick={() => openOrganization(counterpart.id)}
+              >
+                {counterpart.name}
+              </Button>
+            </div>
+          )}
+        </div>
+
+        {isSandbox && (
+          <Alert
+            type="info"
+            className="mb-8"
+            data-test={ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID}
+          >
+            Features are managed by the production organization and mirrored to this sandbox.
+          </Alert>
+        )}
+
         <div>
           <Typography variant="subhead1" className="mb-4">
             Premium Integrations
@@ -252,6 +346,7 @@ const AdminOrganizationDetail = () => {
               <Switch
                 name={key}
                 checked={localIntegrations.has(key)}
+                disabled={isSandbox}
                 onChange={() => handleToggleLocal(key)}
               />
             </div>
@@ -271,6 +366,7 @@ const AdminOrganizationDetail = () => {
               <Switch
                 name={`flag-${key}`}
                 checked={localFeatureFlags.has(key)}
+                disabled={isSandbox}
                 onChange={() => handleToggleFlag(key)}
               />
             </div>
@@ -278,16 +374,22 @@ const AdminOrganizationDetail = () => {
         </div>
       </div>
 
-      <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
-        <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
-          <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
-            Reset
-          </Button>
-          <Button disabled={!isDirty || isSaving} onClick={handleSave}>
-            Save changes
-          </Button>
-        </div>
-      </footer>
+      {!isSandbox && (
+        <footer className="sticky bottom-0 z-navBar w-full bg-white shadow-t">
+          <div className="max-w-200 mx-auto flex min-h-footer w-full flex-wrap-reverse items-center justify-end gap-3 px-4 md:px-12">
+            <Button variant="quaternary" disabled={!isDirty} onClick={handleReset}>
+              Reset
+            </Button>
+            <Button
+              disabled={!isDirty || isSaving}
+              data-test={ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID}
+              onClick={handleSave}
+            >
+              Save changes
+            </Button>
+          </div>
+        </footer>
+      )}
     </>
   )
 }
