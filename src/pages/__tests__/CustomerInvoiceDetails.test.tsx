@@ -598,21 +598,39 @@ describe('CustomerInvoiceDetails', () => {
       })
     })
 
-    describe('WHEN the invoice is finalized', () => {
-      it('THEN should show the pending finalization alert', () => {
-        render(<CustomerInvoiceDetails />)
+    describe.each([InvoiceStatusTypeEnum.Pending, InvoiceStatusTypeEnum.Open])(
+      'WHEN the invoice is waiting to be finalized with status %s',
+      (status) => {
+        beforeEach(() => {
+          mockUseGetInvoiceDetailsQuery.mockReturnValue({
+            data: {
+              invoice: {
+                ...mockInvoiceData.invoice,
+                status,
+                taxStatus: InvoiceTaxStatusTypeEnum.Pending,
+              },
+            },
+            loading: false,
+            error: null,
+            refetch: jest.fn(),
+          })
+        })
 
-        expect(screen.getByTestId(INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID)).toBeInTheDocument()
-      })
+        it('THEN should show the pending finalization alert', () => {
+          render(<CustomerInvoiceDetails />)
 
-      it('THEN should not show the draft taxes pending alert', () => {
-        render(<CustomerInvoiceDetails />)
+          expect(screen.getByTestId(INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID)).toBeInTheDocument()
+        })
 
-        expect(
-          screen.queryByTestId(INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID),
-        ).not.toBeInTheDocument()
-      })
-    })
+        it('THEN should not show the draft taxes pending alert', () => {
+          render(<CustomerInvoiceDetails />)
+
+          expect(
+            screen.queryByTestId(INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID),
+          ).not.toBeInTheDocument()
+        })
+      },
+    )
 
     describe('WHEN the invoice is still a draft', () => {
       beforeEach(() => {
