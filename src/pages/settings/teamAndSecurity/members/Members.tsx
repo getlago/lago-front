@@ -11,7 +11,7 @@ import {
 import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useSandbox } from '~/hooks/useSandbox'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
 import MembersInvitationList from './MembersInvitationList'
@@ -27,7 +27,7 @@ export const MEMBERS_CREATE_INVITE_BUTTON_TEST_ID = 'create-invite-button'
 const Members = () => {
   const { translate } = useInternationalization()
   const { openCreateInviteDialog } = useCreateInviteDialog()
-  const { isSandbox } = useSandbox()
+  const { hasPermissions } = usePermissions()
 
   return (
     <SettingsWithTabsPaddedContainer className="min-h-0 flex-1 pb-0">
@@ -38,7 +38,7 @@ const Members = () => {
             label={translate('text_63208b630aaf8df6bbfb2657')}
             sublabel={translate('text_63208b630aaf8df6bbfb2659')}
             action={
-              isSandbox ? undefined : (
+              hasPermissions(['organizationMembersCreate']) ? (
                 <Button
                   variant="inline"
                   onClick={openCreateInviteDialog}
@@ -46,7 +46,7 @@ const Members = () => {
                 >
                   {translate('text_63208b630aaf8df6bbfb265b')}
                 </Button>
-              )
+              ) : undefined
             }
           />
           <NavigationTab

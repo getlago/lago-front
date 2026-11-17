@@ -43,6 +43,15 @@ jest.mock('~/hooks/useSandbox', () => ({
   useSandbox: () => mockUseSandbox(),
 }))
 
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
+
 let mockOrganizationData: {
   premiumIntegrations?: PremiumIntegrationTypeEnum[]
   authenticationMethods?: AuthenticationMethodsEnum[]
@@ -178,6 +187,7 @@ describe('Authentication', () => {
     jest.clearAllMocks()
     mockIsPremium = true
     mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockDeniedPermissions = []
     mockOrganizationData = {
       premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
       authenticationMethods: [
@@ -839,7 +849,7 @@ describe('Authentication', () => {
     })
   })
 
-  describe('GIVEN the sandbox environment', () => {
+  describe('GIVEN the member permissions', () => {
     const premiumOktaOrganization = {
       premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
       authenticationMethods: [
@@ -848,17 +858,10 @@ describe('Authentication', () => {
       ],
     }
 
-    describe('WHEN the organization is not a sandbox', () => {
+    describe('WHEN the member has the authenticationMethodsUpdate permission', () => {
       beforeEach(() => {
         mockIsPremium = true
         mockOrganizationData = premiumOktaOrganization
-        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
-      })
-
-      it('THEN should not display the managed in production alert', async () => {
-        await prepare()
-
-        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
       })
 
       it('THEN should display the login method actions menu', async () => {
@@ -905,17 +908,11 @@ describe('Authentication', () => {
       })
     })
 
-    describe('WHEN the organization is a sandbox', () => {
+    describe('WHEN the member does not have the authenticationMethodsUpdate permission', () => {
       beforeEach(() => {
         mockIsPremium = true
         mockOrganizationData = premiumOktaOrganization
-        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
-      })
-
-      it('THEN should display the managed in production alert', async () => {
-        await prepare()
-
-        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
+        mockDeniedPermissions = ['authenticationMethodsUpdate']
       })
 
       it.each([
@@ -980,7 +977,7 @@ describe('Authentication', () => {
         expect(selector).toHaveAttribute('tabindex', '-1')
       })
 
-      it('THEN should show the status synced from production on an SSO provider without integration', async () => {
+      it('THEN should show the status of an SSO provider enabled without integration', async () => {
         mockOrganizationData = {
           premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
           authenticationMethods: [
@@ -1018,6 +1015,32 @@ describe('Authentication', () => {
         await waitFor(() => {
           expect(testMockNavigateFn).toHaveBeenCalled()
         })
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should not display the managed in production alert', async () => {
+        await prepare()
+
+        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await prepare()
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
       })
     })
   })

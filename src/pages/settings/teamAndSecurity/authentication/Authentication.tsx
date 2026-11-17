@@ -38,7 +38,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
-import { useSandbox } from '~/hooks/useSandbox'
+import { usePermissions } from '~/hooks/usePermissions'
 import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
@@ -113,7 +113,8 @@ const Authentication = () => {
     refetchOrganizationInfos,
   } = useOrganizationInfos()
   const navigate = useNavigate()
-  const { isSandbox } = useSandbox()
+  const { hasPermissions } = usePermissions()
+  const canUpdateAuthenticationMethods = hasPermissions(['authenticationMethodsUpdate'])
 
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openAddOktaDialog } = useAddOktaDialog()
@@ -183,7 +184,7 @@ const Authentication = () => {
   const getSSOSelectorClickHandler = (
     provider: (typeof ssoProviders)[number],
   ): (() => unknown) | undefined => {
-    if (isSandbox && !provider.integrationId) return undefined
+    if (!canUpdateAuthenticationMethods && !provider.integrationId) return undefined
 
     return () => {
       if (!provider.shouldSee) {
@@ -221,7 +222,7 @@ const Authentication = () => {
     if (providerConfig && !providerConfig.shouldSee) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
-    } else if (providerConfig && !providerConfig.integrationId && !isSandbox) {
+    } else if (providerConfig && !providerConfig.integrationId && canUpdateAuthenticationMethods) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -257,7 +258,7 @@ const Authentication = () => {
         <div className="flex items-center gap-2">
           {icon}
 
-          {!isSandbox &&
+          {canUpdateAuthenticationMethods &&
             providerConfig &&
             providerConfig.shouldSee &&
             !providerConfig.integrationId && (
@@ -281,7 +282,7 @@ const Authentication = () => {
               </Button>
             )}
 
-          {isPopperVisible && !isSandbox && (
+          {isPopperVisible && canUpdateAuthenticationMethods && (
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
               opener={({ onClick }) => (

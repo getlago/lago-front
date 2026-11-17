@@ -15,7 +15,6 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
-import { useSandbox } from '~/hooks/useSandbox'
 import {
   teamAndSecurityGroupOptions,
   teamAndSecurityTabOptions,
@@ -42,7 +41,6 @@ const RoleDetails = () => {
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
-  const { isSandbox } = useSandbox()
   const { groups: permissionGroups, isLoading: isLoadingPermissionGroups } =
     useRolePermissionsGroups()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
@@ -113,7 +111,6 @@ const RoleDetails = () => {
                   },
                   disabled: hasPremiumAddon ? !canBeDuplicated : false,
                   endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
-                  hidden: isSandbox,
                 },
                 {
                   label: translate('text_63aa15caab5b16980b21b0b8'),
@@ -123,7 +120,7 @@ const RoleDetails = () => {
                     closePopper()
                   },
                   disabled: !canBeEdited,
-                  hidden: isSandbox || isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon,
                 },
                 {
                   label: translate('text_6261640f28a49700f1290df5'),
@@ -133,7 +130,7 @@ const RoleDetails = () => {
                     closePopper()
                   },
                   disabled: !canBeDeleted,
-                  hidden: isSandbox || isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon,
                   danger: true,
                   tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
                 },

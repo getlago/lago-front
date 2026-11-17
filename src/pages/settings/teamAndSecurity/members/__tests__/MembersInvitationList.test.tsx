@@ -19,12 +19,6 @@ import MembersInvitationList, {
   MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
 } from '../MembersInvitationList'
 
-const mockUseSandbox = jest.fn()
-
-jest.mock('~/hooks/useSandbox', () => ({
-  useSandbox: () => mockUseSandbox(),
-}))
-
 // Mock IntersectionObserver for jsdom
 const mockIntersectionObserver = jest.fn()
 
@@ -41,9 +35,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+let mockDeniedPermissions: string[] = []
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
   }),
 }))
 
@@ -110,7 +107,7 @@ async function prepare({
 
 describe('MembersInvitationList', () => {
   beforeEach(() => {
-    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockDeniedPermissions = []
   })
 
   afterEach(() => {
@@ -517,7 +514,7 @@ describe('MembersInvitationList', () => {
     })
   })
 
-  describe('GIVEN the sandbox environment', () => {
+  describe('GIVEN the member permissions', () => {
     const emptyMock = {
       request: {
         query: GetInvitesDocument,
@@ -539,11 +536,7 @@ describe('MembersInvitationList', () => {
       await screen.findByTestId('copy-invite-link')
     }
 
-    describe('WHEN the organization is not a sandbox', () => {
-      beforeEach(() => {
-        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
-      })
-
+    describe('WHEN the member has every members permission', () => {
       it.each([
         ['edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
         ['delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
@@ -567,15 +560,15 @@ describe('MembersInvitationList', () => {
       })
     })
 
-    describe('WHEN the organization is a sandbox', () => {
+    describe.each([
+      ['organizationMembersUpdate', 'edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
+      ['organizationMembersDelete', 'delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
+    ])('WHEN the member does not have the %s permission', (permission, action, testId) => {
       beforeEach(() => {
-        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+        mockDeniedPermissions = [permission]
       })
 
-      it.each([
-        ['edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
-        ['delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
-      ])('THEN should hide the %s action', async (_, testId) => {
+      it(`THEN should hide the ${action} action`, async () => {
         await prepare()
         await openFirstInvitationActions()
 
@@ -587,6 +580,12 @@ describe('MembersInvitationList', () => {
         await openFirstInvitationActions()
 
         expect(screen.getByTestId('copy-invite-link')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the organizationMembersCreate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['organizationMembersCreate']
       })
 
       it('THEN should not display the invite button in the empty state', async () => {

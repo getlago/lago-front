@@ -7,7 +7,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { AUTHENTICATION_ROUTE, useNavigate } from '~/core/router'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { useSandbox } from '~/hooks/useSandbox'
+import { usePermissions } from '~/hooks/usePermissions'
 
 /** Stable test ids for the SSO details page action menu, shared by all providers. */
 export const SSO_DETAILS_ACTIONS_TEST_ID = 'sso-details-actions'
@@ -52,7 +52,8 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
 }: SSOAuthenticationDetailsProps<TIntegration>) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { isSandbox } = useSandbox()
+  const { hasPermissions } = usePermissions()
+  const canUpdateAuthenticationMethods = hasPermissions(['authenticationMethodsUpdate'])
 
   const onDeleteCallback = () => {
     navigate(AUTHENTICATION_ROUTE)
@@ -119,7 +120,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                 {
                   label: translate('text_664c732c264d7eed1c74fdaa'),
                   dataTest: SSO_DETAILS_EDIT_TEST_ID,
-                  hidden: isSandbox,
+                  hidden: !canUpdateAuthenticationMethods,
                   onClick: (closePopper) => {
                     closePopper()
                     openEditDialog()
@@ -142,7 +143,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
                     })
                   },
                   disabled: !hasOtherAuthenticationMethods,
-                  hidden: isSandbox,
+                  hidden: !canUpdateAuthenticationMethods,
                 },
               ],
             },
@@ -155,7 +156,7 @@ export const SSOAuthenticationDetails = <TIntegration extends { id: string }>({
         <ManagedInProductionAlert />
         <section>
           <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
-            {!isSandbox && (
+            {canUpdateAuthenticationMethods && (
               <Button
                 variant="inline"
                 data-test={SSO_DETAILS_INLINE_EDIT_TEST_ID}

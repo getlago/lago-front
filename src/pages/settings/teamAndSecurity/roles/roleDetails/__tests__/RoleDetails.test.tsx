@@ -28,6 +28,8 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 const mockHasOrganizationPremiumAddon = jest.fn()
 const mockUseSandbox = jest.fn()
+// useRoleDetails derives these from the rolesCreate, rolesUpdate and rolesDelete permissions
+let mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
 
 jest.mock('~/hooks/useSandbox', () => ({
   useSandbox: () => mockUseSandbox(),
@@ -77,9 +79,7 @@ jest.mock('../../hooks/useRoleDetails', () => ({
     },
     isLoadingRole: false,
     isSystem: false,
-    canBeDuplicated: true,
-    canBeEdited: true,
-    canBeDeleted: true,
+    ...mockRolePermissions,
   }),
 }))
 
@@ -112,6 +112,7 @@ describe('RoleDetails', () => {
     jest.clearAllMocks()
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
     mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
   })
 
   describe('GIVEN the role details page is rendered', () => {
@@ -206,22 +207,46 @@ describe('RoleDetails', () => {
     })
   })
 
-  describe('GIVEN the user has premium addon and the sandbox environment', () => {
+  describe('GIVEN the user has premium addon', () => {
+    const ROLE_ACTIONS = [
+      ['duplicate', ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID],
+      ['edit', ROLE_DETAILS_EDIT_ACTION_TEST_ID],
+      ['delete', ROLE_DETAILS_DELETE_ACTION_TEST_ID],
+    ]
+
     beforeEach(() => {
       mockHasOrganizationPremiumAddon.mockReturnValue(true)
     })
 
+    describe('WHEN the member has the rolesCreate, rolesUpdate and rolesDelete permissions', () => {
+      it.each(ROLE_ACTIONS)('THEN should enable the %s action', async (_, testId) => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
+
+        expect(screen.getByTestId(testId)).toBeEnabled()
+      })
+    })
+
+    describe('WHEN the member has none of the rolesCreate, rolesUpdate and rolesDelete permissions', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
+      })
+
+      it.each(ROLE_ACTIONS)('THEN should disable the %s action', async (_, testId) => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
+
+        expect(screen.getByTestId(testId)).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
     describe('WHEN the organization is not a sandbox', () => {
       beforeEach(() => {
         mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
-      })
-
-      it('THEN should display the actions dropdown', async () => {
-        await act(() => render(<RoleDetailsWithHeader />))
-
-        expect(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID).length).toBeGreaterThan(
-          0,
-        )
       })
 
       it('THEN should not display the managed in production alert', async () => {
@@ -234,12 +259,6 @@ describe('RoleDetails', () => {
     describe('WHEN the organization is a sandbox', () => {
       beforeEach(() => {
         mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
-      })
-
-      it('THEN should not display the actions dropdown', async () => {
-        await act(() => render(<RoleDetailsWithHeader />))
-
-        expect(screen.queryByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)).not.toBeInTheDocument()
       })
 
       it('THEN should display the managed in production alert', async () => {

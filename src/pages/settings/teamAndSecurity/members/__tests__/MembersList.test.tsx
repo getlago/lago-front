@@ -32,11 +32,6 @@ window.IntersectionObserver = mockIntersectionObserver
 
 const mockOpenRevokeMembershipDialog = jest.fn()
 const mockOpenEditMemberRoleDialog = jest.fn()
-const mockUseSandbox = jest.fn()
-
-jest.mock('~/hooks/useSandbox', () => ({
-  useSandbox: () => mockUseSandbox(),
-}))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({
@@ -48,9 +43,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+let mockDeniedPermissions: string[] = []
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
   }),
 }))
 
@@ -116,7 +114,7 @@ async function prepare({
 
 describe('MembersList', () => {
   beforeEach(() => {
-    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockDeniedPermissions = []
   })
 
   afterEach(() => {
@@ -500,7 +498,7 @@ describe('MembersList', () => {
     })
   })
 
-  describe('GIVEN the sandbox environment', () => {
+  describe('GIVEN the member permissions', () => {
     const emptyMock = {
       request: {
         query: GetMembersDocument,
@@ -518,11 +516,7 @@ describe('MembersList', () => {
       )
     }
 
-    describe('WHEN the organization is not a sandbox', () => {
-      beforeEach(() => {
-        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
-      })
-
+    describe('WHEN the member has every members permission', () => {
       it('THEN should display the row actions', async () => {
         await prepare()
         await waitForMembers()
@@ -543,9 +537,9 @@ describe('MembersList', () => {
       })
     })
 
-    describe('WHEN the organization is a sandbox', () => {
+    describe('WHEN the member has neither the organizationMembersUpdate nor the organizationMembersDelete permission', () => {
       beforeEach(() => {
-        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+        mockDeniedPermissions = ['organizationMembersUpdate', 'organizationMembersDelete']
       })
 
       it('THEN should hide the row actions', async () => {
@@ -553,6 +547,12 @@ describe('MembersList', () => {
         await waitForMembers()
 
         expect(screen.queryByTestId('open-action-button')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the organizationMembersCreate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['organizationMembersCreate']
       })
 
       it('THEN should not display the invite button in the empty state', async () => {

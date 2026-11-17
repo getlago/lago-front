@@ -23,7 +23,6 @@ import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
-import { useSandbox } from '~/hooks/useSandbox'
 
 import { useDeleteRoleDialog } from '../common/dialogs/DeleteRoleDialog'
 import RoleTypeChip from '../common/RoleTypeChip'
@@ -43,7 +42,6 @@ const RolesList = () => {
   const { roles, isLoadingRoles } = useRolesList()
   const { getDuplicateRolePath, getEditRolePath } = useRoleActions()
   const { hasPermissions } = usePermissions()
-  const { isSandbox } = useSandbox()
 
   const canCreateRoles = hasPermissions(['rolesCreate'])
   const canEditRoles = hasPermissions(['rolesUpdate'])
@@ -57,8 +55,6 @@ const RolesList = () => {
   }
 
   const getRoleHeaderAction = () => {
-    if (isSandbox) return
-
     if (!hasPremiumAddon) {
       return (
         <Button onClick={openPremiumDialog} variant="inline" endIcon="sparkles">
@@ -120,8 +116,6 @@ const RolesList = () => {
   const actionColumn = (role: RoleItem): Array<ActionItem<RoleItem>> => {
     const isSystem = isSystemRole(role)
     const canDelete = role.memberships.length === 0 && canDeleteRoles
-
-    if (isSandbox) return []
 
     if (!hasPremiumAddon) {
       return [

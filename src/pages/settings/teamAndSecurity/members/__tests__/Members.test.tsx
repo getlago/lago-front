@@ -11,6 +11,15 @@ jest.mock('~/hooks/useSandbox', () => ({
   useSandbox: () => mockUseSandbox(),
 }))
 
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
+
 jest.mock('../MembersList', () => ({
   __esModule: true,
   default: () => <div data-test="members-list">Members List</div>,
@@ -23,6 +32,7 @@ jest.mock('../MembersInvitationList', () => ({
 
 describe('Members', () => {
   beforeEach(() => {
+    mockDeniedPermissions = []
     mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
   })
 
@@ -63,15 +73,29 @@ describe('Members', () => {
     })
   })
 
-  describe('GIVEN the organization is not a sandbox', () => {
-    beforeEach(() => {
-      mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
-    })
-
+  describe('GIVEN the member has the organizationMembersCreate permission', () => {
     it('THEN should display the create invite button', async () => {
       await act(() => render(<Members />))
 
       expect(screen.getByTestId(MEMBERS_CREATE_INVITE_BUTTON_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the member does not have the organizationMembersCreate permission', () => {
+    beforeEach(() => {
+      mockDeniedPermissions = ['organizationMembersCreate']
+    })
+
+    it('THEN should hide the create invite button', async () => {
+      await act(() => render(<Members />))
+
+      expect(screen.queryByTestId(MEMBERS_CREATE_INVITE_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the organization is not a sandbox', () => {
+    beforeEach(() => {
+      mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
     })
 
     it('THEN should not display the managed in production alert', async () => {
@@ -84,12 +108,6 @@ describe('Members', () => {
   describe('GIVEN the organization is a sandbox', () => {
     beforeEach(() => {
       mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
-    })
-
-    it('THEN should hide the create invite button', async () => {
-      await act(() => render(<Members />))
-
-      expect(screen.queryByTestId(MEMBERS_CREATE_INVITE_BUTTON_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('THEN should display the managed in production alert', async () => {

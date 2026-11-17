@@ -18,7 +18,6 @@ import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllowedElements, useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import { useRolesList } from '~/hooks/useRolesList'
-import { useSandbox } from '~/hooks/useSandbox'
 
 import MembersFilters from './common/MembersFilters'
 import { useCreateInviteDialog } from './dialogs/CreateInviteDialog'
@@ -63,7 +62,6 @@ const MembersInvitationList = () => {
   const { openCreateInviteDialog } = useCreateInviteDialog()
   const { openEditInviteRoleDialog } = useEditInviteRoleDialog()
   const { openRevokeInviteDialog } = useRevokeInviteDialog()
-  const { isSandbox } = useSandbox()
 
   const [searchParams] = useSearchParams()
 
@@ -116,19 +114,20 @@ const MembersInvitationList = () => {
       return undefined
     }
 
-    const editAction: ActionItem<InviteItemForMembersSettingsFragment>[] =
-      !isSandbox && hasPermissions(['organizationMembersUpdate'])
-        ? [
-            {
-              startIcon: 'pen',
-              title: translate('text_664f035a68227f00e261b7f6'),
-              onAction: () => {
-                openEditInviteRoleDialog(invite)
-              },
-              dataTest: MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+    const editAction: ActionItem<InviteItemForMembersSettingsFragment>[] = hasPermissions([
+      'organizationMembersUpdate',
+    ])
+      ? [
+          {
+            startIcon: 'pen',
+            title: translate('text_664f035a68227f00e261b7f6'),
+            onAction: () => {
+              openEditInviteRoleDialog(invite)
             },
-          ]
-        : []
+            dataTest: MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+          },
+        ]
+      : []
 
     // The API only returns the token to members allowed to create this invite
     const inviteToken = invite.token
@@ -154,23 +153,24 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    const deleteAction: ActionItem<InviteItemForMembersSettingsFragment>[] =
-      !isSandbox && hasPermissions(['organizationMembersDelete'])
-        ? [
-            {
-              startIcon: 'trash',
-              title: translate('text_63208c701ce25db78140745e'),
-              onAction: () => {
-                openRevokeInviteDialog({
-                  id: invite.id,
-                  email: invite.email,
-                  organizationName: invite.organization.name,
-                })
-              },
-              dataTest: MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+    const deleteAction: ActionItem<InviteItemForMembersSettingsFragment>[] = hasPermissions([
+      'organizationMembersDelete',
+    ])
+      ? [
+          {
+            startIcon: 'trash',
+            title: translate('text_63208c701ce25db78140745e'),
+            onAction: () => {
+              openRevokeInviteDialog({
+                id: invite.id,
+                email: invite.email,
+                organizationName: invite.organization.name,
+              })
             },
-          ]
-        : []
+            dataTest: MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+          },
+        ]
+      : []
 
     return [...editAction, ...duplicateAction, ...deleteAction]
   }
@@ -187,12 +187,12 @@ const MembersInvitationList = () => {
       },
     }
 
-    const sharedEmptyState = isSandbox
-      ? {}
-      : {
+    const sharedEmptyState = hasPermissions(['organizationMembersCreate'])
+      ? {
           buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
           buttonAction: openCreateInviteDialog,
         }
+      : {}
 
     if (searchQuery || selectedRole) {
       return {
