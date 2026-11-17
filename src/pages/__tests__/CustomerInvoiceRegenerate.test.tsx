@@ -1,4 +1,4 @@
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, screen, waitFor } from '@testing-library/react'
 import { generatePath } from 'react-router'
 
 import { InvoiceDetailsTable } from '~/components/invoices/details/InvoiceDetailsTable'
@@ -118,8 +118,27 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
       onDelete: (id: string, currentFees: any[]) => {
         const original = originalFeesClone.find((f: any) => f.id === id)
 
-        if (original && !original.adjustedFee) {
+        if (!original) {
+          return currentFees.filter((fee) => fee.id !== id)
+        }
+
+        if (!original.adjustedFee) {
           return currentFees.map((fee) => (fee.id === id ? original : fee))
+        }
+
+        if (original.originalFee) {
+          const { originalFee, ...rest } = original
+          const resetFee = {
+            ...rest,
+            amountCents: originalFee.amountCents,
+            invoiceDisplayName: originalFee.invoiceDisplayName,
+            preciseUnitAmount: originalFee.preciseUnitAmount,
+            units: originalFee.units,
+            adjustedFee: false,
+            adjustedFeeType: null,
+          }
+
+          return currentFees.map((fee) => (fee.id === id ? resetFee : fee))
         }
 
         return currentFees.filter((fee) => fee.id !== id)
@@ -234,12 +253,60 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
       expect(result[0].adjustedFee).toBe(false)
     })
 
-    it('should remove fee that was originally adjusted (delete operation)', () => {
+    it('should restore a fee already adjusted from a prior regenerate round to its calculated values', () => {
+      // Regression: every fee is re-wrapped as adjusted on each void/regenerate
+      // round, even ones never touched this session (BIL-718). Resetting must
+      // restore `originalFee`'s values rather than deleting the line item.
+      const originalFees = [
+        {
+          id: 'fee-1',
+          invoiceDisplayName: 'Fee 1 (edited)',
+          units: 20,
+          preciseUnitAmount: 200,
+          amountCents: 4000,
+          adjustedFee: true,
+          adjustedFeeType: 'adjusted_amount',
+          originalFee: {
+            id: 'root-fee-1',
+            invoiceDisplayName: 'Fee 1',
+            units: 10,
+            preciseUnitAmount: 100,
+            amountCents: 1000,
+          },
+        },
+        {
+          id: 'fee-2',
+          invoiceDisplayName: 'Fee 2',
+          adjustedFee: false,
+        },
+      ]
+
+      const { onDelete } = createFeeResetHandler(originalFees)
+
+      const currentFees = [...originalFees]
+
+      const result = onDelete('fee-1', currentFees)
+
+      expect(result).toHaveLength(2)
+      expect(result[0]).toMatchObject({
+        id: 'fee-1',
+        invoiceDisplayName: 'Fee 1',
+        units: 10,
+        preciseUnitAmount: 100,
+        amountCents: 1000,
+        adjustedFee: false,
+        adjustedFeeType: null,
+      })
+      expect(result[1].id).toBe('fee-2')
+    })
+
+    it('should remove an already-adjusted fee with no originalFee to restore (defensive fallback)', () => {
       const originalFees = [
         {
           id: 'fee-1',
           invoiceDisplayName: 'Fee 1',
           adjustedFee: true,
+          originalFee: null,
         },
         {
           id: 'fee-2',
@@ -609,6 +676,64 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       })
       expect(mockVoidInvoice).toHaveBeenCalledWith({
         variables: { input: { id: 'invoice-123', generateCreditNote: false } },
+      })
+    })
+
+    it('THEN resetting a fee already adjusted from a prior regenerate round restores its calculated values instead of deleting it (BIL-718)', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: null,
+        description: '',
+        units: 20,
+        preciseUnitAmount: 200,
+        amountCents: 4000,
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFee: {
+          id: 'root-fee-1',
+          invoiceDisplayName: null,
+          units: 10,
+          preciseUnitAmount: 100,
+          amountCents: 1000,
+        },
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      act(() => onDelete('fee-1'))
+
+      fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockRegenerateInvoice).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              voidedInvoiceId: 'invoice-123',
+              purchaseOrderNumber: null,
+              fees: [
+                {
+                  id: 'fee-1',
+                  subscriptionId: 'subscription-123',
+                  unitAmountCents: 100,
+                  units: 10,
+                },
+              ],
+            },
+          },
+        })
       })
     })
 

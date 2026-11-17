@@ -254,8 +254,32 @@ const CustomerInvoiceRegenerate = () => {
     // Use originalFeesRef to get untouched fee data, avoiding Apollo cache pollution
     const original = originalFeesRef.current?.find((f) => f.id === id)
 
-    if (original && !original.adjustedFee) {
+    if (!original) {
+      // Never-persisted fee added this editing session: nothing to reset to, drop it.
+      return setFees((f) => f.filter((fee) => fee.id !== id))
+    }
+
+    if (!original.adjustedFee) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
+    }
+
+    // `original.adjustedFee` can be true even for a fee the user never touched this
+    // session: every fee is re-wrapped as adjusted on each void/regenerate round.
+    // `originalFee` is the Lago-calculated root fee from before any adjustment ever
+    // happened, so reset restores those values instead of dropping the line item.
+    if (original.originalFee) {
+      const { originalFee, ...rest } = original
+      const resetFee = {
+        ...rest,
+        amountCents: originalFee.amountCents,
+        invoiceDisplayName: originalFee.invoiceDisplayName,
+        preciseUnitAmount: originalFee.preciseUnitAmount,
+        units: originalFee.units,
+        adjustedFee: false,
+        adjustedFeeType: null,
+      }
+
+      return setFees((f) => f.map((fee) => (fee.id === id ? resetFee : fee)))
     }
 
     return setFees((f) => f.filter((fee) => fee.id !== id))

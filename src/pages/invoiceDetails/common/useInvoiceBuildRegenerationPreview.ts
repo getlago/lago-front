@@ -155,6 +155,13 @@ gql`
     trueUpParentFee {
       id
     }
+    originalFee {
+      id
+      amountCents
+      invoiceDisplayName
+      preciseUnitAmount
+      units
+    }
     walletTransaction {
       id
       name
