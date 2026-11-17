@@ -2,13 +2,12 @@ import { ApolloClient, InMemoryCache } from '@apollo/client'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AuthenticationMethodsEnum, OrganizationEnvironmentEnum } from '~/generated/graphql'
-import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
   OrganizationEnvironmentEnum,
 } from '~/generated/graphql'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { render } from '~/test-utils'
 
 import {
@@ -32,7 +31,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockNavigate = jest.fn()
-const mockLocation = { strippedPathname: '/' }
+const mockLocation = { strippedPathname: '/', search: '' }
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
@@ -136,13 +135,25 @@ describe('OrganizationSwitcher', () => {
     })
   })
   describe('GIVEN the current organization environment', () => {
-    describe('WHEN the organization is a sandbox', () => {
+    // The organization prop can be stale: the tag follows the organization of the URL, as the name and logo do.
+    const withUrlOrganizationEnvironment = (environment: OrganizationEnvironmentEnum): never =>
+      ({
+        ...mockCurrentUser,
+        memberships: mockCurrentUser.memberships.map((membership) =>
+          membership.organization.slug === 'another-org'
+            ? { ...membership, organization: { ...membership.organization, environment } }
+            : membership,
+        ),
+      }) as never
+
+    describe('WHEN the organization of the URL is a sandbox', () => {
       it('THEN should display the sandbox tag in the opener', () => {
         render(
           <OrganizationSwitcher
             {...defaultProps}
+            currentUser={withUrlOrganizationEnvironment(OrganizationEnvironmentEnum.Sandbox)}
             organization={
-              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Sandbox } as never
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Production } as never
             }
           />,
           renderOptions,
@@ -154,13 +165,14 @@ describe('OrganizationSwitcher', () => {
       })
     })
 
-    describe('WHEN the organization is a production organization', () => {
+    describe('WHEN the organization of the URL is a production organization', () => {
       it('THEN should not display the sandbox tag', () => {
         render(
           <OrganizationSwitcher
             {...defaultProps}
+            currentUser={withUrlOrganizationEnvironment(OrganizationEnvironmentEnum.Production)}
             organization={
-              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Production } as never
+              { ...mockOrganization, environment: OrganizationEnvironmentEnum.Sandbox } as never
             }
           />,
           renderOptions,
@@ -338,6 +350,7 @@ describe('OrganizationSwitcher', () => {
 
     beforeEach(() => {
       mockLocation.strippedPathname = '/'
+      mockLocation.search = ''
     })
 
     describe('WHEN the menu opens', () => {
@@ -433,6 +446,21 @@ describe('OrganizationSwitcher', () => {
           skipSlugPrepend: true,
         })
         expect(mockNavigate).not.toHaveBeenCalledWith('/acme/', { skipSlugPrepend: true })
+      })
+
+      it('THEN should keep the query string of a kept page', async () => {
+        mockLocation.strippedPathname = '/settings/team-and-security/members'
+        mockLocation.search = '?role=admin'
+
+        const user = await renderMenu([acme, acmeSandbox], 'acme-sandbox')
+
+        await clickItem(user, 'Acme')
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme/settings/team-and-security/members?role=admin',
+          { skipSlugPrepend: true },
+        )
       })
 
       it('THEN should keep an analytics tab', async () => {

@@ -422,8 +422,6 @@ export type AdminAuditLog = {
   organizationName: Scalars['String']['output'];
   reason: Scalars['String']['output'];
   rollbackOfId?: Maybe<Scalars['ID']['output']>;
-  /** False for a rollback, an entry already rolled back, an organization creation, or an entry of a sandbox, whose settings follow its production */
-  rollbackable: Scalars['Boolean']['output'];
   rolledBack: Scalars['Boolean']['output'];
 };
 
@@ -466,7 +464,6 @@ export enum AdminFeatureTypeEnum {
   PremiumIntegration = 'premium_integration'
 }
 
-/** Link sandbox organization input arguments */
 export type AdminLinkSandboxOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -6054,8 +6051,6 @@ export enum LogEventEnum {
   RoleDeleted = 'role_deleted',
   /** role.updated */
   RoleUpdated = 'role_updated',
-  /** user.added */
-  UserAdded = 'user_added',
   /** user.deleted */
   UserDeleted = 'user_deleted',
   /** user.invited */
@@ -6254,8 +6249,6 @@ export type Mutation = {
   addStripePaymentProvider?: Maybe<StripeProvider>;
   /** Create a new organization with pre-configured features */
   adminCreateOrganization?: Maybe<AdminCreateOrganizationPayload>;
-  /** Turns an existing organization into the sandbox of a production organization */
-  adminLinkSandboxOrganization?: Maybe<AdminLinkSandboxOrganizationPayload>;
   /** Rollback a single admin audit log entry */
   adminRollbackChange?: Maybe<AdminAuditLog>;
   /** Toggle a feature flag or premium integration for an organization */

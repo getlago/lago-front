@@ -15,7 +15,7 @@ import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu
 import { addToast, logOut } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
 import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
-import { findOrganizationRoute } from '~/core/router/utils/routeRegistry'
+import { getCounterpartPath } from '~/core/router/utils/counterpartPath'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
@@ -51,11 +51,6 @@ const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
-
-const RESOURCE_PARAM_PATTERN = /^:.*(id|code|token)$/i
-
-const hasResourceParam = (routePath: string): boolean =>
-  routePath.split('/').some((segment) => RESOURCE_PARAM_PATTERN.test(segment))
 
 const compareOrganizations = (
   a: OrganizationFromMembership,
@@ -125,7 +120,7 @@ export const OrganizationSwitcher = ({
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { strippedPathname } = useLocation()
+  const { strippedPathname, search } = useLocation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
@@ -168,15 +163,11 @@ export const OrganizationSwitcher = ({
       currentOrgFromSlug?.sandboxOrganization?.id,
       currentOrgFromSlug?.productionOrganization?.id,
     ]
-    const currentRoute = counterpartIds.includes(targetOrg.id)
-      ? findOrganizationRoute(strippedPathname)
-      : undefined
+    // Only the other organization of the pair has the same pages: any other one opens on its home.
 
-    if (!currentRoute || hasResourceParam(currentRoute.path)) {
-      return `/${targetOrg.slug}${HOME_ROUTE}`
-    }
+    if (!counterpartIds.includes(targetOrg.id)) return `/${targetOrg.slug}${HOME_ROUTE}`
 
-    return `/${targetOrg.slug}${strippedPathname}`
+    return getCounterpartPath({ targetSlug: targetOrg.slug, strippedPathname, search })
   }
 
   /**
@@ -270,7 +261,7 @@ export const OrganizationSwitcher = ({
                 >
                   {currentOrgFromSlug?.name}
                 </Typography>
-                {organization?.environment === OrganizationEnvironmentEnum.Sandbox && (
+                {currentOrgFromSlug?.environment === OrganizationEnvironmentEnum.Sandbox && (
                   <Chip
                     className="ml-2 shrink-0"
                     size="small"
@@ -339,7 +330,7 @@ export const OrganizationSwitcher = ({
                             data-test={ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID}
                             className="ml-2 shrink-0"
                             size="small"
-                            label={translate('text_17942200065875eomfxvpu8a')}
+                            label={translate('text_1794221187063c6xcfwvtt6l')}
                           />
                         )}
                       </Button>
