@@ -1,8 +1,13 @@
 import * as Sentry from '@sentry/react'
-import { render, renderHook, waitFor } from '@testing-library/react'
+import { fireEvent, render, renderHook, waitFor } from '@testing-library/react'
+import { useEffect } from 'react'
 
 // Import after mocks
-import OrganizationLayout from '../OrganizationLayout'
+import OrganizationLayout, {
+  SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
+  SANDBOX_BANNER_TEST_ID,
+} from '../OrganizationLayout'
+import { SANDBOX_BANNER_HEIGHT_CSS_VAR } from '../sandboxBannerHeight'
 
 // ---------- Mock fns ----------
 const mockNavigate = jest.fn()
@@ -16,6 +21,16 @@ const mockGetCurrentOrganizationId = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
 const mockSetPersistedOrganizationSlug = jest.fn()
 const mockLocationHistoryVar = jest.fn()
+const mockUseSandbox = jest.fn()
+const mockOutletMount = jest.fn()
+
+const MockOutlet = () => {
+  useEffect(() => {
+    mockOutletMount()
+  }, [])
+
+  return <div data-test="outlet" />
+}
 
 // ---------- Mocks ----------
 jest.mock('react-router', () => ({
@@ -23,7 +38,7 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
   useLocation: () => mockUseLocation(),
-  Outlet: () => <div data-test="outlet" />,
+  Outlet: () => <MockOutlet />,
 }))
 
 // `~/core/router` barrel pulls in route modules that depend on
@@ -66,6 +81,16 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
   getPersistedOrganizationSlug: () => mockGetPersistedOrganizationSlug(),
   setPersistedOrganizationSlug: (...args: unknown[]) => mockSetPersistedOrganizationSlug(...args),
   locationHistoryVar: () => mockLocationHistoryVar(),
+}))
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => key,
+  }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -124,6 +149,7 @@ describe('OrganizationLayout', () => {
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
     // Persisted last-used slug (read by the missed-migration detection).
     mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
   })
 
   describe('GIVEN the user is loading', () => {
@@ -188,6 +214,136 @@ describe('OrganizationLayout', () => {
         // Outlet is rendered when org matches
         expect(result.current).toBeTruthy()
         expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the sandbox environment is resolved', () => {
+      const PRODUCTION_PATH = '/acme-prod/customers'
+
+      const queryByDataTest = (testId: string): HTMLElement | null =>
+        document.querySelector(`[data-test="${testId}"]`)
+      const getOutlet = (): HTMLElement | null => queryByDataTest('outlet')
+
+      beforeEach(() => {
+        mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+      })
+
+      describe('WHEN the organization is not a sandbox', () => {
+        it('THEN should render the Outlet without the sandbox banner', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          render(<OrganizationLayout />)
+
+          expect(getOutlet()).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the organization is a sandbox with a production path', () => {
+        beforeEach(() => {
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+        })
+
+        it('THEN should render the sandbox banner with its switch button above the Outlet', () => {
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toBeInTheDocument()
+          expect(getOutlet()).toBeInTheDocument()
+        })
+
+        it('THEN should navigate to the production path without prepending the slug on click', () => {
+          render(<OrganizationLayout />)
+
+          mockNavigate.mockClear()
+          fireEvent.click(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID) as HTMLElement)
+
+          expect(mockNavigate).toHaveBeenCalledTimes(1)
+          expect(mockNavigate).toHaveBeenCalledWith(PRODUCTION_PATH, { skipSlugPrepend: true })
+        })
+      })
+
+      describe('WHEN the organization is a sandbox without a production path', () => {
+        it('THEN should render the sandbox banner without the switch button', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: null })
+
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the user switches organization through the switch spinner', () => {
+        it('THEN should only read the sandbox state once the new organization is resolved', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          mockCurrentOrganizationVar.mockReturnValue('previous-org-id')
+          mockUseSandbox.mockClear()
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest('spinner')).toBeInTheDocument()
+          expect(mockUseSandbox).not.toHaveBeenCalled()
+
+          mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the organization switches from non-sandbox to sandbox on rerender', () => {
+        it('THEN should show the banner without remounting the Outlet', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          const { rerender } = render(<OrganizationLayout />)
+          const outletBefore = getOutlet()
+
+          expect(mockOutletMount).toHaveBeenCalledTimes(1)
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(mockOutletMount).toHaveBeenCalledTimes(1)
+          expect(getOutlet()).toBe(outletBefore)
+        })
+      })
+
+      describe('WHEN the sandbox banner is shown then hidden', () => {
+        const readBannerHeightVar = (): string =>
+          document.documentElement.style.getPropertyValue(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+
+        afterEach(() => {
+          jest.restoreAllMocks()
+          document.documentElement.style.removeProperty(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+        })
+
+        it('THEN should expose the banner height as a CSS variable only while it is shown', () => {
+          jest
+            .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+            .mockReturnValue({ height: 28 } as DOMRect)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          expect(readBannerHeightVar()).toBe('28px')
+
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+          expect(readBannerHeightVar()).toBe('')
+        })
       })
     })
 

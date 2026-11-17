@@ -119,17 +119,26 @@ describe('EntitlementAccordion', () => {
     expect(screen.getByText('Feature B')).toBeInTheDocument()
   })
 
-  // ── 2. Add action not rendered when plansCreate permission is missing ───────
-  it('does not render the Add action when plansCreate permission is missing', () => {
-    // Deny plansCreate but allow everything else
+  // Adding an entitlement submits through updatePlan (plans:update) - there is no
+  // plans:create for a plan sub-resource, so plansCreate alone must not hide it.
+  it('does not render the Add action when plansUpdate permission is missing', () => {
+    mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansUpdate'))
+
+    render(<EntitlementAccordion plan={planWithEntitlements} />, { wrapper: Wrapper })
+
+    expect(
+      screen.queryByRole('button', { name: 'text_1753864223060devvklm7vk0' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('keeps the Add action visible when only plansCreate is missing', () => {
     mockHasPermissions.mockImplementation((perms: string[]) => !perms.includes('plansCreate'))
 
     render(<EntitlementAccordion plan={planWithEntitlements} />, { wrapper: Wrapper })
 
-    // Add label key must not appear as a button (hidden action is not rendered)
     expect(
-      screen.queryByRole('button', { name: 'text_1753864223060devvklm7vk0' }),
-    ).not.toBeInTheDocument()
+      screen.getByRole('button', { name: 'text_1753864223060devvklm7vk0' }),
+    ).toBeInTheDocument()
   })
 
   // ── 3. Edit action hidden when plansUpdate permission is missing ───────────

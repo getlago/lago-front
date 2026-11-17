@@ -222,48 +222,55 @@ export const initializeApolloClient = async () => {
           !isUnauthorized &&
           message !== 'PersistedQueryNotFound'
         ) {
-          // Create proper Error object for better stack traces
-          const graphQLError = new Error(`GraphQL Error: ${message}`)
-
-          graphQLError.name = 'GraphQLError'
-
           const errorCode = getGraphQLErrorCode(extensions)
 
-          // Capture in Sentry with operation details
-          captureException(graphQLError, {
-            tags: {
-              errorType: 'GraphQLError',
-              operation: operationType,
-              operationName: operation.operationName || 'unknown',
-              errorCode,
-            },
-            fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
-            extra: {
-              path,
-              locations,
-              extensions: redactedExtensions,
-              // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
-              errorDetails: (() => {
-                if (!redactedExtensions?.details) return undefined
-                const MAX_LENGTH = 2000
+          if (errorCode === LagoApiError.SandboxManagedByProduction) {
+            addToast({
+              severity: 'danger',
+              translateKey: 'text_17942211870635zfjx3ojmyy',
+            })
+          } else {
+            // Create proper Error object for better stack traces
+            const graphQLError = new Error(`GraphQL Error: ${message}`)
 
-                const str =
-                  typeof redactedExtensions.details === 'object'
-                    ? JSON.stringify(redactedExtensions.details)
-                    : String(redactedExtensions.details)
+            graphQLError.name = 'GraphQLError'
 
-                return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
-              })(),
-              value: redactSensitiveVariables(value),
-              variables: redactSensitiveVariables(operation.variables),
-              operationQuery: operation.query?.loc?.source?.body || 'unknown',
-            },
-          })
+            // Capture in Sentry with operation details
+            captureException(graphQLError, {
+              tags: {
+                errorType: 'GraphQLError',
+                operation: operationType,
+                operationName: operation.operationName || 'unknown',
+                errorCode,
+              },
+              fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
+              extra: {
+                path,
+                locations,
+                extensions: redactedExtensions,
+                // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
+                errorDetails: (() => {
+                  if (!redactedExtensions?.details) return undefined
+                  const MAX_LENGTH = 2000
 
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_622f7a3dc32ce100c46a5154',
-          })
+                  const str =
+                    typeof redactedExtensions.details === 'object'
+                      ? JSON.stringify(redactedExtensions.details)
+                      : String(redactedExtensions.details)
+
+                  return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
+                })(),
+                value: redactSensitiveVariables(value),
+                variables: redactSensitiveVariables(operation.variables),
+                operationQuery: operation.query?.loc?.source?.body || 'unknown',
+              },
+            })
+
+            addToast({
+              severity: 'danger',
+              translateKey: 'text_622f7a3dc32ce100c46a5154',
+            })
+          }
         }
 
         // eslint-disable-next-line no-console

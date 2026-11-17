@@ -18,6 +18,7 @@ import {
   SettingsListWrapper,
   SettingsWithTabsPaddedContainer,
 } from '~/components/layouts/Settings'
+import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import {
   ENTRA_ID_AUTHENTICATION_ROUTE,
   OKTA_AUTHENTICATION_ROUTE,
@@ -37,6 +38,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import MicrosoftEntraId from '~/public/images/microsoft-entra-id.svg'
 import Okta from '~/public/images/okta.svg'
 import { MenuPopper } from '~/styles'
@@ -77,6 +79,8 @@ export const getSSOSelectorDotsTestId = (method: AuthenticationMethodsEnum) =>
   `sso-selector-dots-${method}`
 export const getSSOSelectorEditTestId = (method: AuthenticationMethodsEnum) =>
   `sso-selector-edit-${method}`
+export const getSSOSelectorConnectTestId = (method: AuthenticationMethodsEnum) =>
+  `sso-selector-connect-${method}`
 
 /**
  * Provider-specific configuration shared by the Okta and Entra ID SSO cards.
@@ -109,6 +113,8 @@ const Authentication = () => {
     refetchOrganizationInfos,
   } = useOrganizationInfos()
   const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
+  const canUpdateAuthenticationMethods = hasPermissions(['authenticationMethodsUpdate'])
 
   const premiumWarningDialog = usePremiumWarningDialog()
   const { openAddOktaDialog } = useAddOktaDialog()
@@ -175,6 +181,30 @@ const Authentication = () => {
   const getSSOProviderConfig = (method: AuthenticationMethodsEnum) =>
     ssoProviders.find((provider) => provider.method === method)
 
+  const getSSOSelectorClickHandler = (
+    provider: (typeof ssoProviders)[number],
+  ): (() => unknown) | undefined => {
+    if (!canUpdateAuthenticationMethods && !provider.integrationId) return undefined
+
+    return () => {
+      if (!provider.shouldSee) {
+        return premiumWarningDialog.open()
+      }
+
+      if (provider.integrationId) {
+        return navigate(
+          generatePath(provider.route, {
+            integrationId: provider.integrationId,
+          }),
+        )
+      }
+
+      return provider.openAddDialog((id) =>
+        navigate(generatePath(provider.route, { integrationId: id })),
+      )
+    }
+  }
+
   const getEndContent = ({
     type,
     method,
@@ -192,7 +222,7 @@ const Authentication = () => {
     if (providerConfig && !providerConfig.shouldSee) {
       isPopperVisible = false
       icon = <Icon name="sparkles" size="medium" />
-    } else if (providerConfig && !providerConfig.integrationId) {
+    } else if (providerConfig && !providerConfig.integrationId && canUpdateAuthenticationMethods) {
       isPopperVisible = false
       icon = undefined
     } else if (type === 'enabled') {
@@ -228,27 +258,31 @@ const Authentication = () => {
         <div className="flex items-center gap-2">
           {icon}
 
-          {providerConfig && providerConfig.shouldSee && !providerConfig.integrationId && (
-            <Button
-              size="small"
-              startIcon="link"
-              variant="primary"
-              loading={authIntegrationsLoading}
-              onClick={() => {
-                if (!providerConfig.shouldSee) {
-                  return premiumWarningDialog.open()
-                }
+          {canUpdateAuthenticationMethods &&
+            providerConfig &&
+            providerConfig.shouldSee &&
+            !providerConfig.integrationId && (
+              <Button
+                size="small"
+                startIcon="link"
+                variant="primary"
+                data-test={getSSOSelectorConnectTestId(providerConfig.method)}
+                loading={authIntegrationsLoading}
+                onClick={() => {
+                  if (!providerConfig.shouldSee) {
+                    return premiumWarningDialog.open()
+                  }
 
-                return providerConfig.openAddDialog((id) =>
-                  navigate(generatePath(providerConfig.route, { integrationId: id })),
-                )
-              }}
-            >
-              {translate('text_657078c28394d6b1ae1b9789')}
-            </Button>
-          )}
+                  return providerConfig.openAddDialog((id) =>
+                    navigate(generatePath(providerConfig.route, { integrationId: id })),
+                  )
+                }}
+              >
+                {translate('text_657078c28394d6b1ae1b9789')}
+              </Button>
+            )}
 
-          {isPopperVisible && (
+          {isPopperVisible && canUpdateAuthenticationMethods && (
             <Popper
               PopperProps={{ placement: 'bottom-end' }}
               opener={({ onClick }) => (
@@ -364,6 +398,7 @@ const Authentication = () => {
   return (
     <SettingsWithTabsPaddedContainer>
       <SettingsListWrapper>
+        <ManagedInProductionAlert />
         <SettingsListItemHeader
           label={translate('text_664c732c264d7eed1c74fd96')}
           sublabel={translate('text_664c732c264d7eed1c74fd9c')}
@@ -415,23 +450,7 @@ const Authentication = () => {
                     {provider.icon}
                   </Avatar>
                 }
-                onClick={() => {
-                  if (!provider.shouldSee) {
-                    return premiumWarningDialog.open()
-                  }
-
-                  if (provider.integrationId) {
-                    return navigate(
-                      generatePath(provider.route, {
-                        integrationId: provider.integrationId,
-                      }),
-                    )
-                  }
-
-                  return provider.openAddDialog((id) =>
-                    navigate(generatePath(provider.route, { integrationId: id })),
-                  )
-                }}
+                onClick={getSSOSelectorClickHandler(provider)}
                 endContent={getEndContent({
                   method: provider.method,
                   type: authenticationMethods?.includes(provider.method) ? 'enabled' : 'disabled',

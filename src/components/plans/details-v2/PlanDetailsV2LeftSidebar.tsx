@@ -80,6 +80,8 @@ const buildSections = (
   fixedCharges: FixedChargeForPlanDetailsSidebarFragment[],
   usageCharges: UsageChargeForPlanDetailsSidebarFragment[],
   entitlements: EntitlementForPlanDetailsSidebarFragment[],
+  canCreateCharges: boolean,
+  canCreateEntitlements: boolean,
 ): SidebarItem[] => {
   const sections: SidebarItem[] = [
     { id: PlanDetailsV2SectionId.PlanSettings, labelKey: 'text_177928991586601f21f0x87c' },
@@ -87,7 +89,7 @@ const buildSections = (
     {
       id: PlanDetailsV2SectionId.FixedCharges,
       labelKey: 'text_1779289915866aj39dyv1wps',
-      addLabelKey: 'text_176072970726882uau5y69f1',
+      addLabelKey: canCreateCharges ? 'text_176072970726882uau5y69f1' : undefined,
       children: fixedCharges.map((charge) => ({
         id: charge.id,
         label: charge.invoiceDisplayName || charge.addOn.name || charge.code || '',
@@ -96,7 +98,7 @@ const buildSections = (
     {
       id: PlanDetailsV2SectionId.UsageCharges,
       labelKey: 'text_1779289915866ngi8sv5t9lg',
-      addLabelKey: 'text_1772133285142oouequiz2t2',
+      addLabelKey: canCreateCharges ? 'text_1772133285142oouequiz2t2' : undefined,
       children: usageCharges.map((charge) => ({
         id: charge.id,
         label: charge.invoiceDisplayName || charge.billableMetric.name || charge.code || '',
@@ -112,7 +114,7 @@ const buildSections = (
       {
         id: PlanDetailsV2SectionId.Entitlements,
         labelKey: 'text_1779289915866mr56w61hhi5',
-        addLabelKey: 'text_1753864223060devvklm7vk0',
+        addLabelKey: canCreateEntitlements ? 'text_1753864223060devvklm7vk0' : undefined,
         children: entitlements.map((entitlement) => ({
           id: getEntitlementSectionId(entitlement.code),
           label: entitlement.name || entitlement.code,
@@ -130,6 +132,8 @@ type PlanDetailsV2LeftSidebarProps = {
   fixedCharges?: FixedChargeForPlanDetailsSidebarFragment[]
   usageCharges?: UsageChargeForPlanDetailsSidebarFragment[]
   entitlements?: EntitlementForPlanDetailsSidebarFragment[]
+  canCreateCharges?: boolean
+  canCreateEntitlements?: boolean
   onItemClick: (id: string) => void
   onAddClick?: (id: string) => void
   className?: string
@@ -140,14 +144,31 @@ export const PlanDetailsV2LeftSidebar = ({
   fixedCharges = [],
   usageCharges = [],
   entitlements = [],
+  canCreateCharges = false,
+  canCreateEntitlements = false,
   onItemClick,
   onAddClick,
   className,
 }: PlanDetailsV2LeftSidebarProps) => {
   const { translate } = useInternationalization()
   const sections = useMemo(
-    () => buildSections(isInSubscriptionForm, fixedCharges, usageCharges, entitlements),
-    [isInSubscriptionForm, fixedCharges, usageCharges, entitlements],
+    () =>
+      buildSections(
+        isInSubscriptionForm,
+        fixedCharges,
+        usageCharges,
+        entitlements,
+        canCreateCharges,
+        canCreateEntitlements,
+      ),
+    [
+      isInSubscriptionForm,
+      fixedCharges,
+      usageCharges,
+      entitlements,
+      canCreateCharges,
+      canCreateEntitlements,
+    ],
   )
   // Folders start collapsed; the user expands what they need.
   const [expanded, setExpanded] = useState<Set<string>>(() => new Set())

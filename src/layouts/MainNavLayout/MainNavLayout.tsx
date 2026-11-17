@@ -54,7 +54,7 @@ const MainNavLayout = () => {
   const handleNavItemClick = () => setOpen(false)
 
   return (
-    <div data-test={MAIN_NAV_LAYOUT_WRAPPER_TEST_ID}>
+    <div className="h-full" data-test={MAIN_NAV_LAYOUT_WRAPPER_TEST_ID}>
       <NavLayout.NavWrapper>
         <NavLayout.NavBurgerButton onClick={() => setOpen((prev) => !prev)} />
 

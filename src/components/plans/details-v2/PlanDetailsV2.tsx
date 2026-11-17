@@ -15,6 +15,7 @@ import {
   UsageChargeForPlanDetailsSidebarFragmentDoc,
   useGetPlanForDetailsV2Query,
 } from '~/generated/graphql'
+import { useAccordionPermissions } from '~/hooks/plans/useAccordionPermissions'
 import { useDetailsV2ChargeMutations } from '~/hooks/plans/useDetailsV2ChargeMutations'
 import { useSubscriptionPremiumGate } from '~/hooks/plans/useSubscriptionPremiumGate'
 import { tw } from '~/styles/utils'
@@ -115,6 +116,11 @@ export const PlanDetailsV2 = ({
     refetchOverrides,
   })
 
+  // Sidebar "+" shortcuts open the same create drawers as the section buttons,
+  // so they need the same permission gate.
+  const { canCreate: canCreateCharges } = useAccordionPermissions(isInSubscriptionForm, 'charges')
+  const { canCreate: canCreateEntitlements } = useAccordionPermissions(isInSubscriptionForm)
+
   // Usage charges are virtualized: a scrolled-out charge is unmounted, so the
   // generic getElementById path would no-op. Route those ids through the section's
   // scrollToCharge (scrollToIndex + open), and keep the generic open-and-scroll for
@@ -148,13 +154,13 @@ export const PlanDetailsV2 = ({
       return
     }
 
-    if (id === PlanDetailsV2SectionId.FixedCharges) {
+    if (id === PlanDetailsV2SectionId.FixedCharges && canCreateCharges) {
       fixedChargesRef.current?.openCreate()
     }
-    if (id === PlanDetailsV2SectionId.UsageCharges) {
+    if (id === PlanDetailsV2SectionId.UsageCharges && canCreateCharges) {
       usageChargesRef.current?.openCreate()
     }
-    if (id === PlanDetailsV2SectionId.Entitlements) {
+    if (id === PlanDetailsV2SectionId.Entitlements && canCreateEntitlements) {
       entitlementRef.current?.openCreate()
     }
   }
@@ -174,6 +180,8 @@ export const PlanDetailsV2 = ({
         fixedCharges={plan.fixedCharges ?? []}
         usageCharges={plan.charges ?? []}
         entitlements={plan.entitlements ?? []}
+        canCreateCharges={canCreateCharges}
+        canCreateEntitlements={canCreateEntitlements}
         onItemClick={handleItemClick}
         onAddClick={handleAddClick}
       />
