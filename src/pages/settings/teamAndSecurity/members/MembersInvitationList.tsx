@@ -116,7 +116,7 @@ const MembersInvitationList = () => {
       return undefined
     }
 
-    const editAction =
+    const editAction: ActionItem<InviteItemForMembersSettingsFragment>[] =
       !isSandbox && hasPermissions(['organizationMembersUpdate'])
         ? [
             {
@@ -126,7 +126,7 @@ const MembersInvitationList = () => {
                 openEditInviteRoleDialog(invite)
               },
               dataTest: MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
-            } as ActionItem<InviteItemForMembersSettingsFragment>,
+            },
           ]
         : []
 
@@ -154,7 +154,7 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    const deleteAction =
+    const deleteAction: ActionItem<InviteItemForMembersSettingsFragment>[] =
       !isSandbox && hasPermissions(['organizationMembersDelete'])
         ? [
             {
@@ -168,7 +168,7 @@ const MembersInvitationList = () => {
                 })
               },
               dataTest: MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
-            } as ActionItem<InviteItemForMembersSettingsFragment>,
+            },
           ]
         : []
 
