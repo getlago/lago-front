@@ -20,6 +20,11 @@ import CreateCoupon, {
   COUPON_LIMIT_ERROR_TEST_ID,
   COUPONS_FORM_ID,
 } from '../CreateCoupon'
+import {
+  COUPON_EXPIRATION_PAST_ERROR,
+  COUPON_EXPIRATION_REQUIRED_ERROR,
+  COUPON_LIMIT_REQUIRED_ERROR,
+} from '../createCoupon/validationSchema'
 
 const getNameInput = () => document.querySelector('input[name="name"]') as HTMLInputElement
 const getCodeInput = () => document.querySelector('input[name="code"]') as HTMLInputElement
@@ -35,9 +40,11 @@ const mockDefaultUseCreateEditCoupon = {
   onSave: mockOnSave,
 }
 
+const mockTranslate = jest.fn((key: string) => key)
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: mockTranslate,
   }),
 }))
 
@@ -685,6 +692,7 @@ describe('CreateCoupon', () => {
         // Date input should have error state after submit
         await waitFor(() => {
           expect(dateInput).toHaveAttribute('aria-invalid', 'true')
+          expect(expirationSection).toHaveTextContent(COUPON_EXPIRATION_REQUIRED_ERROR)
         })
       })
     })
@@ -724,7 +732,10 @@ describe('CreateCoupon', () => {
 
         await waitFor(() => {
           expect(dateInput).toHaveAttribute('aria-invalid', 'true')
-          expect(expirationSection).toHaveTextContent('text_632d68358f1fedc68eed3ef2')
+          expect(expirationSection).toHaveTextContent(COUPON_EXPIRATION_PAST_ERROR)
+        })
+        expect(mockTranslate).toHaveBeenCalledWith(COUPON_EXPIRATION_PAST_ERROR, {
+          date: expect.stringMatching(/^[A-Z][a-z]{2}\. \d{2}, \d{4}$/),
         })
       })
     })
@@ -785,8 +796,8 @@ describe('CreateCoupon', () => {
         await waitFor(() => {
           const errorAlert = screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)
 
-          expect(errorAlert).toHaveTextContent('text_1771344249653qh6ka7v6ot2')
-          expect(errorAlert).toHaveTextContent('text_1771344249653wx8dh32y28w')
+          expect(errorAlert).toHaveTextContent(COUPON_LIMIT_REQUIRED_ERROR)
+          expect(errorAlert.textContent?.split(COUPON_LIMIT_REQUIRED_ERROR)).toHaveLength(2)
         })
       })
     })
