@@ -64,10 +64,18 @@ const applyTaxRateToAmount = (amount: number, tax: { taxRate: number }) => {
   return (amount * (tax.taxRate || 0)) / 100
 }
 
+interface ComputeSubtotalResult {
+  subTotalExcludingTax: number
+  subTotalIncludingTaxesAmountCents: number
+  totalAmountCents: number
+  settledAmountCents: number
+  totalDueAmountCents: number
+}
+
 const computeSubtotal = (
   invoice: InvoiceForDetailsTableFooterFragment,
   invoiceFees: InvoiceDetailsTableFooterProps['invoiceFees'],
-) => {
+): ComputeSubtotalResult => {
   if (invoiceFees) {
     const subTotalExcludingTax = invoiceFees.reduce((p, c) => {
       return p + Number(c.amountCents)
