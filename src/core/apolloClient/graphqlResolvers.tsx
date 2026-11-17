@@ -17,6 +17,8 @@ export const typeDefs = gql`
     sandbox_has_stricter_authentication
     sandbox_has_pending_invites
     sandbox_has_other_members
+    sandbox_has_other_roles
+    sandbox_has_other_member_roles
     lock_acquisition_failed
     cannot_link_organization_to_itself
     not_found
@@ -83,6 +85,7 @@ export const typeDefs = gql`
     signup_token_locked
     password_required
     incorrect_password
+    user_not_eligible
 
     # SSO errors
     invalid_google_code

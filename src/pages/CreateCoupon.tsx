@@ -36,7 +36,11 @@ import { useAddPlanToCouponDialog } from '~/pages/createCoupon/dialogs/AddPlanTo
 import { PageHeader } from '~/styles'
 import { FormLoadingSkeleton, Main, Side, Subtitle, Title } from '~/styles/mainObjectsForm'
 
-import { CouponFormValues, couponValidationSchema } from './createCoupon/validationSchema'
+import {
+  CouponFormValues,
+  couponValidationSchema,
+  getCouponMinExpirationDate,
+} from './createCoupon/validationSchema'
 
 export const COUPONS_FORM_ID = 'coupon-form'
 
@@ -113,7 +117,17 @@ const CreateCoupon = () => {
 
   // Subscribe to form state
   const isDirty = useStore(form.store, (state) => state.isDirty)
-  const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+  const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
+
+  const expirationAtError = dynamicErrors?.expirationAt?.[0]?.message
+  const expirationAtErrorText = expirationAtError
+    ? translate(expirationAtError, {
+        date: getCouponMinExpirationDate().toFormat('LLL. dd, yyyy'),
+      })
+    : undefined
+  const limitError =
+    dynamicErrors?.limitPlansList?.[0]?.message ??
+    dynamicErrors?.limitBillableMetricsList?.[0]?.message
 
   // Get all form values for the code snippet
   const formValues = useStore(form.store, (state) => state.values)
@@ -440,13 +454,7 @@ const CreateCoupon = () => {
                           name="expirationAt"
                           placement="top-end"
                           placeholder={translate('text_632d68358f1fedc68eed3ea5')}
-                          error={
-                            submissionAttempts > 0 &&
-                            expiration === CouponExpiration.TimeLimit &&
-                            !expirationAt
-                              ? translate('text_1771402708247nxe22ntllvd')
-                              : undefined
-                          }
+                          error={expirationAtErrorText}
                           onChange={(value) => {
                             form.setFieldValue('expirationAt', endOfDayIso(value as string))
                           }}
@@ -600,13 +608,11 @@ const CreateCoupon = () => {
                         </div>
                       )}
 
-                      {submissionAttempts > 0 &&
-                        limitPlansList.length === 0 &&
-                        limitBillableMetricsList.length === 0 && (
-                          <Alert type="danger" data-test={COUPON_LIMIT_ERROR_TEST_ID}>
-                            {translate('text_1771402708247jyowmhc424h')}
-                          </Alert>
-                        )}
+                      {!!limitError && (
+                        <Alert type="danger" data-test={COUPON_LIMIT_ERROR_TEST_ID}>
+                          {translate(limitError)}
+                        </Alert>
+                      )}
                     </>
                   )}
                 </Card>
