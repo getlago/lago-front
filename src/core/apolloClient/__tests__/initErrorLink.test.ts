@@ -48,8 +48,6 @@ jest.mock('@sentry/react', () => ({
   captureMessage: jest.fn(),
 }))
 
-const SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE = 'sandbox_managed_by_production'
-
 // Built with parse, not gql: codegen validates every gql document against the API schema.
 const QUERY = parse('mutation updateSomething { updateSomething }')
 
@@ -99,23 +97,23 @@ describe('initializeApolloClient error link', () => {
   describe('GIVEN a GraphQL error with the sandbox managed by production code', () => {
     describe('WHEN the operation does not silence it', () => {
       it('THEN should show a single danger toast', () => {
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction)
 
         expect(addToast).toHaveBeenCalledTimes(1)
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
       })
 
       it('THEN should not report the error to Sentry', () => {
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction)
 
         expect(captureException).not.toHaveBeenCalled()
       })
 
       it('THEN should still log the error like any other GraphQL error', () => {
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction)
 
         expect(warnSpy).toHaveBeenCalledWith(
-          expect.stringContaining(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE),
+          expect.stringContaining(LagoApiError.SandboxManagedByProduction),
         )
       })
 
@@ -125,7 +123,7 @@ describe('initializeApolloClient error link', () => {
         const genericTranslateKey = getLastToastTranslateKey()
 
         jest.mocked(addToast).mockClear()
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE)
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction)
 
         expect(addToast).toHaveBeenCalledTimes(1)
 
@@ -138,7 +136,7 @@ describe('initializeApolloClient error link', () => {
 
     describe('WHEN the operation sets silentError', () => {
       it('THEN should neither toast nor report the error', () => {
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE, { silentError: true })
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction, { silentError: true })
 
         expect(addToast).not.toHaveBeenCalled()
         expect(captureException).not.toHaveBeenCalled()
@@ -147,8 +145,8 @@ describe('initializeApolloClient error link', () => {
 
     describe('WHEN the operation lists the code in silentErrorCodes', () => {
       it('THEN should neither toast nor report the error', () => {
-        triggerGraphQLError(SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE, {
-          silentErrorCodes: [SANDBOX_MANAGED_BY_PRODUCTION_ERROR_CODE as LagoApiError],
+        triggerGraphQLError(LagoApiError.SandboxManagedByProduction, {
+          silentErrorCodes: [LagoApiError.SandboxManagedByProduction],
         })
 
         expect(addToast).not.toHaveBeenCalled()

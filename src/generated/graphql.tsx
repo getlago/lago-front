@@ -5983,6 +5983,7 @@ export enum LagoApiError {
   SandboxHasSsoIntegration = 'sandbox_has_sso_integration',
   SandboxHasStricterAuthentication = 'sandbox_has_stricter_authentication',
   SandboxIsSelfServe = 'sandbox_is_self_serve',
+  SandboxManagedByProduction = 'sandbox_managed_by_production',
   SelfServeDisabled = 'self_serve_disabled',
   SignupDisabled = 'signup_disabled',
   SignupExpired = 'signup_expired',
