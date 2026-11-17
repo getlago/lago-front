@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 
 import { ValidationResult } from '~/components/billableMetrics/utils'
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'

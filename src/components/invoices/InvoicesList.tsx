@@ -1,10 +1,10 @@
 import { ApolloError, LazyQueryHookOptions } from '@apollo/client'
-import { IconName } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useSearchParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
 import { GenericPlaceholderProps } from '~/components/designSystem/GenericPlaceholder'
+import { IconName } from '~/components/designSystem/Icon'
 import { PaginatedContent } from '~/components/designSystem/Pagination'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Table } from '~/components/designSystem/Table/Table'

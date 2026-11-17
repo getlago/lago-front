@@ -1,8 +1,8 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { Icon } from 'lago-design-system'
 import _omit from 'lodash/omit'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 

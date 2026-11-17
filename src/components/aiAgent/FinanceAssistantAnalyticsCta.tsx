@@ -1,13 +1,14 @@
-import { Icon, tw } from 'lago-design-system'
 import { FormEvent, useState } from 'react'
 
 import { useAskFinanceAssistant } from '~/components/aiAgent/hooks/useAskFinanceAssistant'
 import { AiBadge } from '~/components/designSystem/AiBadge'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
+import { tw } from '~/styles/utils'
 
 export const FINANCE_ASSISTANT_CTA_TEST_ID = 'finance-assistant-cta'
 export const FINANCE_ASSISTANT_CTA_INPUT_TEST_ID = 'finance-assistant-cta-input'

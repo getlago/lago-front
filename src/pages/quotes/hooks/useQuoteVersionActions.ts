@@ -1,6 +1,6 @@
-import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
+import { IconName } from '~/components/designSystem/Icon'
 import { EDIT_QUOTE_ROUTE, VOID_QUOTE_ROUTE } from '~/core/router'
 import { StatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

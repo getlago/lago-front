@@ -20,6 +20,11 @@ import CreateCoupon, {
   COUPON_LIMIT_ERROR_TEST_ID,
   COUPONS_FORM_ID,
 } from '../CreateCoupon'
+import {
+  COUPON_EXPIRATION_PAST_ERROR,
+  COUPON_EXPIRATION_REQUIRED_ERROR,
+  COUPON_LIMIT_REQUIRED_ERROR,
+} from '../createCoupon/validationSchema'
 
 const getNameInput = () => document.querySelector('input[name="name"]') as HTMLInputElement
 const getCodeInput = () => document.querySelector('input[name="code"]') as HTMLInputElement
@@ -35,9 +40,11 @@ const mockDefaultUseCreateEditCoupon = {
   onSave: mockOnSave,
 }
 
+const mockTranslate = jest.fn((key: string) => key)
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: mockTranslate,
   }),
 }))
 
@@ -685,6 +692,50 @@ describe('CreateCoupon', () => {
         // Date input should have error state after submit
         await waitFor(() => {
           expect(dateInput).toHaveAttribute('aria-invalid', 'true')
+          expect(expirationSection).toHaveTextContent(COUPON_EXPIRATION_REQUIRED_ERROR)
+        })
+      })
+    })
+
+    describe('WHEN an existing coupon has an expiration date in the past', () => {
+      it('THEN should show the schema expiration date error after submit', async () => {
+        const user = userEvent.setup()
+
+        mockedUseCreateEditCoupon.mockReturnValue({
+          ...mockDefaultUseCreateEditCoupon,
+          isEdition: true,
+          coupon: {
+            id: 'coupon-1',
+            name: 'Expired coupon',
+            code: 'EXPIRED_COUPON',
+            couponType: CouponTypeEnum.FixedAmount,
+            amountCents: 1000,
+            amountCurrency: CurrencyEnum.Usd,
+            frequency: CouponFrequency.Once,
+            reusable: true,
+            expiration: CouponExpiration.TimeLimit,
+            expirationAt: '2020-01-01T23:59:59.999Z',
+            appliedCouponsCount: 0,
+            plans: [],
+            billableMetrics: [],
+          },
+        })
+
+        render(<CreateCoupon />)
+
+        const expirationSection = screen.getByTestId(COUPON_EXPIRATION_SECTION_TEST_ID)
+        const dateInput = expirationSection.querySelector('input') as HTMLInputElement
+
+        expect(dateInput).not.toHaveAttribute('aria-invalid', 'true')
+
+        await user.click(screen.getByTestId('submit'))
+
+        await waitFor(() => {
+          expect(dateInput).toHaveAttribute('aria-invalid', 'true')
+          expect(expirationSection).toHaveTextContent(COUPON_EXPIRATION_PAST_ERROR)
+        })
+        expect(mockTranslate).toHaveBeenCalledWith(COUPON_EXPIRATION_PAST_ERROR, {
+          date: expect.stringMatching(/^[A-Z][a-z]{2}\. \d{2}, \d{4}$/),
         })
       })
     })
@@ -743,7 +794,10 @@ describe('CreateCoupon', () => {
 
         // Error Alert should be visible after submit
         await waitFor(() => {
-          expect(screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)).toBeInTheDocument()
+          const errorAlert = screen.getByTestId(COUPON_LIMIT_ERROR_TEST_ID)
+
+          expect(errorAlert).toHaveTextContent(COUPON_LIMIT_REQUIRED_ERROR)
+          expect(errorAlert.textContent?.split(COUPON_LIMIT_REQUIRED_ERROR)).toHaveLength(2)
         })
       })
     })

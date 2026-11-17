@@ -6,7 +6,6 @@ import userEvent from '@testing-library/user-event'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import {
-  GetPlanForDetailsV2Document,
   GetSubscriptionFixedChargeUnitsOverridesDocument,
   GetSubscriptionForDetailsV2PlanDocument,
 } from '~/generated/graphql'
@@ -113,20 +112,12 @@ const overridesMock = {
   },
 }
 
-const planMock = {
-  request: {
-    query: GetPlanForDetailsV2Document,
-    variables: { planId: PLAN_DETAILS_V2_FIXTURE_ID },
-  },
-  result: { data: { plan: planWithCharge } },
-}
-
 describe('SubscriptionDetailsV2Plan (integration)', () => {
   // Wires the real PlanDetailsV2 → section → FixedChargeInfo so the override
   // map is threaded and applied end-to-end (the row reads override ?? plan).
   it('shows the per-subscription override units (999), not the plan default (5)', async () => {
     render(
-      <MockedProvider mocks={[subscriptionPlanMock, overridesMock, planMock]} addTypename>
+      <MockedProvider mocks={[subscriptionPlanMock, overridesMock]} addTypename>
         <NiceModal.Provider>
           <SubscriptionDetailsV2Plan subscriptionId={SUB_ID} />
         </NiceModal.Provider>

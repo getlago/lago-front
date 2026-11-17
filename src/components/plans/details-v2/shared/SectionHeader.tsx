@@ -1,6 +1,5 @@
-import { IconName } from 'lago-design-system'
-
 import { Button } from '~/components/designSystem/Button'
+import { IconName } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 

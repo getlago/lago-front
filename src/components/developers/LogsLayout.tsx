@@ -1,5 +1,6 @@
-import { tw } from 'lago-design-system'
 import { CSSProperties, forwardRef, ReactNode, useImperativeHandle, useRef } from 'react'
+
+import { tw } from '~/styles/utils'
 
 const CTASection = ({ children, className }: { children: ReactNode; className?: string }) => {
   return (

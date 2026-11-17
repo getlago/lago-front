@@ -33,8 +33,8 @@ export type ApiKeysFormValues = z.infer<typeof apiKeysFormValidationSchema>
 ```typescript
 import { gql } from '@apollo/client'
 import { useFormik } from 'formik'
-import { Icon } from 'lago-design-system'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Checkbox, TextInputField } from '~/components/form'
 ```
 
@@ -42,8 +42,8 @@ import { Checkbox, TextInputField } from '~/components/form'
 ```typescript
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Checkbox } from '~/components/form'
 import { useAppForm } from '~/hooks/forms/useAppform'
 

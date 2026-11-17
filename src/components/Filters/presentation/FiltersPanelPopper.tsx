@@ -1,6 +1,5 @@
 import Stack from '@mui/material/Stack'
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { useEffect, useMemo, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -18,6 +17,7 @@ import {
 import { ComboBox } from '~/components/form'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { tw } from '~/styles/utils'
 
 export const FILTERS_PANEL_OPENER_TEST_ID = 'filters-panel-opener'
 export const FILTERS_PANEL_TEST_ID = 'filters-panel'

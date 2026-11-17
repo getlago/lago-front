@@ -13,7 +13,7 @@ import {
   PANEL_AI_AGENT_WELCOME_TEST_ID,
   PanelAiAgent,
 } from '~/components/aiAgent/PanelAiAgent'
-import { ChatState } from '~/hooks/aiAgent/aiAgentReducer'
+import { ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
 
@@ -37,6 +37,9 @@ const mockStartNewConversation = jest.fn()
 const mockSubmitFinanceQuestion = jest.fn()
 const mockCreateAiConversation = jest.fn()
 const mockSubscriptionRestart = jest.fn()
+const mockStreamChunk = jest.fn()
+const mockSetChatDone = jest.fn()
+const mockUseOnConversation = jest.fn()
 
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
@@ -52,7 +55,12 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
     agentType: mockAgentType,
     conversationId: mockConversationId,
     getConversationVersion: () => mockConversationVersion,
+    lastAssistantMessage: mockState.messages
+      .filter((message) => message.role === 'assistant')
+      .pop(),
+    setChatDone: mockSetChatDone,
     startNewConversation: mockStartNewConversation,
+    streamChunk: mockStreamChunk,
     setAgentType: jest.fn(),
     state: mockState,
   }),
@@ -73,12 +81,21 @@ jest.mock('~/components/aiAgent/hooks/useAskFinanceAssistant', () => ({
 }))
 
 jest.mock('~/components/aiAgent/hooks/useOnConversation', () => ({
-  useOnConversation: () => ({
-    restart: mockSubscriptionRestart,
-    data: undefined,
-    error: undefined,
-  }),
+  useOnConversation: (props: unknown) => {
+    mockUseOnConversation(props)
+
+    return {
+      restart: mockSubscriptionRestart,
+      data: undefined,
+      error: undefined,
+    }
+  },
 }))
+
+type UseOnConversationProps = { onChunk: (chunk: string) => void; onDone: () => void }
+
+const lastOnConversationProps = () =>
+  mockUseOnConversation.mock.calls.at(-1)?.[0] as UseOnConversationProps
 
 const buildState = (overrides: Partial<ChatState> = {}): ChatState => ({
   messages: [],
@@ -103,6 +120,42 @@ describe('PanelAiAgent', () => {
     mockConversationVersion = 0
     mockCreateLoading = false
     mockCreateError = undefined
+  })
+
+  describe('GIVEN a billing conversation is streaming', () => {
+    beforeEach(() => {
+      mockConversationId = 'conversation-1'
+      mockState = buildState({
+        messages: [
+          { id: 'user-1', role: ChatRole.user, message: 'question', status: ChatStatus.done },
+          { id: 'assistant-1', role: ChatRole.assistant, message: '', status: ChatStatus.pending },
+        ],
+      })
+    })
+
+    describe('WHEN chunks arrive', () => {
+      it('THEN should append each of them to the last assistant message', () => {
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        lastOnConversationProps().onChunk('\n')
+        lastOnConversationProps().onChunk('\n')
+
+        expect(mockStreamChunk.mock.calls).toEqual([
+          [{ messageId: 'assistant-1', chunk: '\n' }],
+          [{ messageId: 'assistant-1', chunk: '\n' }],
+        ])
+      })
+    })
+
+    describe('WHEN the stream completes', () => {
+      it('THEN should mark the last assistant message as done', () => {
+        render(<PanelAiAgent hasAccessToAiAgent />)
+
+        lastOnConversationProps().onDone()
+
+        expect(mockSetChatDone).toHaveBeenCalledWith('assistant-1')
+      })
+    })
   })
 
   describe('GIVEN the conversation is empty', () => {

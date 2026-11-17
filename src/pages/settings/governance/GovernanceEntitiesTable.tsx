@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
 import { captureMessage } from '@sentry/react'
-import { Icon, tw } from 'lago-design-system'
 import { useEffect, useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table, TableColumn } from '~/components/designSystem/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
@@ -17,6 +17,7 @@ import {
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
+import { tw } from '~/styles/utils'
 
 import { MAX_GOVERNANCE_HIERARCHY_DEPTH } from './constants'
 import { useGovernanceEntityDrawer } from './drawers/governanceEntity/useGovernanceEntityDrawer'

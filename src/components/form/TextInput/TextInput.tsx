@@ -1,6 +1,5 @@
 import InputAdornment from '@mui/material/InputAdornment'
 import MuiTextField, { type TextFieldProps as MuiTextFieldProps } from '@mui/material/TextField'
-import { Icon } from 'lago-design-system'
 import {
   ChangeEvent,
   forwardRef,
@@ -12,6 +11,7 @@ import {
 } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

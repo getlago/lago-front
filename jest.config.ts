@@ -10,6 +10,10 @@ export default {
   // Jest transformations -- using babel-jest for both TS and JS files
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
+    'designSystem[\\\\/]Icon[\\\\/]icons[\\\\/].+\\.svg$': [
+      '<rootDir>/__mocks__/svgMock.cjs',
+      { filenameProp: 'data-filename' },
+    ],
     '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
   },
 

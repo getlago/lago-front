@@ -147,6 +147,7 @@ export const SubscriptionDetailsV2Plan = ({ subscriptionId }: Props) => {
   return (
     <PlanDetailsV2
       planId={plan.id}
+      plan={plan}
       isInSubscriptionForm
       subscriptionId={subscriptionId}
       subscriptionFixedChargeUnitsById={subscriptionFixedChargeUnitsById}

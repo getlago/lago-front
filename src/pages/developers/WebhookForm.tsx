@@ -12,7 +12,6 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { HOME_ROUTE } from '~/core/router'
 import {
-  FeatureFlagEnum,
   LagoApiError,
   useCreateWebhookEndpointMutation,
   useUpdateWebhookEndpointMutation,
@@ -66,7 +65,7 @@ const WebhookForm = () => {
   const { translate } = useInternationalization()
   const { goBack } = useLocationHistory()
   const { defaultEventFormValues, groups, loading: eventTypesLoading } = useWebhookEventTypes()
-  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const { organization } = useOrganizationInfos()
 
   const allFormKeys = useMemo(() => Object.keys(defaultEventFormValues), [defaultEventFormValues])
 
@@ -96,19 +95,14 @@ const WebhookForm = () => {
   })
 
   const isEdition = !!webhookId
-  const hasStandardWebhooksFlag = hasFeatureFlag(FeatureFlagEnum.StandardWebhooksSignature)
   const isSavedAsStandardWebhooks =
     webhook?.signatureAlgo === WebhookEndpointSignatureAlgoEnum.StandardWebhooks
-  const showStandardWebhooks = hasStandardWebhooksFlag || isSavedAsStandardWebhooks
-  const createSignatureAlgo = hasStandardWebhooksFlag
-    ? WebhookEndpointSignatureAlgoEnum.StandardWebhooks
-    : webhookDefaultValues.signatureAlgo
 
   const form = useAppForm({
     defaultValues: {
       name: webhook?.name || webhookDefaultValues.name,
       webhookUrl: webhook?.webhookUrl || webhookDefaultValues.webhookUrl,
-      signatureAlgo: webhook?.signatureAlgo || createSignatureAlgo,
+      signatureAlgo: webhook?.signatureAlgo || webhookDefaultValues.signatureAlgo,
       webhookEvents: eventTypesToFormValues(webhook?.eventTypes, allFormKeys),
     },
     validationLogic: revalidateLogic(),
@@ -310,13 +304,11 @@ const WebhookForm = () => {
                           label={translate('text_64d23a81a7d807f8aa570515')}
                           sublabel={translate('text_64d23a81a7d807f8aa570517')}
                         />
-                        {showStandardWebhooks && (
-                          <field.RadioField
-                            value={WebhookEndpointSignatureAlgoEnum.StandardWebhooks}
-                            label={translate('text_1794498394864itvpd4vd78q')}
-                            sublabel={translate('text_1794498394864nqdkakpobja')}
-                          />
-                        )}
+                        <field.RadioField
+                          value={WebhookEndpointSignatureAlgoEnum.StandardWebhooks}
+                          label={translate('text_1794498394864itvpd4vd78q')}
+                          sublabel={translate('text_1794498394864nqdkakpobja')}
+                        />
                       </>
                     )}
                   </form.AppField>

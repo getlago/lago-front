@@ -141,7 +141,7 @@ ruleTester.run('use-design-system', rule, {
       errors: [
         {
           messageId: 'muiImport',
-          data: { name: 'SvgIcon', use: '`Icon` from `lago-design-system`' },
+          data: { name: 'SvgIcon', use: '`Icon` from `~/components/designSystem/Icon`' },
         },
       ],
     },

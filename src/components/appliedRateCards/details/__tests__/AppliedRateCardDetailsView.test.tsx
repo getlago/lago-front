@@ -19,6 +19,7 @@ import {
   CATALOG_PLAN_ID,
   CONTRACT_ID,
   FINITE_PHASE,
+  FIXED_PRODUCT,
   FOREVER_PHASE,
 } from './fixtures'
 
@@ -149,7 +150,10 @@ describe('AppliedRateCardDetailsView', () => {
 
   describe('GIVEN a plan card', () => {
     it('THEN shows relations, rate card name and code, units, and no effective date', async () => {
-      renderView(PLAN_DATA)
+      renderView({
+        ...PLAN_DATA,
+        appliedRateCard: buildPlanAppliedRateCard({ product: FIXED_PRODUCT }),
+      })
 
       const relations = await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_RELATIONS_TEST_ID)
 
@@ -202,11 +206,21 @@ describe('AppliedRateCardDetailsView', () => {
     })
 
     it('GIVEN no units THEN shows a dash', async () => {
-      renderView({ ...PLAN_DATA, appliedRateCard: buildPlanAppliedRateCard({ units: null }) })
+      renderView({
+        ...PLAN_DATA,
+        appliedRateCard: buildPlanAppliedRateCard({ units: null, product: FIXED_PRODUCT }),
+      })
 
       expect(await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID)).toHaveTextContent(
         /^-$/,
       )
+    })
+
+    it('GIVEN a metered product THEN the units row does not render at all', async () => {
+      renderView(PLAN_DATA)
+
+      await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_TEST_ID)
+      expect(screen.queryByTestId(APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID)).not.toBeInTheDocument()
     })
   })
 

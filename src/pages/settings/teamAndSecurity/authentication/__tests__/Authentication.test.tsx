@@ -18,6 +18,7 @@ import {
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
 import PremiumWarningDialog from '~/components/dialogs/PremiumWarningDialog'
+import { MANAGED_IN_PRODUCTION_ALERT_TEST_ID } from '~/components/sandbox/ManagedInProductionAlert'
 import { initializeTranslations } from '~/core/apolloClient'
 import {
   AuthenticationMethodsEnum,
@@ -27,6 +28,7 @@ import {
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import Authentication, {
+  getSSOSelectorConnectTestId,
   getSSOSelectorDotsTestId,
   getSSOSelectorEditTestId,
   getSSOSelectorTestId,
@@ -35,6 +37,20 @@ import { ENTRA_ID_INTEGRATION_SUBMIT_BTN } from '../dialogs/AddEntraIdDialog'
 
 const mockRefetch = jest.fn()
 let mockIsPremium = true
+const mockUseSandbox = jest.fn()
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
+
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
 
 let mockOrganizationData: {
   premiumIntegrations?: PremiumIntegrationTypeEnum[]
@@ -170,6 +186,8 @@ describe('Authentication', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockIsPremium = true
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockDeniedPermissions = []
     mockOrganizationData = {
       premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
       authenticationMethods: [
@@ -828,6 +846,202 @@ describe('Authentication', () => {
       const dialog = document.querySelector('[class*="MuiDialog"]')
 
       expect(dialog).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the member permissions', () => {
+    const premiumOktaOrganization = {
+      premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+      authenticationMethods: [
+        AuthenticationMethodsEnum.EmailPassword,
+        AuthenticationMethodsEnum.GoogleOauth,
+      ],
+    }
+
+    describe('WHEN the member has the authenticationMethodsUpdate permission', () => {
+      beforeEach(() => {
+        mockIsPremium = true
+        mockOrganizationData = premiumOktaOrganization
+      })
+
+      it('THEN should display the login method actions menu', async () => {
+        await prepare()
+
+        expect(
+          screen.getByTestId(getSSOSelectorDotsTestId(AuthenticationMethodsEnum.EmailPassword)),
+        ).toBeInTheDocument()
+      })
+
+      it('THEN should display the connect button of an SSO provider without integration', async () => {
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        expect(
+          await screen.findByTestId(getSSOSelectorConnectTestId(AuthenticationMethodsEnum.Okta)),
+        ).toBeInTheDocument()
+      })
+
+      it('THEN should open the add dialog when clicking an SSO provider without integration', async () => {
+        const user = userEvent.setup()
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        await waitFor(() => {
+          expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
+        })
+      })
+
+      it('THEN should open the premium warning dialog when clicking an SSO provider without the premium integration', async () => {
+        const user = userEvent.setup()
+
+        mockOrganizationData = {
+          premiumIntegrations: [],
+          authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        expect(await screen.findByText('This is a premium feature')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the authenticationMethodsUpdate permission', () => {
+      beforeEach(() => {
+        mockIsPremium = true
+        mockOrganizationData = premiumOktaOrganization
+        mockDeniedPermissions = ['authenticationMethodsUpdate']
+      })
+
+      it.each([
+        ['email and password', AuthenticationMethodsEnum.EmailPassword],
+        ['Google', AuthenticationMethodsEnum.GoogleOauth],
+      ])('THEN should hide the %s login method actions menu', async (_, method) => {
+        await prepare()
+
+        expect(screen.queryByTestId(getSSOSelectorDotsTestId(method))).not.toBeInTheDocument()
+      })
+
+      it('THEN should hide the connect button of an SSO provider without integration', async () => {
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)),
+          ).toBeInTheDocument()
+        })
+
+        expect(
+          screen.queryByTestId(getSSOSelectorConnectTestId(AuthenticationMethodsEnum.Okta)),
+        ).not.toBeInTheDocument()
+      })
+
+      it('THEN should not open the add dialog when clicking an SSO provider without integration', async () => {
+        const user = userEvent.setup()
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        expect(document.querySelector('[class*="MuiDialog"]')).not.toBeInTheDocument()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should open neither the premium warning nor the add dialog when clicking an SSO provider without the premium integration', async () => {
+        const user = userEvent.setup()
+
+        mockOrganizationData = {
+          premiumIntegrations: [],
+          authenticationMethods: [AuthenticationMethodsEnum.EmailPassword],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        expect(screen.queryByText('This is a premium feature')).not.toBeInTheDocument()
+        expect(document.querySelector('[class*="MuiDialog"]')).not.toBeInTheDocument()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+
+      it('THEN should not make an SSO provider without integration clickable', async () => {
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        const selector = await screen.findByTestId(
+          getSSOSelectorTestId(AuthenticationMethodsEnum.Okta),
+        )
+
+        expect(selector).not.toHaveClass('cursor-pointer')
+        expect(selector).toHaveAttribute('tabindex', '-1')
+      })
+
+      it('THEN should show the status of an SSO provider enabled without integration', async () => {
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+          authenticationMethods: [
+            AuthenticationMethodsEnum.EmailPassword,
+            AuthenticationMethodsEnum.Okta,
+          ],
+        }
+
+        await prepare({ mocks: emptyIntegrationsMock })
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId(/validate-filled/).length).toBe(2)
+        })
+      })
+
+      it('THEN should still navigate to the details of an existing SSO integration', async () => {
+        const user = userEvent.setup()
+
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.Okta],
+          authenticationMethods: [
+            AuthenticationMethodsEnum.EmailPassword,
+            AuthenticationMethodsEnum.Okta,
+          ],
+        }
+
+        await prepare({ mocks: oktaIntegrationsMock })
+
+        await waitFor(() => {
+          expect(screen.getAllByTestId(/validate-filled/).length).toBe(2)
+        })
+
+        await user.click(screen.getByTestId(getSSOSelectorTestId(AuthenticationMethodsEnum.Okta)))
+
+        await waitFor(() => {
+          expect(testMockNavigateFn).toHaveBeenCalled()
+        })
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should not display the managed in production alert', async () => {
+        await prepare()
+
+        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await prepare()
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 })

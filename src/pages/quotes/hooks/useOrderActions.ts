@@ -1,6 +1,6 @@
-import { IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
+import { IconName } from '~/components/designSystem/Icon'
 import { EDIT_ORDER_ROUTE, EXECUTE_ORDER_ROUTE } from '~/core/router'
 import { OrderListItemFragment, OrderStatusEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

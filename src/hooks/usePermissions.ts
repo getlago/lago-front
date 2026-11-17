@@ -27,6 +27,9 @@ gql`
       billingEntitiesCreate
       billingEntitiesUpdate
       billingEntitiesDelete
+      chargesCreate
+      chargesDelete
+      chargesUpdate
       contractsCreate
       contractsTerminate
       contractsUpdate

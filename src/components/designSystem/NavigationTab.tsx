@@ -1,10 +1,10 @@
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
-import { Icon, IconName } from 'lago-design-system'
 import { MouseEvent, ReactNode, useEffect, useState } from 'react'
 import { matchPath } from 'react-router'
 
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Link, useLocation } from '~/core/router'
 import { isModifiedClick } from '~/core/utils/isModifiedClick'
 import { spaceActivatesAnchorProps } from '~/core/utils/spaceActivatesAnchor'

@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { CreatePlanAppliedRateCardInput, CurrencyEnum } from '~/generated/graphql'
+import { CreatePlanAppliedRateCardInput, CurrencyEnum, ProductTypeEnum } from '~/generated/graphql'
 
 import { mapFromFormToApi as mapPhaseFromFormToApi } from '../ratePhase/mappers'
 import { RatePhaseFormValues } from '../ratePhase/ratePhaseFormSchema'
@@ -8,15 +8,19 @@ import { RatePhaseFormValues } from '../ratePhase/ratePhaseFormSchema'
 export interface AppliedRateCardDrawerValues {
   productId: string
   productFilterId: string
+  productType: ProductTypeEnum | undefined
   rateCardId: string
   ratePhases: RatePhaseFormValues[]
+  units: string
 }
 
 export const APPLIED_RATE_CARD_FORM_DEFAULTS: AppliedRateCardDrawerValues = {
   productId: '',
   productFilterId: '',
+  productType: undefined,
   rateCardId: '',
   ratePhases: [],
+  units: '',
 }
 
 // No return type: `z.ZodType<AppliedRateCardDrawerValues>` widens the input to `unknown`, which
@@ -35,6 +39,14 @@ export const buildAppliedRateCardFormSchema = () =>
       ctx.addIssue({
         code: 'custom',
         path: ['rateCardId'],
+        message: 'text_1771342994699klxu2paz7g8',
+      })
+    }
+
+    if (values.productType === ProductTypeEnum.Fixed && !values.units.trim()) {
+      ctx.addIssue({
+        code: 'custom',
+        path: ['units'],
         message: 'text_1771342994699klxu2paz7g8',
       })
     }
@@ -61,13 +73,18 @@ export const buildAppliedRateCardFormSchema = () =>
 export const mapFromFormToApi = (
   values: AppliedRateCardDrawerValues,
   currency: CurrencyEnum,
-): Pick<CreatePlanAppliedRateCardInput, 'rateCardCode' | 'ratePhases'> => ({
-  rateCardCode: values.rateCardId,
-  ...(values.ratePhases.length > 0
-    ? {
-        ratePhases: values.ratePhases.map((phase, index) =>
-          mapPhaseFromFormToApi({ ...phase, position: index + 1 }, currency),
-        ),
-      }
-    : {}),
-})
+): Pick<CreatePlanAppliedRateCardInput, 'rateCardCode' | 'ratePhases' | 'units'> => {
+  const units = values.units.trim()
+
+  return {
+    rateCardCode: values.rateCardId,
+    ...(units ? { units: Number(units) } : {}),
+    ...(values.ratePhases.length > 0
+      ? {
+          ratePhases: values.ratePhases.map((phase, index) =>
+            mapPhaseFromFormToApi({ ...phase, position: index + 1 }, currency),
+          ),
+        }
+      : {}),
+  }
+}

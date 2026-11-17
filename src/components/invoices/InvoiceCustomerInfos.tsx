@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { memo } from 'react'
 import { generatePath } from 'react-router'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { Icon } from '~/components/designSystem/Icon'
 import { Status, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { PurchaseOrder } from '~/components/purchaseOrder/PO'

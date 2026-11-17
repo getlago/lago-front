@@ -1,5 +1,4 @@
-import { IconName } from 'lago-design-system'
-
+import { IconName } from '~/components/designSystem/Icon'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import {
   ItemMapping,

@@ -1,8 +1,8 @@
 import MuiDialog from '@mui/material/Dialog'
-import { tw } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { tw } from '~/styles/utils'
 
 import { DIALOG_BODY_TEST_ID, DIALOG_HEADER_CONTENT_TEST_ID, DIALOG_TITLE_TEST_ID } from './const'
 import { FormProps } from './types'
