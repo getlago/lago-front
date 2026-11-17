@@ -64,7 +64,6 @@ import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
-import { lagoUiIntegrationTab } from './tabs/LagoUiIntegrationTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -2261,7 +2260,6 @@ const DesignSystem = () => {
             link: RICH_TEXT_EDITOR_TAB_URL,
             component: <EditorTest />,
           },
-          lagoUiIntegrationTab,
           // disabled simple tab
           {
             disabled: true,
