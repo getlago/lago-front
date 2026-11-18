@@ -1,9 +1,14 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReactNode } from 'react'
+import { GraphQLError } from 'graphql'
+import { ComponentProps, ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
+import {
+  EXISTING_CODE_ERROR_MESSAGE,
+  EXISTING_CODE_FIELD_ERRORS,
+} from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CreateContractDocument } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -11,6 +16,7 @@ import { render } from '~/test-utils'
 import { contractForDrawerFixture } from './fixtures'
 
 import { CONTRACT_DRAWER_TITLE_CREATE_KEY, CONTRACT_FORM_ID } from '../constants'
+import { ContractDrawerContent } from '../ContractDrawerContent'
 import { useContractDrawer } from '../useContractDrawer'
 
 type CapturedDrawerArgs = {
@@ -70,33 +76,38 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 jest.mock('../ContractDrawerContent', () => ({
-  ContractDrawerContent: ({
-    form,
-  }: {
-    form: { setFieldValue: (name: string, value: unknown) => void }
-  }) => (
-    <button
-      type="button"
-      onClick={() => {
-        form.setFieldValue('externalCustomerId', 'customer-external-id')
-        form.setFieldValue('externalId', 'customer-contract-id')
-        form.setFieldValue('planCode', 'enterprise')
-        form.setFieldValue('name', 'Enterprise agreement')
-        form.setFieldValue('billingEntityId', 'billing-entity-1')
-        form.setFieldValue('consolidateInvoice', false)
-        form.setFieldValue('paymentMethod', {
-          paymentMethodId: 'payment-method-1',
-          paymentMethodType: 'provider',
-        })
-        form.setFieldValue('purchaseOrderNumber', '  PO-42  ')
-        form.setFieldValue('startedAt', '2099-01-01T00:00:00.000Z')
-        form.setFieldValue('endedAt', '2099-02-01T00:00:00.000Z')
-        form.setFieldValue('billingAnchorDate', '2099-01-01T00:00:00.000Z')
-      }}
-    >
-      seed contract
-    </button>
-  ),
+  ContractDrawerContent: ({ form }: ComponentProps<typeof ContractDrawerContent>) => {
+    return (
+      <>
+        <form.AppField name="code">
+          {(field) => <field.TextInputField label="Code" />}
+        </form.AppField>
+        <button
+          type="button"
+          onClick={() => {
+            form.setFieldValue('externalCustomerId', 'customer-external-id')
+            form.setFieldValue('externalId', 'customer-contract-id')
+            form.setFieldValue('code', 'initial')
+            form.setFieldValue('planCode', 'enterprise')
+            form.setFieldValue('name', 'Enterprise agreement')
+            form.setFieldValue('billingEntityId', 'billing-entity-1')
+            form.setFieldValue('consolidateInvoice', false)
+            form.setFieldValue('paymentMethod', {
+              paymentMethodId: 'payment-method-1',
+              paymentMethodType:
+                jest.requireActual('~/generated/graphql').PaymentMethodTypeEnum.Provider,
+            })
+            form.setFieldValue('purchaseOrderNumber', '  PO-42  ')
+            form.setFieldValue('startedAt', '2099-01-01T00:00:00.000Z')
+            form.setFieldValue('endedAt', '2099-02-01T00:00:00.000Z')
+            form.setFieldValue('billingAnchorDate', '2099-01-01T00:00:00.000Z')
+          }}
+        >
+          seed contract
+        </button>
+      </>
+    )
+  },
 }))
 
 const renderDrawerHook = (mocks: MockedResponse[] = []) =>
@@ -177,6 +188,7 @@ describe('useContractDrawer', () => {
     expect(capturedInput).toEqual({
       externalCustomerId: 'customer-external-id',
       externalId: 'customer-contract-id',
+      code: 'initial',
       planCode: 'enterprise',
       name: 'Enterprise agreement',
       billingEntityId: 'billing-entity-1',
@@ -209,8 +221,56 @@ describe('useContractDrawer', () => {
       expect.objectContaining({
         externalCustomerId: expect.anything(),
         planCode: expect.anything(),
+        code: expect.anything(),
       }),
     )
+  })
+
+  it('shows duplicate codes on the field and lets the user correct and resubmit', async () => {
+    const { result } = renderDrawerHook([
+      {
+        request: { query: CreateContractDocument },
+        variableMatcher: ({ input }) => input.code === 'initial',
+        result: {
+          data: { createContract: null },
+          errors: [
+            new GraphQLError('Unprocessable Entity', {
+              extensions: {
+                code: 'unprocessable_entity',
+                details: { code: ['value_already_exist'] },
+              },
+            }),
+          ],
+        },
+      },
+      {
+        request: { query: CreateContractDocument },
+        variableMatcher: ({ input }) => input.code === 'renewal',
+        result: { data: { createContract: contractForDrawerFixture } },
+      },
+    ])
+
+    act(() => result.current.openDrawer())
+    render(<MockedProvider>{lastDrawerArgs?.children}</MockedProvider>)
+    await userEvent.click(screen.getByRole('button', { name: 'seed contract' }))
+    await submit()
+
+    expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+    expect(scrollToFirstInputError).toHaveBeenCalledWith(
+      CONTRACT_FORM_ID,
+      EXISTING_CODE_FIELD_ERRORS,
+    )
+    expect(mockClose).not.toHaveBeenCalled()
+    expect(addToast).not.toHaveBeenCalled()
+
+    const codeInput = screen.getByRole('textbox', { name: 'Code' })
+
+    await userEvent.clear(codeInput)
+    await userEvent.type(codeInput, 'renewal')
+    expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+    await submit()
+
+    await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
   })
 
   // The form is reset for the next contract; closing it must not prompt to discard anything.
@@ -234,5 +294,6 @@ describe('useContractDrawer', () => {
     )
     expect(mockClose).not.toHaveBeenCalled()
     expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
+    expect(screen.getByRole('textbox', { name: 'Code' })).toHaveValue('')
   })
 })

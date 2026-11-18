@@ -1472,6 +1472,7 @@ export type Contract = {
   billingEntityId?: Maybe<Scalars['ID']['output']>;
   billingTime: ContractBillingTimeEnum;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  code?: Maybe<Scalars['String']['output']>;
   consolidateInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** The currency fees bill in: the plan's when there is one, otherwise the customer's, falling back to the organization default */
@@ -2278,6 +2279,7 @@ export type CreateContractInput = {
   billingTime?: InputMaybe<ContractBillingTimeEnum>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  code: Scalars['String']['input'];
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
   endedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
   externalCustomerId: Scalars['String']['input'];

@@ -1,6 +1,6 @@
 import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
-import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import {
@@ -14,6 +14,7 @@ import { render } from '~/test-utils'
 
 import {
   buildContractFormDefaults,
+  CONTRACT_DRAWER_CODE_INPUT_TEST_ID,
   CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID,
   CONTRACT_DRAWER_SHOW_NAME_TEST_ID,
   CONTRACT_FORM_DEFAULTS,
@@ -150,6 +151,23 @@ describe('ContractDrawerContent', () => {
         }),
       ),
     )
+  })
+
+  it('starts with an empty code and does not derive it from the optional name', () => {
+    render(<Wrapper />, { mocks: [customersMock, plansMock] })
+
+    const codeInput = within(screen.getByTestId(CONTRACT_DRAWER_CODE_INPUT_TEST_ID)).getByRole(
+      'textbox',
+    )
+
+    expect(codeInput).toHaveValue('')
+    fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_SHOW_NAME_TEST_ID))
+    fireEvent.change(screen.getByPlaceholderText('Type a contract name'), {
+      target: { value: 'Contract name' },
+    })
+    expect(codeInput).toHaveValue('')
+    fireEvent.change(codeInput, { target: { value: 'initial' } })
+    expect(codeInput).toHaveValue('initial')
   })
 
   it('leaves the invoicing section without a customer id until the matching customer has loaded', () => {

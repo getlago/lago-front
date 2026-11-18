@@ -7,6 +7,8 @@ import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
 import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
+import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
+import { applyExistingCodeError, EXISTING_CODE_FIELD_ERRORS } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
@@ -101,9 +103,15 @@ export const useContractDrawer = (): {
     onSubmitInvalid: ({ formApi }) => {
       scrollToFirstInputError(CONTRACT_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: async ({ value, formApi }) => {
       const result = await createContract({ variables: { input: buildCreateContractInput(value) } })
       const contract = result.data?.createContract
+
+      if (hasDefinedGQLError('ValueAlreadyExist', result.errors, 'code')) {
+        applyExistingCodeError(formApi)
+        scrollToFirstInputError(CONTRACT_FORM_ID, EXISTING_CODE_FIELD_ERRORS)
+        return
+      }
 
       if (!contract || result.errors?.length) {
         addToast({ severity: 'danger', translateKey: 'text_1789552637141bjmvomefkkg' })
