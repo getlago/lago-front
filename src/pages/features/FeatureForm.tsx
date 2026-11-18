@@ -51,6 +51,7 @@ export const FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID = 'feature-form-description-
 export const FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID = 'feature-form-description-delete-button'
 export const FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID = 'show-description'
 export const FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID = 'feature-form-add-privilege-button'
+export const FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID = 'feature-form-privilege-limit-hint'
 
 const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
 
@@ -392,16 +393,7 @@ const FeatureForm = () => {
                       />
                     ))}
 
-                    <Tooltip
-                      className="w-fit"
-                      placement="top-start"
-                      title={
-                        hasReachedPrivilegeLimit &&
-                        translate('text_1794982684091muxo5g24smt', {
-                          max: MAX_FEATURE_PRIVILEGES,
-                        })
-                      }
-                    >
+                    <div className="flex flex-col items-start gap-1">
                       <Button
                         fitContent
                         align="left"
@@ -419,7 +411,18 @@ const FeatureForm = () => {
                       >
                         {translate('text_1752695518075ut8zscauuq3')}
                       </Button>
-                    </Tooltip>
+
+                      {hasReachedPrivilegeLimit && (
+                        <Typography
+                          variant="caption"
+                          data-test={FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID}
+                        >
+                          {translate('text_1794982684091muxo5g24smt', {
+                            max: MAX_FEATURE_PRIVILEGES,
+                          })}
+                        </Typography>
+                      )}
+                    </div>
                   </div>
                 </section>
               </div>

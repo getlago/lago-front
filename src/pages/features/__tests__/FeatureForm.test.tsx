@@ -25,14 +25,12 @@ import FeatureForm, {
   FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID,
   FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID,
   FEATURE_FORM_NAME_INPUT_TEST_ID,
+  FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID,
   FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID,
   FEATURE_FORM_SUBMIT_BUTTON_TEST_ID,
 } from '../FeatureForm'
 
 const SELECT_OPTIONS_INPUT_TEST_ID = 'mock-select-options-input'
-
-// `translate` is stubbed to echo the key, so the hint reads as its key on screen
-const PRIVILEGE_LIMIT_HINT_KEY = 'text_1794982684091muxo5g24smt'
 
 const buttonSelectorOption = (value: PrivilegeValueTypeEnum) => `button-selector-${value}`
 
@@ -661,12 +659,8 @@ describe('FeatureForm', () => {
 
         expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).toBeDisabled()
       })
-    })
 
-    describe('WHEN hovering the disabled add privilege button', () => {
-      it('THEN should explain the limit', async () => {
-        const user = userEvent.setup()
-
+      it('THEN should explain the limit next to it', async () => {
         mockUseGetFeatureQuery.mockReturnValue({
           data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
           loading: false,
@@ -674,14 +668,7 @@ describe('FeatureForm', () => {
 
         await renderPage({ featureId: 'feature-1' })
 
-        // A disabled button has `pointer-events: none`, so the pointer reaches the
-        // `Tooltip` wrapper instead — that is where the hover listeners live.
-        await user.hover(
-          screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)
-            .parentElement as HTMLElement,
-        )
-
-        expect(await screen.findByText(PRIVILEGE_LIMIT_HINT_KEY)).toBeInTheDocument()
+        expect(screen.getByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -695,6 +682,19 @@ describe('FeatureForm', () => {
         await renderPage({ featureId: 'feature-1' })
 
         expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+      })
+
+      it('THEN should not show the limit hint', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES - 1) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(
+          screen.queryByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
 
@@ -712,6 +712,9 @@ describe('FeatureForm', () => {
         await user.click(screen.getAllByTestId(FEATURE_PRIVILEGE_DELETE_BUTTON_TEST_ID)[0])
 
         expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+        expect(
+          screen.queryByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID),
+        ).not.toBeInTheDocument()
       })
     })
   })
