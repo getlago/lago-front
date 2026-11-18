@@ -89,7 +89,7 @@ jest.mock('~/hooks/useSandbox', () => ({
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
-    translate: (key: string) => key,
+    translate: (key: string) => jest.requireActual('../../../translations/base.json')[key],
   }),
 }))
 
@@ -255,6 +255,30 @@ describe('OrganizationLayout', () => {
           expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
           expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toBeInTheDocument()
           expect(getOutlet()).toBeInTheDocument()
+        })
+
+        it('THEN should render the sandbox title and message from the design', () => {
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toHaveTextContent(
+            'Sandbox • You are testing in a sandbox. Nothing here is billed or sent to customers.',
+          )
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toHaveTextContent(
+            'Switch to production',
+          )
+        })
+
+        it('THEN should render the banner as a full-width dark info alert with the light button', () => {
+          render(<OrganizationLayout />)
+
+          const alert = queryByDataTest(SANDBOX_BANNER_TEST_ID)?.querySelector(
+            '[data-test="alert-type-info"]',
+          )
+
+          expect(alert).toHaveClass('bg-purple-800', 'w-full', 'rounded-none', 'px-7')
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toHaveClass(
+            'button-quaternary-light',
+          )
         })
 
         it('THEN should navigate to the production path without prepending the slug on click', () => {

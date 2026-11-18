@@ -5471,7 +5471,7 @@
   "text_1794896528911d809xmb50qq": "Taxes are being calculated.",
   "text_1794896528911z9fydq9ftum": "Taxes for this draft invoice are still being calculated. It may take a bit of time. Please refresh or check back later.",
   "text_1794221187063c6xcfwvtt6l": "Sandbox",
-  "text_1794221187063vcta3ox2a0c": "You're in your sandbox. Nothing here is billed or sent to customers.",
   "text_1794221187063tztk6kvdznf": "Switch to production",
-  "text_17942211870635zfjx3ojmyy": "Managed in production"
+  "text_17942211870635zfjx3ojmyy": "Managed in production",
+  "text_1794995101466zj746a29m20": "You are testing in a sandbox. Nothing here is billed or sent to customers."
 }
