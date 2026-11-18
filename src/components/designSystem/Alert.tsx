@@ -19,7 +19,12 @@ type AlertProps = {
   ButtonProps?: AlertButtonProps
   className?: string
   fullWidth?: boolean
-} & ({ type: AlertType; tone?: 'light' } | { type: 'info'; tone: 'dark' })
+} & (
+  | { type: AlertType; tone?: 'light' }
+  // Dark tone: a nested Typography needs color="inherit" to stay white,
+  // otherwise it falls back to textPrimary (dark text on purple-800).
+  | { type: 'info'; tone: 'dark' }
+)
 
 const getIcon = (type: AlertType): { name: IconName; color: IconColor } => {
   switch (type) {
@@ -72,11 +77,13 @@ export const Alert = ({
     >
       <div
         className={tw('flex flex-row items-center justify-between gap-4 py-4', {
-          'flex-wrap': isDark,
+          'flex-wrap': fullWidth,
         })}
       >
         <div
-          className={tw('flex flex-row items-center gap-4', { 'min-w-0 flex-[1_1_16rem]': isDark })}
+          className={tw('flex flex-row items-center gap-4', {
+            'min-w-0 flex-[1_1_16rem]': fullWidth,
+          })}
         >
           <Icon name={iconConfig.name} color={isDark ? 'light' : iconConfig.color} />
           <Typography className="word-break-word" color={isDark ? 'white' : 'textSecondary'}>

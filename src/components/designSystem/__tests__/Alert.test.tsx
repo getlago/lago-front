@@ -63,19 +63,6 @@ describe('Alert', () => {
 
         expect(getAlert('info').querySelector('svg')).toHaveClass('text-white')
       })
-
-      it('THEN should let the button wrap under the message when space runs out', () => {
-        render(
-          <Alert type="info" tone="dark">
-            Message
-          </Alert>,
-        )
-
-        const row = getAlert('info').firstElementChild as HTMLElement
-
-        expect(row).toHaveClass('flex-wrap')
-        expect(row.firstElementChild).toHaveClass('min-w-0', 'flex-[1_1_16rem]')
-      })
     })
 
     describe('WHEN a button is configured', () => {
@@ -100,6 +87,37 @@ describe('Alert', () => {
         fireEvent.click(button)
 
         expect(onClick).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN the fullWidth prop', () => {
+    describe.each(['light', 'dark'] as const)('WHEN the tone is %s', (tone) => {
+      it('THEN should let the button wrap under the message when space runs out', () => {
+        render(
+          <Alert type="info" tone={tone} fullWidth>
+            Message
+          </Alert>,
+        )
+
+        const row = getAlert('info').firstElementChild as HTMLElement
+
+        expect(row).toHaveClass('flex-wrap')
+        expect(row.firstElementChild).toHaveClass('min-w-0', 'flex-[1_1_16rem]')
+      })
+    })
+  })
+
+  describe('GIVEN the dark tone without fullWidth', () => {
+    describe('WHEN rendered', () => {
+      it('THEN should keep the button on the same row', () => {
+        render(
+          <Alert type="info" tone="dark">
+            Message
+          </Alert>,
+        )
+
+        expect(getAlert('info').firstElementChild).not.toHaveClass('flex-wrap')
       })
     })
   })
