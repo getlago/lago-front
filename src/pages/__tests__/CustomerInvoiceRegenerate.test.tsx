@@ -131,6 +131,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
           const resetFee = {
             ...rest,
             amountCents: originalFee.amountCents,
+            amountDetails: originalFee.amountDetails,
             invoiceDisplayName: originalFee.invoiceDisplayName,
             preciseUnitAmount: originalFee.preciseUnitAmount,
             units: originalFee.units,
@@ -262,6 +263,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
           units: 20,
           preciseUnitAmount: 200,
           amountCents: 4000,
+          amountDetails: { freeUnits: '0' },
           adjustedFee: true,
           adjustedFeeType: 'adjusted_amount',
           originalFee: {
@@ -270,6 +272,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
             units: 10,
             preciseUnitAmount: 100,
             amountCents: 1000,
+            amountDetails: { freeUnits: '5' },
           },
         },
         {
@@ -292,6 +295,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
         units: 10,
         preciseUnitAmount: 100,
         amountCents: 1000,
+        amountDetails: { freeUnits: '5' },
         adjustedFee: false,
         adjustedFeeType: null,
       })
@@ -688,6 +692,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         units: 20,
         preciseUnitAmount: 200,
         amountCents: 4000,
+        amountDetails: { freeUnits: '0' },
         adjustedFee: true,
         adjustedFeeType: 'adjusted_amount',
         subscription: { id: 'subscription-123' },
@@ -697,7 +702,66 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
           units: 10,
           preciseUnitAmount: 100,
           amountCents: 1000,
+          amountDetails: { freeUnits: '5' },
         },
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      act(() => onDelete('fee-1'))
+
+      const resetFee = MockInvoiceDetailsTable.mock.calls
+        .at(-1)[0]
+        .fees.find((f: { id: string }) => f.id === 'fee-1')
+
+      expect(resetFee.amountDetails).toEqual({ freeUnits: '5' })
+
+      fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockRegenerateInvoice).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              voidedInvoiceId: 'invoice-123',
+              purchaseOrderNumber: null,
+              fees: [
+                {
+                  id: 'fee-1',
+                  subscriptionId: 'subscription-123',
+                  unitAmountCents: 100,
+                  units: 10,
+                },
+              ],
+            },
+          },
+        })
+      })
+    })
+
+    it('THEN resetting a fee with no originalFee to restore falls back to deleting it', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: null,
+        description: '',
+        units: 20,
+        preciseUnitAmount: 200,
+        amountCents: 4000,
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFee: null,
       }
 
       mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
@@ -721,14 +785,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
             input: {
               voidedInvoiceId: 'invoice-123',
               purchaseOrderNumber: null,
-              fees: [
-                {
-                  id: 'fee-1',
-                  subscriptionId: 'subscription-123',
-                  unitAmountCents: 100,
-                  units: 10,
-                },
-              ],
+              fees: [],
             },
           },
         })

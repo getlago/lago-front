@@ -161,6 +161,40 @@ gql`
       invoiceDisplayName
       preciseUnitAmount
       units
+      amountDetails {
+        fixedFeeTotalAmount
+        fixedFeeUnitAmount
+        flatUnitAmount
+        freeEvents
+        freeUnits
+        minMaxAdjustmentTotalAmount
+        paidEvents
+        paidUnits
+        perPackageSize
+        perPackageUnitAmount
+        perUnitAmount
+        perUnitTotalAmount
+        rate
+        units
+        graduatedRanges {
+          flatUnitAmount
+          fromValue
+          perUnitAmount
+          perUnitTotalAmount
+          toValue
+          totalWithFlatAmount
+          units
+        }
+        graduatedPercentageRanges {
+          flatUnitAmount
+          fromValue
+          perUnitTotalAmount
+          rate
+          toValue
+          totalWithFlatAmount
+          units
+        }
+      }
     }
     walletTransaction {
       id
