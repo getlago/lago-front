@@ -106,7 +106,7 @@ export const ContractOverviewSection = (): JSX.Element => {
     withInvoiceConsolidation: true,
     onSave: ({ consolidateInvoice, invoiceCustomSection }) =>
       updateContractSection({
-        externalId: contract?.externalId ?? '',
+        id: contract?.id ?? '',
         consolidateInvoice,
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }),
@@ -115,8 +115,7 @@ export const ContractOverviewSection = (): JSX.Element => {
   const { openDrawer: openPaymentSettingsDrawer } = usePaymentSettingsDrawer({
     viewType: ViewTypeEnum.Contract,
     externalCustomerId: contract?.customer.externalId ?? '',
-    onSave: ({ paymentMethod }) =>
-      updateContractSection({ externalId: contract?.externalId ?? '', paymentMethod }),
+    onSave: ({ paymentMethod }) => updateContractSection({ id: contract?.id ?? '', paymentMethod }),
   })
 
   if (!contract && loading) {
