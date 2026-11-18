@@ -28,6 +28,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { MAX_FEATURE_PRIVILEGES } from '~/pages/features/featureForm/constants'
 import {
   mapFeatureToFormValues,
   mapPrivilegesToApiInput,
@@ -176,6 +177,7 @@ const FeatureForm = () => {
 
   const isDirty = useStore(form.store, (state) => !state.isDefaultValue)
   const privileges = useStore(form.store, (state) => state.values.privileges)
+  const hasReachedPrivilegeLimit = privileges.length >= MAX_FEATURE_PRIVILEGES
 
   const onLeave = useCallback(() => {
     if (!!featureId) {
@@ -390,22 +392,34 @@ const FeatureForm = () => {
                       />
                     ))}
 
-                    <Button
-                      fitContent
-                      align="left"
-                      variant="inline"
-                      startIcon="plus"
-                      data-test={FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
-                      onClick={() => {
-                        form.pushFieldValue('privileges', {
-                          code: '',
-                          name: '',
-                          valueType: PrivilegeValueTypeEnum.Boolean,
+                    <Tooltip
+                      className="w-fit"
+                      placement="top-start"
+                      title={
+                        hasReachedPrivilegeLimit &&
+                        translate('text_1794982684091muxo5g24smt', {
+                          max: MAX_FEATURE_PRIVILEGES,
                         })
-                      }}
+                      }
                     >
-                      {translate('text_1752695518075ut8zscauuq3')}
-                    </Button>
+                      <Button
+                        fitContent
+                        align="left"
+                        variant="inline"
+                        startIcon="plus"
+                        disabled={hasReachedPrivilegeLimit}
+                        data-test={FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
+                        onClick={() => {
+                          form.pushFieldValue('privileges', {
+                            code: '',
+                            name: '',
+                            valueType: PrivilegeValueTypeEnum.Boolean,
+                          })
+                        }}
+                      >
+                        {translate('text_1752695518075ut8zscauuq3')}
+                      </Button>
+                    </Tooltip>
                   </div>
                 </section>
               </div>

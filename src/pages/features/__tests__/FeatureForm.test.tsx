@@ -13,6 +13,7 @@ import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { FeatureForFeatureFormFragment, PrivilegeValueTypeEnum } from '~/generated/graphql'
+import { MAX_FEATURE_PRIVILEGES } from '~/pages/features/featureForm/constants'
 import { REQUIRED_FIELD_ERROR } from '~/pages/features/featureForm/validationSchema'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -29,6 +30,9 @@ import FeatureForm, {
 } from '../FeatureForm'
 
 const SELECT_OPTIONS_INPUT_TEST_ID = 'mock-select-options-input'
+
+// `translate` is stubbed to echo the key, so the hint reads as its key on screen
+const PRIVILEGE_LIMIT_HINT_KEY = 'text_1794982684091muxo5g24smt'
 
 const buttonSelectorOption = (value: PrivilegeValueTypeEnum) => `button-selector-${value}`
 
@@ -135,6 +139,17 @@ const existingFeature: FeatureForFeatureFormFragment = {
     },
   ],
 }
+
+const featureWithPrivileges = (count: number): FeatureForFeatureFormFragment => ({
+  ...existingFeature,
+  privileges: Array.from({ length: count }, (_, index) => ({
+    id: `privilege-${index}`,
+    name: `Privilege ${index}`,
+    code: `privilege_${index}`,
+    valueType: PrivilegeValueTypeEnum.Boolean,
+    config: { selectOptions: null },
+  })),
+})
 
 // The multiline description renders a `<textarea>`, every other field an `<input>`
 const inputIn = (testId: string): HTMLInputElement => {
@@ -630,6 +645,121 @@ describe('FeatureForm', () => {
         act(() => updateFeatureOptions.onCompleted({ updateFeature: { id: 'feature-1' } }))
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN a feature holding the maximum number of privileges', () => {
+    describe('WHEN rendering the page', () => {
+      it('THEN should disable the add privilege button', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN hovering the disabled add privilege button', () => {
+      it('THEN should explain the limit', async () => {
+        const user = userEvent.setup()
+
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        // A disabled button has `pointer-events: none`, so the pointer reaches the
+        // `Tooltip` wrapper instead — that is where the hover listeners live.
+        await user.hover(
+          screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)
+            .parentElement as HTMLElement,
+        )
+
+        expect(await screen.findByText(PRIVILEGE_LIMIT_HINT_KEY)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN one privilege below the limit', () => {
+      it('THEN should keep the add privilege button enabled', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES - 1) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+      })
+    })
+
+    describe('WHEN a privilege is deleted', () => {
+      it('THEN should enable the add privilege button again', async () => {
+        const user = userEvent.setup()
+
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        await user.click(screen.getAllByTestId(FEATURE_PRIVILEGE_DELETE_BUTTON_TEST_ID)[0])
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN a feature saved above the privilege limit', () => {
+    const overTheLimit = featureWithPrivileges(MAX_FEATURE_PRIVILEGES + 1)
+
+    beforeEach(() => {
+      mockUseGetFeatureQuery.mockReturnValue({ data: { feature: overTheLimit }, loading: false })
+    })
+
+    describe('WHEN rendering the page', () => {
+      it('THEN should disable the add privilege button', async () => {
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN submitting without adding a privilege', () => {
+      it('THEN should still update the feature with all of them', async () => {
+        const user = userEvent.setup()
+
+        await renderPage({ featureId: 'feature-1' })
+
+        await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() =>
+          expect(mockUpdateFeature).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                id: 'feature-1',
+                privileges: expect.arrayContaining([
+                  {
+                    name: 'Privilege 0',
+                    code: 'privilege_0',
+                    valueType: PrivilegeValueTypeEnum.Boolean,
+                    config: undefined,
+                  },
+                ]),
+              }),
+            },
+          }),
+        )
+
+        expect(mockUpdateFeature.mock.calls[0][0].variables.input.privileges).toHaveLength(
+          MAX_FEATURE_PRIVILEGES + 1,
+        )
       })
     })
   })
