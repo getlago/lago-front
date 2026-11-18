@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
 import InputAdornment from '@mui/material/InputAdornment'
-import { Icon } from 'lago-design-system'
 import { memo } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { ChargeTable } from '~/components/designSystem/Table/ChargeTable'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'

@@ -1,6 +1,5 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { tw } from 'lago-design-system'
 import { memo, useMemo } from 'react'
 import { useParams } from 'react-router'
 
@@ -32,6 +31,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { OnRegeneratedFeeAdd } from '~/pages/CustomerInvoiceRegenerate'
 import { MenuPopper, PopperOpener } from '~/styles'
+import { tw } from '~/styles/utils'
 
 import { useDeleteAdjustedFeeDialog } from './DeleteAdjustedFeeDialog'
 import { OpenEditFeeDrawer } from './editFeeDrawer/types'

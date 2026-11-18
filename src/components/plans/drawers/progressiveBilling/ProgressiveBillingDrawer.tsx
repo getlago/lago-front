@@ -1,5 +1,4 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -8,6 +7,7 @@ import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { PlanFormProvider, usePlanFormContext } from '~/contexts/PlanFormContext'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { tw } from '~/styles/utils'
 
 import { DEFAULT_VALUES, ProgressiveBillingFormValues, progressiveBillingSchema } from './constants'
 import { ProgressiveBillingDrawerContent } from './ProgressiveBillingDrawerContent'

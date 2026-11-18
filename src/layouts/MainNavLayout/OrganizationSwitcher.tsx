@@ -1,10 +1,12 @@
 import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
-import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useParams } from 'react-router'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -17,19 +19,32 @@ import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
   MainOrganizationInfosFragment,
+  OrganizationEnvironmentEnum,
   SideNavInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NavLayout } from '~/layouts/NavLayout'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { MenuPopper } from '~/styles/designSystem'
 
 // 280 + 2px for the border
 const POPPER_MIN_WIDTH = 282
 
+// The switcher sits at the top of the nav, right under the sandbox banner when
+// it is shown: subtract the banner so the menu never runs past the viewport.
+export const ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`
+// Room for the log out row (a small button and its padding, 48px) and the menu's two 1px borders, so on a
+// short window the list scrolls and log out stays in view.
+const ORGANIZATION_SWITCHER_FOOTER_HEIGHT = '50px'
+
+export const ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${ORGANIZATION_SWITCHER_FOOTER_HEIGHT} - ${SANDBOX_BANNER_HEIGHT})`
+
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
+export const ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID = 'side-nav-sandbox-tag'
 export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
+export const ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID = 'organization-switcher-org-list'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
@@ -149,7 +164,7 @@ export const OrganizationSwitcher = ({
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         minWidth={POPPER_MIN_WIDTH}
-        maxHeight={`calc(100vh - 64px - 16px)`}
+        maxHeight={ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT}
         enableFlip={false}
         opener={
           <Button
@@ -189,6 +204,14 @@ export const OrganizationSwitcher = ({
                 >
                   {currentOrgFromSlug?.name}
                 </Typography>
+                {organization?.environment === OrganizationEnvironmentEnum.Sandbox && (
+                  <Chip
+                    className="ml-2 shrink-0"
+                    size="small"
+                    data-test={ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID}
+                    label={translate('text_1794221187063c6xcfwvtt6l')}
+                  />
+                )}
               </>
             )}
           </Button>
@@ -199,7 +222,8 @@ export const OrganizationSwitcher = ({
             {!!organizationList?.length && (
               <div
                 className="flex flex-col gap-1 overflow-auto p-2"
-                style={{ maxHeight: 'calc(100vh - 80px)' }}
+                data-test={ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID}
+                style={{ maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT }}
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />
 

@@ -1,7 +1,7 @@
-import { Icon } from 'lago-design-system'
 import { FC, ReactNode, useEffect, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'

@@ -1,7 +1,7 @@
 ## Development Guidelines
 
 - Follow TypeScript strict mode practices with path aliases (`~/*` maps to `src/*`)
-- Use existing design system components from `packages/design-system/`
+- Use existing design system components from `src/components/designSystem/`
 - Maintain consistent import order and file structure
 - Leverage existing hooks and utilities in `src/hooks/`
 - Write comprehensive tests for new features (Jest for unit, Cypress for e2e)

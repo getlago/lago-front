@@ -1,5 +1,4 @@
-import { Icon } from 'lago-design-system'
-
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'

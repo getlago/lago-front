@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useCallback } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Icon } from '~/components/designSystem/Icon'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { useDeleteAlertDialog } from '~/components/subscriptions/alerts/DeleteAlertDialog'

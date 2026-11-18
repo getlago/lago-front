@@ -1,9 +1,9 @@
-import { Icon, tw } from 'lago-design-system'
-
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 type PremiumFeatureProps = {
   title: string

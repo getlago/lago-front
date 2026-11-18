@@ -1,7 +1,7 @@
 import { Editor, useEditorState } from '@tiptap/react'
-import { Icon } from 'lago-design-system'
 import React, { forwardRef, useMemo, useRef } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'

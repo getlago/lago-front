@@ -181,7 +181,10 @@ export const PlanDetailsV2UsageChargesSection = forwardRef<
   Props
 >(({ plan, isInSubscriptionForm = false, chargeMutations }, ref) => {
   const { translate } = useInternationalization()
-  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(isInSubscriptionForm)
+  const { canCreate, canUpdate, canDelete } = useAccordionPermissions(
+    isInSubscriptionForm,
+    'charges',
+  )
   const { gateOnClick, premiumIcon } = useSubscriptionPremiumGate(isInSubscriptionForm)
   const { hasAnyPricingUnitConfigured } = useCustomPricingUnits()
   const drawerRef = useRef<UsageChargeDrawerRef>(null)

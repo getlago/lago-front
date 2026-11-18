@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { LOGIN_OKTA } from '~/core/router'
 import { LagoApiError, useOktaLoginUserMutation } from '~/generated/graphql'
 

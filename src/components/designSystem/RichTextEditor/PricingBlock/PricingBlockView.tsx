@@ -1,6 +1,6 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
-import { IconName } from 'lago-design-system'
 
+import { IconName } from '~/components/designSystem/Icon'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Locale, LocaleEnum } from '~/core/translations'
 import { CurrencyEnum } from '~/generated/graphql'

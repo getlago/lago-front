@@ -1,5 +1,6 @@
-import { Icon } from 'lago-design-system'
 import { forwardRef } from 'react'
+
+import { Icon } from '~/components/designSystem/Icon'
 
 export const TABLE_CONTROLS_ROW_MENU_BUTTON_TEST_ID = 'table-controls-row-menu-button'
 export const TABLE_CONTROLS_COL_MENU_BUTTON_TEST_ID = 'table-controls-col-menu-button'

@@ -1,5 +1,4 @@
-import { Icon } from 'lago-design-system'
-
+import { Icon } from '~/components/designSystem/Icon'
 import { PaymentMethodInfo } from '~/components/paymentMethodSelection/PaymentMethodInfo'
 import { PaymentMethodItem } from '~/hooks/customer/usePaymentMethodsList'
 

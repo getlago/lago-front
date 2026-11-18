@@ -1,5 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import {
+  GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
 import { GetMembersDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -39,9 +43,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+let mockDeniedPermissions: string[] = []
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
   }),
 }))
 
@@ -106,6 +113,10 @@ async function prepare({
 }
 
 describe('MembersList', () => {
+  beforeEach(() => {
+    mockDeniedPermissions = []
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -483,6 +494,74 @@ describe('MembersList', () => {
             isEditingLastAdmin: false,
           }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the member permissions', () => {
+    const emptyMock = {
+      request: {
+        query: GetMembersDocument,
+        variables: DEFAULT_VARIABLES,
+      },
+      result: buildMembershipsResult({ collection: [], adminCount: 0 }),
+    }
+
+    const waitForMembers = async (): Promise<void> => {
+      await waitFor(
+        () => {
+          expect(screen.getByText('admin@example.com')).toBeInTheDocument()
+        },
+        { timeout: SEARCH_TIMEOUT },
+      )
+    }
+
+    describe('WHEN the member has every members permission', () => {
+      it('THEN should display the row actions', async () => {
+        await prepare()
+        await waitForMembers()
+
+        expect(screen.getAllByTestId('open-action-button').length).toBeGreaterThan(0)
+      })
+
+      it('THEN should display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(
+            GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+            {},
+            { timeout: SEARCH_TIMEOUT },
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member has neither the organizationMembersUpdate nor the organizationMembersDelete permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['organizationMembersUpdate', 'organizationMembersDelete']
+      })
+
+      it('THEN should hide the row actions', async () => {
+        await prepare()
+        await waitForMembers()
+
+        expect(screen.queryByTestId('open-action-button')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the organizationMembersCreate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['organizationMembersCreate']
+      })
+
+      it('THEN should not display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID, {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

@@ -1,11 +1,11 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import InlineBarsChart from '~/components/designSystem/graphs/InlineBarsChart'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'

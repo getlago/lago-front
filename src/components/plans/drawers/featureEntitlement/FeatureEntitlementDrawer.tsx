@@ -1,5 +1,4 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { tw } from 'lago-design-system'
 import { forwardRef, useImperativeHandle, useRef } from 'react'
 import { z } from 'zod'
 
@@ -13,6 +12,7 @@ import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { PrivilegeValueTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { tw } from '~/styles/utils'
 
 import { DEFAULT_VALUES, type FeatureEntitlementFormValues } from './constants'
 import { FeatureEntitlementDrawerContent } from './FeatureEntitlementDrawerContent'

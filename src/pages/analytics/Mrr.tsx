@@ -1,7 +1,6 @@
-import { Icon } from 'lago-design-system'
-
 import { MrrBreakdownSection } from '~/components/analytics/mrr/MrrBreakdownSection'
 import { MrrOverviewSection } from '~/components/analytics/mrr/MrrOverviewSection'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'

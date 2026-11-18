@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { DateTime } from 'luxon'
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react'
 import { MemoryRouter } from 'react-router'
@@ -22,6 +21,7 @@ import {
   ProductTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import {
   VIEW_FEE_DETAILS_DRAWER_TEST_ID,

@@ -1,4 +1,3 @@
-import { tw } from 'lago-design-system'
 import { useRef, useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
@@ -13,6 +12,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 export const PANEL_AI_AGENT_WELCOME_TEST_ID = 'panel-ai-agent-welcome'
 export const PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID = 'panel-ai-agent-premium-block'

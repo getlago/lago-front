@@ -1,7 +1,7 @@
-import { IconName } from 'lago-design-system'
 import { forwardRef, MouseEvent, ReactNode } from 'react'
 
 import { ConditionalWrapper } from '~/components/ConditionalWrapper'
+import { IconName } from '~/components/designSystem/Icon'
 import { Link } from '~/core/router'
 import { tw } from '~/styles/utils'
 

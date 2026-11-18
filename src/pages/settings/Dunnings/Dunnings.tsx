@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useMemo, useState } from 'react'
 import { generatePath } from 'react-router'
 
@@ -7,6 +6,7 @@ import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'

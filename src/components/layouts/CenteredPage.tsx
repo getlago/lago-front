@@ -1,7 +1,7 @@
-import { tw } from 'lago-design-system'
 import { PropsWithChildren } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
+import { tw } from '~/styles/utils'
 
 // Test ID constants
 export const PAGE_SECTION_TITLE_TEST_ID = 'page-section-title'

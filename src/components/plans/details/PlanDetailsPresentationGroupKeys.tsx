@@ -1,6 +1,5 @@
-import { Icon } from 'lago-design-system'
-
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { Properties } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'

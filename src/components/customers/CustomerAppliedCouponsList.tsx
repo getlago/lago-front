@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { generatePath } from 'react-router'
 
 import { CouponCaption } from '~/components/coupons/CouponCaption'
@@ -25,6 +24,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useTerminateAppliedCoupon } from '~/hooks/useTerminateAppliedCoupon'
+import { tw } from '~/styles/utils'
 
 gql`
   query getAppliedCouponsForCustomer($page: Int, $limit: Int, $externalCustomerId: String) {

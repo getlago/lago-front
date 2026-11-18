@@ -2,8 +2,9 @@ import { Extension } from '@tiptap/core'
 import { NodeSelection } from '@tiptap/pm/state'
 import { Editor, Range, ReactRenderer } from '@tiptap/react'
 import Suggestion, { SuggestionKeyDownProps, SuggestionProps } from '@tiptap/suggestion'
-import { IconName } from 'lago-design-system'
 import tippy, { type Instance as TippyInstance } from 'tippy.js'
+
+import { IconName } from '~/components/designSystem/Icon'
 
 import type {
   OnCreditsCommand,

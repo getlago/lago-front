@@ -1,9 +1,9 @@
-import { Icon } from 'lago-design-system'
 import { useEffect, useMemo, useState } from 'react'
 
 import { FinanceAssistantAnalyticsCta } from '~/components/aiAgent/FinanceAssistantAnalyticsCta'
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'

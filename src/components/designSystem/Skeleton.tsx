@@ -1,11 +1,10 @@
 import { cva } from 'class-variance-authority'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { tw } from '~/styles/utils'
 
 import { AvatarSize, avatarSizeStyles } from './Avatar'
 import { TypographyProps } from './Typography'
-
-import { ConditionalWrapper } from '../ConditionalWrapper'
 
 type SkeletonVariant =
   | 'connectorAvatar' // squared with rounded corners

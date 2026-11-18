@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack'
-import { Icon } from 'lago-design-system'
 
 import { Avatar } from '~/components/designSystem/Avatar'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Status } from '~/components/designSystem/Status'
 import { Table, TableColumn } from '~/components/designSystem/Table/Table'

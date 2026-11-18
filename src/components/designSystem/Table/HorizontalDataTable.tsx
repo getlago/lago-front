@@ -1,8 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Icon } from 'lago-design-system'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 

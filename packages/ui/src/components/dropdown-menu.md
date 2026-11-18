@@ -13,10 +13,10 @@ Menu of actions, toggles or choices opened from a trigger, built on Radix Dropdo
 ```tsx
 import {
   DropdownMenu,
-  DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from 'lago-ui/dropdown-menu'
 ```
 
@@ -24,14 +24,14 @@ Also exported: `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuCheckboxIt
 
 ## API
 
-| Part / prop | Notes |
-| --- | --- |
-| `DropdownMenuTrigger asChild` | Wrap a [`Button`](./button.md) or an [`IconButton`](./icon-button.md). Never nest another button inside a menu item |
-| `DropdownMenuItem onSelect` | Pointer and keyboard activation. The menu closes after selection |
-| `DropdownMenuItem variant` | `default` or `destructive` (danger text and icon) |
-| `DropdownMenuCheckboxItem` / `DropdownMenuRadioItem` `closeOnSelect` | Default `false`: selection keeps the menu open. Set `true` to close on selection |
-| `onCheckedChange` / `onValueChange` | Update application state from checkbox / radio items |
-| `textValue` | Typeahead text; set it when the item also has a description |
+| Part / prop                                                          | Notes                                                                                                               |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `DropdownMenuTrigger asChild`                                        | Wrap a [`Button`](./button.md) or an [`IconButton`](./icon-button.md). Never nest another button inside a menu item |
+| `DropdownMenuItem onSelect`                                          | Pointer and keyboard activation. The menu closes after selection                                                    |
+| `DropdownMenuItem variant`                                           | `default` or `destructive` (danger text and icon)                                                                   |
+| `DropdownMenuCheckboxItem` / `DropdownMenuRadioItem` `closeOnSelect` | Default `false`: selection keeps the menu open. Set `true` to close on selection                                    |
+| `onCheckedChange` / `onValueChange`                                  | Update application state from checkbox / radio items                                                                |
+| `textValue`                                                          | Typeahead text; set it when the item also has a description                                                         |
 
 `onSelect` with `event.preventDefault()` controls dismissal only, not the checked state.
 
@@ -40,7 +40,7 @@ Also exported: `DropdownMenuGroup`, `DropdownMenuLabel`, `DropdownMenuCheckboxIt
 ```tsx
 import { Pencil } from 'lucide-react'
 
-<DropdownMenu>
+;<DropdownMenu>
   <DropdownMenuTrigger asChild>
     <Button variant="secondary">Actions</Button>
   </DropdownMenuTrigger>
@@ -76,6 +76,8 @@ import { Pencil } from 'lucide-react'
 - `DropdownMenuSeparator` spans the inner menu width; do not put the standalone `Separator` inside a menu.
 - Layer 2100: above dialogs (2000), below toasts (2200) and tooltips (2400).
 - Wrap the region in [`ColorTheme`](./color-theme.md); the menu and submenu portals inherit it through `ColorThemePortal`.
+
+Menu item labels inherit `v2-text-body` from the content (14/20px, Regular400), including navigation links, checkbox/radio items and submenu triggers. Callers can override typography with `className`. Menu links retain the shared highlight and suppress legacy anchor focus rings.
 
 ## References
 
