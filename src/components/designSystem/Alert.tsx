@@ -8,21 +8,18 @@ import { Button, ButtonProps as TButtonProps } from './Button'
 import { Typography } from './Typography'
 
 type AlertType = 'info' | 'success' | 'danger' | 'warning'
-type AlertTone = 'light' | 'dark'
 
 type AlertButtonProps = Partial<Omit<Omit<TButtonProps, 'variant' | 'icon'>, 'size'>> & {
   label: string
   'data-test'?: string
 }
 
-interface AlertProps {
+type AlertProps = {
   children: ReactNode
-  type: AlertType
   ButtonProps?: AlertButtonProps
   className?: string
   fullWidth?: boolean
-  tone?: AlertTone
-}
+} & ({ type: AlertType; tone?: 'light' } | { type: 'info'; tone: 'dark' })
 
 const getIcon = (type: AlertType): { name: IconName; color: IconColor } => {
   switch (type) {
@@ -44,21 +41,12 @@ const alertStyles = cva('rounded-xl px-4', {
       success: 'bg-green-100',
       danger: 'bg-red-100',
       warning: 'bg-yellow-100',
-    },
-    tone: {
-      light: '',
-      dark: '',
+      infoDark: 'bg-purple-800',
     },
     isFullWidth: {
       true: 'w-full rounded-none',
     },
   },
-  compoundVariants: [
-    { tone: 'dark', backgroundColor: 'info', className: 'bg-purple-800' },
-    { tone: 'dark', backgroundColor: 'success', className: 'bg-green-800' },
-    { tone: 'dark', backgroundColor: 'danger', className: 'bg-red-800' },
-    { tone: 'dark', backgroundColor: 'warning', className: 'bg-yellow-800' },
-  ],
 })
 
 export const Alert = ({
@@ -76,7 +64,7 @@ export const Alert = ({
   return (
     <div
       className={tw(
-        alertStyles({ backgroundColor: type, tone, isFullWidth: fullWidth }),
+        alertStyles({ backgroundColor: isDark ? 'infoDark' : type, isFullWidth: fullWidth }),
         className,
       )}
       data-test={`alert-type-${type}`}

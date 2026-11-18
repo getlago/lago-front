@@ -40,21 +40,16 @@ describe('Alert', () => {
   })
 
   describe('GIVEN the dark tone', () => {
-    describe.each([
-      { type: 'info', background: 'bg-purple-800', light: 'bg-purple-100' },
-      { type: 'success', background: 'bg-green-800', light: 'bg-green-100' },
-      { type: 'danger', background: 'bg-red-800', light: 'bg-red-100' },
-      { type: 'warning', background: 'bg-yellow-800', light: 'bg-yellow-100' },
-    ] as const)('WHEN the type is $type', ({ type, background, light }) => {
-      it(`THEN should replace the light background with ${background}`, () => {
+    describe('WHEN the type is info', () => {
+      it('THEN should replace the light background with bg-purple-800', () => {
         render(
-          <Alert type={type} tone="dark">
+          <Alert type="info" tone="dark">
             Message
           </Alert>,
         )
 
-        expect(getAlert(type)).toHaveClass(background)
-        expect(getAlert(type)).not.toHaveClass(light)
+        expect(getAlert('info')).toHaveClass('bg-purple-800')
+        expect(getAlert('info')).not.toHaveClass('bg-purple-100')
       })
     })
 
