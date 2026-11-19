@@ -88,7 +88,7 @@ describe('applyAgentStorefrontServerErrors', () => {
 
   describe('GIVEN a duplicate code and a missing payment provider in the same response', () => {
     describe('WHEN the errors are applied', () => {
-      it('THEN should set the code error and still toast the silenced provider failure', () => {
+      it('THEN should set both field errors without a toast', () => {
         const { formApi, setErrorMap } = buildFormApi()
 
         applyAgentStorefrontServerErrors(
@@ -96,6 +96,32 @@ describe('applyAgentStorefrontServerErrors', () => {
           buildErrors({
             code: [LagoApiError.ValueAlreadyExist],
             paymentProviderCode: [LagoApiError.PaymentProviderNotFound],
+          }),
+        )
+
+        expect(setErrorMap).toHaveBeenCalledWith({
+          onDynamic: {
+            fields: {
+              code: { message: expect.any(String), path: ['code'] },
+              paymentProviderCode: { message: expect.any(String), path: ['paymentProviderCode'] },
+            },
+          },
+        })
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a duplicate code and a validation the form does not map', () => {
+    describe('WHEN the errors are applied', () => {
+      it('THEN should set the code error and still toast the silenced failure', () => {
+        const { formApi, setErrorMap } = buildFormApi()
+
+        applyAgentStorefrontServerErrors(
+          formApi,
+          buildErrors({
+            code: [LagoApiError.ValueAlreadyExist],
+            name: [LagoApiError.ValueIsInvalid],
           }),
         )
 
@@ -131,7 +157,7 @@ describe('applyAgentStorefrontServerErrors', () => {
 
   describe.each([
     ['wallet_refresh_unavailable', { base: ['wallet_refresh_unavailable'] }],
-    ['payment_provider_not_found', { paymentProviderCode: [LagoApiError.PaymentProviderNotFound] }],
+    ['premium_integration_missing', { base: [LagoApiError.PremiumIntegrationMissing] }],
   ])('GIVEN an unmapped %s error', (_, details) => {
     describe('WHEN the errors are applied', () => {
       it('THEN should set nothing on the form and leave the toast to the error link', () => {

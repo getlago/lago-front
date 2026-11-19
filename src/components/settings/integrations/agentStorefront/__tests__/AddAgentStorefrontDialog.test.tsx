@@ -141,8 +141,10 @@ describe('useAddAgentStorefrontDialog', () => {
               LagoApiError.ValueAlreadyExist,
               LagoApiError.UrlIsInvalid,
               LagoApiError.EventsTargetingWalletsDisabled,
+              LagoApiError.PaymentProviderNotFound,
             ],
           },
+          refetchQueries: ['integrationsSetting'],
         })
       })
     })

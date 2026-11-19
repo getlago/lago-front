@@ -135,6 +135,7 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
 
   const [createAgentStorefrontIntegration] = useCreateAgentStorefrontIntegrationMutation({
     context: { silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS },
+    refetchQueries: ['integrationsSetting'],
   })
 
   const form = useAppForm({
