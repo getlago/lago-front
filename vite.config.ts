@@ -189,7 +189,7 @@ export default defineConfig(({ mode }) => {
         'formik',
         'yup',
       ],
-      exclude: ['lago-design-system', 'lago-configs', 'lago-ui'],
+      exclude: ['lago-configs', 'lago-ui'],
     },
     preview: {
       port,
