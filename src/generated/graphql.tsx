@@ -14010,6 +14010,20 @@ export type DestroyContractRatePhaseMutationVariables = Exact<{
 
 export type DestroyContractRatePhaseMutation = { __typename?: 'Mutation', destroyContractRatePhase?: { __typename?: 'RatePhase', id: string } | null };
 
+export type UpdatePlanAppliedRateCardMutationVariables = Exact<{
+  input: UpdatePlanAppliedRateCardInput;
+}>;
+
+
+export type UpdatePlanAppliedRateCardMutation = { __typename?: 'Mutation', updatePlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null } | null };
+
+export type UpdateContractAppliedRateCardMutationVariables = Exact<{
+  input: UpdateContractAppliedRateCardInput;
+}>;
+
+
+export type UpdateContractAppliedRateCardMutation = { __typename?: 'Mutation', updateContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null } | null };
+
 export type DestroyPlanAppliedRateCardMutationVariables = Exact<{
   input: DestroyPlanAppliedRateCardInput;
 }>;
@@ -29366,6 +29380,74 @@ export function useDestroyContractRatePhaseMutation(baseOptions?: Apollo.Mutatio
 export type DestroyContractRatePhaseMutationHookResult = ReturnType<typeof useDestroyContractRatePhaseMutation>;
 export type DestroyContractRatePhaseMutationResult = Apollo.MutationResult<DestroyContractRatePhaseMutation>;
 export type DestroyContractRatePhaseMutationOptions = Apollo.BaseMutationOptions<DestroyContractRatePhaseMutation, DestroyContractRatePhaseMutationVariables>;
+export const UpdatePlanAppliedRateCardDocument = gql`
+    mutation updatePlanAppliedRateCard($input: UpdatePlanAppliedRateCardInput!) {
+  updatePlanAppliedRateCard(input: $input) {
+    id
+    units
+  }
+}
+    `;
+export type UpdatePlanAppliedRateCardMutationFn = Apollo.MutationFunction<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>;
+
+/**
+ * __useUpdatePlanAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanAppliedRateCardMutation, { data, loading, error }] = useUpdatePlanAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlanAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>(UpdatePlanAppliedRateCardDocument, options);
+      }
+export type UpdatePlanAppliedRateCardMutationHookResult = ReturnType<typeof useUpdatePlanAppliedRateCardMutation>;
+export type UpdatePlanAppliedRateCardMutationResult = Apollo.MutationResult<UpdatePlanAppliedRateCardMutation>;
+export type UpdatePlanAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>;
+export const UpdateContractAppliedRateCardDocument = gql`
+    mutation updateContractAppliedRateCard($input: UpdateContractAppliedRateCardInput!) {
+  updateContractAppliedRateCard(input: $input) {
+    id
+    units
+  }
+}
+    `;
+export type UpdateContractAppliedRateCardMutationFn = Apollo.MutationFunction<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>;
+
+/**
+ * __useUpdateContractAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractAppliedRateCardMutation, { data, loading, error }] = useUpdateContractAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>(UpdateContractAppliedRateCardDocument, options);
+      }
+export type UpdateContractAppliedRateCardMutationHookResult = ReturnType<typeof useUpdateContractAppliedRateCardMutation>;
+export type UpdateContractAppliedRateCardMutationResult = Apollo.MutationResult<UpdateContractAppliedRateCardMutation>;
+export type UpdateContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>;
 export const DestroyPlanAppliedRateCardDocument = gql`
     mutation destroyPlanAppliedRateCard($input: DestroyPlanAppliedRateCardInput!) {
   destroyPlanAppliedRateCard(input: $input) {
