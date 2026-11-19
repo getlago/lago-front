@@ -78,8 +78,6 @@ const AppliedRateCardDetailsContent = ({
 
   const { openEditAppliedRateCardUnitsDialog } = useEditAppliedRateCardUnitsDialog()
 
-  // `PlanRateCards::UpdateService` rejects a plan attached to contracts (`plan_locked`),
-  // `ContractRateCards::UpdateService` a non-pending contract (`contract_locked`).
   const isEditUnitsHidden =
     appliedRateCard.product.productType !== ProductTypeEnum.Fixed ||
     !hasPermissions([APPLIED_RATE_CARD_CONTEXT_CONFIG[context].updatePermission])
@@ -97,6 +95,8 @@ const AppliedRateCardDetailsContent = ({
           label: translate('text_17950691724841bhd45g69u8'),
           dataTest: APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID,
           hidden: isEditUnitsHidden,
+          // `PlanRateCards::UpdateService` rejects a plan attached to contracts (`plan_locked`),
+          // `ContractRateCards::UpdateService` a non-pending contract (`contract_locked`).
           disabled: parent.isLocked,
           onClick: (closePopper) => {
             openEditAppliedRateCardUnitsDialog({
