@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/react'
 import { lazy, ReactElement, Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router'
 
-import { Button } from '~/components/designSystem/Button'
+import { Alert } from '~/components/designSystem/Alert'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { switchCurrentOrganization } from '~/core/apolloClient'
@@ -54,24 +54,27 @@ const SandboxBanner = (): ReactElement | null => {
   if (!isSandbox) return null
 
   return (
-    <div
-      ref={setBanner}
-      className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
-      data-test={SANDBOX_BANNER_TEST_ID}
-    >
-      <Typography variant="caption" color="grey700">
-        {translate('text_1794221187063vcta3ox2a0c')}
-      </Typography>
-      {!!productionPath && (
-        <Button
-          variant="inline"
-          size="small"
-          data-test={SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID}
-          onClick={() => navigate(productionPath, { skipSlugPrepend: true })}
-        >
-          {translate('text_1794221187063tztk6kvdznf')}
-        </Button>
-      )}
+    <div ref={setBanner} className="shrink-0" data-test={SANDBOX_BANNER_TEST_ID}>
+      <Alert
+        type="info"
+        tone="dark"
+        fullWidth
+        className="px-7"
+        ButtonProps={
+          productionPath
+            ? {
+                label: translate('text_1794221187063tztk6kvdznf'),
+                onClick: () => navigate(productionPath, { skipSlugPrepend: true }),
+                'data-test': SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
+              }
+            : undefined
+        }
+      >
+        <Typography component="span" variant="bodyHl" color="inherit">
+          {translate('text_1794221187063c6xcfwvtt6l')}
+        </Typography>
+        {` • ${translate('text_1794995101466zj746a29m20')}`}
+      </Alert>
     </div>
   )
 }
