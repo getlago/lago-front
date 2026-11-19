@@ -1,4 +1,6 @@
+import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
+import { useEditAppliedRateCardUnitsDialog } from '~/components/appliedRateCards/dialogs/useEditAppliedRateCardUnitsDialog'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
 import { useAppliedRateCardRowActions } from '~/components/appliedRateCards/useAppliedRateCardRowActions'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -7,7 +9,7 @@ import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { AppliedRateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { useNavigate } from '~/core/router'
-import { RatePhaseForDrawerFragment } from '~/generated/graphql'
+import { ProductTypeEnum, RatePhaseForDrawerFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -22,6 +24,7 @@ import { useRatePhaseActions } from './useRatePhaseActions'
 export const APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID = 'applied-rate-card-details-actions'
 export const APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID =
   'applied-rate-card-details-create-phase'
+export const APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID = 'applied-rate-card-details-edit-units'
 export const APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID = 'applied-rate-card-details-remove'
 export const APPLIED_RATE_CARD_DETAILS_OVERVIEW_TAB_TEST_ID =
   'applied-rate-card-details-overview-tab'
@@ -73,6 +76,14 @@ const AppliedRateCardDetailsContent = ({
     onRemoved: () => navigate(parentRateCardsPath),
   })
 
+  const { openEditAppliedRateCardUnitsDialog } = useEditAppliedRateCardUnitsDialog()
+
+  // `PlanRateCards::UpdateService` rejects a plan attached to contracts (`plan_locked`),
+  // `ContractRateCards::UpdateService` a non-pending contract (`contract_locked`).
+  const isEditUnitsHidden =
+    appliedRateCard.product.productType !== ProductTypeEnum.Fixed ||
+    !hasPermissions([APPLIED_RATE_CARD_CONTEXT_CONFIG[context].updatePermission])
+
   const getPhaseHref = (phase: RatePhaseForDrawerFragment): string =>
     config.buildPhasePath({ ...cardPathParams, phaseId: phase.id })
 
@@ -82,6 +93,20 @@ const AppliedRateCardDetailsContent = ({
       label: translate('text_626162c62f790600f850b6fe'),
       dataTest: APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID,
       items: [
+        {
+          label: translate('text_17950691724841bhd45g69u8'),
+          dataTest: APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID,
+          hidden: isEditUnitsHidden,
+          disabled: parent.isLocked,
+          onClick: (closePopper) => {
+            openEditAppliedRateCardUnitsDialog({
+              context,
+              appliedRateCardId: appliedRateCard.id,
+              units: appliedRateCard.units,
+            })
+            closePopper()
+          },
+        },
         {
           label: translate('text_1792507128247xgs5eskh1bu'),
           dataTest: APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID,
