@@ -168,8 +168,14 @@ describe('MainNavMenuSections', () => {
       expect(document.querySelector(`a[href="${SUBSCRIPTIONS_ROUTE}"]`)).not.toBeInTheDocument()
     })
 
+    it('shows Analytics when Product Catalog is enabled', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${ANALYTIC_ROUTE}"]`)).toBeInTheDocument()
+    })
+
     it.each([
-      ['Analytics', ANALYTIC_ROUTE],
       ['legacy Plans', PLANS_ROUTE],
       ['Features', FEATURES_ROUTE],
       ['Add-ons', ADD_ONS_ROUTE],
