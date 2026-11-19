@@ -54,6 +54,9 @@ const AvalaraIntegrationDetails = lazyLoad(
   () => import('~/pages/settings/AvalaraIntegrationDetails'),
 )
 const AvalaraIntegrations = lazyLoad(() => import('~/pages/settings/AvalaraIntegrations'))
+const AgentStorefrontIntegrations = lazyLoad(
+  () => import('~/pages/settings/AgentStorefrontIntegrations'),
+)
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
@@ -131,6 +134,8 @@ export const ANROK_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/anrok`
 export const ANROK_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/anrok/:integrationId/:tab`
 export const AVALARA_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/avalara`
 export const AVALARA_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/avalara/:integrationId/:tab`
+export const AGENT_STOREFRONT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/agent-storefront`
+export const AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/agent-storefront/:integrationId`
 export const ADYEN_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/adyen`
 export const ADYEN_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/adyen/:integrationId`
 export const HUBSPOT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/hubspot`
@@ -319,6 +324,13 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <AvalaraIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: [AGENT_STOREFRONT_INTEGRATION_ROUTE, AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE],
+        private: true,
+        element: <AgentStorefrontIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+        featureFlag: FeatureFlagEnum.AgentStorefront,
       },
 
       {
