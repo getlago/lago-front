@@ -9,10 +9,14 @@ import {
   FEATURE_PRIVILEGE_HIDE_OPTIONS_BUTTON_TEST_ID,
   FEATURE_PRIVILEGE_NAME_INPUT_TEST_ID,
 } from '~/components/features/FeaturePrivilegeAccordion'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, isSilencedGQLError } from '~/core/apolloClient'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { FeatureForFeatureFormFragment, PrivilegeValueTypeEnum } from '~/generated/graphql'
+import {
+  FeatureForFeatureFormFragment,
+  LagoApiError,
+  PrivilegeValueTypeEnum,
+} from '~/generated/graphql'
 import { MAX_FEATURE_PRIVILEGES } from '~/pages/features/featureForm/constants'
 import { REQUIRED_FIELD_ERROR } from '~/pages/features/featureForm/validationSchema'
 import { render, testMockNavigateFn } from '~/test-utils'
@@ -93,7 +97,10 @@ jest.mock('~/core/utils/domUtils', () => ({
   scrollToAndClickElement: jest.fn(),
 }))
 
-type MutationHookOptions = { onCompleted: (data: Record<string, { id: string }>) => void }
+type MutationHookOptions = {
+  onCompleted: (data: Record<string, { id: string }>) => void
+  context?: { silentErrorCodes?: unknown[]; silentErrorDetails?: unknown[] }
+}
 
 const mockUseGetFeatureQuery = jest.fn()
 const mockCreateFeature = jest.fn()
@@ -763,6 +770,36 @@ describe('FeatureForm', () => {
         expect(mockUpdateFeature.mock.calls[0][0].variables.input.privileges).toHaveLength(
           MAX_FEATURE_PRIVILEGES + 1,
         )
+      })
+    })
+  })
+
+  describe('GIVEN the backend refuses the save', () => {
+    const silencingOf = (details: Record<string, string[]>): boolean =>
+      isSilencedGQLError({
+        extensions: { code: LagoApiError.UnprocessableEntity, details },
+        silentErrorCodes: createFeatureOptions.context?.silentErrorCodes ?? [],
+        silentErrorDetails: createFeatureOptions.context?.silentErrorDetails ?? [],
+      })
+
+    // Regression: the form used to silence every `unprocessable_entity`, so a refusal
+    // it does not handle left the user with no feedback at all.
+    describe('WHEN the refusal is one the form does not handle', () => {
+      it('THEN should leave it to the global error handler', async () => {
+        await renderPage()
+
+        expect(silencingOf({ base: ['too_many_privileges'] })).toBe(false)
+      })
+    })
+
+    describe('WHEN the refusal is one the form surfaces itself', () => {
+      it.each([
+        ['a duplicated privilege code', { 'privilege.code': ['value_is_duplicated'] }],
+        ['an already taken feature code', { code: ['value_already_exist'] }],
+      ])('THEN should keep %s silent', async (_, details) => {
+        await renderPage()
+
+        expect(silencingOf(details)).toBe(true)
       })
     })
   })

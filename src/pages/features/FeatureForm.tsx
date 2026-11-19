@@ -53,7 +53,9 @@ export const FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID = 'show-description'
 export const FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID = 'feature-form-add-privilege-button'
 export const FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID = 'feature-form-privilege-limit-hint'
 
-const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
+// Silencing every `unprocessable_entity` hid the refusals the form does not handle,
+// the privilege-count one among them. Only the two it surfaces itself stay silent.
+const SILENT_ERROR_DETAILS = [LagoApiError.ValueIsDuplicated, LagoApiError.ValueAlreadyExist]
 
 gql`
   fragment FeatureForFeatureForm on FeatureObject {
@@ -204,7 +206,7 @@ const FeatureForm = () => {
 
   const [updateFeature, { error: updateError }] = useUpdateFeatureMutation({
     context: {
-      silentErrorCodes: SILENT_ERROR_CODES,
+      silentErrorDetails: SILENT_ERROR_DETAILS,
     },
     onCompleted({ updateFeature: updatedFeature }) {
       if (!!updatedFeature?.id) {
@@ -220,7 +222,7 @@ const FeatureForm = () => {
 
   const [createFeature, { error: createError }] = useCreateFeatureMutation({
     context: {
-      silentErrorCodes: SILENT_ERROR_CODES,
+      silentErrorDetails: SILENT_ERROR_DETAILS,
     },
     onCompleted({ createFeature: createdFeature }) {
       if (!!createdFeature?.id) {
