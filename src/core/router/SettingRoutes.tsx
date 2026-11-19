@@ -57,6 +57,9 @@ const AvalaraIntegrations = lazyLoad(() => import('~/pages/settings/AvalaraInteg
 const AgentStorefrontIntegrations = lazyLoad(
   () => import('~/pages/settings/AgentStorefrontIntegrations'),
 )
+const AgentStorefrontIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/AgentStorefrontIntegrationDetails'),
+)
 const AdyenIntegrations = lazyLoad(() => import('~/pages/settings/AdyenIntegrations'))
 const NetsuiteIntegrations = lazyLoad(() => import('~/pages/settings/NetsuiteIntegrations'))
 const AdyenIntegrationDetails = lazyLoad(() => import('~/pages/settings/AdyenIntegrationDetails'))
@@ -326,9 +329,16 @@ export const settingRoutes: CustomRouteObject[] = [
         permissions: ['organizationIntegrationsView'],
       },
       {
-        path: [AGENT_STOREFRONT_INTEGRATION_ROUTE, AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE],
+        path: AGENT_STOREFRONT_INTEGRATION_ROUTE,
         private: true,
         element: <AgentStorefrontIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+        featureFlag: FeatureFlagEnum.AgentStorefront,
+      },
+      {
+        path: AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <AgentStorefrontIntegrationDetails />,
         permissions: ['organizationIntegrationsView'],
         featureFlag: FeatureFlagEnum.AgentStorefront,
       },
