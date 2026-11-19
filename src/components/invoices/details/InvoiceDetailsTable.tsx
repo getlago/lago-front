@@ -177,7 +177,7 @@ interface InvoiceDetailsTableProps {
   isDraftOverride?: boolean
   fees: FeeDetailsForInvoiceOverviewFragment[] | null | undefined
   onAdd?: OnRegeneratedFeeAdd
-  onDelete?: (id: string) => void
+  onDelete?: (id: string) => void | Promise<void>
   localFees?: FeeForCreateFeeDrawerFragment[]
 }
 

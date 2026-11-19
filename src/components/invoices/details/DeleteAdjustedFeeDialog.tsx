@@ -22,7 +22,7 @@ gql`
 
 interface DeleteAdjustedFeeDialogData {
   fee: TExtendedRemainingFee | undefined
-  onDelete?: (id: string) => void
+  onDelete?: (id: string) => void | Promise<void>
 }
 
 export const useDeleteAdjustedFeeDialog = () => {
@@ -49,7 +49,7 @@ export const useDeleteAdjustedFeeDialog = () => {
       actionText: translate('text_65a6b4e2cb38d9b70ec54035'),
       onAction: async () => {
         if (data.onDelete) {
-          data.onDelete(data.fee?.id || '')
+          await data.onDelete(data.fee?.id || '')
           return
         }
 

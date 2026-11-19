@@ -36,6 +36,7 @@ import {
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
+  useGetOriginalFeeLazyQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -65,6 +66,50 @@ gql`
           id
           interval
           name
+        }
+      }
+    }
+  }
+
+  query getOriginalFee($id: ID!) {
+    fee(id: $id) {
+      id
+      amountCents
+      invoiceDisplayName
+      preciseUnitAmount
+      units
+      amountDetails {
+        fixedFeeTotalAmount
+        fixedFeeUnitAmount
+        flatUnitAmount
+        freeEvents
+        freeUnits
+        minMaxAdjustmentTotalAmount
+        paidEvents
+        paidUnits
+        perPackageSize
+        perPackageUnitAmount
+        perUnitAmount
+        perUnitTotalAmount
+        rate
+        units
+        graduatedRanges {
+          flatUnitAmount
+          fromValue
+          perUnitAmount
+          perUnitTotalAmount
+          toValue
+          totalWithFlatAmount
+          units
+        }
+        graduatedPercentageRanges {
+          flatUnitAmount
+          fromValue
+          perUnitTotalAmount
+          rate
+          toValue
+          totalWithFlatAmount
+          units
         }
       }
     }
@@ -208,6 +253,7 @@ const CustomerInvoiceRegenerate = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
+  const [getOriginalFee] = useGetOriginalFeeLazyQuery()
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -250,7 +296,7 @@ const CustomerInvoiceRegenerate = () => {
     return setFees((f) => [...f, calculatedFee])
   }
 
-  const onDelete = (id: string) => {
+  const onDelete = async (id: string) => {
     // Use originalFeesRef to get untouched fee data, avoiding Apollo cache pollution
     const original = originalFeesRef.current?.find((f) => f.id === id)
 
@@ -263,12 +309,22 @@ const CustomerInvoiceRegenerate = () => {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
 
-    // Every fee is re-wrapped as adjusted on each void/regenerate round, so `originalFee`
-    // (the Lago-calculated root fee) is what reset must restore, not `original` itself.
-    if (original.originalFee) {
-      const { originalFee, ...rest } = original
+    // Every fee is re-wrapped as adjusted on each void/regenerate round, so the root fee
+    // (fetched lazily by originalFeeId) is what reset must restore, not `original` itself.
+    if (original.originalFeeId) {
+      const { data } = await getOriginalFee({ variables: { id: original.originalFeeId } })
+      const originalFee = data?.fee
+
+      if (!originalFee) {
+        addToast({
+          message: translate('text_62b31e1f6a5b8b1b745ece48'),
+          severity: 'danger',
+        })
+        return setFees((f) => f.filter((fee) => fee.id !== id))
+      }
+
       const resetFee = {
-        ...rest,
+        ...original,
         amountCents: originalFee.amountCents,
         amountDetails: originalFee.amountDetails,
         invoiceDisplayName: originalFee.invoiceDisplayName,
@@ -281,7 +337,7 @@ const CustomerInvoiceRegenerate = () => {
       return setFees((f) => f.map((fee) => (fee.id === id ? resetFee : fee)))
     }
 
-    // A fee added by hand (not duplicated from an existing one) has no originalFee until a
+    // A fee added by hand (not duplicated from an existing one) has no originalFeeId until a
     // later round duplicates it, so reset on it has nothing to restore and falls back to delete.
     return setFees((f) => f.filter((fee) => fee.id !== id))
   }

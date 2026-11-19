@@ -21,6 +21,7 @@ import CustomerInvoiceRegenerate, {
 
 const mockRegenerateInvoice = jest.fn()
 const mockVoidInvoice = jest.fn()
+const mockGetOriginalFee = jest.fn()
 let mockRegenerateOptions: RegenerateInvoiceMutationOptions | undefined
 
 jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', () => ({
@@ -49,6 +50,7 @@ jest.mock('~/generated/graphql', () => {
     useFetchDraftInvoiceTaxesMutation: jest.fn(() => [jest.fn(), {}]),
     useVoidInvoiceMutation: jest.fn(() => [mockVoidInvoice, {}]),
     usePreviewAdjustedFeeMutation: jest.fn(() => [jest.fn(), {}]),
+    useGetOriginalFeeLazyQuery: jest.fn(() => [mockGetOriginalFee, {}]),
   }
 })
 
@@ -126,22 +128,7 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
           return currentFees.map((fee) => (fee.id === id ? original : fee))
         }
 
-        if (original.originalFee) {
-          const { originalFee, ...rest } = original
-          const resetFee = {
-            ...rest,
-            amountCents: originalFee.amountCents,
-            amountDetails: originalFee.amountDetails,
-            invoiceDisplayName: originalFee.invoiceDisplayName,
-            preciseUnitAmount: originalFee.preciseUnitAmount,
-            units: originalFee.units,
-            adjustedFee: false,
-            adjustedFeeType: null,
-          }
-
-          return currentFees.map((fee) => (fee.id === id ? resetFee : fee))
-        }
-
+        // Restore-from-originalFeeId needs an async fetch; see integration tests below.
         return currentFees.filter((fee) => fee.id !== id)
       },
     }
@@ -254,61 +241,13 @@ describe('CustomerInvoiceRegenerate - Fee Management Logic', () => {
       expect(result[0].adjustedFee).toBe(false)
     })
 
-    it('should restore a fee already adjusted from a prior regenerate round to its calculated values', () => {
-      // Every fee is re-wrapped as adjusted each regenerate round, even untouched ones.
-      const originalFees = [
-        {
-          id: 'fee-1',
-          invoiceDisplayName: 'Fee 1 (edited)',
-          units: 20,
-          preciseUnitAmount: 200,
-          amountCents: 4000,
-          amountDetails: { freeUnits: '0' },
-          adjustedFee: true,
-          adjustedFeeType: 'adjusted_amount',
-          originalFee: {
-            id: 'root-fee-1',
-            invoiceDisplayName: 'Fee 1',
-            units: 10,
-            preciseUnitAmount: 100,
-            amountCents: 1000,
-            amountDetails: { freeUnits: '5' },
-          },
-        },
-        {
-          id: 'fee-2',
-          invoiceDisplayName: 'Fee 2',
-          adjustedFee: false,
-        },
-      ]
-
-      const { onDelete } = createFeeResetHandler(originalFees)
-
-      const currentFees = [...originalFees]
-
-      const result = onDelete('fee-1', currentFees)
-
-      expect(result).toHaveLength(2)
-      expect(result[0]).toMatchObject({
-        id: 'fee-1',
-        invoiceDisplayName: 'Fee 1',
-        units: 10,
-        preciseUnitAmount: 100,
-        amountCents: 1000,
-        amountDetails: { freeUnits: '5' },
-        adjustedFee: false,
-        adjustedFeeType: null,
-      })
-      expect(result[1].id).toBe('fee-2')
-    })
-
-    it('should remove an already-adjusted fee with no originalFee to restore (defensive fallback)', () => {
+    it('should remove an already-adjusted fee with no originalFeeId to restore (defensive fallback)', () => {
       const originalFees = [
         {
           id: 'fee-1',
           invoiceDisplayName: 'Fee 1',
           adjustedFee: true,
-          originalFee: null,
+          originalFeeId: null,
         },
         {
           id: 'fee-2',
@@ -681,9 +620,21 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       })
     })
 
-    it('THEN resetting a fee already adjusted from a prior regenerate round restores its calculated values instead of deleting it', async () => {
+    it('THEN resetting a fee already adjusted from a prior regenerate round fetches and restores its calculated values instead of deleting it', async () => {
       mockRegenerateInvoice.mockResolvedValue({})
       mockVoidInvoice.mockResolvedValue({})
+      mockGetOriginalFee.mockResolvedValue({
+        data: {
+          fee: {
+            id: 'root-fee-1',
+            invoiceDisplayName: null,
+            units: 10,
+            preciseUnitAmount: 100,
+            amountCents: 1000,
+            amountDetails: { freeUnits: '5' },
+          },
+        },
+      })
 
       const fee = {
         id: 'fee-1',
@@ -696,14 +647,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         adjustedFee: true,
         adjustedFeeType: 'adjusted_amount',
         subscription: { id: 'subscription-123' },
-        originalFee: {
-          id: 'root-fee-1',
-          invoiceDisplayName: null,
-          units: 10,
-          preciseUnitAmount: 100,
-          amountCents: 1000,
-          amountDetails: { freeUnits: '5' },
-        },
+        originalFeeId: 'root-fee-1',
       }
 
       mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
@@ -717,7 +661,9 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
 
       const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
 
-      act(() => onDelete('fee-1'))
+      await act(() => onDelete('fee-1'))
+
+      expect(mockGetOriginalFee).toHaveBeenCalledWith({ variables: { id: 'root-fee-1' } })
 
       const resetFee = MockInvoiceDetailsTable.mock.calls
         .at(-1)[0]
@@ -747,7 +693,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       })
     })
 
-    it('THEN resetting a fee with no originalFee to restore falls back to deleting it', async () => {
+    it('THEN resetting a fee with no originalFeeId to restore falls back to deleting it', async () => {
       mockRegenerateInvoice.mockResolvedValue({})
       mockVoidInvoice.mockResolvedValue({})
 
@@ -761,7 +707,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         adjustedFee: true,
         adjustedFeeType: 'adjusted_amount',
         subscription: { id: 'subscription-123' },
-        originalFee: null,
+        originalFeeId: null,
       }
 
       mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
@@ -775,7 +721,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
 
       const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
 
-      act(() => onDelete('fee-1'))
+      await act(() => onDelete('fee-1'))
 
       fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))
 
