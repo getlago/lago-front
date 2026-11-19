@@ -237,9 +237,7 @@ describe('AgentStorefrontIntegrationDetails', () => {
 
         mockOpenDeleteConnection.mock.calls[0][0].callback()
 
-        expect(mockNavigate).toHaveBeenCalledWith(
-          '/settings/integrations/lago/agent-storefront',
-        )
+        expect(mockNavigate).toHaveBeenCalledWith('/settings/integrations/lago/agent-storefront')
       })
     })
 
