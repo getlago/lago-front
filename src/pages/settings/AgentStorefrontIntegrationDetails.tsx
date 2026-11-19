@@ -93,6 +93,7 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
         generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
           integrationGroup: IntegrationsTabsOptionsEnum.Lago,
         }),
+        { replace: true },
       )
     }
   }, [isNotFound, navigate])

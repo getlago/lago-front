@@ -287,6 +287,7 @@ describe('AgentStorefrontIntegrationDetails', () => {
 
         expect(mockNavigate).toHaveBeenCalledWith(
           expect.stringMatching(/\/settings\/integrations\/lago\/agent-storefront$/),
+          { replace: true },
         )
         expect(screen.queryByTestId(AGENT_ACCESS_TABLE_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByText('Agentic Flow A')).not.toBeInTheDocument()
