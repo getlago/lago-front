@@ -87,7 +87,7 @@ const ProfileFields = () => {
           />
         </Field>
       </div>
-      <Field data-invalid="true">
+      <Field>
         <FieldContent>
           <FieldLabel htmlFor={`${id}-code`}>Code</FieldLabel>
           <FieldDescription>Choose a unique code.</FieldDescription>

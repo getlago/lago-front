@@ -22,7 +22,7 @@ import {
 
 ## API
 
-Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel accepts native label props; FieldDescription and FieldError accept paragraph props. FieldError renders only when content exists. Field supports data-disabled and data-invalid. FieldHelp accepts a translated accessible label and tooltip children; place it beside, not inside, FieldLabel. Share one TooltipProvider above the form.
+Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel accepts native label props; FieldDescription and FieldError accept paragraph props. FieldError renders only when content exists. Field supports data-disabled for label and description styling. Set aria-invalid on Input to control its error appearance, and use FieldError to display the error message. FieldHelp accepts a translated accessible label and tooltip children; place it beside, not inside, FieldLabel. Share one TooltipProvider above the form.
 
 ## Examples
 
@@ -54,4 +54,4 @@ IDs and aria-describedby are explicit; no hidden form context. Keep help outside
 - [Input](./input.md)
 - [Tooltip](./tooltip.md)
 - Storybook: Components / Field
-- Tests: **tests**/field.test.tsx
+- Tests: `__tests__/field.test.tsx`

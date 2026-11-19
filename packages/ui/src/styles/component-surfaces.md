@@ -95,19 +95,19 @@ Alpha interaction fills must retain the correct background beneath them. For a f
 
 ```tsx
 // Text input: default appearance only; add its states in the component.
-className = 'border border-border-control bg-surface text-text-default'
+<input className="border border-border-control bg-surface text-text-default" />
 
 // Popover or toast.
-className = 'border border-border-divider bg-surface-floating text-text-default shadow-v2-floating'
+<div className="border border-border-divider bg-surface-floating text-text-default shadow-v2-floating" />
 
 // Dialog.
-className = 'border border-border-divider bg-surface-floating text-text-default shadow-v2-dialog'
+<div className="border border-border-divider bg-surface-floating text-text-default shadow-v2-dialog" />
 
 // Tooltip.
-className = 'bg-inverse text-inverse-foreground shadow-v2-floating'
+<div className="bg-inverse text-inverse-foreground shadow-v2-floating" />
 
 // Current breadcrumb.
-className = 'text-text-subtle'
+<span className="text-text-subtle">Current page</span>
 ```
 
 `border-border-control` is intentional: the first `border-` selects the Tailwind property; `border-control` is the semantic color name.

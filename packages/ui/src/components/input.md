@@ -36,4 +36,4 @@ Associate a label through htmlFor/id or provide an accessible name. Link descrip
 
 - [Field](./field.md)
 - Storybook: Components / Input
-- Tests: **tests**/input.test.tsx
+- Tests: `__tests__/input.test.tsx`
