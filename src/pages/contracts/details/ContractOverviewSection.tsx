@@ -180,6 +180,16 @@ export const ContractOverviewSection = (): JSX.Element => {
     openPaymentSettingsDrawer({ paymentMethod: selectedPaymentMethod }),
   )
 
+  const renderContractCode = (): JSX.Element | string => {
+    if (!contract?.code) return '-'
+
+    return (
+      <TypographyWithCopy compact variant="body" color="grey700">
+        {contract.code}
+      </TypographyWithCopy>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-12 pb-6">
       <section className="flex flex-col gap-6 pb-12 shadow-b">
@@ -246,6 +256,10 @@ export const ContractOverviewSection = (): JSX.Element => {
                 '-'
               )
             }
+          />
+          <DetailsPage.InfoGridItem
+            label={translate('text_17950335898708mg94k6t8ej')}
+            value={renderContractCode()}
           />
           <DetailsPage.InfoGrid
             grid={[

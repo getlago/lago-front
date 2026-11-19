@@ -2,7 +2,9 @@ import { MockedResponse } from '@apollo/client/testing'
 import { useStore } from '@tanstack/react-form'
 import { fireEvent, screen, waitFor, within } from '@testing-library/react'
 
+import { Button } from '~/components/designSystem/Button'
 import { useCreateMore } from '~/components/drawers/createMore/useCreateMore'
+import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   GetCatalogPlansForContractDrawerDocument,
   GetCustomersForContractDrawerDocument,
@@ -20,10 +22,12 @@ import {
   CONTRACT_FORM_DEFAULTS,
   ContractDrawerCustomer,
   ContractFormValues,
+  VALUE_REQUIRED_KEY,
 } from '../constants'
 import { ContractDrawerContent } from '../ContractDrawerContent'
 
 const FORM_DIRTY_STATE_TEST_ID = 'form-dirty-state'
+const SET_CODE_ERROR_TEST_ID = 'set-code-error'
 const mockBillingEntityPicker = jest.fn()
 const mockPaymentSettingsSelector = jest.fn()
 const mockInvoicingSettingsSection = jest.fn()
@@ -85,7 +89,13 @@ const plansMock: MockedResponse = {
   },
 }
 
-const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }) => {
+const Wrapper = ({
+  seededCustomer,
+  codeError,
+}: {
+  seededCustomer?: ContractDrawerCustomer
+  codeError?: string
+}) => {
   const defaultValues: ContractFormValues = {
     ...CONTRACT_FORM_DEFAULTS,
     externalCustomerId: 'customer-external-id',
@@ -99,6 +109,18 @@ const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }
   return (
     <>
       <span data-test={FORM_DIRTY_STATE_TEST_ID}>{isDirty ? 'dirty' : 'pristine'}</span>
+      {codeError && (
+        <Button
+          data-test={SET_CODE_ERROR_TEST_ID}
+          onClick={() =>
+            form.setErrorMap({
+              onDynamic: { fields: { code: { message: codeError, path: ['code'] } } },
+            })
+          }
+        >
+          Show code error
+        </Button>
+      )}
       <button
         type="button"
         onClick={() => {
@@ -118,6 +140,25 @@ const Wrapper = ({ seededCustomer }: { seededCustomer?: ContractDrawerCustomer }
 
 describe('ContractDrawerContent', () => {
   beforeEach(() => jest.clearAllMocks())
+
+  describe('GIVEN a code field error', () => {
+    it.each([
+      [VALUE_REQUIRED_KEY, 'Value is mandatory to move forward'],
+      [
+        EXISTING_CODE_ERROR_MESSAGE,
+        'This code is already used by another contract with the same external ID.',
+      ],
+    ])('THEN displays the contract-specific message for %s', async (codeError, message) => {
+      render(<Wrapper codeError={codeError} />, { mocks: [customersMock, plansMock] })
+
+      fireEvent.click(screen.getByTestId(SET_CODE_ERROR_TEST_ID))
+
+      expect(await screen.findByText(message)).toBeInTheDocument()
+      expect(
+        within(screen.getByTestId(CONTRACT_DRAWER_CODE_INPUT_TEST_ID)).getByRole('textbox'),
+      ).toHaveAttribute('aria-invalid', 'true')
+    })
+  })
 
   it('renders the supported settings and customer billing entity defaults', async () => {
     render(<Wrapper />, { mocks: [customersMock, plansMock] })
@@ -161,6 +202,7 @@ describe('ContractDrawerContent', () => {
     )
 
     expect(codeInput).toHaveValue('')
+    expect(codeInput).toHaveAttribute('placeholder', 'Type a contract code')
     fireEvent.click(screen.getByTestId(CONTRACT_DRAWER_SHOW_NAME_TEST_ID))
     fireEvent.change(screen.getByPlaceholderText('Type a contract name'), {
       target: { value: 'Contract name' },

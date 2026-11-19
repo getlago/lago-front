@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { ContractDatesAndPurchaseOrderFields } from '~/components/contracts/drawers/contract/ContractDatesAndPurchaseOrderFields'
 import { ContractFieldLocks } from '~/components/contracts/drawers/contract/fieldLocks'
+import { TextInput } from '~/components/form/TextInput/TextInput'
 import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { TimezoneEnum } from '~/generated/graphql'
@@ -9,6 +10,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import {
+  CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID,
@@ -17,11 +19,13 @@ import {
 } from './constants'
 
 type ContractSettingsDrawerContentExtraProps = {
+  contractCode?: string | null
   fieldLocks: Pick<ContractFieldLocks, 'startedAt' | 'billingAnchorDate'>
   customerTimezone?: TimezoneEnum | null
 }
 
 const contractSettingsDrawerContentDefaultProps: ContractSettingsDrawerContentExtraProps = {
+  contractCode: undefined,
   fieldLocks: { startedAt: false, billingAnchorDate: false },
   customerTimezone: undefined,
 }
@@ -29,7 +33,12 @@ const contractSettingsDrawerContentDefaultProps: ContractSettingsDrawerContentEx
 export const ContractSettingsDrawerContent = withForm({
   defaultValues: CONTRACT_SETTINGS_FORM_DEFAULTS,
   props: contractSettingsDrawerContentDefaultProps,
-  render: function ContractSettingsDrawerContentRender({ form, fieldLocks, customerTimezone }) {
+  render: function ContractSettingsDrawerContentRender({
+    form,
+    fieldLocks,
+    customerTimezone,
+    contractCode,
+  }) {
     const { translate } = useInternationalization()
     const [shouldDisplayName, setShouldDisplayName] = useState(() => !!form.state.values.name)
 
@@ -85,6 +94,14 @@ export const ContractSettingsDrawerContent = withForm({
                 dataTest={CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID}
               />
             )}
+
+            <TextInput
+              disabled
+              name="code"
+              data-test={CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID}
+              label={translate('text_629728388c4d2300e2d380b7')}
+              value={contractCode ?? ''}
+            />
 
             <ContractDatesAndPurchaseOrderFields
               form={form}

@@ -32,6 +32,7 @@ gql`
   fragment ContractForContractDrawer on Contract {
     id
     externalId
+    code
     name
     status
     startedAt

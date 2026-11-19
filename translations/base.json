@@ -5479,5 +5479,8 @@
   "text_1795069172484bkbt387tkf4": "Units updated",
   "text_1795093921133goym1lmktoq": "Plan wallet created",
   "text_1795093921133a8yyd8l1i37": "Plan wallet deleted",
-  "text_1795093921133stwkpx4uv8x": "Plan wallet updated"
+  "text_1795093921133stwkpx4uv8x": "Plan wallet updated",
+  "text_17950335898705jctc4i4twe": "Type a contract code",
+  "text_17950335898708mg94k6t8ej": "Contract code",
+  "text_1795033589870p2xxngsuzlk": "This code is already used by another contract with the same external ID."
 }

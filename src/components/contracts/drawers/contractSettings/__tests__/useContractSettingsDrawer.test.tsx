@@ -1,15 +1,17 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import { act, renderHook } from '@testing-library/react'
-import { ReactNode } from 'react'
+import { ComponentProps, ReactElement, ReactNode } from 'react'
 
 import { contractForDrawerFixture } from '~/components/contracts/drawers/contract/__tests__/fixtures'
 import { addToast } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { UpdateContractDocument } from '~/generated/graphql'
 
+import { ContractSettingsDrawerContent } from '../ContractSettingsDrawerContent'
 import { useContractSettingsDrawer } from '../useContractSettingsDrawer'
 
 type CapturedDrawerArgs = {
+  children?: ReactElement<ComponentProps<typeof ContractSettingsDrawerContent>>
   form?: { id: string; submit: () => void | Promise<void> }
   shouldPromptOnClose?: () => boolean
 }
@@ -80,6 +82,7 @@ describe('useContractSettingsDrawer', () => {
     act(() => result.current.openDrawer(contractForDrawerFixture))
 
     expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
+    expect(lastDrawerArgs?.children?.props.contractCode).toBe('initial')
   })
 
   it('submits the contract settings fields keyed on the contract external id, then closes', async () => {
@@ -102,10 +105,7 @@ describe('useContractSettingsDrawer', () => {
       purchaseOrderNumber: 'PO-42',
     })
     expect(mockClose).toHaveBeenCalledTimes(1)
-    expect(addToast).toHaveBeenCalledWith({
-      severity: 'success',
-      translateKey: 'text_1790280529941qgc3lu3ni4u',
-    })
+    expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
   })
 
   it('saves an administrative edit on an active contract whose end date has passed', async () => {

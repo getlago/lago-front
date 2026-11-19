@@ -2,6 +2,7 @@ export const CONTRACT_SETTINGS_FORM_ID = 'contract-settings-drawer-form'
 
 export const CONTRACT_SETTINGS_DRAWER_SUBMIT_TEST_ID = 'contract-settings-drawer-submit'
 export const CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID = 'contract-settings-drawer-external-id'
+export const CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID = 'contract-settings-drawer-code'
 export const CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID = 'contract-settings-drawer-show-name'
 export const CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID = 'contract-settings-drawer-remove-name'
 

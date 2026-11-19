@@ -1,9 +1,12 @@
 import { fireEvent, screen } from '@testing-library/react'
 
+import { ContractStatusEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
+import { getContractFieldLocks } from '../../contract/fieldLocks'
 import {
+  CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID,
   ContractSettingsFormValues,
@@ -32,18 +35,48 @@ const defaultValues: ContractSettingsFormValues = {
   purchaseOrderNumber: 'PO-42',
 }
 
-const Wrapper = ({ locked }: { locked: boolean }) => {
+const Wrapper = ({
+  locked,
+  contractCode = 'initial',
+}: {
+  locked: boolean
+  contractCode?: string | null
+}) => {
   const form = useAppForm({ defaultValues })
 
   return (
     <ContractSettingsDrawerContent
       form={form}
+      contractCode={contractCode}
       fieldLocks={{ startedAt: locked, billingAnchorDate: locked }}
     />
   )
 }
 
 describe('ContractSettingsDrawerContent', () => {
+  describe('GIVEN an active or pending contract', () => {
+    it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
+      'THEN displays a disabled code for %s contracts',
+      (status) => {
+        render(<Wrapper locked={getContractFieldLocks(status).startedAt} />)
+
+        const codeInput = getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)
+
+        expect(codeInput).toHaveValue('initial')
+        expect(codeInput).toBeDisabled()
+      },
+    )
+  })
+
+  describe('GIVEN an older contract without a code', () => {
+    it('THEN displays an empty disabled code field', () => {
+      render(<Wrapper locked={false} contractCode={null} />)
+
+      expect(getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)).toHaveValue('')
+      expect(getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)).toBeDisabled()
+    })
+  })
+
   it('renders the drawer title and description', async () => {
     render(<Wrapper locked={false} />)
 
