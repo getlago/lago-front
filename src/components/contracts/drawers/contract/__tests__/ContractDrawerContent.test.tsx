@@ -171,6 +171,16 @@ describe('ContractDrawerContent', () => {
     expect(codeInput).toHaveValue('initial')
   })
 
+  it('explains how the code identifies a contract version', async () => {
+    render(<Wrapper />, { mocks: [customersMock, plansMock] })
+
+    expect(
+      await screen.findByText(
+        'The code identifies a specific contract version among those sharing the same external_id',
+      ),
+    ).toBeInTheDocument()
+  })
+
   it('replaces spaces in the code with underscores', () => {
     render(<Wrapper />, { mocks: [customersMock, plansMock] })
 

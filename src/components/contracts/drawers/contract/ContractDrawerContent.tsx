@@ -307,6 +307,7 @@ const ContractDrawerFormSections = withForm({
                   beforeChangeFormatter="code"
                   label={translate('text_629728388c4d2300e2d380b7')}
                   placeholder={translate('text_17950335898705jctc4i4twe')}
+                  helperText={translate('text_1795100193564fvipwk67u1g')}
                 />
               )}
             </form.AppField>
