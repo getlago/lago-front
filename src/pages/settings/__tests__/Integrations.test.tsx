@@ -20,6 +20,7 @@ import {
 import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils'
 
 import Integrations, {
+  INTEGRATIONS_AGENT_STOREFRONT_TEST_ID,
   INTEGRATIONS_HUBSPOT_TEST_ID,
   INTEGRATIONS_NETSUITE_TEST_ID,
   INTEGRATIONS_SALESFORCE_TEST_ID,
@@ -73,9 +74,19 @@ jest.mock('~/components/settings/integrations/AddLagoTaxManagementDialog', () =>
 jest.mock('~/components/settings/integrations/AddFlutterwaveDialog', () => ({
   useAddFlutterwaveDialog: () => ({ openAddFlutterwaveDialog: jest.fn() }),
 }))
+const mockOpenAddAgentStorefrontDialog = jest.fn()
+
+jest.mock('~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog', () => ({
+  useAddAgentStorefrontDialog: () => ({
+    openAddAgentStorefrontDialog: mockOpenAddAgentStorefrontDialog,
+  }),
+}))
+
+const mockOpenPremiumWarningDialog = jest.fn()
+
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
   usePremiumWarningDialog: () => ({
-    open: jest.fn(),
+    open: mockOpenPremiumWarningDialog,
     close: jest.fn(),
   }),
 }))
@@ -200,6 +211,35 @@ function netsuiteConnectedMock(): TestMocksType {
               {
                 __typename: 'NetsuiteIntegration',
                 id: 'netsuite-123',
+              },
+            ],
+          },
+        },
+      },
+    },
+    emptyBillingEntitiesMock(),
+  ]
+}
+
+function agentStorefrontConnectedMock(): TestMocksType {
+  return [
+    {
+      request: {
+        query: IntegrationsSettingDocument,
+        variables: { limit: 1000 },
+      },
+      result: {
+        data: {
+          paymentProviders: {
+            __typename: 'PaymentProviderCollection',
+            collection: [],
+          },
+          integrations: {
+            __typename: 'IntegrationCollection',
+            collection: [
+              {
+                __typename: 'AgentStorefrontIntegration',
+                id: 'agent-storefront-123',
               },
             ],
           },
@@ -508,6 +548,124 @@ describe('Integrations', () => {
       expect(screen.getByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the agent storefront card', () => {
+    const enableFlags = (...flags: FeatureFlagEnum[]): void => {
+      mockHasFeatureFlag.mockImplementation((flag) => flags.includes(flag))
+    }
+
+    const clickAgentStorefrontCard = async (): Promise<void> => {
+      const user = userEvent.setup()
+
+      await user.click(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID))
+    }
+
+    describe('WHEN the agent_storefront feature flag is off', () => {
+      it('THEN should not render the card', async () => {
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+        })
+
+        expect(screen.queryByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the agent_storefront feature flag is on', () => {
+      it('THEN should render the card', async () => {
+        enableFlags(FeatureFlagEnum.AgentStorefront)
+
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
+      it('THEN should still render the card for product catalog organizations', async () => {
+        enableFlags(FeatureFlagEnum.AgentStorefront, FeatureFlagEnum.ProductCatalog)
+
+        await prepare()
+
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toBeInTheDocument()
+        })
+      })
+    })
+
+    describe('WHEN the organization lacks the agent_storefront premium add-on', () => {
+      it('THEN should open the premium warning dialog on click', async () => {
+        enableFlags(FeatureFlagEnum.AgentStorefront)
+        mockOrganizationData = { premiumIntegrations: [] }
+
+        await prepare()
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toBeInTheDocument()
+        })
+
+        await clickAgentStorefrontCard()
+
+        expect(mockOpenPremiumWarningDialog).toHaveBeenCalledTimes(1)
+        expect(mockOpenAddAgentStorefrontDialog).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization has the premium add-on and no connection', () => {
+      it('THEN should open the connect dialog on click', async () => {
+        enableFlags(FeatureFlagEnum.AgentStorefront)
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.AgentStorefront],
+        }
+
+        await prepare()
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toBeInTheDocument()
+        })
+
+        await clickAgentStorefrontCard()
+
+        expect(mockOpenAddAgentStorefrontDialog).toHaveBeenCalledTimes(1)
+        expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization has the premium add-on and a connection', () => {
+      beforeEach(() => {
+        enableFlags(FeatureFlagEnum.AgentStorefront)
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.AgentStorefront],
+        }
+      })
+
+      it('THEN should show the connected badge on the card', async () => {
+        await prepare({ mocks: agentStorefrontConnectedMock() })
+
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toHaveTextContent(
+            'Connected',
+          )
+        })
+      })
+
+      it('THEN should navigate to the storefront connections route on click', async () => {
+        await prepare({ mocks: agentStorefrontConnectedMock() })
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toHaveTextContent(
+            'Connected',
+          )
+        })
+
+        await clickAgentStorefrontCard()
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/settings/integrations/lago/agent-storefront',
+        )
+        expect(mockOpenAddAgentStorefrontDialog).not.toHaveBeenCalled()
+      })
     })
   })
 })
