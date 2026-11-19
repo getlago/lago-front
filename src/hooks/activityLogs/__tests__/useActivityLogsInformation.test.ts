@@ -73,6 +73,9 @@ describe('useActivityLogsInformation', () => {
       [ActivityTypeEnum.ContractStarted, 'text_1791921974802xc0m2b09axm'],
       [ActivityTypeEnum.ContractRateCardUpdated, 'text_1791921974802geeg4bwwkvk'],
       [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],
+      [ActivityTypeEnum.PlanWalletCreated, 'text_1795093921133goym1lmktoq'],
+      [ActivityTypeEnum.PlanWalletDeleted, 'text_1795093921133a8yyd8l1i37'],
+      [ActivityTypeEnum.PlanWalletUpdated, 'text_1795093921133stwkpx4uv8x'],
       [ActivityTypeEnum.RateCardRateDeleted, 'text_1791921974803zghgbb7drn4'],
     ])('should return translation key for %s', (activityType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())
