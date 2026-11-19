@@ -102,8 +102,8 @@ describe('FiltersOnlyTable', () => {
     expect(screen.getByText('Units header')).toBeInTheDocument()
   })
 
-  it('lets long filter display names wrap instead of truncating them', () => {
-    const longName = 'model-name · latency-tier · token-type · rate · band'
+  it('does not truncate long filter display names', () => {
+    const longName = 'A very long charge filter display name '.repeat(5).trim()
     const usage = asUsage({
       charge: { invoiceDisplayName: 'My charge' },
       billableMetric: { name: 'BM' },
@@ -125,7 +125,7 @@ describe('FiltersOnlyTable', () => {
     const nameCell = screen.getByText(longName)
 
     expect(nameCell).not.toHaveClass('MuiTypography-noWrap')
-    expect(nameCell).toHaveClass('whitespace-pre-line')
+    expect(nameCell.closest('.lago-table-inner-cell')).not.toHaveClass('grid')
   })
 })
 

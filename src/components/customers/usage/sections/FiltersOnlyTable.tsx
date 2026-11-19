@@ -86,7 +86,6 @@ export const FiltersOnlyTable = ({
           key: 'invoiceDisplayName',
           title: translate('text_1725983967306dtwnapp4mw9'),
           maxSpace: true,
-          truncateOverflow: true,
           content: (row) => {
             if (isBreakdownRow(row)) {
               return <BreakdownNameCell presentationBy={row.presentationBy} />
@@ -98,7 +97,7 @@ export const FiltersOnlyTable = ({
                 : composeChargeFilterDisplayName(row)
 
             return (
-              <Typography variant="body" color="grey700" className="py-3">
+              <Typography variant="body" color="grey700" className="overflow-wrap-anywhere py-3">
                 {row.invoiceDisplayName || mappedFilterDisplayName || displayName}
               </Typography>
             )
