@@ -8,17 +8,15 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  formatFreeCredits,
+  formatTopupRange,
+} from '~/components/settings/integrations/agentStorefront/utils'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { AGENT_STOREFRONT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
-import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import {
-  AgentStorefrontIntegrationDetailsFragment,
-  CurrencyEnum,
-  useGetAgentStorefrontIntegrationDetailsQuery,
-} from '~/generated/graphql'
+import { useGetAgentStorefrontIntegrationDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import AgentStorefront from '~/public/images/agentic-storefront.svg'
 
@@ -64,46 +62,12 @@ gql`
 
 export const AGENT_ACCESS_COPY_TEST_ID = 'agent-access-copy'
 
-type SoldPlan = AgentStorefrontIntegrationDetailsFragment['plans'][number]
-
 type AgentAccessRow = {
   id: 'agentUrl' | 'authDocumentUrl' | 'billingDocumentUrl' | 'claimUrl'
   labelKey: string
   tooltipKey: string
   toastKey: string
   url: string
-}
-
-type AmountCents = string | number | null | undefined
-
-const hasAmount = (cents: AmountCents): cents is string | number =>
-  cents !== null && cents !== undefined
-
-const formatAmount = (cents: AmountCents, currency: CurrencyEnum): string => {
-  if (!hasAmount(cents)) return '-'
-
-  return intlFormatNumber(Number(deserializeAmount(cents, currency) || 0), {
-    currency,
-    minimumFractionDigits: getCurrencyPrecision(currency),
-    currencyDisplay: 'symbol',
-  })
-}
-
-export const formatTopupRange = ({
-  plan,
-  minimumTopupCents,
-  maximumTopupCents,
-}: SoldPlan): string => {
-  if (!plan) return '-'
-  if (!hasAmount(minimumTopupCents) && !hasAmount(maximumTopupCents)) return '-'
-
-  return `${formatAmount(minimumTopupCents, plan.amountCurrency)} – ${formatAmount(maximumTopupCents, plan.amountCurrency)}`
-}
-
-const formatFreeCredits = ({ plan, freeCreditsCents }: SoldPlan): string => {
-  if (!plan) return '-'
-
-  return formatAmount(freeCreditsCents, plan.amountCurrency)
 }
 
 const AgentStorefrontIntegrationDetails = (): JSX.Element => {

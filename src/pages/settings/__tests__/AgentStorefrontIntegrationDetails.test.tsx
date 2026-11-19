@@ -13,7 +13,6 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 
 import AgentStorefrontIntegrationDetails, {
   AGENT_ACCESS_COPY_TEST_ID,
-  formatTopupRange,
 } from '../AgentStorefrontIntegrationDetails'
 
 jest.mock('~/core/utils/copyToClipboard', () => ({ copyToClipboard: jest.fn() }))
@@ -289,39 +288,6 @@ describe('AgentStorefrontIntegrationDetails', () => {
         })
 
         expect(screen.getByTestId(AGENT_ACCESS_TABLE_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN formatTopupRange', () => {
-    describe('WHEN given a USD plan', () => {
-      it.each([
-        ['only a minimum', { minimumTopupCents: 500, maximumTopupCents: null }, '$5.00 – -'],
-        ['only a maximum', { minimumTopupCents: null, maximumTopupCents: 10000 }, '- – $100.00'],
-        ['no bound', { minimumTopupCents: null, maximumTopupCents: null }, '-'],
-        ['both bounds', { minimumTopupCents: 500, maximumTopupCents: 10000 }, '$5.00 – $100.00'],
-      ])('THEN should format %s', (_, bounds, expected) => {
-        expect(formatTopupRange(createSoldPlan(bounds))).toBe(expected)
-      })
-    })
-
-    describe('WHEN the plan was deleted', () => {
-      it('THEN should return a dash', () => {
-        expect(formatTopupRange(createSoldPlan({ plan: null }))).toBe('-')
-      })
-    })
-
-    describe('WHEN the plan currency has no decimals', () => {
-      it('THEN should not divide the amounts by 100', () => {
-        expect(
-          formatTopupRange(
-            createSoldPlan({
-              minimumTopupCents: 500,
-              maximumTopupCents: 1000,
-              plan: { ...usdPlan, amountCurrency: CurrencyEnum.Jpy },
-            }),
-          ),
-        ).toBe('¥500 – ¥1,000')
       })
     })
   })
