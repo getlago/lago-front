@@ -90,7 +90,7 @@ export const MainNavMenuSections = ({ isLoading, onItemClick }: MainNavMenuSecti
       icon: 'chart-bar',
       link: ANALYTIC_ROUTE,
       match: [ANALYTIC_ROUTE, ANALYTIC_TABS_ROUTE],
-      hidden: !hasPermissions(['analyticsView']),
+      hidden: !hasPermissions(['analyticsView']) || isProductCatalogEnabled,
     },
     {
       title: translate('text_17465414264635ktqocy7leo'),
