@@ -26,6 +26,8 @@ export const buildInvoiceProductCatalogTabs = (
   const hasSeveralContracts = new Set(sections.map(({ contract }) => contract.id)).size > 1
   const hasCategories = sections.some(({ productCategory }) => !!productCategory)
 
+  if (!hasSeveralContracts && !hasCategories) return []
+
   const getLabel = (section: InvoiceProductCatalogSectionItem): string => {
     if (!hasSeveralContracts) return getCategoryLabel(section, translate)
     if (!hasCategories) return getContractLabel(section)

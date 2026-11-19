@@ -60,8 +60,8 @@ describe('buildInvoiceProductCatalogTabs', () => {
       })
     })
 
-    describe('WHEN it has a single section', () => {
-      it('THEN should return a single tab', () => {
+    describe('WHEN it only has the standalone section', () => {
+      it('THEN should return no tabs', () => {
         const tabs = buildTabs([
           {
             contract: { id: 'c1', externalId: 'c1-external', name: 'Acme' },
@@ -69,7 +69,7 @@ describe('buildInvoiceProductCatalogTabs', () => {
           },
         ])
 
-        expect(tabs).toHaveLength(1)
+        expect(tabs).toEqual([])
       })
     })
   })

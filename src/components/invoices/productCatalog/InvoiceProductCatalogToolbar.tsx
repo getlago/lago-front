@@ -35,10 +35,11 @@ export const InvoiceProductCatalogToolbar = ({
 
   return (
     <div className="flex flex-col gap-4 pb-4">
-      {tabs.length > 1 && (
+      {tabs.length > 0 && (
         <div data-test={INVOICE_PRODUCT_CATALOG_TABS_TEST_ID}>
           <NavigationTab
             managedBy={TabManagedBy.INDEX}
+            showSingleTab
             currentTab={tabs.findIndex(({ key }) => key === section.key)}
             onChange={(index) => onSelectSection(tabs[index].key)}
             tabs={tabs.map(({ key, label }) => ({

@@ -51,11 +51,19 @@ describe('InvoiceProductCatalogToolbar', () => {
     jest.clearAllMocks()
   })
 
-  describe('GIVEN a single tab', () => {
+  describe('GIVEN no tabs', () => {
     it('THEN should not render the tabs', () => {
-      renderToolbar([tabs[0]])
+      renderToolbar([])
 
       expect(screen.queryByTestId(INVOICE_PRODUCT_CATALOG_TABS_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a single tab', () => {
+    it('THEN should render it selected', () => {
+      renderToolbar([tabs[0]])
+
+      expect(getTab('c1:catA')).toHaveAttribute('aria-selected', 'true')
     })
   })
 
