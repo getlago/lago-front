@@ -91,15 +91,12 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (
-  mocks: TestMocksType,
-  { isLocked = false, contractId = 'contract-1' }: { isLocked?: boolean; contractId?: string } = {},
-) =>
+const renderSection = (mocks: TestMocksType, { isLocked = false }: { isLocked?: boolean } = {}) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
         <ContractRateCardsSection
-          contractId={contractId}
+          contractId="contract-1"
           currency={CurrencyEnum.Usd}
           isLocked={isLocked}
         />
@@ -230,14 +227,6 @@ describe('ContractRateCardsSection', () => {
 
   it('GIVEN the contract is not pending THEN the Add rate card action is disabled', async () => {
     renderSection([buildListMock([])], { isLocked: true })
-
-    await waitFor(() =>
-      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
-    )
-  })
-
-  it('GIVEN the contract id is missing THEN the Add rate card action is disabled', async () => {
-    renderSection([], { contractId: '' })
 
     await waitFor(() =>
       expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),

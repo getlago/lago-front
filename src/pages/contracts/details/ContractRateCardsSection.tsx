@@ -133,9 +133,9 @@ export const ContractRateCardsSection = ({
     ? {
         label: translate('text_1789030049529b0zmy1slfxl'),
         dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-        disabled: isLocked || !contractId || !currency,
+        disabled: isLocked || !currency,
         onClick: () => {
-          if (isLocked || !contractId || !currency) return
+          if (isLocked || !currency) return
 
           openAppliedRateCardDrawer({
             context: 'contract',
