@@ -1,0 +1,21 @@
+.v2-field[data-disabled='true'] [data-slot='field-label'],
+.v2-field[data-disabled='true'] [data-slot='field-description'] {
+  color: var(--color-disabled-foreground);
+}
+.v2-field-help::before {
+  content: '';
+  position: absolute;
+  inset: -2px;
+}
+.v2-field-help:hover {
+  background-color: var(--color-surface-subtle);
+}
+.v2-field-help:focus-visible {
+  outline: 1px solid var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+@media (forced-colors: active) {
+  .v2-field-help:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

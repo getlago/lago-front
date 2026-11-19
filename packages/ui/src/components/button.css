@@ -99,7 +99,7 @@
 }
 
 .v2-button:focus-visible {
-  @apply rounded-full ring-4 ring-focus-ring ring-offset-0;
+  @apply ring-4 ring-focus-ring ring-offset-0;
 }
 .v2-button:focus:not(:focus-visible) {
   --tw-ring-shadow: 0 0 #0000;
