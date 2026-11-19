@@ -154,6 +154,7 @@ export const GroupedUsageWithFiltersTable = ({
         {
           key: 'invoiceDisplayName',
           title: translate('text_1725983967306dtwnapp4mw9'),
+          truncateOverflow: true,
           maxSpace: true,
           content: (row) => {
             // Discriminator first — `PresentationBreakdownRow` doesn't

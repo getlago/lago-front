@@ -125,7 +125,6 @@ describe('FiltersOnlyTable', () => {
     const nameCell = screen.getByText(longName)
 
     expect(nameCell).not.toHaveClass('MuiTypography-noWrap')
-    expect(nameCell.closest('.lago-table-inner-cell')).not.toHaveClass('grid')
   })
 })
 

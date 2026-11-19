@@ -159,98 +159,95 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
           </Button>
         )}
       >
-        {/* `minmax(0, 1fr)`: the Drawer paper is a grid, so content would otherwise widen it past 816px. */}
-        <div className="grid grid-cols-1">
-          <div className="mb-6">
-            <Typography variant="headline">
-              {translate('text_1778836980285mhlwwvofsqm', {
-                billableMetricName: displayName,
-              })}
-            </Typography>
-            <Typography>
-              {translate('text_633dae57ca9a923dd53c2097', {
-                fromDate: intlFormatDateTime(fromDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-                toDate: intlFormatDateTime(toDatetime, {
-                  locale,
-                  timezone: customerTimezone,
-                }).date,
-              })}
-            </Typography>
-          </div>
-
-          <NavigationTab
-            managedBy={TabManagedBy.INDEX}
-            currentTab={activeTab}
-            onChange={(index) => setActiveTab(index)}
-            tabs={[
-              {
-                title: translate('text_1753094834414fgnvuior3iv'),
-              },
-              {
-                title: translate('text_1753094834414tu9mxavuco7'),
-              },
-            ]}
-          />
-
-          <ChargeSummarySection
-            usage={usage}
-            currency={currency}
-            locale={locale}
-            showProjected={showProjected}
-            translate={translate}
-            unitsHeader={unitsHeader}
-            amountHeader={amountHeader}
-          />
-
-          {showSection2 && (
-            <section className="mt-12 flex flex-col gap-4">
-              <Typography variant="subhead1" color="grey700">
-                {translate('text_17786802483174e1d300blik')}
-              </Typography>
-              {!hasFiltersOrGroups && (
-                <Alert type="info">{translate('text_17786802483175q57751skt9')}</Alert>
-              )}
-              {hasAnyFilterInGroupUsage && (
-                <GroupedUsageWithFiltersTable
-                  usage={usage}
-                  currency={currency}
-                  locale={locale}
-                  showProjected={showProjected}
-                  translate={translate}
-                  unitsHeader={unitsHeader}
-                  amountHeader={amountHeader}
-                />
-              )}
-              {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
-                <GroupedUsageTable
-                  usage={usage}
-                  currency={currency}
-                  locale={locale}
-                  showProjected={showProjected}
-                  translate={translate}
-                  unitsHeader={unitsHeader}
-                  amountHeader={amountHeader}
-                />
-              )}
-              {!hasAnyFilterInGroupUsage &&
-                !hasAnyUnitsInGroupUsage &&
-                (usage?.filters?.length ?? 0) > 0 && (
-                  <FiltersOnlyTable
-                    usage={usage}
-                    currency={currency}
-                    locale={locale}
-                    showProjected={showProjected}
-                    translate={translate}
-                    unitsHeader={unitsHeader}
-                    amountHeader={amountHeader}
-                  />
-                )}
-            </section>
-          )}
+        <div className="mb-6">
+          <Typography variant="headline">
+            {translate('text_1778836980285mhlwwvofsqm', {
+              billableMetricName: displayName,
+            })}
+          </Typography>
+          <Typography>
+            {translate('text_633dae57ca9a923dd53c2097', {
+              fromDate: intlFormatDateTime(fromDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+              toDate: intlFormatDateTime(toDatetime, {
+                locale,
+                timezone: customerTimezone,
+              }).date,
+            })}
+          </Typography>
         </div>
+
+        <NavigationTab
+          managedBy={TabManagedBy.INDEX}
+          currentTab={activeTab}
+          onChange={(index) => setActiveTab(index)}
+          tabs={[
+            {
+              title: translate('text_1753094834414fgnvuior3iv'),
+            },
+            {
+              title: translate('text_1753094834414tu9mxavuco7'),
+            },
+          ]}
+        />
+
+        <ChargeSummarySection
+          usage={usage}
+          currency={currency}
+          locale={locale}
+          showProjected={showProjected}
+          translate={translate}
+          unitsHeader={unitsHeader}
+          amountHeader={amountHeader}
+        />
+
+        {showSection2 && (
+          <section className="mt-12 flex flex-col gap-4">
+            <Typography variant="subhead1" color="grey700">
+              {translate('text_17786802483174e1d300blik')}
+            </Typography>
+            {!hasFiltersOrGroups && (
+              <Alert type="info">{translate('text_17786802483175q57751skt9')}</Alert>
+            )}
+            {hasAnyFilterInGroupUsage && (
+              <GroupedUsageWithFiltersTable
+                usage={usage}
+                currency={currency}
+                locale={locale}
+                showProjected={showProjected}
+                translate={translate}
+                unitsHeader={unitsHeader}
+                amountHeader={amountHeader}
+              />
+            )}
+            {!hasAnyFilterInGroupUsage && hasAnyUnitsInGroupUsage && (
+              <GroupedUsageTable
+                usage={usage}
+                currency={currency}
+                locale={locale}
+                showProjected={showProjected}
+                translate={translate}
+                unitsHeader={unitsHeader}
+                amountHeader={amountHeader}
+              />
+            )}
+            {!hasAnyFilterInGroupUsage &&
+              !hasAnyUnitsInGroupUsage &&
+              (usage?.filters?.length ?? 0) > 0 && (
+                <FiltersOnlyTable
+                  usage={usage}
+                  currency={currency}
+                  locale={locale}
+                  showProjected={showProjected}
+                  translate={translate}
+                  unitsHeader={unitsHeader}
+                  amountHeader={amountHeader}
+                />
+              )}
+          </section>
+        )}
       </Drawer>
     )
   },

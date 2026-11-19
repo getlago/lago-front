@@ -86,6 +86,7 @@ export const FiltersOnlyTable = ({
           key: 'invoiceDisplayName',
           title: translate('text_1725983967306dtwnapp4mw9'),
           maxSpace: true,
+          truncateOverflow: true,
           content: (row) => {
             if (isBreakdownRow(row)) {
               return <BreakdownNameCell presentationBy={row.presentationBy} />
