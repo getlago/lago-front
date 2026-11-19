@@ -85,7 +85,7 @@ export const GroupedUsageTable = ({
             }
 
             return (
-              <Typography variant="body" color="grey700" noWrap>
+              <Typography variant="body" color="grey700" className="overflow-wrap-anywhere py-3">
                 {currentGroupedByDisplayName || displayName}
               </Typography>
             )
