@@ -3839,7 +3839,11 @@ export type DataApiMrrPlan = {
   planCode: Scalars['String']['output'];
   planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
-  planInterval: PlanInterval;
+  /**
+   * Interval of the plan. Null for product catalog plans and contracts without a
+   * plan, whose rate cards each have their own interval
+   */
+  planInterval?: Maybe<PlanInterval>;
   planName: Scalars['String']['output'];
 };
 
@@ -3926,7 +3930,11 @@ export type DataApiRevenueStreamPlan = {
   planCode: Scalars['String']['output'];
   planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
-  planInterval: PlanInterval;
+  /**
+   * Interval of the plan. Null for product catalog plans and contracts without a
+   * plan, whose rate cards each have their own interval
+   */
+  planInterval?: Maybe<PlanInterval>;
   planName: Scalars['String']['output'];
 };
 
@@ -13814,7 +13822,7 @@ export type GetMrrPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetMrrPlanBreakdownQuery = { __typename?: 'Query', dataApiMrrsPlans: { __typename?: 'DataApiMrrsPlans', collection: Array<{ __typename?: 'DataApiMrrPlan', activeCustomersCount: any, activeCustomersShare: number, amountCurrency: CurrencyEnum, mrr: number, mrrShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval?: PlanInterval | null, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type MrrDataForOverviewSectionFragment = { __typename?: 'DataApiMrr', endOfPeriodDt: any, endingMrr: any, mrrChange: any, mrrChurn: any, mrrContraction: any, mrrExpansion: any, mrrNew: any, startOfPeriodDt: any, startingMrr: any };
 
@@ -13871,7 +13879,7 @@ export type GetRevenueStreamsPlanBreakdownQueryVariables = Exact<{
 }>;
 
 
-export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval: PlanInterval, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetRevenueStreamsPlanBreakdownQuery = { __typename?: 'Query', dataApiRevenueStreamsPlans: { __typename?: 'DataApiRevenueStreamsPlans', collection: Array<{ __typename?: 'DataApiRevenueStreamPlan', amountCurrency: CurrencyEnum, customersCount: number, customersShare: number, netRevenueAmountCents: any, netRevenueShare?: number | null, planCode: string, planDeletedAt?: any | null, planId: string, planInterval?: PlanInterval | null, planName: string }>, metadata: { __typename?: 'DataApiMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetRevenueStreamsQueryVariables = Exact<{
   currency?: InputMaybe<CurrencyEnum>;
