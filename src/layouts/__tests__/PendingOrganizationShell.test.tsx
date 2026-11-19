@@ -16,6 +16,7 @@ import {
 const mockNavigate = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockGetCounterpartPath = jest.fn()
+const mockRefetchCurrentUserInfos = jest.fn()
 
 jest.mock('~/core/router', () => ({
   HOME_ROUTE: '/',
@@ -63,11 +64,18 @@ describe('PendingOrganizationShell', () => {
     mockGetCounterpartPath.mockReturnValue(SANDBOX_PATH)
     mockUseCurrentUser.mockReturnValue({
       currentUser: { memberships: [sandboxMembership()] },
+      refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
     })
   })
 
   describe('GIVEN a production organization waiting for a payment method', () => {
     describe('WHEN it is rendered', () => {
+      it('THEN should refetch the current user once to read a fresh activation status', () => {
+        renderShell()
+
+        expect(mockRefetchCurrentUserInfos).toHaveBeenCalledTimes(1)
+      })
+
       it('THEN should display the skeleton shell with the organization name', () => {
         renderShell()
 
@@ -170,7 +178,10 @@ describe('PendingOrganizationShell', () => {
       it('THEN should go to the home route instead', async () => {
         const user = userEvent.setup()
 
-        mockUseCurrentUser.mockReturnValue({ currentUser: { memberships } })
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships },
+          refetchCurrentUserInfos: mockRefetchCurrentUserInfos,
+        })
         renderShell(organization)
 
         await user.click(screen.getByTestId(PENDING_ORGANIZATION_CANCEL_BUTTON_TEST_ID))

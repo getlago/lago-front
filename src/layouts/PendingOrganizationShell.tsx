@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Typography } from '~/components/designSystem/Typography'
@@ -39,7 +41,13 @@ export const PendingOrganizationShell = ({
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const { strippedPathname, search } = useLocation()
-  const { currentUser } = useCurrentUser()
+  const { currentUser, refetchCurrentUserInfos } = useCurrentUser()
+
+  // The cached `currentUser` is persisted, so an organization activated since keeps its pending
+  // status until a network read.
+  useEffect(() => {
+    refetchCurrentUserInfos()
+  }, [refetchCurrentUserInfos])
 
   const sandboxSlug = currentUser?.memberships.find(
     (membership) =>
