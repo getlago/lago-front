@@ -74,6 +74,7 @@ gql`
   query getOriginalFee($id: ID!) {
     fee(id: $id) {
       id
+      adjustedFee
       amountCents
       invoiceDisplayName
       preciseUnitAmount
@@ -316,10 +317,17 @@ const CustomerInvoiceRegenerate = () => {
       const originalFee = data?.fee
 
       if (!originalFee) {
-        addToast({
+        // Leave the fee as-is on a failed lookup so the user can retry, rather than
+        // losing the line (the exact outcome this reset logic exists to prevent).
+        return addToast({
           message: translate('text_62b31e1f6a5b8b1b745ece48'),
           severity: 'danger',
         })
+      }
+
+      // A root that is itself adjusted was hand-added in an earlier round, not Lago-calculated
+      // (a genuine root never gets its own adjusted-fee row): nothing to restore to, so delete.
+      if (originalFee.adjustedFee) {
         return setFees((f) => f.filter((fee) => fee.id !== id))
       }
 

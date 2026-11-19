@@ -627,6 +627,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'root-fee-1',
+            adjustedFee: false,
             invoiceDisplayName: null,
             units: 10,
             preciseUnitAmount: 100,
@@ -691,6 +692,96 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
           },
         })
       })
+    })
+
+    it('THEN resetting a fee whose root was itself hand-added (not Lago-calculated) deletes it instead of restoring broken data', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+      mockGetOriginalFee.mockResolvedValue({
+        data: {
+          fee: {
+            id: 'hand-added-fee-1',
+            adjustedFee: true,
+            invoiceDisplayName: 'Hand-added fee',
+            units: 1,
+            preciseUnitAmount: 500,
+            amountCents: 500,
+            amountDetails: null,
+          },
+        },
+      })
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: 'Hand-added fee',
+        description: '',
+        units: 1,
+        preciseUnitAmount: 500,
+        amountCents: 500,
+        amountDetails: null,
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFeeId: 'hand-added-fee-1',
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      await act(() => onDelete('fee-1'))
+
+      const remainingFee = MockInvoiceDetailsTable.mock.calls
+        .at(-1)[0]
+        .fees.find((f: { id: string }) => f.id === 'fee-1')
+
+      expect(remainingFee).toBeUndefined()
+    })
+
+    it('THEN a failed original-fee fetch leaves the fee untouched instead of deleting it', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+      mockGetOriginalFee.mockResolvedValue({ data: undefined })
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: null,
+        description: '',
+        units: 20,
+        preciseUnitAmount: 200,
+        amountCents: 4000,
+        amountDetails: { freeUnits: '0' },
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFeeId: 'root-fee-1',
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      await act(() => onDelete('fee-1'))
+
+      const stillThere = MockInvoiceDetailsTable.mock.calls
+        .at(-1)[0]
+        .fees.find((f: { id: string }) => f.id === 'fee-1')
+
+      expect(stillThere).toMatchObject({ id: 'fee-1', adjustedFee: true, units: 20 })
     })
 
     it('THEN resetting a fee with no originalFeeId to restore falls back to deleting it', async () => {
