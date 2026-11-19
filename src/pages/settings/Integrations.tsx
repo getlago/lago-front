@@ -541,7 +541,7 @@ const Integrations = () => {
                           }
                           onClick={() => {
                             if (!hasAccessToAgentStorefrontPremiumIntegration) {
-                              openPremiumWarningDialog({
+                              void openPremiumWarningDialog({
                                 title: translate('text_661ff6e56ef7e1b7c542b1ea'),
                                 description: translate('text_661ff6e56ef7e1b7c542b1f6'),
                                 mailtoSubject: translate('text_1795083825205440vn60teym'),

@@ -182,7 +182,7 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
       { keepDefaultValues: true },
     )
 
-    formDialog.open({
+    void formDialog.open({
       title: translate('text_1795083825204rjjra2qszpz'),
       description: translate('text_1795083825204o2xktr1k5bf'),
       closeOnError: false,
