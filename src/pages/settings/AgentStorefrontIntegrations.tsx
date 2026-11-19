@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
@@ -19,6 +20,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import AgentStorefront from '~/public/images/agentic-storefront.svg'
+import EmptyImage from '~/public/images/maneki/empty.svg'
 import { MenuPopper, PopperOpener } from '~/styles'
 
 gql`
@@ -69,6 +71,106 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
   const connections = (data?.integrations?.collection ?? []).filter(isAgentStorefrontConnection)
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
   const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+  const hasConnections = connections.length > 0
+
+  const renderConnections = (): JSX.Element => {
+    if (isFirstLoad) {
+      return (
+        <section>
+          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
+          {[1, 2].map((i) => (
+            <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />
+          ))}
+        </section>
+      )
+    }
+
+    if (!hasConnections) {
+      return (
+        <GenericPlaceholder
+          title={translate('text_1785248821375zwy6pnlk3q7')}
+          subtitle={translate('text_1795083825204o2xktr1k5bf')}
+          image={<EmptyImage width="136" height="104" />}
+          buttonTitle={translate('text_65846763e6140b469140e235')}
+          buttonAction={openAddAgentStorefrontDialog}
+        />
+      )
+    }
+
+    return (
+      <section>
+        <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
+        {connections.map((connection) => (
+          <IntegrationsPage.ListItem
+            key={`agent-storefront-connection-${connection.id}`}
+            to={generatePath(AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE, {
+              integrationId: connection.id,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            })}
+            label={connection.name}
+            subLabel={connection.code}
+          >
+            {(canEditIntegration || canDeleteIntegration) && (
+              <Popper
+                PopperProps={{ placement: 'bottom-end' }}
+                opener={({ isOpen }) => (
+                  <PopperOpener className="right-0 md:right-0">
+                    <Tooltip
+                      placement="top-end"
+                      disableHoverListener={isOpen}
+                      title={translate('text_626162c62f790600f850b7b6')}
+                    >
+                      <Button
+                        icon="dots-horizontal"
+                        variant="quaternary"
+                        data-test={`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-${connection.id}`}
+                      />
+                    </Tooltip>
+                  </PopperOpener>
+                )}
+              >
+                {({ closePopper }) => (
+                  <MenuPopper>
+                    {canEditIntegration && (
+                      <Button
+                        startIcon="pen"
+                        variant="quaternary"
+                        align="left"
+                        data-test={AGENT_STOREFRONT_CONNECTION_EDIT_TEST_ID}
+                        onClick={() => {
+                          openEditAgentStorefrontDialog({ integration: connection })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_65845f35d7d69c3ab4793dac')}
+                      </Button>
+                    )}
+
+                    {canDeleteIntegration && (
+                      <Button
+                        startIcon="trash"
+                        variant="quaternary"
+                        align="left"
+                        data-test={AGENT_STOREFRONT_CONNECTION_DELETE_TEST_ID}
+                        onClick={() => {
+                          openDeleteAgentStorefrontIntegrationDialog({
+                            integration: connection,
+                          })
+                          closePopper()
+                        }}
+                      >
+                        {translate('text_645d071272418a14c1c76a81')}
+                      </Button>
+                    )}
+                  </MenuPopper>
+                )}
+              </Popper>
+            )}
+          </IntegrationsPage.ListItem>
+        ))}
+      </section>
+    )
+  }
 
   return (
     <>
@@ -86,7 +188,9 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
           viewNameLoading: isFirstLoad,
           metadata: translate('text_1795083825204u0cvlpt2mav'),
           metadataLoading: isFirstLoad,
-          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          badges: hasConnections
+            ? [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }]
+            : [],
           icon: <AgentStorefront />,
         }}
         actions={{
@@ -103,84 +207,7 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
         }}
       />
 
-      <IntegrationsPage.Container>
-        <section>
-          <IntegrationsPage.Headline label={translate('text_65846763e6140b469140e239')} />
-
-          {isFirstLoad &&
-            [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
-
-          {!isFirstLoad &&
-            connections.map((connection) => (
-              <IntegrationsPage.ListItem
-                key={`agent-storefront-connection-${connection.id}`}
-                to={generatePath(AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE, {
-                  integrationId: connection.id,
-                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                })}
-                label={connection.name}
-                subLabel={connection.code}
-              >
-                {(canEditIntegration || canDeleteIntegration) && (
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <PopperOpener className="right-0 md:right-0">
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_626162c62f790600f850b7b6')}
-                        >
-                          <Button
-                            icon="dots-horizontal"
-                            variant="quaternary"
-                            data-test={`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-${connection.id}`}
-                          />
-                        </Tooltip>
-                      </PopperOpener>
-                    )}
-                  >
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        {canEditIntegration && (
-                          <Button
-                            startIcon="pen"
-                            variant="quaternary"
-                            align="left"
-                            data-test={AGENT_STOREFRONT_CONNECTION_EDIT_TEST_ID}
-                            onClick={() => {
-                              openEditAgentStorefrontDialog({ integration: connection })
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_65845f35d7d69c3ab4793dac')}
-                          </Button>
-                        )}
-
-                        {canDeleteIntegration && (
-                          <Button
-                            startIcon="trash"
-                            variant="quaternary"
-                            align="left"
-                            data-test={AGENT_STOREFRONT_CONNECTION_DELETE_TEST_ID}
-                            onClick={() => {
-                              openDeleteAgentStorefrontIntegrationDialog({
-                                integration: connection,
-                              })
-                              closePopper()
-                            }}
-                          >
-                            {translate('text_645d071272418a14c1c76a81')}
-                          </Button>
-                        )}
-                      </MenuPopper>
-                    )}
-                  </Popper>
-                )}
-              </IntegrationsPage.ListItem>
-            ))}
-        </section>
-      </IntegrationsPage.Container>
+      <IntegrationsPage.Container>{renderConnections()}</IntegrationsPage.Container>
     </>
   )
 }
