@@ -1,10 +1,11 @@
-import { OrgSlugResolverDataFragment } from '~/generated/graphql'
+import { OrganizationActivationStatusEnum, OrgSlugResolverDataFragment } from '~/generated/graphql'
 
 import {
   ensureSlugPrefix,
   findRefusedOrganization,
   getAccessibleMemberships,
-  isAccessibleOrgSlug,
+  getLandingMemberships,
+  isLandingOrgSlug,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
@@ -36,6 +37,14 @@ const defaultMemberships: OrgSlugResolverDataFragment['memberships'] = [
     organization: { id: 'org-b', slug: 'org-b', accessibleByCurrentSession: true },
   },
 ]
+
+const pendingOrgA = {
+  ...defaultMemberships[0],
+  organization: {
+    ...defaultMemberships[0].organization,
+    activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+  },
+}
 
 describe('resolveOrgSlug', () => {
   beforeEach(() => {
@@ -130,6 +139,33 @@ describe('resolveOrgSlug', () => {
       mockGetPersistedOrganizationSlug.mockReturnValue('org-b')
 
       expect(resolveOrgSlug(buildCurrentUser([lockedOrgA, lockedOrgB]))).toBeUndefined()
+    })
+  })
+
+  describe('GIVEN a production organization waiting for a payment method', () => {
+    it('THEN should skip it as the in-memory current org', () => {
+      mockGetCurrentOrganizationId.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([pendingOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should skip it as the persisted slug', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+      mockGetPersistedOrganizationSlug.mockReturnValue('org-a')
+
+      expect(resolveOrgSlug(buildCurrentUser([pendingOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should skip it as the first membership', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+
+      expect(resolveOrgSlug(buildCurrentUser([pendingOrgA, defaultMemberships[1]]))).toBe('org-b')
+    })
+
+    it('THEN should still return it when it is the only organization the session can open', () => {
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+
+      expect(resolveOrgSlug(buildCurrentUser([pendingOrgA]))).toBe('org-a')
     })
   })
 
@@ -318,7 +354,44 @@ describe('getAccessibleMemberships', () => {
   })
 })
 
-describe('isAccessibleOrgSlug', () => {
+describe('getLandingMemberships', () => {
+  const lockedOrgB = {
+    ...defaultMemberships[1],
+    organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
+  }
+
+  describe('GIVEN a pending organization next to an open one', () => {
+    it('THEN should keep only the open one', () => {
+      expect(getLandingMemberships(buildCurrentUser([pendingOrgA, defaultMemberships[1]]))).toEqual(
+        [defaultMemberships[1]],
+      )
+    })
+  })
+
+  describe('GIVEN the only accessible organization is pending', () => {
+    it('THEN should keep the pending one rather than nothing', () => {
+      expect(getLandingMemberships(buildCurrentUser([pendingOrgA, lockedOrgB]))).toEqual([
+        pendingOrgA,
+      ])
+    })
+  })
+
+  describe('GIVEN an inaccessible organization', () => {
+    it('THEN should leave it out', () => {
+      expect(getLandingMemberships(buildCurrentUser([defaultMemberships[0], lockedOrgB]))).toEqual([
+        defaultMemberships[0],
+      ])
+    })
+  })
+
+  describe('GIVEN an undefined user', () => {
+    it('THEN should return an empty list', () => {
+      expect(getLandingMemberships(undefined)).toEqual([])
+    })
+  })
+})
+
+describe('isLandingOrgSlug', () => {
   const lockedOrgB = {
     ...defaultMemberships[1],
     organization: { ...defaultMemberships[1].organization, accessibleByCurrentSession: false },
@@ -326,11 +399,23 @@ describe('isAccessibleOrgSlug', () => {
   const currentUser = buildCurrentUser([defaultMemberships[0], lockedOrgB])
 
   it('THEN should return true for an organization the session can open', () => {
-    expect(isAccessibleOrgSlug('org-a', currentUser)).toBe(true)
+    expect(isLandingOrgSlug('org-a', currentUser)).toBe(true)
   })
 
   it.each(['org-b', 'unknown', '', undefined])('THEN should return false for %s', (slug) => {
-    expect(isAccessibleOrgSlug(slug, currentUser)).toBe(false)
+    expect(isLandingOrgSlug(slug, currentUser)).toBe(false)
+  })
+
+  describe('GIVEN a pending organization next to an open one', () => {
+    const userWithPendingOrg = buildCurrentUser([pendingOrgA, defaultMemberships[1]])
+
+    it('THEN should return false for the pending organization', () => {
+      expect(isLandingOrgSlug('org-a', userWithPendingOrg)).toBe(false)
+    })
+
+    it('THEN should return true for the open organization', () => {
+      expect(isLandingOrgSlug('org-b', userWithPendingOrg)).toBe(true)
+    })
   })
 })
 

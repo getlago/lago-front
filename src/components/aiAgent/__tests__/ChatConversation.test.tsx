@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
 
 import { CHAT_CONVERSATION_TEST_ID, ChatConversation } from '~/components/aiAgent/ChatConversation'
@@ -8,7 +9,7 @@ import {
   CHAT_MESSAGE_RECEIVED_TEST_ID,
   CHAT_MESSAGE_SENT_TEST_ID,
 } from '~/components/aiAgent/ChatMessages'
-import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
+import { LagoApiError, OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatMessage, ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -131,6 +132,32 @@ describe('ChatConversation', () => {
             }
           />,
         )
+
+        expect(screen.getByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the stream ends because the organization is waiting for a payment method', () => {
+      const organizationInactiveSubscription = {
+        data: undefined,
+        error: new ApolloError({
+          graphQLErrors: [
+            { message: 'Forbidden', extensions: { code: LagoApiError.OrganizationInactive } },
+          ],
+        }),
+      } as unknown as OnConversationSubscriptionHookResult
+
+      it('THEN should not display the generic error message', () => {
+        render(<ChatConversation subscription={organizationInactiveSubscription} />)
+
+        expect(screen.queryByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_MESSAGE_SENT_TEST_ID)).toHaveTextContent('question')
+      })
+
+      it('THEN should still display the error message when the chat state carries one', () => {
+        mockState = buildState({ hasError: true, messages: conversationMessages })
+
+        render(<ChatConversation subscription={organizationInactiveSubscription} />)
 
         expect(screen.getByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).toBeInTheDocument()
       })
