@@ -1,6 +1,13 @@
 import { MockedProvider, MockedResponse } from '@apollo/client/testing'
 import NiceModal from '@ebay/nice-modal-react'
-import { cleanup, configure, render, screen, waitFor } from '@testing-library/react'
+import {
+  cleanup,
+  configure,
+  render,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { GraphQLError } from 'graphql'
 
@@ -82,6 +89,14 @@ const getUnitsInput = (): HTMLInputElement =>
     .getByTestId(EDIT_APPLIED_RATE_CARD_UNITS_INPUT_TEST_ID)
     .querySelector('input') as HTMLInputElement
 
+// A closing dialog only leaves the DOM once its exit transition ends, so asserting it is
+// still present right after submit passes whether or not it closed.
+const expectDialogNotToClose = async (): Promise<void> => {
+  await expect(
+    waitForElementToBeRemoved(() => screen.queryByTestId(FORM_DIALOG_TEST_ID), { timeout: 1500 }),
+  ).rejects.toThrow()
+}
+
 const openDialog = async (): Promise<HTMLInputElement> => {
   await userEvent.click(screen.getByTestId(OPEN_DIALOG_BUTTON_TEST_ID))
   await screen.findByTestId(EDIT_APPLIED_RATE_CARD_UNITS_INPUT_TEST_ID)
@@ -159,8 +174,8 @@ describe('useEditAppliedRateCardUnitsDialog', () => {
         await userEvent.click(screen.getByTestId(EDIT_APPLIED_RATE_CARD_UNITS_SAVE_TEST_ID))
 
         await waitFor(() => expect(input).toHaveAttribute('aria-invalid', 'true'))
+        await expectDialogNotToClose()
         expect(addToast).not.toHaveBeenCalled()
-        expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
       })
     })
   })
@@ -188,7 +203,7 @@ describe('useEditAppliedRateCardUnitsDialog', () => {
         await userEvent.type(input, '25')
         await userEvent.click(screen.getByTestId(EDIT_APPLIED_RATE_CARD_UNITS_SAVE_TEST_ID))
 
-        await waitFor(() => expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument())
+        await expectDialogNotToClose()
         expect(addToast).not.toHaveBeenCalled()
       })
     })
@@ -214,7 +229,7 @@ describe('useEditAppliedRateCardUnitsDialog', () => {
         await waitFor(() =>
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' })),
         )
-        expect(screen.getByTestId(FORM_DIALOG_TEST_ID)).toBeInTheDocument()
+        await expectDialogNotToClose()
       })
     })
   })

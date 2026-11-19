@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import InputAdornment from '@mui/material/InputAdornment'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 import { z } from 'zod'
 
+import { AppliedRateCardUnitsField } from '~/components/appliedRateCards/AppliedRateCardUnitsField'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
 import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
@@ -107,23 +107,11 @@ export const useEditAppliedRateCardUnitsDialog = (): {
       closeOnError: false,
       children: (
         <div className="p-8">
-          <form.AppField name="units">
-            {(field) => (
-              <field.TextInputField
-                data-test={EDIT_APPLIED_RATE_CARD_UNITS_INPUT_TEST_ID}
-                label={translate('text_65771fa3f4ab9a00720726ce')}
-                placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      {translate('text_6282085b4f283b0102655884')}
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-          </form.AppField>
+          <AppliedRateCardUnitsField
+            form={form}
+            fields={{ units: 'units' }}
+            dataTest={EDIT_APPLIED_RATE_CARD_UNITS_INPUT_TEST_ID}
+          />
         </div>
       ),
       mainAction: (

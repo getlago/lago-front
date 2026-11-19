@@ -322,6 +322,25 @@ describe('AppliedRateCardDetailsView', () => {
         expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID)).toBeDisabled()
       })
     })
+
+    describe('WHEN the user cannot update the parent', () => {
+      it('THEN "Edit units" is not offered', async () => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('plansUpdate'),
+        )
+
+        renderView(FIXED_PLAN_DATA)
+
+        await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_TEST_ID)
+
+        expect(
+          screen.queryByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN a metered product', () => {
