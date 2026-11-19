@@ -25,9 +25,16 @@ jest.mock('~/core/router/utils/permissionRouteMap', () => {
   }
 })
 
-jest.mock('~/core/router/utils/routeRegistry', () => ({
-  isOrganizationPathAvailable: (): boolean => true,
-}))
+jest.mock('~/core/router/utils/routeRegistry', () => {
+  const { ProductCatalog } = jest.requireActual('~/generated/graphql').FeatureFlagEnum
+
+  return {
+    isOrganizationPathAvailable: (
+      path: string,
+      hasFeatureFlag: (flag: string) => boolean,
+    ): boolean => !(path.startsWith('/analytics') && hasFeatureFlag(ProductCatalog)),
+  }
+})
 
 jest.mock('~/core/router/legacyPaths', () => ({
   LEGACY_APP_PATH_SEGMENTS: new Set(['customers', 'customer', 'plans', 'features']),
@@ -406,11 +413,11 @@ describe('resolveRedirectTarget()', () => {
       })
     })
 
-    it('THEN returns analytics when the product catalog is enabled', () => {
+    it('THEN returns customers instead of analytics when the product catalog is enabled', () => {
       mockHasPermissions.mockReturnValue(true)
       const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
 
-      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: false })
+      expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
     })
 
     it('THEN returns customers when user lacks analytics but has customersView', () => {
