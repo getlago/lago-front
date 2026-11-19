@@ -1,4 +1,4 @@
-import { gql, useApolloClient } from '@apollo/client'
+import { gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { useRef } from 'react'
 import { generatePath } from 'react-router'
@@ -8,24 +8,25 @@ import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeni
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
+import { useDeleteStripeIntegrationDialog } from '~/components/settings/integrations/DeleteStripeIntegrationDialog'
 import { addToast } from '~/core/apolloClient'
-import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { STRIPE_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   AddStripePaymentProviderInput,
   AddStripeProviderDialogFragment,
-  GetStripeIntegrationsListDocument,
+  FeatureFlagEnum,
   LagoApiError,
+  PremiumIntegrationTypeEnum,
   StripeIntegrationDetailsFragmentDoc,
   useAddStripeApiKeyMutation,
-  useDeleteStripeMutation,
   useGetProviderByCodeForStripeLazyQuery,
   useUpdateStripeApiKeyMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment AddStripeProviderDialog on StripeProvider {
@@ -35,6 +36,7 @@ gql`
     secretKey
     supports3ds
     requireTermsOfServiceConsent
+    sellerProfile
   }
 
   query getProviderByCodeForStripe($code: String) {
@@ -92,6 +94,7 @@ const defaultFormValues: AddStripePaymentProviderInput = {
   secretKey: '',
   supports3ds: false,
   requireTermsOfServiceConsent: false,
+  sellerProfile: '',
 }
 
 const validationSchema = z.object({
@@ -100,13 +103,19 @@ const validationSchema = z.object({
   secretKey: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
   supports3ds: z.boolean().optional(),
   requireTermsOfServiceConsent: z.boolean().optional(),
+  sellerProfile: z.string().optional(),
 })
 
 export const useAddStripeDialog = () => {
   const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const client = useApolloClient()
+  const { hasFeatureFlag, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { getDeleteStripeIntegrationDialogProps } = useDeleteStripeIntegrationDialog()
+
+  const isStorefrontEnabled =
+    hasFeatureFlag(FeatureFlagEnum.AgentStorefront) &&
+    hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.AgentStorefront)
 
   const dataRef = useRef<OpenAddStripeDialogData | null>(null)
   const successRef = useRef(false)
@@ -144,8 +153,6 @@ export const useAddStripeDialog = () => {
 
   const [getStripeProviderByCode] = useGetProviderByCodeForStripeLazyQuery()
 
-  const [deleteStripe] = useDeleteStripeMutation()
-
   const form = useAppForm({
     defaultValues: defaultFormValues,
     validationLogic: revalidateLogic(),
@@ -173,7 +180,8 @@ export const useAddStripeDialog = () => {
         return
       }
 
-      const { secretKey, ...rest } = value
+      const { secretKey, sellerProfile, ...values } = value
+      const rest = isStorefrontEnabled ? { ...values, sellerProfile } : values
 
       if (isEdition) {
         await updateApiKey({
@@ -220,6 +228,7 @@ export const useAddStripeDialog = () => {
         'requireTermsOfServiceConsent',
         stripeProvider.requireTermsOfServiceConsent || false,
       )
+      form.setFieldValue('sellerProfile', stripeProvider.sellerProfile || '')
     }
 
     formDialogOpeningDialog
@@ -277,6 +286,18 @@ export const useAddStripeDialog = () => {
                 />
               )}
             </form.AppField>
+
+            {isStorefrontEnabled && (
+              <form.AppField name="sellerProfile">
+                {(field) => (
+                  <field.TextInputField
+                    isOptional
+                    label={translate('text_1795096449973mbkfov6tzw0')}
+                    helperText={translate('text_1795096449973kpxr8rjzq1b')}
+                  />
+                )}
+              </form.AppField>
+            )}
           </div>
         ),
         closeOnError: false,
@@ -296,35 +317,10 @@ export const useAddStripeDialog = () => {
         },
         canOpenDialog: isEdition,
         openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
-        otherDialogProps: {
-          title: translate('text_658461066530343fe1808cd7', { name: stripeProvider?.name }),
-          description: translate('text_658461066530343fe1808cdb'),
-          colorVariant: 'danger',
-          actionText: translate('text_645d071272418a14c1c76a81'),
-          onAction: async () => {
-            const result = await deleteStripe({
-              variables: { input: { id: stripeProvider?.id as string } },
-            })
-
-            const destroyedId = result.data?.destroyPaymentProvider?.id
-
-            if (destroyedId) {
-              evictFromCache(client, {
-                id: destroyedId,
-                __typename: 'StripeProvider',
-                listFieldName: 'paymentProviders',
-                listQueryDocument: GetStripeIntegrationsListDocument,
-              })
-
-              data?.deleteCallback?.()
-
-              addToast({
-                message: translate('text_62b1edddbf5f461ab9712758'),
-                severity: 'success',
-              })
-            }
-          },
-        },
+        otherDialogProps: getDeleteStripeIntegrationDialogProps({
+          provider: stripeProvider ?? null,
+          callback: data?.deleteCallback,
+        }),
       })
       .then((response) => {
         if (response.reason === 'close' || response.reason === 'open-other-dialog') {

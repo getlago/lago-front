@@ -1,24 +1,47 @@
 import { gql, useApolloClient } from '@apollo/client'
 
-import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { addToast } from '~/core/apolloClient'
+import { Alert } from '~/components/designSystem/Alert'
+import {
+  CentralizedDialogProps,
+  useCentralizedDialog,
+} from '~/components/dialogs/CentralizedDialog'
+import { addToast, onNetworkError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteStripeIntegrationDialogFragment,
+  FeatureFlagEnum,
   GetStripeIntegrationsListDocument,
+  IntegrationTypeEnum,
+  PremiumIntegrationTypeEnum,
   useDeleteStripeMutation,
+  useGetAgentStorefrontsForStripeDeletionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   fragment DeleteStripeIntegrationDialog on StripeProvider {
     id
     name
+    code
   }
 
   mutation deleteStripe($input: DestroyPaymentProviderInput!) {
     destroyPaymentProvider(input: $input) {
       id
+    }
+  }
+
+  query getAgentStorefrontsForStripeDeletion($limit: Int, $types: [IntegrationTypeEnum!]) {
+    integrations(limit: $limit, types: $types) {
+      collection {
+        ... on AgentStorefrontIntegration {
+          id
+          name
+          paymentProviderCode
+        }
+      }
     }
   }
 `
@@ -28,22 +51,62 @@ type TDeleteStripeIntegrationDialogProps = {
   callback?: () => void
 }
 
-export const useDeleteStripeIntegrationDialog = () => {
+type UseDeleteStripeIntegrationDialogReturn = {
+  getDeleteStripeIntegrationDialogProps: (
+    props: TDeleteStripeIntegrationDialogProps,
+  ) => CentralizedDialogProps
+  openDeleteStripeIntegrationDialog: (props: TDeleteStripeIntegrationDialogProps) => void
+}
+
+export const useDeleteStripeIntegrationDialog = (): UseDeleteStripeIntegrationDialogReturn => {
   const centralizedDialog = useCentralizedDialog()
   const { translate } = useInternationalization()
   const client = useApolloClient()
+  const { hasFeatureFlag, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
+
+  const isStorefrontEnabled =
+    hasFeatureFlag(FeatureFlagEnum.AgentStorefront) &&
+    hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.AgentStorefront)
 
   const [deleteStripe] = useDeleteStripeMutation()
 
-  const openDeleteStripeIntegrationDialog = ({
+  const { data: storefrontsData } = useGetAgentStorefrontsForStripeDeletionQuery({
+    variables: { limit: 100, types: [IntegrationTypeEnum.AgentStorefront] },
+    skip: !isStorefrontEnabled || !hasPermissions(['organizationIntegrationsView']),
+  })
+
+  const getUsingStorefrontName = (providerCode?: string): string | undefined => {
+    if (!providerCode) return undefined
+
+    const storefront = (storefrontsData?.integrations?.collection ?? []).find(
+      (integration) =>
+        integration.__typename === 'AgentStorefrontIntegration' &&
+        integration.paymentProviderCode === providerCode,
+    )
+
+    return storefront?.__typename === 'AgentStorefrontIntegration' ? storefront.name : undefined
+  }
+
+  const getDeleteStripeIntegrationDialogProps = ({
     provider,
     callback,
-  }: TDeleteStripeIntegrationDialogProps) => {
-    centralizedDialog.open({
+  }: TDeleteStripeIntegrationDialogProps): CentralizedDialogProps => {
+    const usingStorefrontName = getUsingStorefrontName(provider?.code)
+
+    return {
       title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
       description: translate('text_658461066530343fe1808cdb'),
+      children: usingStorefrontName ? (
+        <Alert type="warning">
+          {translate('text_17950964499736yn37b9ictq', { connectionName: usingStorefrontName })}
+        </Alert>
+      ) : undefined,
       colorVariant: 'danger',
       actionText: translate('text_645d071272418a14c1c76a81'),
+      disableOnContinue: !!usingStorefrontName,
+      closeOnError: false,
+      onError: onNetworkError,
       onAction: async () => {
         const result = await deleteStripe({
           variables: { input: { id: provider?.id as string } },
@@ -67,8 +130,12 @@ export const useDeleteStripeIntegrationDialog = () => {
           })
         }
       },
-    })
+    }
   }
 
-  return { openDeleteStripeIntegrationDialog }
+  const openDeleteStripeIntegrationDialog = (props: TDeleteStripeIntegrationDialogProps): void => {
+    void centralizedDialog.open(getDeleteStripeIntegrationDialogProps(props))
+  }
+
+  return { getDeleteStripeIntegrationDialogProps, openDeleteStripeIntegrationDialog }
 }

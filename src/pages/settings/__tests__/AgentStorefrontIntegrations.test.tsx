@@ -7,14 +7,35 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 
 import AgentStorefrontIntegrations, {
   AGENT_STOREFRONT_ADD_CONNECTION_TEST_ID,
+  AGENT_STOREFRONT_CONNECTION_DELETE_TEST_ID,
+  AGENT_STOREFRONT_CONNECTION_EDIT_TEST_ID,
+  AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID,
 } from '../AgentStorefrontIntegrations'
 
 const mockOpenAddAgentStorefrontDialog = jest.fn()
+const mockOpenEditAgentStorefrontDialog = jest.fn()
+const mockOpenDeleteDialog = jest.fn()
+const mockHasPermissions = jest.fn()
 
 jest.mock('~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog', () => ({
   useAddAgentStorefrontDialog: () => ({
     openAddAgentStorefrontDialog: mockOpenAddAgentStorefrontDialog,
+    openEditAgentStorefrontDialog: mockOpenEditAgentStorefrontDialog,
   }),
+}))
+
+jest.mock(
+  '~/components/settings/integrations/agentStorefront/DeleteAgentStorefrontIntegrationDialog',
+  () => ({
+    useDeleteAgentStorefrontIntegrationDialog: () => ({
+      openDeleteAgentStorefrontIntegrationDialog: mockOpenDeleteDialog,
+      getDeleteAgentStorefrontIntegrationDialogProps: jest.fn(),
+    }),
+  }),
+)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
 const mockQueryResult = jest.fn()
@@ -24,29 +45,44 @@ jest.mock('~/generated/graphql', () => ({
   useGetAgentStorefrontIntegrationsListQuery: (...args: unknown[]) => mockQueryResult(...args),
 }))
 
+const connectionA = {
+  __typename: 'AgentStorefrontIntegration' as const,
+  id: 'storefront-a',
+  name: 'Agentic Flow A',
+  code: 'agentic_flow_a',
+  paymentProviderCode: 'stripe_1',
+  resourceEndpoint: null,
+  resourceInstructions: null,
+  hasAgentsWithStripeCustomer: false,
+  hasEnrolledAgents: false,
+}
+
 const twoConnections: GetAgentStorefrontIntegrationsListQuery = {
   integrations: {
     __typename: 'IntegrationCollection',
     collection: [
+      connectionA,
       {
-        __typename: 'AgentStorefrontIntegration',
-        id: 'storefront-a',
-        name: 'Agentic Flow A',
-        code: 'agentic_flow_a',
-      },
-      {
-        __typename: 'AgentStorefrontIntegration',
+        ...connectionA,
         id: 'storefront-b',
         name: 'Agentic Flow B',
         code: 'agentic_flow_b',
+        hasEnrolledAgents: true,
       },
     ],
   },
 }
 
+const allowOnly = (allowed: string[]): void => {
+  mockHasPermissions.mockImplementation((permissions: string[]) =>
+    permissions.every((permission) => allowed.includes(permission)),
+  )
+}
+
 describe('AgentStorefrontIntegrations', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    allowOnly(['organizationIntegrationsUpdate', 'organizationIntegrationsDelete'])
   })
 
   afterEach(cleanup)
@@ -90,10 +126,82 @@ describe('AgentStorefrontIntegrations', () => {
         },
       )
 
-      it('THEN should not render any row menu', async () => {
-        const { container } = await renderIntegrationPage(AgentStorefrontIntegrations)
+      it('THEN should render a row menu on each connection', async () => {
+        await renderIntegrationPage(AgentStorefrontIntegrations)
 
-        expect(container.querySelector('[data-test="plan-item-options"]')).not.toBeInTheDocument()
+        expect(
+          screen.getByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-a`),
+        ).toBeInTheDocument()
+        expect(
+          screen.getByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-b`),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN picking edit in a row menu', () => {
+      it('THEN should open the edit dialog seeded with that connection', async () => {
+        const user = userEvent.setup()
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        await user.click(
+          screen.getByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-a`),
+        )
+        await user.click(await screen.findByTestId(AGENT_STOREFRONT_CONNECTION_EDIT_TEST_ID))
+
+        expect(mockOpenEditAgentStorefrontDialog).toHaveBeenCalledWith({
+          integration: connectionA,
+        })
+      })
+    })
+
+    describe('WHEN picking delete in a row menu', () => {
+      it('THEN should open the delete dialog with that connection', async () => {
+        const user = userEvent.setup()
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        await user.click(
+          screen.getByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-b`),
+        )
+        await user.click(await screen.findByTestId(AGENT_STOREFRONT_CONNECTION_DELETE_TEST_ID))
+
+        expect(mockOpenDeleteDialog).toHaveBeenCalledWith({
+          integration: expect.objectContaining({ id: 'storefront-b', hasEnrolledAgents: true }),
+        })
+      })
+    })
+
+    describe('WHEN the user can only edit integrations', () => {
+      it('THEN should offer edit but not delete', async () => {
+        const user = userEvent.setup()
+
+        allowOnly(['organizationIntegrationsUpdate'])
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        await user.click(
+          screen.getByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-a`),
+        )
+
+        expect(
+          await screen.findByTestId(AGENT_STOREFRONT_CONNECTION_EDIT_TEST_ID),
+        ).toBeInTheDocument()
+        expect(
+          screen.queryByTestId(AGENT_STOREFRONT_CONNECTION_DELETE_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user can neither edit nor delete integrations', () => {
+      it('THEN should not render any row menu', async () => {
+        allowOnly([])
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        expect(
+          screen.queryByTestId(`${AGENT_STOREFRONT_CONNECTION_OPTIONS_TEST_ID}-storefront-a`),
+        ).not.toBeInTheDocument()
       })
     })
 

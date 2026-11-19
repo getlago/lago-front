@@ -7,6 +7,7 @@ import { LagoApiError } from '~/generated/graphql'
 const CODE_ALREADY_USED_ERROR = 'text_17950838252057vnoo7fnaty'
 const URL_INVALID_ERROR = 'text_1795083825205yq6aurg1d7a'
 const PAYMENT_PROVIDER_NOT_FOUND_ERROR = 'text_179508382520571rmhiiha12'
+const PAYMENT_PROVIDER_LOCKED_ERROR = 'text_1795096449972uoff7jgz70t'
 
 const URL_FIELDS = ['resourceEndpoint', 'resourceInstructions'] as const
 
@@ -17,6 +18,7 @@ export const ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS = [
   LagoApiError.UrlIsInvalid,
   LagoApiError.EventsTargetingWalletsDisabled,
   LagoApiError.PaymentProviderNotFound,
+  LagoApiError.AgentStorefrontHasEnrolledAgents,
 ]
 
 const SILENT_ERROR_DETAILS = new Set<string>(ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS)
@@ -56,6 +58,13 @@ export const applyAgentStorefrontServerErrors = (
   if (hasDefinedGQLError('PaymentProviderNotFound', errors, 'paymentProviderCode')) {
     fields.paymentProviderCode = {
       message: PAYMENT_PROVIDER_NOT_FOUND_ERROR,
+      path: ['paymentProviderCode'],
+    }
+  }
+
+  if (hasDefinedGQLError('AgentStorefrontHasEnrolledAgents', errors, 'paymentProviderCode')) {
+    fields.paymentProviderCode = {
+      message: PAYMENT_PROVIDER_LOCKED_ERROR,
       path: ['paymentProviderCode'],
     }
   }
