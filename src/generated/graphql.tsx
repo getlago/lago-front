@@ -19285,6 +19285,43 @@ export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProvi
       | { __typename?: 'StripeProvider' }
     > } | null };
 
+export type AgentStorefrontIntegrationDetailsFragment = { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, amountCurrency: CurrencyEnum } | null }> };
+
+export type GetAgentStorefrontIntegrationDetailsQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetAgentStorefrontIntegrationDetailsQuery = { __typename?: 'Query', integration?:
+    | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, amountCurrency: CurrencyEnum } | null }> }
+    | { __typename?: 'AnrokIntegration' }
+    | { __typename?: 'AvalaraIntegration' }
+    | { __typename?: 'EntraIdIntegration' }
+    | { __typename?: 'HubspotIntegration' }
+    | { __typename?: 'NetsuiteIntegration' }
+    | { __typename?: 'OktaIntegration' }
+    | { __typename?: 'SalesforceIntegration' }
+    | { __typename?: 'XeroIntegration' }
+   | null };
+
+export type GetAgentStorefrontIntegrationsListQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
+}>;
+
+
+export type GetAgentStorefrontIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string }
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
+
 export type AnrokIntegrationDetailsFragment = { __typename?: 'AnrokIntegration', id: string, name: string, code: string, apiKey: any };
 
 export type GetAnrokIntegrationsDetailsQueryVariables = Exact<{
@@ -26833,6 +26870,36 @@ export const AdyenIntegrationsFragmentDoc = gql`
   id
   name
   code
+}
+    `;
+export const AgentStorefrontIntegrationDetailsFragmentDoc = gql`
+    fragment AgentStorefrontIntegrationDetails on AgentStorefrontIntegration {
+  id
+  name
+  code
+  paymentProviderCode
+  paymentProvider {
+    id
+    name
+  }
+  resourceEndpoint
+  resourceInstructions
+  agentUrl
+  authDocumentUrl
+  billingDocumentUrl
+  claimUrl
+  plans {
+    planCode
+    minimumTopupCents
+    maximumTopupCents
+    freeCreditsCents
+    plan {
+      id
+      name
+      code
+      amountCurrency
+    }
+  }
 }
     `;
 export const DeleteAnrokIntegrationDialogFragmentDoc = gql`
@@ -53165,6 +53232,102 @@ export type GetAdyenIntegrationsListQueryHookResult = ReturnType<typeof useGetAd
 export type GetAdyenIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListLazyQuery>;
 export type GetAdyenIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAdyenIntegrationsListSuspenseQuery>;
 export type GetAdyenIntegrationsListQueryResult = Apollo.QueryResult<GetAdyenIntegrationsListQuery, GetAdyenIntegrationsListQueryVariables>;
+export const GetAgentStorefrontIntegrationDetailsDocument = gql`
+    query getAgentStorefrontIntegrationDetails($id: ID!) {
+  integration(id: $id) {
+    ... on AgentStorefrontIntegration {
+      id
+      ...AgentStorefrontIntegrationDetails
+    }
+  }
+}
+    ${AgentStorefrontIntegrationDetailsFragmentDoc}`;
+
+/**
+ * __useGetAgentStorefrontIntegrationDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetAgentStorefrontIntegrationDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAgentStorefrontIntegrationDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAgentStorefrontIntegrationDetailsQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetAgentStorefrontIntegrationDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables> & ({ variables: GetAgentStorefrontIntegrationDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>(GetAgentStorefrontIntegrationDetailsDocument, options);
+      }
+export function useGetAgentStorefrontIntegrationDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>(GetAgentStorefrontIntegrationDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetAgentStorefrontIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>;
+export function useGetAgentStorefrontIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontIntegrationDetailsQuery | undefined, GetAgentStorefrontIntegrationDetailsQueryVariables>;
+export function useGetAgentStorefrontIntegrationDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>(GetAgentStorefrontIntegrationDetailsDocument, options);
+        }
+export type GetAgentStorefrontIntegrationDetailsQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationDetailsQuery>;
+export type GetAgentStorefrontIntegrationDetailsLazyQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationDetailsLazyQuery>;
+export type GetAgentStorefrontIntegrationDetailsSuspenseQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationDetailsSuspenseQuery>;
+export type GetAgentStorefrontIntegrationDetailsQueryResult = Apollo.QueryResult<GetAgentStorefrontIntegrationDetailsQuery, GetAgentStorefrontIntegrationDetailsQueryVariables>;
+export const GetAgentStorefrontIntegrationsListDocument = gql`
+    query getAgentStorefrontIntegrationsList($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
+    collection {
+      ... on AgentStorefrontIntegration {
+        id
+        name
+        code
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAgentStorefrontIntegrationsListQuery__
+ *
+ * To run a query within a React component, call `useGetAgentStorefrontIntegrationsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAgentStorefrontIntegrationsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAgentStorefrontIntegrationsListQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      types: // value for 'types'
+ *   },
+ * });
+ */
+export function useGetAgentStorefrontIntegrationsListQuery(baseOptions?: Apollo.QueryHookOptions<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>(GetAgentStorefrontIntegrationsListDocument, options);
+      }
+export function useGetAgentStorefrontIntegrationsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>(GetAgentStorefrontIntegrationsListDocument, options);
+        }
+// @ts-ignore
+export function useGetAgentStorefrontIntegrationsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>;
+export function useGetAgentStorefrontIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontIntegrationsListQuery | undefined, GetAgentStorefrontIntegrationsListQueryVariables>;
+export function useGetAgentStorefrontIntegrationsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>(GetAgentStorefrontIntegrationsListDocument, options);
+        }
+export type GetAgentStorefrontIntegrationsListQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationsListQuery>;
+export type GetAgentStorefrontIntegrationsListLazyQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationsListLazyQuery>;
+export type GetAgentStorefrontIntegrationsListSuspenseQueryHookResult = ReturnType<typeof useGetAgentStorefrontIntegrationsListSuspenseQuery>;
+export type GetAgentStorefrontIntegrationsListQueryResult = Apollo.QueryResult<GetAgentStorefrontIntegrationsListQuery, GetAgentStorefrontIntegrationsListQueryVariables>;
 export const GetAnrokIntegrationsDetailsDocument = gql`
     query getAnrokIntegrationsDetails($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
