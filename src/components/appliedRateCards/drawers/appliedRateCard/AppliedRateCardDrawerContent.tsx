@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client'
-import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
+import { AppliedRateCardUnitsField } from '~/components/appliedRateCards/AppliedRateCardUnitsField'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
@@ -553,23 +553,11 @@ export const AppliedRateCardDrawerContent = withForm({
               </form.AppField>
 
               {productType === ProductTypeEnum.Fixed && (
-                <form.AppField name="units">
-                  {(field) => (
-                    <field.TextInputField
-                      data-test={APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID}
-                      label={translate('text_65771fa3f4ab9a00720726ce')}
-                      placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                      beforeChangeFormatter={['positiveNumber', 'sextDecimal']}
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            {translate('text_6282085b4f283b0102655884')}
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                </form.AppField>
+                <AppliedRateCardUnitsField
+                  form={form}
+                  fields={{ units: 'units' }}
+                  dataTest={APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID}
+                />
               )}
             </CenteredPage.PageSection>
           )}
