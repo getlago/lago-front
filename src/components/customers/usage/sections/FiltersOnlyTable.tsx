@@ -98,7 +98,7 @@ export const FiltersOnlyTable = ({
                 : composeChargeFilterDisplayName(row)
 
             return (
-              <Typography variant="body" color="grey700" noWrap>
+              <Typography variant="body" color="grey700" className="py-3">
                 {row.invoiceDisplayName || mappedFilterDisplayName || displayName}
               </Typography>
             )

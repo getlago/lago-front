@@ -170,7 +170,7 @@ export const GroupedUsageWithFiltersTable = ({
             // construction below, matching `FiltersOnlyTable`.
             if (row.invoiceDisplayName) {
               return (
-                <Typography variant="body" color="grey700" noWrap>
+                <Typography variant="body" color="grey700" className="py-3">
                   {row.invoiceDisplayName}
                 </Typography>
               )
@@ -178,7 +178,7 @@ export const GroupedUsageWithFiltersTable = ({
 
             if (row.id === NO_ID_FILTER_DEFAULT_VALUE) {
               return (
-                <Typography variant="body" color="grey700" noWrap>
+                <Typography variant="body" color="grey700" className="py-3">
                   {translate('text_64e620bca31226337ffc62ad')}
                 </Typography>
               )

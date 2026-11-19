@@ -101,6 +101,32 @@ describe('FiltersOnlyTable', () => {
 
     expect(screen.getByText('Units header')).toBeInTheDocument()
   })
+
+  it('lets long filter display names wrap instead of truncating them', () => {
+    const longName = 'model-name · latency-tier · token-type · rate · band'
+    const usage = asUsage({
+      charge: { invoiceDisplayName: 'My charge' },
+      billableMetric: { name: 'BM' },
+      filters: [
+        {
+          id: 'f1',
+          invoiceDisplayName: longName,
+          values: {},
+          units: 1,
+          amountCents: '100',
+          presentationBreakdowns: [],
+        },
+      ],
+      presentationBreakdowns: [],
+    })
+
+    render(<FiltersOnlyTable {...baseTableProps} usage={usage} />)
+
+    const nameCell = screen.getByText(longName)
+
+    expect(nameCell).not.toHaveClass('MuiTypography-noWrap')
+    expect(nameCell).toHaveClass('whitespace-pre-line')
+  })
 })
 
 describe('GroupedUsageTable', () => {
