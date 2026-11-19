@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { useEffect } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,7 +15,7 @@ import {
 } from '~/components/settings/integrations/agentStorefront/utils'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { AGENT_STOREFRONT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE } from '~/core/router'
+import { AGENT_STOREFRONT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { useGetAgentStorefrontIntegrationDetailsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -70,8 +71,9 @@ type AgentAccessRow = {
   url: string
 }
 
-const AgentStorefrontIntegrationDetails = (): JSX.Element => {
+const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
   const { integrationId } = useParams()
+  const navigate = useNavigate()
   const { translate } = useInternationalization()
 
   const { data, loading } = useGetAgentStorefrontIntegrationDetailsQuery({
@@ -83,6 +85,19 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element => {
   const integration =
     data?.integration?.__typename === 'AgentStorefrontIntegration' ? data.integration : undefined
   const storefrontName = translate('text_1795083825203aqsrrdi5tii')
+  const isNotFound = !loading && !integration
+
+  useEffect(() => {
+    if (isNotFound) {
+      navigate(
+        generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
+          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+        }),
+      )
+    }
+  }, [isNotFound, navigate])
+
+  if (isNotFound) return null
 
   const renderContent = (): JSX.Element | null => {
     if (isFirstLoad) {
@@ -282,7 +297,9 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element => {
           viewNameLoading: isFirstLoad,
           metadata: `${storefrontName} • ${translate('text_1795083825204u0cvlpt2mav')}`,
           metadataLoading: isFirstLoad,
-          badges: [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }],
+          badges: integration
+            ? [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }]
+            : [],
           icon: <AgentStorefront />,
         }}
       />

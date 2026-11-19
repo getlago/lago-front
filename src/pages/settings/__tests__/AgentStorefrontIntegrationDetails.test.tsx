@@ -23,6 +23,12 @@ jest.mock('~/core/apolloClient', () => ({
 }))
 
 const mockQueryResult = jest.fn()
+const mockNavigate = jest.fn()
+
+jest.mock('~/core/router', () => ({
+  ...jest.requireActual('~/core/router'),
+  useNavigate: () => mockNavigate,
+}))
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
@@ -96,6 +102,12 @@ describe('AgentStorefrontIntegrationDetails', () => {
         expect(mockQueryResult).toHaveBeenCalledWith(
           expect.objectContaining({ variables: { id: 'storefront-a' }, skip: false }),
         )
+      })
+
+      it('THEN should not redirect', async () => {
+        await renderWith(createIntegration())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
       })
 
       it('THEN should show the connection name in the header', async () => {
@@ -261,6 +273,27 @@ describe('AgentStorefrontIntegrationDetails', () => {
     })
   })
 
+  describe('GIVEN the connection does not resolve', () => {
+    describe.each([
+      ['the id matches no connection', { data: { integration: null }, loading: false }],
+      ['the query failed without data', { data: undefined, loading: false }],
+    ])('WHEN %s', (_, queryResult) => {
+      it('THEN should redirect to the connections list and render nothing', async () => {
+        mockQueryResult.mockReturnValue(queryResult)
+
+        await renderIntegrationPage(AgentStorefrontIntegrationDetails, {
+          useParams: { integrationId: 'missing-id' },
+        })
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          expect.stringMatching(/\/settings\/integrations\/lago\/agent-storefront$/),
+        )
+        expect(screen.queryByTestId(AGENT_ACCESS_TABLE_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByText('Agentic Flow A')).not.toBeInTheDocument()
+      })
+    })
+  })
+
   describe('GIVEN the first load is in flight', () => {
     describe('WHEN no data is cached yet', () => {
       it('THEN should render skeletons and no section content', async () => {
@@ -271,6 +304,7 @@ describe('AgentStorefrontIntegrationDetails', () => {
         })
 
         expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+        expect(mockNavigate).not.toHaveBeenCalled()
         expect(screen.queryByTestId(AGENT_ACCESS_TABLE_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
       })

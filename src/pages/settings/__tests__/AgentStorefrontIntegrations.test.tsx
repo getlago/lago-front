@@ -1,6 +1,10 @@
 import { cleanup, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
 import { GetAgentStorefrontIntegrationsListQuery, IntegrationTypeEnum } from '~/generated/graphql'
 
 import { renderIntegrationPage } from './integrationTestHelpers'
@@ -90,6 +94,12 @@ describe('AgentStorefrontIntegrations', () => {
         },
       )
 
+      it('THEN should not show the empty state', async () => {
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
+      })
+
       it('THEN should not render any row menu', async () => {
         const { container } = await renderIntegrationPage(AgentStorefrontIntegrations)
 
@@ -110,6 +120,35 @@ describe('AgentStorefrontIntegrations', () => {
     })
   })
 
+  describe('GIVEN no Storefront connection exists', () => {
+    beforeEach(() => {
+      mockQueryResult.mockReturnValue({
+        data: { integrations: { __typename: 'IntegrationCollection', collection: [] } },
+        loading: false,
+      })
+    })
+
+    describe('WHEN the list renders', () => {
+      it('THEN should show the empty state', async () => {
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN clicking the empty state button', () => {
+      it('THEN should open the connect dialog', async () => {
+        const user = userEvent.setup()
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        await user.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
+
+        expect(mockOpenAddAgentStorefrontDialog).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
   describe('GIVEN the first load is in flight', () => {
     describe('WHEN no data is cached yet', () => {
       it('THEN should render skeletons instead of rows', async () => {
@@ -119,6 +158,7 @@ describe('AgentStorefrontIntegrations', () => {
 
         expect(screen.queryByText('Agentic Flow A')).not.toBeInTheDocument()
         expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_TEST_ID)).not.toBeInTheDocument()
       })
     })
 
