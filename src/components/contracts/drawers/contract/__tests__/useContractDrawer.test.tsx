@@ -5,17 +5,17 @@ import { GraphQLError } from 'graphql'
 import { ComponentProps, ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import {
-  EXISTING_CODE_ERROR_MESSAGE,
-  EXISTING_CODE_FIELD_ERRORS,
-} from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CreateContractDocument } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { contractForDrawerFixture } from './fixtures'
 
-import { CONTRACT_DRAWER_TITLE_CREATE_KEY, CONTRACT_FORM_ID } from '../constants'
+import {
+  CONTRACT_DRAWER_TITLE_CREATE_KEY,
+  CONTRACT_EXISTING_CODE_FIELD_ERRORS,
+  CONTRACT_FORM_ID,
+} from '../constants'
 import { ContractDrawerContent } from '../ContractDrawerContent'
 import { useContractDrawer } from '../useContractDrawer'
 
@@ -255,10 +255,12 @@ describe('useContractDrawer', () => {
     await userEvent.click(screen.getByRole('button', { name: 'seed contract' }))
     await submit()
 
-    expect(await screen.findByText(EXISTING_CODE_ERROR_MESSAGE)).toBeInTheDocument()
+    expect(
+      await screen.findByText(CONTRACT_EXISTING_CODE_FIELD_ERRORS.code.message),
+    ).toBeInTheDocument()
     expect(scrollToFirstInputError).toHaveBeenCalledWith(
       CONTRACT_FORM_ID,
-      EXISTING_CODE_FIELD_ERRORS,
+      CONTRACT_EXISTING_CODE_FIELD_ERRORS,
     )
     expect(mockClose).not.toHaveBeenCalled()
     expect(addToast).not.toHaveBeenCalled()
@@ -267,7 +269,9 @@ describe('useContractDrawer', () => {
 
     await userEvent.clear(codeInput)
     await userEvent.type(codeInput, 'renewal')
-    expect(screen.queryByText(EXISTING_CODE_ERROR_MESSAGE)).not.toBeInTheDocument()
+    expect(
+      screen.queryByText(CONTRACT_EXISTING_CODE_FIELD_ERRORS.code.message),
+    ).not.toBeInTheDocument()
     await submit()
 
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))

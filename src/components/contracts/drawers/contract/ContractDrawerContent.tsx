@@ -14,12 +14,11 @@ import {
   VIEW_TYPE_PAYMENT_CAPTION_KEYS,
   ViewTypeEnum,
 } from '~/core/constants/billingObjectViewTypes'
-import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   useGetCatalogPlansForContractDrawerLazyQuery,
   useGetCustomersForContractDrawerLazyQuery,
 } from '~/generated/graphql'
-import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import { buildComboboxOption, mergeSeededOption, OPTIONS_PAGE_SIZE } from './comboboxOptions'
@@ -34,7 +33,6 @@ import {
   CONTRACT_DRAWER_TITLE_CREATE_KEY,
   CONTRACT_FORM_DEFAULTS,
   ContractDrawerCustomer,
-  VALUE_REQUIRED_KEY,
 } from './constants'
 import { ContractInvoicingSettingsSection } from './ContractInvoicingSettingsSection'
 
@@ -176,16 +174,6 @@ const ContractDrawerFormSections = withForm({
     const customerTimezone = effectiveCustomer?.applicableTimezone
     const customerId = effectiveCustomer?.id
 
-    const translateCodeError: TranslateFunc = (key, data, plural) => {
-      if (key === VALUE_REQUIRED_KEY) {
-        return translate('text_624ea7c29103fd010732ab7d')
-      }
-      if (key === EXISTING_CODE_ERROR_MESSAGE) {
-        return translate('text_1795033589870p2xxngsuzlk')
-      }
-      return translate(key, data, plural)
-    }
-
     const handleHideName = (): void => {
       // Skip the write when already empty: setFieldValue always marks the field
       // dirty, which would arm the discard prompt after a no-op round trip.
@@ -316,9 +304,9 @@ const ContractDrawerFormSections = withForm({
               {(field) => (
                 <field.TextInputField
                   data-test={CONTRACT_DRAWER_CODE_INPUT_TEST_ID}
+                  beforeChangeFormatter="code"
                   label={translate('text_629728388c4d2300e2d380b7')}
                   placeholder={translate('text_17950335898705jctc4i4twe')}
-                  translateError={translateCodeError}
                 />
               )}
             </form.AppField>

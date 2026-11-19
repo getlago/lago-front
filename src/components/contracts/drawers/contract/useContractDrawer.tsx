@@ -8,7 +8,6 @@ import { useFormDrawer } from '~/components/drawers/useDrawer'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast } from '~/core/apolloClient'
 import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
-import { applyExistingCodeError, EXISTING_CODE_FIELD_ERRORS } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CONTRACT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
@@ -22,6 +21,7 @@ import {
   buildContractFormDefaults,
   CONTRACT_DRAWER_SUBMIT_TEST_ID,
   CONTRACT_DRAWER_TITLE_CREATE_KEY,
+  CONTRACT_EXISTING_CODE_FIELD_ERRORS,
   CONTRACT_FORM_ID,
   ContractDrawerCustomer,
 } from './constants'
@@ -109,8 +109,9 @@ export const useContractDrawer = (): {
       const contract = result.data?.createContract
 
       if (hasDefinedGQLError('ValueAlreadyExist', result.errors, 'code')) {
-        applyExistingCodeError(formApi)
-        scrollToFirstInputError(CONTRACT_FORM_ID, EXISTING_CODE_FIELD_ERRORS)
+        // Not `applyExistingCodeError`: contract codes are unique per external ID, not org-wide.
+        formApi.setErrorMap({ onDynamic: { fields: CONTRACT_EXISTING_CODE_FIELD_ERRORS } })
+        scrollToFirstInputError(CONTRACT_FORM_ID, CONTRACT_EXISTING_CODE_FIELD_ERRORS)
         return
       }
 

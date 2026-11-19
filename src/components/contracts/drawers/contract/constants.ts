@@ -20,6 +20,10 @@ export const VALUE_REQUIRED_KEY = 'text_620bc4d4269a55014d493f98'
 
 export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
 
+export const CONTRACT_EXISTING_CODE_FIELD_ERRORS = {
+  code: { message: 'text_1795033589870p2xxngsuzlk', path: ['code'] },
+}
+
 /**
  * `externalCustomerId` and `planCode` mirror `CreateContractInput`, which is keyed on
  * the customer's EXTERNAL id and the plan's CODE — not the internal ids the
