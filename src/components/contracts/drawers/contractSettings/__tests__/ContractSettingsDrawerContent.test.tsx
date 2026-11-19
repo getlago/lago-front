@@ -27,6 +27,7 @@ const getInputByTestId = (testId: string): HTMLInputElement | null => {
 
 const defaultValues: ContractSettingsFormValues = {
   externalId: 'external-contract-1',
+  code: 'initial',
   name: '',
   startedAt: '2026-01-01T00:00:00Z',
   endedAt: '2099-12-31T00:00:00Z',
@@ -35,19 +36,12 @@ const defaultValues: ContractSettingsFormValues = {
   purchaseOrderNumber: 'PO-42',
 }
 
-const Wrapper = ({
-  locked,
-  contractCode = 'initial',
-}: {
-  locked: boolean
-  contractCode?: string | null
-}) => {
+const Wrapper = ({ locked }: { locked: boolean }) => {
   const form = useAppForm({ defaultValues })
 
   return (
     <ContractSettingsDrawerContent
       form={form}
-      contractCode={contractCode}
       fieldLocks={{ startedAt: locked, billingAnchorDate: locked }}
     />
   )
@@ -66,15 +60,6 @@ describe('ContractSettingsDrawerContent', () => {
         expect(codeInput).toBeDisabled()
       },
     )
-  })
-
-  describe('GIVEN an older contract without a code', () => {
-    it('THEN displays an empty disabled code field', () => {
-      render(<Wrapper locked={false} contractCode={null} />)
-
-      expect(getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)).toHaveValue('')
-      expect(getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)).toBeDisabled()
-    })
   })
 
   it('renders the drawer title and description', async () => {

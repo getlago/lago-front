@@ -82,7 +82,7 @@ describe('useContractSettingsDrawer', () => {
     act(() => result.current.openDrawer(contractForDrawerFixture))
 
     expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
-    expect(lastDrawerArgs?.children?.props.contractCode).toBe('initial')
+    expect(lastDrawerArgs?.children?.props.form.state.values.code).toBe('initial')
   })
 
   it('submits the contract settings fields keyed on the contract external id, then closes', async () => {

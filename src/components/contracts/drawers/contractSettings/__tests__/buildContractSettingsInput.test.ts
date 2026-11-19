@@ -5,6 +5,7 @@ import { ContractSettingsFormValues } from '../constants'
 
 const values: ContractSettingsFormValues = {
   externalId: 'ignored-edited-value',
+  code: 'ignored-edited-code',
   name: 'Enterprise agreement',
   startedAt: '2099-01-01T00:00:00.000Z',
   endedAt: '2099-02-01T00:00:00.000Z',

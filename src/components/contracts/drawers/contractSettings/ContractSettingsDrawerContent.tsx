@@ -2,7 +2,6 @@ import { useState } from 'react'
 
 import { ContractDatesAndPurchaseOrderFields } from '~/components/contracts/drawers/contract/ContractDatesAndPurchaseOrderFields'
 import { ContractFieldLocks } from '~/components/contracts/drawers/contract/fieldLocks'
-import { TextInput } from '~/components/form/TextInput/TextInput'
 import { ToggleableFieldAddButton, ToggleableFieldRow } from '~/components/form/ToggleableFieldRow'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { TimezoneEnum } from '~/generated/graphql'
@@ -19,13 +18,11 @@ import {
 } from './constants'
 
 type ContractSettingsDrawerContentExtraProps = {
-  contractCode?: string | null
   fieldLocks: Pick<ContractFieldLocks, 'startedAt' | 'billingAnchorDate'>
   customerTimezone?: TimezoneEnum | null
 }
 
 const contractSettingsDrawerContentDefaultProps: ContractSettingsDrawerContentExtraProps = {
-  contractCode: undefined,
   fieldLocks: { startedAt: false, billingAnchorDate: false },
   customerTimezone: undefined,
 }
@@ -33,12 +30,7 @@ const contractSettingsDrawerContentDefaultProps: ContractSettingsDrawerContentEx
 export const ContractSettingsDrawerContent = withForm({
   defaultValues: CONTRACT_SETTINGS_FORM_DEFAULTS,
   props: contractSettingsDrawerContentDefaultProps,
-  render: function ContractSettingsDrawerContentRender({
-    form,
-    fieldLocks,
-    customerTimezone,
-    contractCode,
-  }) {
+  render: function ContractSettingsDrawerContentRender({ form, fieldLocks, customerTimezone }) {
     const { translate } = useInternationalization()
     const [shouldDisplayName, setShouldDisplayName] = useState(() => !!form.state.values.name)
 
@@ -95,13 +87,15 @@ export const ContractSettingsDrawerContent = withForm({
               />
             )}
 
-            <TextInput
-              disabled
-              name="code"
-              data-test={CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID}
-              label={translate('text_629728388c4d2300e2d380b7')}
-              value={contractCode ?? ''}
-            />
+            <form.AppField name="code">
+              {(field) => (
+                <field.TextInputField
+                  disabled
+                  data-test={CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID}
+                  label={translate('text_629728388c4d2300e2d380b7')}
+                />
+              )}
+            </form.AppField>
 
             <ContractDatesAndPurchaseOrderFields
               form={form}

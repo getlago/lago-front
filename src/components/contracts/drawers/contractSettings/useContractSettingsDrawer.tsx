@@ -64,7 +64,6 @@ export const useContractSettingsDrawer = (): {
         <ContractSettingsDrawerContent
           form={form}
           fieldLocks={getContractFieldLocks(contract.status)}
-          contractCode={contract.code}
           customerTimezone={contract.customer.applicableTimezone}
         />
       ),

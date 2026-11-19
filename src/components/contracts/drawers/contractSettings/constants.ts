@@ -12,6 +12,7 @@ export interface ContractSettingsFormValues {
   // Display only, always locked: `UpdateContractInput.externalId` is the lookup key, not
   // an editable field — `Mutations::Contracts::Update` uses it to find the contract.
   externalId: string
+  code: string
   name: string
   startedAt: string
   endedAt?: string
@@ -25,6 +26,7 @@ export interface ContractSettingsFormValues {
  *  `mapContractToContractSettingsFormValues` at open time. */
 export const CONTRACT_SETTINGS_FORM_DEFAULTS: ContractSettingsFormValues = {
   externalId: '',
+  code: '',
   name: '',
   startedAt: '2026-01-01',
   endedAt: undefined,
