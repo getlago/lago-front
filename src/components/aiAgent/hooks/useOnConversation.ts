@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
 
+import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
 import { LagoApiError, useOnConversationSubscription } from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 gql`
   subscription onConversation($id: ID!) {
@@ -18,6 +20,8 @@ type UseOnConversationProps = {
 }
 
 export const useOnConversation = ({ conversationId, onChunk, onDone }: UseOnConversationProps) => {
+  const { refetchCurrentUserInfos } = useCurrentUser()
+
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
     variables: {
@@ -33,6 +37,9 @@ export const useOnConversation = ({ conversationId, onChunk, onDone }: UseOnConv
       if (!event) return
       if (event.chunk) onChunk(event.chunk)
       if (event.done) onDone()
+    },
+    onError: (error) => {
+      if (hasDefinedGQLError('OrganizationInactive', error)) refetchCurrentUserInfos()
     },
   })
 

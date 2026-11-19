@@ -17,10 +17,12 @@ import {
 import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { getAccessibleMemberships, resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useSandbox } from '~/hooks/useSandbox'
+import { PendingOrganizationShell } from '~/layouts/PendingOrganizationShell'
 import { useSandboxBannerHeightCssVar } from '~/layouts/sandboxBannerHeight'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
@@ -94,6 +96,10 @@ const OrganizationLayout = () => {
   )?.organization
   // The API refuses every request to an organization the session can't open.
   const org = membershipOrg?.accessibleByCurrentSession ? membershipOrg : undefined
+  // The API answers `organization_inactive` to every request for this organization: its id must never
+  // reach `currentOrganizationVar`, which every org-scoped query sends.
+  const isPendingOrg =
+    org?.activationStatus === OrganizationActivationStatusEnum.PendingPaymentMethod
 
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
@@ -115,7 +121,7 @@ const OrganizationLayout = () => {
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
   // to clear the Apollo cache — otherwise stale data from the previous org leaks.
   useEffect(() => {
-    if (org?.id) {
+    if (org?.id && !isPendingOrg) {
       if (currentOrgId && currentOrgId !== org.id) {
         switchCurrentOrganization(client, org.id)
       } else {
@@ -125,7 +131,7 @@ const OrganizationLayout = () => {
       // by `RootRedirect` at `/` to pick a landing slug when the URL has none.
       setPersistedOrganizationSlug(org.slug)
     }
-  }, [org?.id, org?.slug, currentOrgId, client])
+  }, [org?.id, org?.slug, isPendingOrg, currentOrgId, client])
 
   // Auto-recover legacy paths universally. Runs in an effect (not render) to
   // avoid React's "cannot update during render" warning when navigation
@@ -226,6 +232,10 @@ const OrganizationLayout = () => {
   }
 
   if (org) {
+    if (isPendingOrg) {
+      return <PendingOrganizationShell organization={org} onAddPaymentMethod={() => undefined} />
+    }
+
     if (currentOrgId !== org.id) return <Spinner />
 
     return (
