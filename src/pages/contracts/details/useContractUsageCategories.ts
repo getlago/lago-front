@@ -63,6 +63,8 @@ type UseContractUsageCategoriesReturn = {
 
 const STANDALONE_KEY = 'standalone'
 
+const NO_FILTER_OPTIONS: ContractUsageFilterOptions = { products: [], productFilters: [] }
+
 const toUniqueOptions = (options: ScopedFilterOption[]): ScopedFilterOption[] =>
   Array.from(new Map(options.map((option) => [option.id, option])).values())
 
@@ -93,7 +95,7 @@ export const useContractUsageCategories = ({
 
   useRefetchOnTokenChange(refreshToken, refetch)
 
-  const { categories, cardsByView } = useMemo(() => {
+  const { categories, filterOptionsByView } = useMemo(() => {
     const categoriesById = new Map<string, ContractUsageCategory>()
     const cardsByViewKey = new Map<string, AppliedRateCard[]>()
 
@@ -101,7 +103,13 @@ export const useContractUsageCategories = ({
       const category = card.product.productCategory
       const viewKey = category?.id ?? STANDALONE_KEY
 
-      cardsByViewKey.set(viewKey, [...(cardsByViewKey.get(viewKey) ?? []), card])
+      const viewCards = cardsByViewKey.get(viewKey)
+
+      if (viewCards) {
+        viewCards.push(card)
+      } else {
+        cardsByViewKey.set(viewKey, [card])
+      }
 
       if (category) {
         categoriesById.set(category.id, {
@@ -116,19 +124,21 @@ export const useContractUsageCategories = ({
       categories: Array.from(categoriesById.values()).toSorted((a, b) =>
         a.name.localeCompare(b.name, undefined, { numeric: true }),
       ),
-      cardsByView: cardsByViewKey,
+      filterOptionsByView: new Map(
+        Array.from(cardsByViewKey, ([viewKey, cards]) => [viewKey, buildFilterOptions(cards)]),
+      ),
     }
   }, [data])
 
   const getFilterOptions = (categoryId: string | null): ContractUsageFilterOptions | undefined => {
     if (!data?.contract) return undefined
 
-    return buildFilterOptions(cardsByView.get(categoryId ?? STANDALONE_KEY) ?? [])
+    return filterOptionsByView.get(categoryId ?? STANDALONE_KEY) ?? NO_FILTER_OPTIONS
   }
 
   return {
     categories,
-    hasStandaloneProducts: cardsByView.has(STANDALONE_KEY),
+    hasStandaloneProducts: filterOptionsByView.has(STANDALONE_KEY),
     isResolved: !!data || !!error,
     hasError: !!error,
     refetch,

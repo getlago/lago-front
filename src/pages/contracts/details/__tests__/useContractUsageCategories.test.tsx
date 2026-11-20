@@ -194,6 +194,29 @@ describe('useContractUsageCategories', () => {
       })
     })
 
+    it('THEN returns the same options on every call, so memoized consumers do not recompute', async () => {
+      const { result, rerender } = renderCategories([buildMock(cards)])
+
+      await waitFor(() => expect(result.current.isResolved).toBe(true))
+
+      const first = result.current.getFilterOptions('cat-1')
+
+      rerender({ token: undefined })
+
+      expect(result.current.getFilterOptions('cat-1')).toBe(first)
+    })
+
+    it('THEN returns empty options for a view the contract has no rate card in', async () => {
+      const { result } = renderCategories([buildMock(cards)])
+
+      await waitFor(() => expect(result.current.isResolved).toBe(true))
+
+      expect(result.current.getFilterOptions('cat-unknown')).toEqual({
+        products: [],
+        productFilters: [],
+      })
+    })
+
     it('THEN returns nothing before the contract has loaded', () => {
       const { result } = renderCategories([buildMock(cards)])
 
