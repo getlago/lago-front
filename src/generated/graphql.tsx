@@ -5003,6 +5003,7 @@ export type Fee = InvoiceItem & {
   fixedCharge?: Maybe<FixedCharge>;
   groupedBy: Scalars['JSON']['output'];
   id: Scalars['ID']['output'];
+  invoice?: Maybe<Invoice>;
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   invoiceId?: Maybe<Scalars['ID']['output']>;
   invoiceName?: Maybe<Scalars['String']['output']>;
@@ -17557,7 +17558,7 @@ export type GetOriginalFeeQueryVariables = Exact<{
 }>;
 
 
-export type GetOriginalFeeQuery = { __typename?: 'Query', fee?: { __typename?: 'Fee', id: string, adjustedFee: boolean, amountCents: any, invoiceDisplayName?: string | null, preciseUnitAmount: number, units: number, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null } | null };
+export type GetOriginalFeeQuery = { __typename?: 'Query', fee?: { __typename?: 'Fee', id: string, amountCents: any, invoiceDisplayName?: string | null, preciseUnitAmount: number, units: number, invoice?: { __typename?: 'Invoice', id: string, voidedInvoiceId?: string | null } | null, amountDetails?: { __typename?: 'FeeAmountDetails', fixedFeeTotalAmount?: string | null, fixedFeeUnitAmount?: string | null, flatUnitAmount?: string | null, freeEvents?: number | null, freeUnits?: string | null, minMaxAdjustmentTotalAmount?: string | null, paidEvents?: number | null, paidUnits?: string | null, perPackageSize?: number | null, perPackageUnitAmount?: string | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, rate?: string | null, units?: string | null, graduatedRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedRange', flatUnitAmount?: string | null, fromValue?: number | null, perUnitAmount?: string | null, perUnitTotalAmount?: string | null, toValue?: number | null, totalWithFlatAmount?: string | null, units?: string | null }> | null, graduatedPercentageRanges?: Array<{ __typename?: 'FeeAmountDetailsGraduatedPercentageRange', flatUnitAmount?: string | null, fromValue?: any | null, perUnitTotalAmount?: string | null, rate?: string | null, toValue?: any | null, totalWithFlatAmount?: string | null, units?: string | null }> | null } | null } | null };
 
 export type InvoiceForVoidInvoiceDialogFragment = { __typename?: 'Invoice', id: string, number: string };
 
@@ -45205,11 +45206,14 @@ export const GetOriginalFeeDocument = gql`
     query getOriginalFee($id: ID!) {
   fee(id: $id) {
     id
-    adjustedFee
     amountCents
     invoiceDisplayName
     preciseUnitAmount
     units
+    invoice {
+      id
+      voidedInvoiceId
+    }
     amountDetails {
       fixedFeeTotalAmount
       fixedFeeUnitAmount

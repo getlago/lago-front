@@ -74,11 +74,14 @@ gql`
   query getOriginalFee($id: ID!) {
     fee(id: $id) {
       id
-      adjustedFee
       amountCents
       invoiceDisplayName
       preciseUnitAmount
       units
+      invoice {
+        id
+        voidedInvoiceId
+      }
       amountDetails {
         fixedFeeTotalAmount
         fixedFeeUnitAmount
@@ -325,9 +328,9 @@ const CustomerInvoiceRegenerate = () => {
         })
       }
 
-      // A root that is itself adjusted was hand-added in an earlier round, not Lago-calculated
-      // (a genuine root never gets its own adjusted-fee row): nothing to restore to, so delete.
-      if (originalFee.adjustedFee) {
+      // A hand-added fee's root only ever lives on a regenerated invoice (voidedInvoiceId
+      // set); a genuinely billed fee's root lives on the true original one, even if edited.
+      if (originalFee.invoice?.voidedInvoiceId) {
         return setFees((f) => f.filter((fee) => fee.id !== id))
       }
 

@@ -627,7 +627,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'root-fee-1',
-            adjustedFee: false,
+            invoice: { id: 'original-invoice-1', voidedInvoiceId: null },
             invoiceDisplayName: null,
             units: 10,
             preciseUnitAmount: 100,
@@ -694,6 +694,57 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       })
     })
 
+    it('THEN resetting a fee whose root was draft-edited (genuinely billed, not hand-added) still restores it', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+      mockGetOriginalFee.mockResolvedValue({
+        data: {
+          fee: {
+            id: 'root-fee-2',
+            invoice: { id: 'original-invoice-2', voidedInvoiceId: null },
+            invoiceDisplayName: 'Renamed before finalization',
+            units: 10,
+            preciseUnitAmount: 100,
+            amountCents: 1000,
+            amountDetails: { freeUnits: '5' },
+          },
+        },
+      })
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: null,
+        description: '',
+        units: 20,
+        preciseUnitAmount: 200,
+        amountCents: 4000,
+        amountDetails: { freeUnits: '0' },
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFeeId: 'root-fee-2',
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      await act(() => onDelete('fee-1'))
+
+      const resetFee = MockInvoiceDetailsTable.mock.calls
+        .at(-1)[0]
+        .fees.find((f: { id: string }) => f.id === 'fee-1')
+
+      expect(resetFee).toMatchObject({ id: 'fee-1', adjustedFee: false, units: 10 })
+    })
+
     it('THEN resetting a fee whose root was itself hand-added (not Lago-calculated) deletes it instead of restoring broken data', async () => {
       mockRegenerateInvoice.mockResolvedValue({})
       mockVoidInvoice.mockResolvedValue({})
@@ -701,7 +752,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'hand-added-fee-1',
-            adjustedFee: true,
+            invoice: { id: 'regenerated-invoice-1', voidedInvoiceId: 'original-invoice-1' },
             invoiceDisplayName: 'Hand-added fee',
             units: 1,
             preciseUnitAmount: 500,
