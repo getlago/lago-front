@@ -1,7 +1,6 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { AddableExample } from '../../stories/addable-field-example'
 import { Field, FieldContent, FieldDescription, FieldError, FieldHelp, FieldLabel } from '../field'
 import { Input } from '../input'
 import { TooltipProvider } from '../tooltip'
@@ -42,33 +41,4 @@ it('opens help with keyboard focus and dismisses with Escape', async () => {
   await user.keyboard('{Escape}')
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   expect(screen.getByRole('button')).toHaveFocus()
-})
-
-it('clears an Addable value on remove and re-add, restoring focus', async () => {
-  const user = userEvent.setup()
-
-  render(
-    <TooltipProvider>
-      <AddableExample />
-    </TooltipProvider>,
-  )
-  await user.click(screen.getByRole('button', { name: 'Add value' }))
-  const input = screen.getByRole('textbox', { name: 'Customer reference' })
-
-  expect(input).toHaveFocus()
-  await user.type(input, 'old reference')
-  await user.click(screen.getByRole('button', { name: 'Delete' }))
-  expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
-  expect(screen.getByRole('button', { name: 'Add value' })).toHaveFocus()
-  await user.click(screen.getByRole('button', { name: 'Add value' }))
-  expect(screen.getByRole('textbox')).toHaveValue('')
-  expect(screen.getByRole('textbox')).toHaveFocus()
-})
-
-it('prevents Addable edits when disabled or read-only', () => {
-  const { rerender } = render(<AddableExample disabled />)
-
-  expect(screen.getByRole('button')).toBeDisabled()
-  rerender(<AddableExample readOnly />)
-  expect(screen.getByRole('button')).toBeDisabled()
 })

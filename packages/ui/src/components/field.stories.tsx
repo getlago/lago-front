@@ -15,8 +15,6 @@ import docs from './field.md?raw'
 import { Input, PasswordInput, SearchInput } from './input'
 import { TooltipProvider } from './tooltip'
 
-import { AddableExample } from '../stories/addable-field-example'
-
 const meta = {
   title: 'Components/Field',
   component: Field,
@@ -106,5 +104,21 @@ const ProfileFields = () => {
 
 export const Default: Story = { render: () => <ProfileFields /> }
 
-export const Addable: Story = { render: () => <AddableExample /> }
-export const Disabled: Story = { render: () => <AddableExample disabled /> }
+export const Disabled: Story = {
+  render: () => (
+    <Field data-disabled>
+      <FieldContent>
+        <FieldLabel htmlFor="disabled-name">Display name</FieldLabel>
+        <FieldDescription id="disabled-description">
+          The name displayed on invoices.
+        </FieldDescription>
+      </FieldContent>
+      <Input
+        id="disabled-name"
+        disabled
+        aria-describedby="disabled-description"
+        defaultValue="Acme Corporation"
+      />
+    </Field>
+  ),
+}

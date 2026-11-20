@@ -4,7 +4,7 @@ Composable labels, descriptions, controls and errors. Independent of any form li
 
 ## When to use
 
-Compose FieldContent, a control and optional FieldError as direct children of Field. The control can be Input, Textarea, Input Group or a composite control; Field does not inspect its type. Keep validation, translation, formatting and presence state in the application. Use ordinary grid classes for columns.
+Compose FieldContent, a control and optional FieldError as direct children of Field. The control can be Input, Textarea, Input Group or a composite control; Field does not inspect its type. Keep validation, translation and formatting in the application. Use ordinary grid classes for columns.
 
 ## Import
 
@@ -37,9 +37,7 @@ Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel 
 </Field>
 ```
 
-Keep wrappers only for meaningful internal layout, such as an input/delete row or a group of choices. Field spacing applies only to direct children, preserving those internal layouts.
-
-Addable is an app composition, demonstrated in Storybook: Add reveals and focuses an empty input; trash clears the value, removes the input and focuses Add. Re-adding always starts empty. Keep presence independent from value. Disable structural changes for disabled/read-only fields, and clear stale field errors when removing. Optional badges do not imply Addable behavior.
+Keep wrappers only for meaningful internal layout, such as a group of choices. Field spacing applies only to direct children, preserving those internal layouts.
 
 ## Accessibility
 
