@@ -23,6 +23,7 @@ import { withForm } from '~/hooks/forms/useAppform'
 
 import { buildComboboxOption, mergeSeededOption, OPTIONS_PAGE_SIZE } from './comboboxOptions'
 import {
+  CONTRACT_DRAWER_CODE_INPUT_TEST_ID,
   CONTRACT_DRAWER_CUSTOMER_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_PLAN_COMBOBOX_TEST_ID,
   CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID,
@@ -298,6 +299,18 @@ const ContractDrawerFormSections = withForm({
                 />
               )}
             </div>
+
+            <form.AppField name="code">
+              {(field) => (
+                <field.TextInputField
+                  data-test={CONTRACT_DRAWER_CODE_INPUT_TEST_ID}
+                  beforeChangeFormatter="code"
+                  label={translate('text_629728388c4d2300e2d380b7')}
+                  placeholder={translate('text_17950335898705jctc4i4twe')}
+                  helperText={translate('text_1795100193564fvipwk67u1g')}
+                />
+              )}
+            </form.AppField>
 
             <ContractDatesAndPurchaseOrderFields
               form={form}

@@ -2,6 +2,10 @@ import { act, render as rtlRender, screen, waitFor } from '@testing-library/reac
 import userEvent from '@testing-library/user-event'
 
 import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
+import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
+import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   ContractForContractDetailsOverviewFragment,
   ContractStatusEnum,
@@ -27,9 +31,16 @@ const mockOpenAttachedObjectDrawer = jest.fn()
 const mockOpenContractSettingsDrawer = jest.fn()
 const mockOpenInvoicingSettingsDrawer = jest.fn()
 const mockOpenPaymentSettingsDrawer = jest.fn()
-const mockInvoicingSettingsDrawerProps = jest.fn()
-const mockPaymentSettingsDrawerProps = jest.fn()
+const mockInvoicingSettingsDrawerProps = jest.fn(
+  (props: Parameters<typeof useInvoicingSettingsDrawer>[0]) => props,
+)
+const mockPaymentSettingsDrawerProps = jest.fn(
+  (props: Parameters<typeof usePaymentSettingsDrawer>[0]) => props,
+)
 const mockInvoiceCustomSectionDetailsProps = jest.fn()
+const mockUpdateContractSection = jest.fn()
+
+jest.mock('~/core/utils/copyToClipboard', () => ({ copyToClipboard: jest.fn() }))
 
 jest.mock('~/hooks/useContractPermissionsActions', () => ({
   useContractPermissionsActions: () => ({ canEditContract: mockCanEditContract }),
@@ -47,18 +58,18 @@ jest.mock('~/components/contracts/drawers/contractSettings/useContractSettingsDr
 }))
 
 jest.mock('~/components/contracts/useUpdateContractSection', () => ({
-  useUpdateContractSection: () => ({ updateContractSection: jest.fn() }),
+  useUpdateContractSection: () => ({ updateContractSection: mockUpdateContractSection }),
 }))
 
 jest.mock('~/components/invoicingSettings/useInvoicingSettingsDrawer', () => ({
-  useInvoicingSettingsDrawer: (props: Record<string, unknown>) => {
+  useInvoicingSettingsDrawer: (props: Parameters<typeof useInvoicingSettingsDrawer>[0]) => {
     mockInvoicingSettingsDrawerProps(props)
     return { openDrawer: mockOpenInvoicingSettingsDrawer }
   },
 }))
 
 jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
-  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+  usePaymentSettingsDrawer: (props: Parameters<typeof usePaymentSettingsDrawer>[0]) => {
     mockPaymentSettingsDrawerProps(props)
     return { openDrawer: mockOpenPaymentSettingsDrawer }
   },
@@ -69,10 +80,6 @@ jest.mock('~/components/invoceCustomFooter/InvoiceCustomSectionDetails', () => (
     mockInvoiceCustomSectionDetailsProps(props)
     return <div data-test="invoice-custom-section-details" />
   },
-}))
-
-jest.mock('~/hooks/core/useInternationalization', () => ({
-  useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
 jest.mock('~/components/billingEntity/BillingEntityLabel', () => ({
@@ -100,6 +107,7 @@ const contract: ContractForContractDetailsOverviewFragment = {
   __typename: 'Contract',
   id: 'contract-1',
   externalId: 'external-contract-1',
+  code: 'initial',
   name: null,
   status: ContractStatusEnum.Terminated,
   startedAt: '2026-01-01T00:00:00Z',
@@ -215,6 +223,41 @@ describe('ContractOverviewSection', () => {
     )
   })
 
+  it('saves invoicing settings with the contract id', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+    await screen.findByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID)
+
+    await act(async () =>
+      mockInvoicingSettingsDrawerProps.mock.calls.at(-1)?.[0].onSave({
+        consolidateInvoice: false,
+        invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: true },
+        paymentTerm: paymentTermFormValuesFromTerm(null, true),
+      }),
+    )
+
+    expect(mockUpdateContractSection).toHaveBeenCalledWith({
+      id: 'contract-1',
+      consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSectionIds: [], skipInvoiceCustomSections: true },
+    })
+  })
+
+  it('saves payment settings with the contract id', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+    await screen.findByTestId(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID)
+
+    const paymentMethod = {
+      paymentMethodId: 'payment-method-2',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
+    }
+
+    await act(async () =>
+      mockPaymentSettingsDrawerProps.mock.calls.at(-1)?.[0].onSave({ paymentMethod }),
+    )
+
+    expect(mockUpdateContractSection).toHaveBeenCalledWith({ id: 'contract-1', paymentMethod })
+  })
+
   it('hides every Edit action on a terminated contract', async () => {
     await renderSection()
 
@@ -244,7 +287,7 @@ describe('ContractOverviewSection', () => {
     })
 
     expect(document.querySelectorAll('.animate-pulse')).toHaveLength(7)
-    expect(screen.queryByText('text_1789552637141n7ijvldeali')).not.toBeInTheDocument()
+    expect(screen.queryByText('Attached object')).not.toBeInTheDocument()
   })
 
   it('renders read-only settings and linked attached objects', async () => {
@@ -252,10 +295,10 @@ describe('ContractOverviewSection', () => {
 
     expect(await screen.findByText('external-contract-1')).toBeInTheDocument()
     expect(screen.getAllByText('-')).not.toHaveLength(0)
-    expect(screen.getByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toBeInTheDocument()
+    expect(screen.getAllByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toHaveLength(2)
     const purchaseOrderNumber = screen.getByText('PO-42')
-    const contractSettings = screen.getByText('text_1789552637141f58gbx5dew3').closest('section')
-    const invoicingSettings = screen.getByText('text_17423672025282dl7iozy1ru').closest('section')
+    const contractSettings = screen.getByText('Contract settings').closest('section')
+    const invoicingSettings = screen.getByText('Invoicing settings').closest('section')
 
     expect(contractSettings).toContainElement(purchaseOrderNumber)
     expect(invoicingSettings).not.toContainElement(purchaseOrderNumber)
@@ -268,6 +311,28 @@ describe('ContractOverviewSection', () => {
       'href',
       '/plan-pricing/plan-1/overview',
     )
+  })
+
+  describe('GIVEN a contract code', () => {
+    it('THEN displays the code and copies its value', async () => {
+      await renderSection({ code: 'renewal' })
+
+      await userEvent.click(await screen.findByRole('button', { name: 'renewal' }))
+
+      expect(copyToClipboard).toHaveBeenCalledWith('renewal')
+    })
+  })
+
+  describe('GIVEN an older contract without a code', () => {
+    it('THEN keeps only the external id copy action', async () => {
+      await renderSection({ code: null, name: 'Enterprise agreement' })
+
+      await screen.findByText('external-contract-1')
+
+      expect(screen.getByText('-')).toBeInTheDocument()
+      expect(screen.getAllByTestId(TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID)).toHaveLength(1)
+      expect(screen.queryByRole('button', { name: 'initial' })).not.toBeInTheDocument()
+    })
   })
 
   it('passes the contract customer and selection to the invoice custom section display', async () => {
@@ -298,10 +363,10 @@ describe('ContractOverviewSection', () => {
   it('renders sections in design order with dividers on the first three', async () => {
     await renderSection()
 
-    const attached = await screen.findByText('text_1789552637141n7ijvldeali')
-    const settings = screen.getByText('text_1789552637141f58gbx5dew3')
-    const invoicing = screen.getByText('text_17423672025282dl7iozy1ru')
-    const payment = screen.getByText('text_1782825858647rr5zp42t63m')
+    const attached = await screen.findByText('Attached object')
+    const settings = screen.getByText('Contract settings')
+    const invoicing = screen.getByText('Invoicing settings')
+    const payment = screen.getByText('Payment app and settings')
 
     expect(attached.compareDocumentPosition(settings)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
     expect(settings.compareDocumentPosition(invoicing)).toBe(Node.DOCUMENT_POSITION_FOLLOWING)
@@ -335,8 +400,8 @@ describe('ContractOverviewSection', () => {
         externalCustomerId: 'external-customer-1',
       })
     })
-    expect(screen.getByText('text_17897233021144v1deu5m2s7')).toBeInTheDocument()
-    expect(screen.queryByText('text_1789723302114ceqx5k6efdq')).not.toBeInTheDocument()
+    expect(screen.getByText('Termination date')).toBeInTheDocument()
+    expect(screen.queryByText('Cancellation date')).not.toBeInTheDocument()
     expect(mockTimezoneDateProps).toHaveBeenCalledWith(
       expect.objectContaining({
         date: '2026-08-01T00:00:00Z',
@@ -352,8 +417,8 @@ describe('ContractOverviewSection', () => {
       terminatedAt: null,
     })
 
-    expect(await screen.findByText('text_1789723302114ceqx5k6efdq')).toBeInTheDocument()
-    expect(screen.queryByText('text_17897233021144v1deu5m2s7')).not.toBeInTheDocument()
+    expect(await screen.findByText('Cancellation date')).toBeInTheDocument()
+    expect(screen.queryByText('Termination date')).not.toBeInTheDocument()
   })
 
   it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
@@ -361,8 +426,8 @@ describe('ContractOverviewSection', () => {
     async (status) => {
       await renderSection({ status, canceledAt: null, terminatedAt: null })
 
-      expect(screen.queryByText('text_1789723302114ceqx5k6efdq')).not.toBeInTheDocument()
-      expect(screen.queryByText('text_17897233021144v1deu5m2s7')).not.toBeInTheDocument()
+      expect(screen.queryByText('Cancellation date')).not.toBeInTheDocument()
+      expect(screen.queryByText('Termination date')).not.toBeInTheDocument()
     },
   )
 })
