@@ -1,7 +1,6 @@
 import { Navigate } from 'react-router'
 
 import { envGlobalVar } from '~/core/apolloClient'
-import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { isDevOrQaAppEnv } from '~/core/utils/appEnv'
 import { FeatureFlagEnum } from '~/generated/graphql'
 
@@ -52,7 +51,6 @@ const RealtimeUsageBillableMetric = lazyLoad(
 
 // Route Available only on dev mode
 const DesignSystem = lazyLoad(() => import('~/pages/__devOnly/DesignSystem'))
-const InputFieldIntegration = lazyLoad(() => import('~/pages/__devOnly/InputFieldIntegration'))
 
 const ADMIN_ROUTE = '/admin'
 
@@ -139,19 +137,7 @@ const devOnlyInlineRoutes: CustomRouteObject[] = isDevOrQaAppEnv(appEnv)
     ]
   : []
 
-const devOnlyPreviewRoutes: CustomRouteObject[] =
-  appEnv === AppEnvEnum.development
-    ? [
-        {
-          path: '/__dev/input-integration',
-          element: <InputFieldIntegration />,
-          skipLocationHistory: true,
-        },
-      ]
-    : []
-
 export const routes: CustomRouteObject[] = [
-  ...devOnlyPreviewRoutes,
   {
     path: '*',
     element: <Error404 />,
