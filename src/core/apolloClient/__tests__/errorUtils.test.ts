@@ -4,6 +4,7 @@ import { GraphQLFormattedError } from 'graphql'
 import {
   buildGraphQLErrorFingerprint,
   extractThirdPartyErrorMessage,
+  getDetailError,
   getGraphQLErrorCode,
   hasDefinedGQLError,
   isSilencedGQLError,
@@ -302,5 +303,24 @@ describe('buildGraphQLErrorFingerprint', () => {
         ])
       })
     })
+  })
+})
+
+describe('getDetailError', () => {
+  const MESSAGES = { invalid_claim_code: 'invalid-claim-code-message' }
+
+  it.each([
+    [
+      'the field carries a known code',
+      { claimCode: ['invalid_claim_code'] },
+      MESSAGES.invalid_claim_code,
+    ],
+    ['the field carries an unknown code', { claimCode: ['something_else'] }, undefined],
+    ['the code sits on another field', { email: ['invalid_claim_code'] }, undefined],
+    ['the field value is not a list', { claimCode: 'invalid_claim_code' }, undefined],
+    ['the details are missing', undefined, undefined],
+    ['the details are not an object', 'invalid_claim_code', undefined],
+  ])('GIVEN %s THEN should return the expected message', (_, details, expected) => {
+    expect(getDetailError(details, 'claimCode', MESSAGES)).toBe(expected)
   })
 })

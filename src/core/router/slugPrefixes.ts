@@ -12,6 +12,7 @@
 export const NEVER_SLUG_PREFIXES = [
   '/admin',
   '/customer-portal',
+  '/agent-claim',
   '/forbidden',
   '/404',
   '/login',
