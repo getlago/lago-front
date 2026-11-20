@@ -24,7 +24,7 @@ const mockCreate = jest.fn()
 const mockCreateMutationOptions = jest.fn()
 const mockStripeProvidersQuery = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
-const mockOrganization = jest.fn()
+const mockWalletRefreshQuery = jest.fn()
 const mockFormDialogOpeningDialogOpen = jest.fn()
 const mockUpdate = jest.fn()
 const mockUpdateMutationOptions = jest.fn()
@@ -66,7 +66,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    organization: mockOrganization(),
     hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
   }),
 }))
@@ -80,6 +79,7 @@ jest.mock('~/generated/graphql', () => ({
   },
   useGetStripeProvidersForAgentStorefrontQuery: (options: unknown) =>
     mockStripeProvidersQuery(options),
+  useGetWalletRefreshForAgentStorefrontQuery: (options: unknown) => mockWalletRefreshQuery(options),
   useUpdateAgentStorefrontIntegrationMutation: (options: unknown) => {
     mockUpdateMutationOptions(options)
 
@@ -189,7 +189,9 @@ describe('useAddAgentStorefrontDialog', () => {
     jest.clearAllMocks()
     mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
-    mockOrganization.mockReturnValue({ walletRefreshEnabled: true })
+    mockWalletRefreshQuery.mockReturnValue({
+      data: { organization: { id: 'org_1', walletRefreshEnabled: true } },
+    })
     mockStripeProvidersQuery.mockReturnValue({ data: STRIPE_PROVIDERS_DATA, loading: false })
     mockFormDialogOpeningDialogOpen.mockResolvedValue({ reason: 'close' })
     mockHasPermissions.mockReturnValue(true)
@@ -421,7 +423,9 @@ describe('useAddAgentStorefrontDialog', () => {
 
     describe('WHEN the dialog opens', () => {
       it('THEN should show the wallet-targeted events refusal right away', () => {
-        mockOrganization.mockReturnValue({ walletRefreshEnabled: false })
+        mockWalletRefreshQuery.mockReturnValue({
+          data: { organization: { id: 'org_1', walletRefreshEnabled: false } },
+        })
 
         renderDialog(openDialog())
 
@@ -450,7 +454,9 @@ describe('useAddAgentStorefrontDialog', () => {
 
   describe('GIVEN the deployment does not refresh wallets in real time', () => {
     beforeEach(() => {
-      mockOrganization.mockReturnValue({ walletRefreshEnabled: false })
+      mockWalletRefreshQuery.mockReturnValue({
+        data: { organization: { id: 'org_1', walletRefreshEnabled: false } },
+      })
     })
 
     describe('WHEN the dialog opens', () => {
@@ -489,10 +495,10 @@ describe('useAddAgentStorefrontDialog', () => {
     })
   })
 
-  describe('GIVEN the organization is not loaded yet', () => {
+  describe('GIVEN the wallet refresh capability is not loaded or not exposed by the API', () => {
     describe('WHEN the dialog opens', () => {
       it('THEN should not refuse on wallet refresh', () => {
-        mockOrganization.mockReturnValue(undefined)
+        mockWalletRefreshQuery.mockReturnValue({ data: undefined })
 
         renderDialog(openDialog())
 

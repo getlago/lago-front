@@ -20,6 +20,7 @@ import {
   ProviderTypeEnum,
   useCreateAgentStorefrontIntegrationMutation,
   useGetStripeProvidersForAgentStorefrontQuery,
+  useGetWalletRefreshForAgentStorefrontQuery,
   useUpdateAgentStorefrontIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -49,6 +50,13 @@ gql`
           code
         }
       }
+    }
+  }
+
+  query getWalletRefreshForAgentStorefront {
+    organization {
+      id
+      walletRefreshEnabled
     }
   }
 
@@ -186,11 +194,17 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
   const navigate = useNavigate()
   const formDialog = useFormDialog()
   const formDialogOpeningDialog = useFormDialogOpeningDialog()
-  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const { getDeleteAgentStorefrontIntegrationDialogProps } =
     useDeleteAgentStorefrontIntegrationDialog()
   const editedIntegrationRef = useRef<EditAgentStorefrontIntegrationFragment | null>(null)
+
+  // Kept out of the main organization query and silent: an API that does not expose the field
+  // yet must not break the app, the mutation still answers `wallet_refresh_unavailable`.
+  const { data: walletRefreshData } = useGetWalletRefreshForAgentStorefrontQuery({
+    context: { silentError: true },
+  })
 
   const [createAgentStorefrontIntegration] = useCreateAgentStorefrontIntegrationMutation({
     context: { silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS },
@@ -259,8 +273,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
       return 'eventsTargetingWallets'
     }
 
-    // Only an explicit `false` refuses: while the organization is not loaded the API decides.
-    if (organization?.walletRefreshEnabled === false) return 'walletRefresh'
+    if (walletRefreshData?.organization?.walletRefreshEnabled === false) return 'walletRefresh'
 
     return null
   }

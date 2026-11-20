@@ -30,7 +30,6 @@ gql`
     featureFlags
     premiumIntegrations
     realtimeUsageEnabled
-    walletRefreshEnabled
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod
