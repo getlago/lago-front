@@ -5477,5 +5477,8 @@
   "text_17950691724841bhd45g69u8": "Edit units",
   "text_1795069172484rfkxpyqkd6y": "The quantity billed for this fixed product. It can only be changed while the plan or the contract is still editable.",
   "text_1795069172484bkbt387tkf4": "Units updated",
-  "text_1794982684091muxo5g24smt": "A feature can have up to {{max}} privileges."
+  "text_1794982684091muxo5g24smt": "A feature can have up to {{max}} privileges.",
+  "text_1795093921133goym1lmktoq": "Plan wallet created",
+  "text_1795093921133a8yyd8l1i37": "Plan wallet deleted",
+  "text_1795093921133stwkpx4uv8x": "Plan wallet updated"
 }
