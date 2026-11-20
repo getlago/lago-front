@@ -2,6 +2,7 @@ import { FC } from 'react'
 
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { Message } from '~/components/aiAgent/llmOutputs'
+import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
@@ -16,6 +17,8 @@ interface ChatConversationProps {
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
   const { agentType, state } = useAiAgent()
   const { translate } = useInternationalization()
+  const hasStreamError =
+    !!subscription.error && !hasDefinedGQLError('OrganizationInactive', subscription.error)
 
   return (
     <div
@@ -48,7 +51,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
 
       {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 
-      {(subscription.error || state.hasError) && (
+      {(hasStreamError || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>
