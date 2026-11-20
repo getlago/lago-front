@@ -36,6 +36,7 @@ import {
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
+  useGetOriginalFeeLazyQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -65,6 +66,54 @@ gql`
           id
           interval
           name
+        }
+      }
+    }
+  }
+
+  query getOriginalFee($id: ID!) {
+    fee(id: $id) {
+      id
+      amountCents
+      invoiceDisplayName
+      preciseUnitAmount
+      units
+      invoice {
+        id
+        voidedInvoiceId
+      }
+      amountDetails {
+        fixedFeeTotalAmount
+        fixedFeeUnitAmount
+        flatUnitAmount
+        freeEvents
+        freeUnits
+        minMaxAdjustmentTotalAmount
+        paidEvents
+        paidUnits
+        perPackageSize
+        perPackageUnitAmount
+        perUnitAmount
+        perUnitTotalAmount
+        rate
+        units
+        graduatedRanges {
+          flatUnitAmount
+          fromValue
+          perUnitAmount
+          perUnitTotalAmount
+          toValue
+          totalWithFlatAmount
+          units
+        }
+        graduatedPercentageRanges {
+          flatUnitAmount
+          fromValue
+          perUnitTotalAmount
+          rate
+          toValue
+          totalWithFlatAmount
+          units
         }
       }
     }
@@ -208,6 +257,7 @@ const CustomerInvoiceRegenerate = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
+  const [getOriginalFee] = useGetOriginalFeeLazyQuery()
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -250,14 +300,56 @@ const CustomerInvoiceRegenerate = () => {
     return setFees((f) => [...f, calculatedFee])
   }
 
-  const onDelete = (id: string) => {
+  const onDelete = async (id: string) => {
     // Use originalFeesRef to get untouched fee data, avoiding Apollo cache pollution
     const original = originalFeesRef.current?.find((f) => f.id === id)
 
-    if (original && !original.adjustedFee) {
+    if (!original) {
+      // Never-persisted fee added this editing session: nothing to reset to, drop it.
+      return setFees((f) => f.filter((fee) => fee.id !== id))
+    }
+
+    if (!original.adjustedFee) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
 
+    // Every fee is re-wrapped as adjusted on each void/regenerate round, so the root fee
+    // (fetched lazily by originalFeeId) is what reset must restore, not `original` itself.
+    if (original.originalFeeId) {
+      const { data } = await getOriginalFee({ variables: { id: original.originalFeeId } })
+      const originalFee = data?.fee
+
+      if (!originalFee) {
+        // Leave the fee as-is on a failed lookup so the user can retry, rather than
+        // losing the line (the exact outcome this reset logic exists to prevent).
+        return addToast({
+          message: translate('text_62b31e1f6a5b8b1b745ece48'),
+          severity: 'danger',
+        })
+      }
+
+      // A hand-added fee's root only ever lives on a regenerated invoice (voidedInvoiceId
+      // set); a genuinely billed fee's root lives on the true original one, even if edited.
+      if (originalFee.invoice?.voidedInvoiceId) {
+        return setFees((f) => f.filter((fee) => fee.id !== id))
+      }
+
+      const resetFee = {
+        ...original,
+        amountCents: originalFee.amountCents,
+        amountDetails: originalFee.amountDetails,
+        invoiceDisplayName: originalFee.invoiceDisplayName,
+        preciseUnitAmount: originalFee.preciseUnitAmount,
+        units: originalFee.units,
+        adjustedFee: false,
+        adjustedFeeType: null,
+      }
+
+      return setFees((f) => f.map((fee) => (fee.id === id ? resetFee : fee)))
+    }
+
+    // A fee added by hand (not duplicated from an existing one) has no originalFeeId until a
+    // later round duplicates it, so reset on it has nothing to restore and falls back to delete.
     return setFees((f) => f.filter((fee) => fee.id !== id))
   }
 
