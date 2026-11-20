@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Mail } from 'lucide-react'
-import { useId } from 'react'
+import { type ReactElement, useId } from 'react'
 
 import { Badge } from './badge'
 import {
@@ -126,7 +126,11 @@ export const Disabled: Story = {
   ),
 }
 
-const FieldStates = ({ control }: { control: 'input' | 'input-group' | 'textarea' }) => {
+const FieldStates = ({
+  control,
+}: {
+  control: 'input' | 'input-group' | 'textarea'
+}): ReactElement => {
   const id = useId()
   const { label, description, value } = {
     input: {
@@ -161,6 +165,20 @@ const FieldStates = ({ control }: { control: 'input' | 'input-group' | 'textarea
           'aria-describedby': `${controlId}-description${invalid ? ` ${controlId}-error` : ''}`,
         } as const
 
+        const renderControl = (): ReactElement => {
+          if (control === 'input') return <Input {...controlProps} />
+          if (control === 'textarea') return <Textarea {...controlProps} />
+
+          return (
+            <InputGroup>
+              <InputGroupInput {...controlProps} type="email" autoComplete="email" />
+              <InputGroupAddon>
+                <Mail aria-hidden="true" />
+              </InputGroupAddon>
+            </InputGroup>
+          )
+        }
+
         return (
           <div key={state} className="flex flex-col gap-2">
             <p className="v2-text-caption text-text-muted">{state}</p>
@@ -169,20 +187,7 @@ const FieldStates = ({ control }: { control: 'input' | 'input-group' | 'textarea
                 <FieldLabel htmlFor={controlId}>{label}</FieldLabel>
                 <FieldDescription id={`${controlId}-description`}>{description}</FieldDescription>
               </FieldContent>
-              {
-                {
-                  input: <Input {...controlProps} />,
-                  textarea: <Textarea {...controlProps} />,
-                  'input-group': (
-                    <InputGroup>
-                      <InputGroupInput {...controlProps} type="email" autoComplete="email" />
-                      <InputGroupAddon>
-                        <Mail aria-hidden="true" />
-                      </InputGroupAddon>
-                    </InputGroup>
-                  ),
-                }[control]
-              }
+              {renderControl()}
               {invalid && (
                 <FieldError id={`${controlId}-error`}>
                   Please enter a valid {label.toLowerCase()}.

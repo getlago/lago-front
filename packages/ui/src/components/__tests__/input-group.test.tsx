@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { createRef } from 'react'
+import { createRef, type ReactElement } from 'react'
 
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from '../field'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '../input-group'
@@ -169,7 +169,7 @@ it.each(['prefix', 'suffix', 'padding'])('focuses the input when clicking %s', a
   const user = userEvent.setup()
 
   render(
-    <InputGroup data-testid="group">
+    <InputGroup>
       <InputGroupInput aria-label="Domain" defaultValue="acme" />
       <InputGroupAddon>
         <InputGroupText>https://</InputGroupText>
@@ -182,7 +182,7 @@ it.each(['prefix', 'suffix', 'padding'])('focuses the input when clicking %s', a
   const targets = {
     prefix: screen.getByText('https://'),
     suffix: screen.getByText('.com'),
-    padding: screen.getByTestId('group'),
+    padding: screen.getByRole('group'),
   }
 
   await user.click(targets[target as keyof typeof targets])
@@ -192,7 +192,7 @@ it.each(['prefix', 'suffix', 'padding'])('focuses the input when clicking %s', a
 
 it('respects disabled fieldsets, read-only inputs and cancelled consumer handlers on addon clicks', async () => {
   const user = userEvent.setup()
-  const example = (disabled: boolean, cancel: boolean) => (
+  const example = (disabled: boolean, cancel: boolean): ReactElement => (
     <fieldset disabled={disabled}>
       <InputGroup onMouseDown={cancel ? (event) => event.preventDefault() : undefined}>
         <InputGroupInput aria-label="Domain" defaultValue="acme" readOnly />
