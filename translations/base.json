@@ -5483,5 +5483,7 @@
   "text_17950335898705jctc4i4twe": "Type a contract code",
   "text_17950335898708mg94k6t8ej": "Contract code",
   "text_1795033589870p2xxngsuzlk": "This code is already used by another contract with the same external ID.",
-  "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id"
+  "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id",
+  "text_17951819535853oq0ffmmynt": "Total current usage • {{category}}",
+  "text_1795187036698g1pnr18vrtb": "Active contract"
 }

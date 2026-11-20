@@ -1,5 +1,6 @@
 import { FieldNode, OperationDefinitionNode } from 'graphql'
 
+import { TableColumn } from '~/components/designSystem/Table/Table'
 import { MainHeaderConfig } from '~/components/MainHeader/types'
 import { CustomersDocument, CustomersQuery } from '~/generated/graphql'
 import { TranslateFunc } from '~/hooks/core/useInternationalization'
@@ -8,6 +9,12 @@ import { render } from '~/test-utils'
 import CustomersList from '../CustomersList'
 
 let capturedConfig: MainHeaderConfig | null = null
+
+type CustomerRow = CustomersQuery['customers']['collection'][number]
+
+let mockIsProductCatalogEnabled = false
+let capturedColumns: Array<TableColumn<CustomerRow>> = []
+let capturedQueryVariables: Record<string, unknown> | undefined
 
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: Object.assign(() => null, {
@@ -35,7 +42,7 @@ jest.mock('~/hooks/useDebouncedSearch', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     intlFormatDateTimeOrgaTZ: () => ({ date: '' }),
-    hasFeatureFlag: () => false,
+    hasFeatureFlag: () => mockIsProductCatalogEnabled,
     loading: false,
   }),
 }))
@@ -59,7 +66,10 @@ jest.mock('~/components/customers/DeleteCustomerDialog', () => ({
 }))
 
 jest.mock('~/components/designSystem/Table/Table', () => ({
-  Table: () => null,
+  Table: ({ columns }: { columns: Array<TableColumn<CustomerRow>> }) => {
+    capturedColumns = columns
+    return null
+  },
 }))
 
 let mockPage = 1
@@ -91,20 +101,24 @@ let mockCustomersMetadata: CustomersMetadata = UNCAPPED_METADATA
 
 jest.mock('~/generated/graphql', () => ({
   ...jest.requireActual('~/generated/graphql'),
-  useCustomersLazyQuery: () => [
-    jest.fn(),
-    {
-      data: {
-        customers: {
-          metadata: mockCustomersMetadata,
-          collection: [],
+  useCustomersLazyQuery: (options: { variables?: Record<string, unknown> }) => {
+    capturedQueryVariables = options.variables
+
+    return [
+      jest.fn(),
+      {
+        data: {
+          customers: {
+            metadata: mockCustomersMetadata,
+            collection: [],
+          },
         },
+        loading: false,
+        error: null,
+        variables: {},
       },
-      loading: false,
-      error: null,
-      variables: {},
-    },
-  ],
+    ]
+  },
 }))
 
 const mockFormatCountToMetadata = jest.fn()
@@ -139,6 +153,9 @@ describe('CustomersList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedConfig = null
+    capturedColumns = []
+    capturedQueryVariables = undefined
+    mockIsProductCatalogEnabled = false
     mockPage = 1
     mockCustomersMetadata = UNCAPPED_METADATA
     mockFormatCountToMetadata.mockReturnValue('formatted-count')
@@ -182,6 +199,47 @@ describe('CustomersList', () => {
         render(<CustomersList />)
 
         expect(mockFormatCountToMetadata).toHaveBeenCalledWith(10000, expect.any(Function), true)
+      })
+    })
+  })
+  describe('GIVEN the active count column', () => {
+    const findActiveCountColumn = (): TableColumn<CustomerRow> | undefined =>
+      capturedColumns.find(({ key }) =>
+        ['activeSubscriptionsCount', 'activeContractsCount'].includes(String(key)),
+      )
+
+    describe('WHEN the product catalog is disabled', () => {
+      it('THEN counts the active subscriptions and only queries them', () => {
+        render(<CustomersList />)
+
+        expect(findActiveCountColumn()?.key).toBe('activeSubscriptionsCount')
+        expect(findActiveCountColumn()?.title).toBe('text_1734452833961chacuky8218')
+        expect(capturedQueryVariables).toEqual(
+          expect.objectContaining({ isProductCatalogEnabled: false }),
+        )
+      })
+    })
+
+    describe('WHEN the product catalog is enabled', () => {
+      it('THEN counts the active contracts and only queries them', () => {
+        mockIsProductCatalogEnabled = true
+
+        render(<CustomersList />)
+
+        expect(findActiveCountColumn()?.key).toBe('activeContractsCount')
+        expect(findActiveCountColumn()?.title).toBe('text_1795187036698g1pnr18vrtb')
+        expect(capturedQueryVariables).toEqual(
+          expect.objectContaining({ isProductCatalogEnabled: true }),
+        )
+      })
+    })
+
+    describe('WHEN its fields are inspected in the query', () => {
+      it('THEN gates each count on the product catalog flag', () => {
+        const operation = CustomersDocument.loc?.source.body ?? ''
+
+        expect(operation).toContain('activeSubscriptionsCount @skip(if: $isProductCatalogEnabled)')
+        expect(operation).toContain('activeContractsCount @include(if: $isProductCatalogEnabled)')
       })
     })
   })
