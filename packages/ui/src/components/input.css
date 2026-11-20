@@ -6,7 +6,9 @@
   border-color: var(--color-border-control);
 }
 .v2-input:is([data-variant='search'], :read-only),
-.v2-input:not(:disabled):not(:read-only):not([aria-invalid='true']):hover {
+.v2-input:not(:disabled):not(:read-only):not([aria-invalid='true']):hover:not(
+    :where(.v2-field:has([data-slot='field-label']:hover) *)
+  ) {
   --v2-input-background: var(--color-surface-subtle);
 }
 .v2-input[data-variant='search'],
@@ -35,7 +37,9 @@
   --v2-input-background: var(--color-surface);
   border-color: var(--color-danger-border);
 }
-.v2-input[aria-invalid='true']:not(:disabled):not(:read-only):hover {
+.v2-input[aria-invalid='true']:not(:disabled):not(:read-only):hover:not(
+    :where(.v2-field:has([data-slot='field-label']:hover) *)
+  ) {
   --v2-input-background: var(--color-surface-subtle);
 }
 .v2-input:disabled {
