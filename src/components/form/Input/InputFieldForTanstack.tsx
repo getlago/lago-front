@@ -93,7 +93,12 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
         input.value = accepted
         if (start !== null && end !== null) {
           const mapPosition = (position: number): number => {
-            if (formatted === null) return Math.min(position, accepted.length)
+            if (formatted === null) {
+              return Math.max(
+                0,
+                Math.min(position - (raw.length - accepted.length), accepted.length),
+              )
+            }
             return Math.min(
               formatValue(raw.slice(0, position), beforeChangeFormatter)?.length ?? position,
               accepted.length,

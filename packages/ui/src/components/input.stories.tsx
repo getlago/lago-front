@@ -32,7 +32,7 @@ export const States: Story = {
       <Input aria-label="Filled" defaultValue="Acme Corporation" />
       <Input aria-label="Disabled" defaultValue="Acme Corporation" disabled />
       <Input aria-label="Read-only" defaultValue="Acme Corporation" readOnly />
-      <Field data-invalid="true">
+      <Field>
         <FieldContent>
           <FieldLabel htmlFor="invalid-name">Customer name</FieldLabel>
         </FieldContent>

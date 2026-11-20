@@ -130,6 +130,35 @@ it('keeps formatted integer edits as strings, rejects invalid edits and accepts 
   expect(state().touched).toBe(true)
 })
 
+it.each([
+  ['typing in the middle', 1, 1, 'a', false, 1],
+  ['pasting in the middle', 1, 1, 'abc', true, 1],
+  ['replacing a selection', 1, 2, 'abc', true, 2],
+  ['replacing a longer selection', 0, 3, 'a', true, 3],
+  ['typing at the start', 0, 0, 'a', false, 0],
+] as const)('restores the caret after rejecting %s', async (_, start, end, text, paste, caret) => {
+  const user = userEvent.setup()
+
+  render(<Example initialValue="123" inputProps={{ beforeChangeFormatter: 'int' }} />)
+  const input = screen.getByLabelText<HTMLInputElement>('Value')
+
+  await user.click(input)
+  input.setSelectionRange(start, end)
+  if (paste) await user.paste(text)
+  else await user.keyboard(text)
+
+  expect(input).toHaveValue('123')
+  expect(state().value).toBe('123')
+  expect(input.selectionStart).toBe(caret)
+  expect(input.selectionEnd).toBe(caret)
+
+  await user.keyboard('4')
+  const expected = `123`.slice(0, caret) + '4' + `123`.slice(caret)
+
+  expect(input).toHaveValue(expected)
+  expect(state().value).toBe(expected)
+})
+
 it('formats pasted decimals without rounding and preserves partial decimals', async () => {
   const user = userEvent.setup()
 
