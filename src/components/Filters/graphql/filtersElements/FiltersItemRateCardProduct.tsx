@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 
 import { useFilters } from '~/components/Filters/graphql/useFilters'
 import {
+  AvailableFiltersEnum,
   filterDataInlineSeparator,
   FiltersFormValues,
 } from '~/components/Filters/presentation/types'
@@ -27,25 +28,29 @@ export const FiltersItemRateCardProduct = ({
   setFilterValue,
 }: FiltersItemRateCardProductProps) => {
   const { translate } = useInternationalization()
-  const { displayInDialog } = useFilters()
+  const { displayInDialog, optionsByFilter } = useFilters()
+  const scopedOptions = optionsByFilter?.[AvailableFiltersEnum.rateCardProduct]
 
   const { data } = useGetProductsForFilterItemProductQuery({
     variables: { page: 1, limit: 500 },
+    skip: !!scopedOptions,
   })
 
   const comboboxProductsData = useMemo(() => {
-    // Freshly mapped array (never a prop/state), so sorting in place is safe.
-    return (data?.products?.collection ?? [])
-      .map((product) => {
-        const label = product.invoiceDisplayName || product.name
+    const options =
+      scopedOptions ??
+      (data?.products?.collection ?? []).map((product) => ({
+        id: product.id,
+        label: product.invoiceDisplayName || product.name,
+      }))
 
-        return {
-          label,
-          value: `${product.id}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
-        }
-      })
+    return options
+      .map(({ id, label }) => ({
+        label,
+        value: `${id}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
+      }))
       .sort((a, b) => a.label.localeCompare(b.label))
-  }, [data?.products?.collection])
+  }, [data?.products?.collection, scopedOptions])
 
   const selectedProductsValue = useMemo(() => parseLabeledMultiFilterValue({ value }), [value])
 

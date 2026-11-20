@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 
 import { useFilters } from '~/components/Filters/graphql/useFilters'
 import {
+  AvailableFiltersEnum,
   filterDataInlineSeparator,
   FiltersFormValues,
   filterWithoutProductFilterValue,
@@ -41,22 +42,27 @@ export const FiltersItemAppliedRateCardProductFilter = ({
   setFilterValue,
 }: FiltersItemAppliedRateCardProductFilterProps): JSX.Element => {
   const { translate } = useInternationalization()
-  const { displayInDialog } = useFilters()
+  const { displayInDialog, optionsByFilter } = useFilters()
+  const scopedOptions = optionsByFilter?.[AvailableFiltersEnum.appliedRateCardProductFilter]
 
   const { data } = useGetProductFiltersForFilterItemAppliedRateCardProductFilterQuery({
     variables: { page: 1, limit: 500 },
+    skip: !!scopedOptions,
   })
 
   const comboboxProductFiltersData = useMemo(() => {
-    const productFilterOptions = (data?.productFilters?.collection ?? [])
-      .map((productFilter) => {
-        const label = productFilter.invoiceDisplayName || productFilter.name
+    const options =
+      scopedOptions ??
+      (data?.productFilters?.collection ?? []).map((productFilter) => ({
+        id: productFilter.id,
+        label: productFilter.invoiceDisplayName || productFilter.name,
+      }))
 
-        return {
-          label,
-          value: `${productFilter.id}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
-        }
-      })
+    const productFilterOptions = options
+      .map(({ id, label }) => ({
+        label,
+        value: `${id}${filterDataInlineSeparator}${escapeFilterLabel(label)}`,
+      }))
       .sort((a, b) => a.label.localeCompare(b.label))
 
     // "Not defined" is injected client-side; selecting it maps to `withoutProductFilter: true`.
@@ -67,7 +73,7 @@ export const FiltersItemAppliedRateCardProductFilter = ({
       },
       ...productFilterOptions,
     ]
-  }, [data?.productFilters?.collection, translate])
+  }, [data?.productFilters?.collection, scopedOptions, translate])
 
   const selectedProductFiltersValue = useMemo(
     () =>

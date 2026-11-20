@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, within } from '@testing-library/react'
 
 import {
   CurrencyEnum,
@@ -7,9 +7,40 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
-import { ContractUsageSection } from '../ContractUsageSection'
+import {
+  CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID,
+  ContractUsageSection,
+} from '../ContractUsageSection'
+import { useContractUsageCategories } from '../useContractUsageCategories'
 
-type MockedChildProps = { refreshToken?: number }
+type UsageCategories = ReturnType<typeof useContractUsageCategories>
+
+type MockedChildProps = {
+  refreshToken?: number
+  categoryId?: string | null
+  activeCategoryId?: string | null
+  showStandalone?: boolean
+  filterOptions?: ReturnType<UsageCategories['getFilterOptions']>
+}
+
+const buildUsageCategories = (overrides: Partial<UsageCategories> = {}): UsageCategories => ({
+  categories: [],
+  hasStandaloneProducts: false,
+  isResolved: true,
+  hasError: false,
+  refetch: jest.fn(),
+  getFilterOptions: () => undefined,
+  ...overrides,
+})
+
+const mockUseContractUsageCategories = jest.fn<UsageCategories, []>(() => buildUsageCategories())
+
+jest.mock('../useContractUsageCategories', () => ({
+  useContractUsageCategories: () => mockUseContractUsageCategories(),
+}))
+
+const computeCategory = { id: 'cat-compute', name: 'Compute', displayName: 'Compute & GPUs' }
+const storageCategory = { id: 'cat-storage', name: 'Storage', displayName: 'Storage' }
 
 const mockContractUsageCategoryRail = jest.fn<JSX.Element, [MockedChildProps]>(() => (
   <div data-test="mocked-rail" />
@@ -25,9 +56,17 @@ jest.mock('../ContractUsageTable', () => ({
   ContractUsageTable: (props: MockedChildProps) => mockContractUsageTable(props),
 }))
 
+type CategoryTotalFixture = {
+  categoryId: string | null
+  totalAmountCents: string
+  fromDatetime: string
+  toDatetime: string
+}
+
 const buildTotalMock = (
   totalAmountCents: string,
   period?: { fromDatetime: string; toDatetime: string },
+  categoryTotals: CategoryTotalFixture[] = [],
 ): TestMocksType[number] => ({
   request: { query: GetContractCurrentUsageTotalDocument, variables: { contractId: 'contract-1' } },
   result: {
@@ -35,8 +74,14 @@ const buildTotalMock = (
       contractCurrentUsageTotal: {
         __typename: 'ContractCurrentUsageTotal',
         totalAmountCents,
+        taxesUnavailable: false,
         fromDatetime: period?.fromDatetime ?? null,
         toDatetime: period?.toDatetime ?? null,
+        productCategoryTotals: categoryTotals.map(({ categoryId, ...totals }) => ({
+          __typename: 'ContractCurrentUsageCategoryTotal',
+          productCategory: categoryId ? { __typename: 'ProductCategory', id: categoryId } : null,
+          ...totals,
+        })),
       },
     },
   },
@@ -44,6 +89,8 @@ const buildTotalMock = (
 
 describe('ContractUsageSection', () => {
   beforeEach(() => {
+    window.history.pushState({}, '', '/')
+    mockUseContractUsageCategories.mockImplementation(() => buildUsageCategories())
     mockContractUsageCategoryRail.mockClear()
     mockContractUsageCategoryRail.mockImplementation(() => <div data-test="mocked-rail" />)
     mockContractUsageTable.mockClear()
@@ -182,5 +229,188 @@ describe('ContractUsageSection', () => {
     expect(await screen.findByTestId('mocked-table-error')).toBeInTheDocument()
     expect(screen.getByTestId('mocked-rail')).toBeInTheDocument()
     expect(await screen.findByText(/670\.50|67050/)).toBeInTheDocument()
+  })
+  describe('GIVEN no category in the URL', () => {
+    it('THEN opens the first category when the contract has no standalone product', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ categories: [computeCategory, storageCategory] }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageTable).toHaveBeenLastCalledWith(
+        expect.objectContaining({ categoryId: 'cat-compute' }),
+      )
+      expect(mockContractUsageCategoryRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ showStandalone: false, activeCategoryId: 'cat-compute' }),
+      )
+    })
+
+    it('THEN opens Standalone products when the contract has some', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ categories: [computeCategory], hasStandaloneProducts: true }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageTable).toHaveBeenLastCalledWith(
+        expect.objectContaining({ categoryId: null }),
+      )
+      expect(mockContractUsageCategoryRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ showStandalone: true, activeCategoryId: null }),
+      )
+    })
+
+    it('THEN keeps Standalone products as the only view of a contract with no rate card', async () => {
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('0')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageCategoryRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ showStandalone: true, activeCategoryId: null }),
+      )
+      expect(screen.queryByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN holds the table back until the categories are known, so no usage is priced for a view about to be replaced', () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ isResolved: false }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      expect(screen.getByTestId('mocked-rail')).toBeInTheDocument()
+      expect(screen.queryByTestId('mocked-table')).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a category in the URL', () => {
+    beforeEach(() => {
+      window.history.pushState({}, '', '/?categoryId=cat-storage')
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({
+          categories: [computeCategory, storageCategory],
+          hasStandaloneProducts: true,
+          getFilterOptions: (categoryId) => ({
+            products: [{ id: `product-of-${categoryId}`, label: 'Product' }],
+            productFilters: [],
+          }),
+        }),
+      )
+    })
+
+    it('THEN opens that category and hands the table its filter options', async () => {
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageTable).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          categoryId: 'cat-storage',
+          filterOptions: {
+            products: [{ id: 'product-of-cat-storage', label: 'Product' }],
+            productFilters: [],
+          },
+        }),
+      )
+    })
+
+    it("THEN shows that category's own total and billing period above the table", async () => {
+      render(
+        <AllTheProviders
+          forceTypenames
+          mocks={[
+            buildTotalMock('67050', undefined, [
+              {
+                categoryId: null,
+                totalAmountCents: '50000',
+                fromDatetime: '2027-02-01T00:00:00.000Z',
+                toDatetime: '2027-02-28T23:59:59.000Z',
+              },
+              {
+                categoryId: 'cat-storage',
+                totalAmountCents: '17050',
+                fromDatetime: '2027-02-15T00:00:00.000Z',
+                toDatetime: '2027-03-14T23:59:59.000Z',
+              },
+            ]),
+          ]}
+        >
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      const categoryTotal = await screen.findByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)
+
+      await within(categoryTotal).findByText(/170\.50/)
+      expect(within(categoryTotal).getByText(/Storage/)).toBeInTheDocument()
+      expect(
+        within(categoryTotal).getByText('From Feb 15, 2027 to Mar 14, 2027'),
+      ).toBeInTheDocument()
+    })
+
+    it('THEN shows $0.00 for a category the total reports nothing for', async () => {
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      const categoryTotal = await screen.findByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)
+
+      expect(await within(categoryTotal).findByText(/0\.00/)).toBeInTheDocument()
+    })
   })
 })

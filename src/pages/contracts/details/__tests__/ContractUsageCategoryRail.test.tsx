@@ -1,267 +1,140 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { ComponentProps } from 'react'
 
-import { GetContractUsageCategoriesDocument } from '~/generated/graphql'
-import { AllTheProviders, TestMocksType } from '~/test-utils'
+import { AllTheProviders } from '~/test-utils'
 
 import { ContractUsageCategoryRail } from '../ContractUsageCategoryRail'
+import { ContractUsageCategory } from '../useContractUsageCategories'
 
-const buildMock = (appliedRateCards: unknown[]): TestMocksType[number] => ({
-  request: { query: GetContractUsageCategoriesDocument, variables: { contractId: 'contract-1' } },
-  result: {
-    data: {
-      contract: { id: 'contract-1', __typename: 'Contract', appliedRateCards },
-    },
-  },
-})
+type RailProps = ComponentProps<typeof ContractUsageCategoryRail>
+
+const supportCategory: ContractUsageCategory = {
+  id: 'cat-1',
+  name: 'Support',
+  displayName: 'Support',
+}
+const computeCategory: ContractUsageCategory = {
+  id: 'cat-2',
+  name: 'Compute',
+  displayName: 'Compute',
+}
+
+const renderRail = (props: Partial<RailProps> = {}): void => {
+  render(
+    <AllTheProviders>
+      <ContractUsageCategoryRail
+        categories={[supportCategory]}
+        showStandalone
+        activeCategoryId={null}
+        isLoading={false}
+        hasError={false}
+        onRetry={jest.fn()}
+        {...props}
+      />
+    </AllTheProviders>,
+  )
+}
 
 describe('ContractUsageCategoryRail', () => {
   beforeEach(() => {
     window.history.pushState({}, '', '/')
   })
 
-  it('always shows Standalone products first, then the distinct categories, deduped', async () => {
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
-        },
-      },
-      {
-        id: 'a2',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p2',
-          __typename: 'Product',
-          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
-        },
-      },
-      {
-        id: 'a3',
-        __typename: 'ContractAppliedRateCard',
-        product: { id: 'p3', __typename: 'Product', productCategory: null },
-      },
-    ]
+  describe('GIVEN a contract with standalone products and categories', () => {
+    it('THEN shows Standalone products first, followed by the categories in the given order', async () => {
+      renderRail({ categories: [computeCategory, supportCategory] })
 
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
+      await screen.findByText(/standalone/i)
+      const items = screen.getAllByRole('link')
 
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
-    const items = screen.getAllByRole('link')
-
-    expect(items[0]).toHaveTextContent(/standalone/i)
-    expect(items[1]).toHaveTextContent('Support')
+      expect(items).toHaveLength(3)
+      expect(items[0]).toHaveTextContent(/standalone/i)
+      expect(items[1]).toHaveTextContent('Compute')
+      expect(items[2]).toHaveTextContent('Support')
+    })
   })
 
-  it('sorts categories alphabetically, regardless of the order rate cards arrive in', async () => {
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-z', name: 'Zebra', __typename: 'ProductCategory' },
-        },
-      },
-      {
-        id: 'a2',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p2',
-          __typename: 'Product',
-          productCategory: { id: 'cat-a', name: 'Apple', __typename: 'ProductCategory' },
-        },
-      },
-      {
-        id: 'a3',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p3',
-          __typename: 'Product',
-          productCategory: { id: 'cat-m', name: 'Mango', __typename: 'ProductCategory' },
-        },
-      },
-    ]
+  describe('GIVEN a contract whose products all belong to a category', () => {
+    it('THEN leaves the Standalone products entry out', () => {
+      renderRail({ showStandalone: false, activeCategoryId: 'cat-1' })
 
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
+      const items = screen.getAllByRole('link')
 
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(4))
-    const items = screen.getAllByRole('link')
-
-    expect(items.map((item) => item.textContent)).toEqual([
-      expect.stringMatching(/standalone/i),
-      'Apple',
-      'Mango',
-      'Zebra',
-    ])
+      expect(items).toHaveLength(1)
+      expect(items[0]).toHaveTextContent('Support')
+      expect(screen.queryByText(/standalone/i)).not.toBeInTheDocument()
+    })
   })
 
-  it('sorts numeric suffixes numerically, not lexically', async () => {
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-19', name: 'Category 19', __typename: 'ProductCategory' },
-        },
-      },
-      {
-        id: 'a2',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p2',
-          __typename: 'Product',
-          productCategory: { id: 'cat-2', name: 'Category 2', __typename: 'ProductCategory' },
-        },
-      },
-    ]
+  describe('GIVEN an active view', () => {
+    it('THEN marks Standalone products as current when no category is active', () => {
+      renderRail({ activeCategoryId: null })
 
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
+      const items = screen.getAllByRole('link')
 
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(3))
-    const items = screen.getAllByRole('link')
+      expect(items[0]).toHaveAttribute('aria-current', 'page')
+      expect(items[1]).not.toHaveAttribute('aria-current', 'page')
+    })
 
-    expect(items.map((item) => item.textContent)).toEqual([
-      expect.stringMatching(/standalone/i),
-      'Category 2',
-      'Category 19',
-    ])
+    it('THEN marks the active category as current', () => {
+      renderRail({ activeCategoryId: 'cat-1' })
+
+      const items = screen.getAllByRole('link')
+
+      expect(items[0]).not.toHaveAttribute('aria-current', 'page')
+      expect(items[1]).toHaveAttribute('aria-current', 'page')
+    })
   })
 
-  it('shows only Standalone products for a contract with no applied rate cards', async () => {
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock([])]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
+  describe('WHEN switching category', () => {
+    it('THEN drops the page param the table reads', () => {
+      window.history.pushState({}, '', '/?page=3')
 
-    const items = await screen.findAllByRole('link')
+      renderRail()
 
-    expect(items).toHaveLength(1)
-    expect(items[0]).toHaveTextContent(/standalone/i)
+      const items = screen.getAllByRole('link')
+
+      expect(items[0]).toHaveAttribute('href', '/')
+      expect(items[1]).toHaveAttribute('href', '/?categoryId=cat-1')
+    })
+
+    it('THEN drops the usage filters, which are scoped to the category being left', () => {
+      window.history.pushState(
+        {},
+        '',
+        '/?categoryId=cat-2&cus_rateCardProduct=p1&cus_appliedRateCardProductType=fixed&tab=usage',
+      )
+
+      renderRail({ activeCategoryId: 'cat-2' })
+
+      const items = screen.getAllByRole('link')
+
+      expect(items[0]).toHaveAttribute('href', '/?tab=usage')
+      expect(items[1]).toHaveAttribute('href', '/?categoryId=cat-1&tab=usage')
+    })
   })
 
-  it('shows its own error placeholder in place when the categories query fails, without affecting siblings', async () => {
-    const errorMock: TestMocksType[number] = {
-      request: {
-        query: GetContractUsageCategoriesDocument,
-        variables: { contractId: 'contract-1' },
-      },
-      error: new Error('boom'),
-    }
+  describe('GIVEN the categories are still loading', () => {
+    it('THEN renders no entry yet', () => {
+      renderRail({ isLoading: true, activeCategoryId: undefined })
 
-    render(
-      <AllTheProviders mocks={[errorMock]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
-
-    expect(await screen.findByText('Something went wrong')).toBeInTheDocument()
-    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
+    })
   })
 
-  it('selects Standalone products by default and a real category when categoryId matches the URL', async () => {
-    window.history.pushState({}, '', '/?categoryId=cat-1')
+  describe('GIVEN the categories failed to load', () => {
+    it('THEN shows its own error placeholder and retries on demand', async () => {
+      const onRetry = jest.fn()
 
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
-        },
-      },
-    ]
+      renderRail({ hasError: true, onRetry })
 
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
+      expect(screen.getByText('Something went wrong')).toBeInTheDocument()
+      expect(screen.queryByRole('link')).not.toBeInTheDocument()
 
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
-    const items = screen.getAllByRole('link')
+      await userEvent.click(screen.getByRole('button'))
 
-    expect(items[0]).not.toHaveAttribute('aria-current', 'page')
-    expect(items[1]).toHaveAttribute('aria-current', 'page')
-  })
-
-  it('drops the page param (same key the table reads) when switching category', async () => {
-    window.history.pushState({}, '', '/?page=3')
-
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
-        },
-      },
-    ]
-
-    render(
-      <AllTheProviders forceTypenames mocks={[buildMock(appliedRateCards)]}>
-        <ContractUsageCategoryRail contractId="contract-1" />
-      </AllTheProviders>,
-    )
-
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
-    const items = screen.getAllByRole('link')
-
-    expect(items[0]).toHaveAttribute('href', '/')
-    expect(items[1]).toHaveAttribute('href', '/?categoryId=cat-1')
-  })
-
-  it('refetches, without remounting, when refreshToken changes', async () => {
-    const appliedRateCards = [
-      {
-        id: 'a1',
-        __typename: 'ContractAppliedRateCard',
-        product: {
-          id: 'p1',
-          __typename: 'Product',
-          productCategory: { id: 'cat-1', name: 'Support', __typename: 'ProductCategory' },
-        },
-      },
-    ]
-
-    const mocks = [buildMock([]), buildMock(appliedRateCards)]
-
-    const { rerender } = render(
-      <AllTheProviders forceTypenames mocks={mocks}>
-        <ContractUsageCategoryRail contractId="contract-1" refreshToken={0} />
-      </AllTheProviders>,
-    )
-
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(1))
-
-    rerender(
-      <AllTheProviders forceTypenames mocks={mocks}>
-        <ContractUsageCategoryRail contractId="contract-1" refreshToken={1} />
-      </AllTheProviders>,
-    )
-
-    await waitFor(() => expect(screen.getAllByRole('link')).toHaveLength(2))
+      expect(onRetry).toHaveBeenCalledTimes(1)
+    })
   })
 })
