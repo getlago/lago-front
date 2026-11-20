@@ -2,6 +2,17 @@ import * as Sentry from '@sentry/react'
 
 import { getInitialReplayIntegrations, startSessionReplayOnceUrlIsSafe } from '../sessionReplay'
 
+jest.mock('@sentry/react', () => {
+  const actual = jest.requireActual('@sentry/react')
+
+  return {
+    ...actual,
+    replayIntegration: jest.fn((...args: Parameters<typeof actual.replayIntegration>) =>
+      actual.replayIntegration(...args),
+    ),
+  }
+})
+
 const TOKEN_URL = '/reset-password/tok_s3cr3t'
 
 const isReplayInstalled = (): boolean => !!Sentry.getClient()?.getIntegrationByName('Replay')
@@ -37,11 +48,9 @@ describe('sessionReplay', () => {
       it('THEN should mask all text and inputs', () => {
         window.history.replaceState({}, '', '/acme/customers')
 
-        const [replay] = getInitialReplayIntegrations() as unknown as Array<{
-          _initialOptions: { maskAllText: boolean; maskAllInputs: boolean }
-        }>
+        getInitialReplayIntegrations()
 
-        expect(replay._initialOptions).toEqual(
+        expect(Sentry.replayIntegration).toHaveBeenCalledWith(
           expect.objectContaining({ maskAllText: true, maskAllInputs: true }),
         )
       })
