@@ -69,7 +69,7 @@ The example supplies an error for demonstration; validation and formatting belon
 
 Give the input a label through `htmlFor`/`id` or `aria-label`. Prefixes and suffixes do not replace a label. Include meaningful units in the accessible name or description; reference additional explanatory text with `aria-describedby`. Mark decorative icons `aria-hidden="true"`.
 
-Only the input receives keyboard focus. Disabled inputs cannot be edited or focused, including when disabled through a fieldset; read-only inputs remain focusable and selectable. Do not clip the group focus ring. If composing FieldHelp, provide one shared TooltipProvider above the form, not one per group.
+Clicking a decorative addon, gap or group padding focuses the input. Disabled controls remain unfocusable; read-only controls can still receive focus. Only the input receives keyboard focus. Disabled inputs cannot be edited or focused, including when disabled through a fieldset; read-only inputs remain focusable and selectable. Do not clip the group focus ring. If composing FieldHelp, provide one shared TooltipProvider above the form, not one per group.
 
 ## Design
 

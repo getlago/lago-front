@@ -6,10 +6,23 @@ import './input-group.css'
 import { cn } from '../lib/utils'
 
 export const InputGroup = React.forwardRef<HTMLDivElement, React.ComponentPropsWithoutRef<'div'>>(
-  ({ className, ...props }, ref) => (
+  ({ className, onMouseDown, ...props }, ref) => (
+    // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- Delegates pointer focus to the native input, the only keyboard focus target.
     <div
+      role="group"
       {...props}
       ref={ref}
+      onMouseDown={(event) => {
+        onMouseDown?.(event)
+        if (event.defaultPrevented || event.button !== 0) return
+        const input = event.currentTarget.querySelector<HTMLInputElement>(
+          ':scope > .v2-input-group-control',
+        )
+
+        if (!input || event.target === input || input.matches(':disabled')) return
+        event.preventDefault()
+        input.focus()
+      }}
       data-slot="input-group"
       className={cn(
         'v2-input-group flex h-9 w-full min-w-0 items-center gap-2 rounded-lg border px-3',

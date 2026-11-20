@@ -164,3 +164,52 @@ it('passes composition events and native constraints through without transformin
   expect(input).toBeRequired()
   expect(input).toHaveAttribute('maxlength', '100')
 })
+
+it.each(['prefix', 'suffix', 'padding'])('focuses the input when clicking %s', async (target) => {
+  const user = userEvent.setup()
+
+  render(
+    <InputGroup data-testid="group">
+      <InputGroupInput aria-label="Domain" defaultValue="acme" />
+      <InputGroupAddon>
+        <InputGroupText>https://</InputGroupText>
+      </InputGroupAddon>
+      <InputGroupAddon align="inline-end">
+        <InputGroupText>.com</InputGroupText>
+      </InputGroupAddon>
+    </InputGroup>,
+  )
+  const targets = {
+    prefix: screen.getByText('https://'),
+    suffix: screen.getByText('.com'),
+    padding: screen.getByTestId('group'),
+  }
+
+  await user.click(targets[target as keyof typeof targets])
+  expect(screen.getByRole('textbox')).toHaveFocus()
+  expect(screen.getByRole('textbox')).toHaveValue('acme')
+})
+
+it('respects disabled fieldsets, read-only inputs and cancelled consumer handlers on addon clicks', async () => {
+  const user = userEvent.setup()
+  const example = (disabled: boolean, cancel: boolean) => (
+    <fieldset disabled={disabled}>
+      <InputGroup onMouseDown={cancel ? (event) => event.preventDefault() : undefined}>
+        <InputGroupInput aria-label="Domain" defaultValue="acme" readOnly />
+        <InputGroupAddon>
+          <InputGroupText>https://</InputGroupText>
+        </InputGroupAddon>
+      </InputGroup>
+    </fieldset>
+  )
+  const { rerender } = render(example(true, false))
+
+  await user.click(screen.getByText('https://'))
+  expect(screen.getByRole('textbox')).not.toHaveFocus()
+  rerender(example(false, true))
+  await user.click(screen.getByText('https://'))
+  expect(screen.getByRole('textbox')).not.toHaveFocus()
+  rerender(example(false, false))
+  await user.click(screen.getByText('https://'))
+  expect(screen.getByRole('textbox')).toHaveFocus()
+})
