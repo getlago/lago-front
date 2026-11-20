@@ -36,7 +36,7 @@ Place the input first in the DOM, then addons. Alignment controls visual order. 
 </InputGroup>
 ```
 
-Reuse the existing Field components for labels and errors:
+Place Input Group directly inside Field alongside FieldContent and FieldError. Field owns the 8px/4px spacing; no control/error wrapper is needed:
 
 ```tsx
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from 'lago-ui/field'
@@ -46,22 +46,20 @@ import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from 'l
     <FieldLabel htmlFor="discount">Discount percentage</FieldLabel>
     <FieldDescription id="discount-description">Enter a value between 0 and 100.</FieldDescription>
   </FieldContent>
-  <div className="flex flex-col gap-1">
-    <InputGroup>
-      <InputGroupInput
-        id="discount"
-        name="discount"
-        inputMode="decimal"
-        defaultValue="120"
-        aria-invalid
-        aria-describedby="discount-description discount-error"
-      />
-      <InputGroupAddon align="inline-end">
-        <InputGroupText>%</InputGroupText>
-      </InputGroupAddon>
-    </InputGroup>
-    <FieldError id="discount-error">Enter a percentage from 0 to 100.</FieldError>
-  </div>
+  <InputGroup>
+    <InputGroupInput
+      id="discount"
+      name="discount"
+      inputMode="decimal"
+      defaultValue="120"
+      aria-invalid
+      aria-describedby="discount-description discount-error"
+    />
+    <InputGroupAddon align="inline-end">
+      <InputGroupText>%</InputGroupText>
+    </InputGroupAddon>
+  </InputGroup>
+  <FieldError id="discount-error">Enter a percentage from 0 to 100.</FieldError>
 </Field>
 ```
 

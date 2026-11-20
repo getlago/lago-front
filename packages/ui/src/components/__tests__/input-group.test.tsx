@@ -2,7 +2,7 @@ import { fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { createRef } from 'react'
 
-import { Field, FieldDescription, FieldError, FieldLabel } from '../field'
+import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from '../field'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '../input-group'
 
 it('edits and submits only the input value while preserving native events and selection', async () => {
@@ -110,8 +110,10 @@ it('connects existing Field labels, descriptions and errors to the native contro
 
   render(
     <Field>
-      <FieldLabel htmlFor="discount">Discount percentage</FieldLabel>
-      <FieldDescription id="discount-help">Between 0 and 100.</FieldDescription>
+      <FieldContent>
+        <FieldLabel htmlFor="discount">Discount percentage</FieldLabel>
+        <FieldDescription id="discount-help">Between 0 and 100.</FieldDescription>
+      </FieldContent>
       <InputGroup>
         <InputGroupInput
           id="discount"

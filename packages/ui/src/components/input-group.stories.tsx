@@ -94,6 +94,34 @@ export const Compositions: Story = {
   ),
 }
 
+export const WithField: Story = {
+  render: () => (
+    <Field>
+      <FieldContent>
+        <FieldLabel htmlFor="contact-email">Email address</FieldLabel>
+        <FieldDescription id="contact-email-description">
+          Where we send billing notifications.
+        </FieldDescription>
+      </FieldContent>
+      <InputGroup>
+        <InputGroupInput
+          id="contact-email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          defaultValue="invalid-email"
+          aria-invalid
+          aria-describedby="contact-email-description contact-email-error"
+        />
+        <InputGroupAddon>
+          <Mail aria-hidden="true" />
+        </InputGroupAddon>
+      </InputGroup>
+      <FieldError id="contact-email-error">Enter a valid email address.</FieldError>
+    </Field>
+  ),
+}
+
 export const States: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
@@ -102,30 +130,28 @@ export const States: Story = {
         const invalid = state === 'Error'
 
         return (
-          <Field key={state}>
+          <Field key={state} data-disabled={state === 'Disabled' || undefined}>
             <FieldContent>
               <FieldLabel htmlFor={id}>{state} website</FieldLabel>
               <FieldDescription id={`${id}-description`}>
                 Enter your company domain.
               </FieldDescription>
             </FieldContent>
-            <div className="flex flex-col gap-1">
-              <InputGroup>
-                <InputGroupInput
-                  id={id}
-                  placeholder="example.com"
-                  defaultValue={state === 'Empty' ? undefined : 'acme.com'}
-                  disabled={state === 'Disabled'}
-                  readOnly={state === 'Read-only'}
-                  aria-invalid={invalid || undefined}
-                  aria-describedby={`${id}-description${invalid ? ` ${id}-error` : ''}`}
-                />
-                <InputGroupAddon>
-                  <InputGroupText>https://</InputGroupText>
-                </InputGroupAddon>
-              </InputGroup>
-              {invalid && <FieldError id={`${id}-error`}>Enter a valid domain.</FieldError>}
-            </div>
+            <InputGroup>
+              <InputGroupInput
+                id={id}
+                placeholder="example.com"
+                defaultValue={state === 'Empty' ? undefined : 'acme.com'}
+                disabled={state === 'Disabled'}
+                readOnly={state === 'Read-only'}
+                aria-invalid={invalid || undefined}
+                aria-describedby={`${id}-description${invalid ? ` ${id}-error` : ''}`}
+              />
+              <InputGroupAddon>
+                <InputGroupText>https://</InputGroupText>
+              </InputGroupAddon>
+            </InputGroup>
+            {invalid && <FieldError id={`${id}-error`}>Enter a valid domain.</FieldError>}
           </Field>
         )
       })}

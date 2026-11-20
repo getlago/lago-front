@@ -54,6 +54,7 @@ Field CSS owns sibling spacing: 8px by default and 4px before a direct FieldErro
 ## References
 
 - [Input](./input.md)
+- [Input Group](./input-group.md)
 - [Tooltip](./tooltip.md)
 - Storybook: Components / Field
 - Tests: `__tests__/field.test.tsx`
