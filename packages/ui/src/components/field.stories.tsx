@@ -92,15 +92,13 @@ const ProfileFields = () => {
           <FieldLabel htmlFor={`${id}-code`}>Code</FieldLabel>
           <FieldDescription>Choose a unique code.</FieldDescription>
         </FieldContent>
-        <div className="flex flex-col gap-1">
-          <Input
-            id={`${id}-code`}
-            aria-invalid
-            aria-describedby={`${id}-error`}
-            defaultValue="existing_code"
-          />
-          <FieldError id={`${id}-error`}>This code is already in use.</FieldError>
-        </div>
+        <Input
+          id={`${id}-code`}
+          aria-invalid
+          aria-describedby={`${id}-error`}
+          defaultValue="existing_code"
+        />
+        <FieldError id={`${id}-error`}>This code is already in use.</FieldError>
       </Field>
     </FieldGroup>
   )

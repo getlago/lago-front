@@ -37,7 +37,7 @@ Browsers without field-sizing support fall back to a native three-row textarea w
 </Field>
 ```
 
-For validation, set aria-invalid on Textarea and link the existing FieldError with aria-describedby alongside any description ID. Wrap the control and error in a column with gap-1 to retain the 4px error gap. Field supplies the 8px content-to-control gap. If including FieldHelp, supply a shared TooltipProvider above the composition.
+For validation, set aria-invalid on Textarea and link the existing FieldError with aria-describedby alongside any description ID. Place Textarea and FieldError directly inside Field. Field supplies the 8px content-to-control gap and 4px control-to-error gap; no spacing wrapper is needed. If including FieldHelp, supply a shared TooltipProvider above the composition.
 
 ## Accessibility
 

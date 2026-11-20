@@ -17,10 +17,8 @@ it('associates labels, descriptions and errors with the input', async () => {
         <FieldLabel htmlFor="name">Name</FieldLabel>
         <FieldDescription id="description">Shown on invoices.</FieldDescription>
       </FieldContent>
-      <div>
-        <Input id="name" aria-invalid aria-describedby="description error" />
-        <FieldError id="error">Enter a name.</FieldError>
-      </div>
+      <Input id="name" aria-invalid aria-describedby="description error" />
+      <FieldError id="error">Enter a name.</FieldError>
     </Field>,
   )
   const input = screen.getByRole('textbox', { name: 'Name' })

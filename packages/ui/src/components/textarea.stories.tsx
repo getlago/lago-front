@@ -81,15 +81,13 @@ export const States: Story = {
             Shown on customer invoices.
           </FieldDescription>
         </FieldContent>
-        <div className="flex flex-col gap-1">
-          <Textarea
-            id="invalid-description"
-            defaultValue="Monthly subscription."
-            aria-invalid
-            aria-describedby="invalid-description-help invalid-description-error"
-          />
-          <FieldError id="invalid-description-error">Enter a more detailed description.</FieldError>
-        </div>
+        <Textarea
+          id="invalid-description"
+          defaultValue="Monthly subscription."
+          aria-invalid
+          aria-describedby="invalid-description-help invalid-description-error"
+        />
+        <FieldError id="invalid-description-error">Enter a more detailed description.</FieldError>
       </Field>
       <p className="v2-text-caption text-text-muted">
         Hover and focus the editable controls to review their states, including error + hover and

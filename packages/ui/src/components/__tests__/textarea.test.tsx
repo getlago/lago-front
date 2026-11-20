@@ -68,10 +68,8 @@ it('keeps description and error accessible through the existing Field primitives
         <FieldLabel htmlFor="notes">Notes</FieldLabel>
         <FieldDescription id="notes-help">Shown on invoices.</FieldDescription>
       </FieldContent>
-      <div className="flex flex-col gap-1">
-        <Textarea id="notes" aria-invalid aria-describedby="notes-help notes-error" />
-        <FieldError id="notes-error">Enter more detail.</FieldError>
-      </div>
+      <Textarea id="notes" aria-invalid aria-describedby="notes-help notes-error" />
+      <FieldError id="notes-error">Enter more detail.</FieldError>
     </Field>,
   )
   const textarea = screen.getByRole('textbox', { name: 'Notes' })
