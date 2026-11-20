@@ -4,8 +4,12 @@ import { useEffect, useRef } from 'react'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
-import { addToast } from '~/core/apolloClient'
-import { useDeletePlanDialogCountsQuery, useDeletePlanMutation } from '~/generated/graphql'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import {
+  LagoApiError,
+  useDeletePlanDialogCountsQuery,
+  useDeletePlanMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -144,7 +148,14 @@ export const useDeletePlanDialog = () => {
 
         const result = await deletePlan({
           variables: { input: { id } },
+          context: { silentErrorCodes: [LagoApiError.PlanSoldByAgentStorefront] },
         })
+
+        if (hasDefinedGQLError('PlanSoldByAgentStorefront', result.errors)) {
+          addToast({ severity: 'danger', translateKey: 'text_1795096449974nxoidu1m3z7' })
+
+          return
+        }
 
         if (result.data?.destroyPlan) {
           addToast({

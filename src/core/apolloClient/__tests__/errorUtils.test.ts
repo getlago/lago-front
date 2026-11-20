@@ -8,8 +8,14 @@ import {
   hasDefinedGQLError,
   isSilencedGQLError,
   LagoGQLError,
+  onNetworkError,
   PspErrorCode,
 } from '~/core/apolloClient/errorUtils'
+import { addToast } from '~/core/apolloClient/reactiveVars/toastVar'
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  addToast: jest.fn(),
+}))
 
 const createApolloError: (details: Record<string, string | string[]>) => ApolloError = (details) =>
   ({
@@ -301,6 +307,35 @@ describe('buildGraphQLErrorFingerprint', () => {
           'not_voidable',
         ])
       })
+    })
+  })
+})
+
+describe('onNetworkError', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN an ApolloError carrying a network error', () => {
+    it('THEN should show one danger toast', () => {
+      onNetworkError(new ApolloError({ networkError: new Error('offline') }))
+
+      expect(addToast).toHaveBeenCalledTimes(1)
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+  })
+
+  describe('GIVEN an error that is not a network failure', () => {
+    it.each([
+      ['a plain Error', new Error('Submit failed')],
+      [
+        'an ApolloError with only GraphQL errors',
+        new ApolloError({ graphQLErrors: [{ message: 'Unprocessable Entity' }] }),
+      ],
+    ])('THEN should not toast for %s', (_, error) => {
+      onNetworkError(error)
+
+      expect(addToast).not.toHaveBeenCalled()
     })
   })
 })

@@ -2,6 +2,7 @@ import { act, cleanup, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
+import { CentralizedDialogProps } from '~/components/dialogs/CentralizedDialog'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import {
   AddStripeApiKeyMutation,
@@ -15,12 +16,21 @@ import { useAddStripeDialog } from '../AddStripeDialog'
 const NAME_INPUT_PLACEHOLDER_KEY = 'text_6584550dc4cec7adf861504f'
 const SECRET_KEY_INPUT_PLACEHOLDER_KEY = 'text_62b1edddbf5f461ab9712756'
 const CONSENT_SWITCH_NAME = 'requireTermsOfServiceConsent'
+const SELLER_PROFILE_INPUT_SELECTOR = 'input[name="sellerProfile"]'
 
 const mockDialogOpen = jest.fn()
 const mockAddApiKey = jest.fn()
 const mockUpdateApiKey = jest.fn()
 const mockGetProviderByCode = jest.fn()
-const mockDeleteStripe = jest.fn()
+const mockGetDeleteStripeProps = jest.fn()
+const mockHasFeatureFlag = jest.fn()
+const mockHasOrganizationPremiumAddon = jest.fn()
+
+const DELETE_DIALOG_PROPS: CentralizedDialogProps = {
+  title: 'Delete',
+  actionText: 'Delete',
+  onAction: jest.fn(),
+}
 
 type AddMutationOptions = { onCompleted?: (data: AddStripeApiKeyMutation) => void }
 type UpdateMutationOptions = { onCompleted?: (data: UpdateStripeApiKeyMutation) => void }
@@ -30,6 +40,20 @@ let mockUpdateApiKeyOptions: UpdateMutationOptions | undefined
 
 jest.mock('~/components/dialogs/FormDialogOpeningDialog', () => ({
   useFormDialogOpeningDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
+}))
+
+jest.mock('~/components/settings/integrations/DeleteStripeIntegrationDialog', () => ({
+  useDeleteStripeIntegrationDialog: () => ({
+    getDeleteStripeIntegrationDialogProps: mockGetDeleteStripeProps,
+    openDeleteStripeIntegrationDialog: jest.fn(),
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+    hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+  }),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -52,7 +76,6 @@ jest.mock('~/generated/graphql', () => ({
     return [mockUpdateApiKey]
   },
   useGetProviderByCodeForStripeLazyQuery: () => [mockGetProviderByCode],
-  useDeleteStripeMutation: () => [mockDeleteStripe],
 }))
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -67,6 +90,12 @@ const stripeProvider: AddStripeProviderDialogFragment = {
   secretKey: 'sk_****1234',
   supports3ds: false,
   requireTermsOfServiceConsent: true,
+  sellerProfile: null,
+}
+
+const enableStorefront = (isEnabled: boolean): void => {
+  mockHasFeatureFlag.mockReturnValue(isEnabled)
+  mockHasOrganizationPremiumAddon.mockReturnValue(isEnabled)
 }
 
 describe('useAddStripeDialog', () => {
@@ -77,6 +106,8 @@ describe('useAddStripeDialog', () => {
 
     // Keep the dialog pending so the `.then` cleanup does not reset the form mid-test
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
+    mockGetDeleteStripeProps.mockReturnValue(DELETE_DIALOG_PROPS)
+    enableStorefront(false)
     mockGetProviderByCode.mockResolvedValue({ data: { paymentProvider: null } })
     mockAddApiKey.mockImplementation(async () => {
       const data: AddStripeApiKeyMutation = {
@@ -274,6 +305,114 @@ describe('useAddStripeDialog', () => {
         })
 
         expect(mockUpdateApiKey).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the dialog is opened in edition mode with a delete callback', () => {
+    describe('WHEN inspecting the delete footer', () => {
+      it('THEN should reuse the Stripe delete dialog props', () => {
+        const deleteCallback = jest.fn()
+        const { result } = renderHook(() => useAddStripeDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddStripeDialog({ provider: stripeProvider, deleteCallback })
+        })
+
+        expect(mockGetDeleteStripeProps).toHaveBeenCalledWith({
+          provider: stripeProvider,
+          callback: deleteCallback,
+        })
+        expect(mockDialogOpen.mock.calls[0][0]).toEqual(
+          expect.objectContaining({ canOpenDialog: true, otherDialogProps: DELETE_DIALOG_PROPS }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the organization has no Agentic Storefront', () => {
+    describe('WHEN the dialog renders', () => {
+      it('THEN should not render the seller profile field', async () => {
+        const { result } = renderHook(() => useAddStripeDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddStripeDialog({ provider: stripeProvider })
+        })
+
+        const { container } = await act(() =>
+          render(<>{mockDialogOpen.mock.calls[0][0].children}</>),
+        )
+
+        expect(container.querySelector(SELLER_PROFILE_INPUT_SELECTOR)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the organization has the Agentic Storefront', () => {
+    beforeEach(() => {
+      enableStorefront(true)
+    })
+
+    describe('WHEN creating a connection with an empty seller profile', () => {
+      it('THEN should send the seller profile as typed', async () => {
+        const user = userEvent.setup()
+        const { result } = renderHook(() => useAddStripeDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddStripeDialog()
+        })
+
+        const dialogProps = mockDialogOpen.mock.calls[0][0]
+        const { container } = await act(() => render(<>{dialogProps.children}</>))
+
+        expect(container.querySelector(SELLER_PROFILE_INPUT_SELECTOR)).toBeInTheDocument()
+
+        await user.type(screen.getByPlaceholderText(NAME_INPUT_PLACEHOLDER_KEY), 'My Stripe')
+        await user.type(
+          screen.getByPlaceholderText(SECRET_KEY_INPUT_PLACEHOLDER_KEY),
+          'sk_test_123',
+        )
+
+        await act(async () => {
+          await dialogProps.form.submit()
+        })
+
+        expect(mockAddApiKey).toHaveBeenCalledWith({
+          variables: {
+            input: expect.objectContaining({ secretKey: 'sk_test_123', sellerProfile: '' }),
+          },
+        })
+      })
+    })
+
+    describe('WHEN editing a connection that has a seller profile', () => {
+      it('THEN should prefill it and send the edited value', async () => {
+        const user = userEvent.setup()
+        const { result } = renderHook(() => useAddStripeDialog(), { wrapper })
+
+        act(() => {
+          result.current.openAddStripeDialog({
+            provider: { ...stripeProvider, sellerProfile: 'prof_1' },
+          })
+        })
+
+        const dialogProps = mockDialogOpen.mock.calls[0][0]
+        const { container } = await act(() => render(<>{dialogProps.children}</>))
+        const input = container.querySelector(SELLER_PROFILE_INPUT_SELECTOR) as HTMLInputElement
+
+        expect(input).toHaveValue('prof_1')
+
+        await user.clear(input)
+
+        await act(async () => {
+          await dialogProps.form.submit()
+        })
+
+        expect(mockUpdateApiKey).toHaveBeenCalledWith({
+          variables: {
+            input: expect.objectContaining({ id: 'stripe-provider-id', sellerProfile: '' }),
+          },
+        })
       })
     })
   })
