@@ -18,6 +18,7 @@ export const ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS = [
   LagoApiError.ValueAlreadyExist,
   LagoApiError.UrlIsInvalid,
   LagoApiError.EventsTargetingWalletsDisabled,
+  LagoApiError.WalletRefreshUnavailable,
   LagoApiError.PaymentProviderNotFound,
   LagoApiError.AgentStorefrontHasEnrolledAgents,
 ]
@@ -39,7 +40,13 @@ export const applyAgentStorefrontServerErrors = (
   errors: readonly GraphQLFormattedError[],
 ): void => {
   if (hasDefinedGQLError('EventsTargetingWalletsDisabled', errors, 'base')) {
-    formApi.setFieldValue('isRefused', true)
+    formApi.setFieldValue('refusalReason', 'eventsTargetingWallets')
+
+    return
+  }
+
+  if (hasDefinedGQLError('WalletRefreshUnavailable', errors, 'base')) {
+    formApi.setFieldValue('refusalReason', 'walletRefresh')
 
     return
   }

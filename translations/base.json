@@ -5564,5 +5564,6 @@
   "text_1795167825511lvpnnapmrny": "This code expired. Send a new one.",
   "text_17951678255111532h15xuvl": "Need a new code",
   "text_1795167825511n9ipu034f3a": "Claim code is required",
-  "text_1795167825511qk0b9gc77ys": "Enter the 6-digit code from the email"
+  "text_1795167825511qk0b9gc77ys": "Enter the 6-digit code from the email",
+  "text_1795177414435gn7pn5ytu3s": "Agent payments need real-time wallet refresh, which is turned off on this Lago instance. Turn it on, then connect."
 }

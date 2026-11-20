@@ -35,6 +35,7 @@ import {
 import {
   addAgentStorefrontDefaultValues,
   addAgentStorefrontValidationSchema,
+  AgentStorefrontRefusalReason,
   mapFromFormToApi,
 } from './validationSchema'
 
@@ -86,6 +87,11 @@ const ADD_AGENT_STOREFRONT_FORM_ID = 'form-add-agent-storefront-integration'
 
 export const ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID = 'add-agent-storefront-submit'
 
+const REFUSAL_ALERTS: Record<AgentStorefrontRefusalReason, string> = {
+  eventsTargetingWallets: 'text_1795083825205hnjrsshuj3f',
+  walletRefresh: 'text_1795177414435gn7pn5ytu3s',
+}
+
 const AddAgentStorefrontDialogContent = withForm({
   defaultValues: addAgentStorefrontDefaultValues,
   props: {
@@ -94,7 +100,7 @@ const AddAgentStorefrontDialogContent = withForm({
   },
   render: function AddAgentStorefrontDialogContentRender({ form, isEdition, isPaymentLocked }) {
     const { translate } = useInternationalization()
-    const isRefused = useStore(form.store, (state) => state.values.isRefused)
+    const refusalReason = useStore(form.store, (state) => state.values.refusalReason)
 
     const { data, loading } = useGetStripeProvidersForAgentStorefrontQuery({
       variables: { limit: 1000, type: ProviderTypeEnum.Stripe },
@@ -108,7 +114,7 @@ const AddAgentStorefrontDialogContent = withForm({
 
     return (
       <div className="flex flex-col gap-6 p-8">
-        {isRefused && <Alert type="danger">{translate('text_1795083825205hnjrsshuj3f')}</Alert>}
+        {refusalReason && <Alert type="danger">{translate(REFUSAL_ALERTS[refusalReason])}</Alert>}
 
         <NameAndCodeGroup
           form={form}
@@ -180,7 +186,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
   const navigate = useNavigate()
   const formDialog = useFormDialog()
   const formDialogOpeningDialog = useFormDialogOpeningDialog()
-  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
   const { hasPermissions } = usePermissions()
   const { getDeleteAgentStorefrontIntegrationDialogProps } =
     useDeleteAgentStorefrontIntegrationDialog()
@@ -217,7 +223,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
         return
       }
 
-      if (value.isRefused) {
+      if (value.refusalReason) {
         throw new Error('Refused')
       }
 
@@ -248,12 +254,23 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
     },
   })
 
+  const getRefusalReason = (): AgentStorefrontRefusalReason | null => {
+    if (!hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.EventsTargetingWallets)) {
+      return 'eventsTargetingWallets'
+    }
+
+    // Only an explicit `false` refuses: while the organization is not loaded the API decides.
+    if (organization?.walletRefreshEnabled === false) return 'walletRefresh'
+
+    return null
+  }
+
   const openAddAgentStorefrontDialog = (): void => {
     editedIntegrationRef.current = null
     form.reset(
       {
         ...addAgentStorefrontDefaultValues,
-        isRefused: !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.EventsTargetingWallets),
+        refusalReason: getRefusalReason(),
       },
       { keepDefaultValues: true },
     )
@@ -268,10 +285,10 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
       ),
       mainAction: (
         <form.AppForm>
-          <form.Subscribe selector={(state) => state.values.isRefused}>
-            {(isRefused) => (
+          <form.Subscribe selector={(state) => state.values.refusalReason}>
+            {(refusalReason) => (
               <form.SubmitButton
-                disabled={isRefused}
+                disabled={!!refusalReason}
                 dataTest={ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID}
               >
                 {translate('text_1795083825205xsbje4gbwqj')}
@@ -296,7 +313,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
         resourceEndpoint: integration.resourceEndpoint ?? '',
         resourceInstructions: integration.resourceInstructions ?? '',
         paymentProviderCode: integration.paymentProviderCode,
-        isRefused: false,
+        refusalReason: null,
       },
       { keepDefaultValues: true },
     )

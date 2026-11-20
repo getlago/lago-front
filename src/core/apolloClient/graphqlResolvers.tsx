@@ -58,6 +58,7 @@ export const typeDefs = gql`
     payment_provider_not_found
     plan_not_usage_only
     plan_overlapping
+    wallet_refresh_unavailable
     product_already_priced
     product_filter_already_priced
     url_is_invalid
