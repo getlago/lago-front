@@ -137,4 +137,17 @@ describe('ContractUsageCategoryRail', () => {
       expect(onRetry).toHaveBeenCalledTimes(1)
     })
   })
+  describe('GIVEN a category with an invoice display name', () => {
+    it('THEN labels its entry with that name, as the category total does', () => {
+      renderRail({
+        categories: [{ id: 'cat-3', name: 'gpu', displayName: 'GPU compute' }],
+        activeCategoryId: 'cat-3',
+      })
+
+      const items = screen.getAllByRole('link')
+
+      expect(items[items.length - 1]).toHaveTextContent('GPU compute')
+      expect(screen.queryByText('gpu')).not.toBeInTheDocument()
+    })
+  })
 })

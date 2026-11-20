@@ -86,7 +86,7 @@ export const ContractUsageCategoryRail = ({
         tabs={[
           ...(showStandalone ? [standaloneTab] : []),
           ...categories.map((category) => ({
-            title: category.name,
+            title: category.displayName,
             icon: 'box' as const,
             link: buildLink(category.id),
             active: activeCategoryId === category.id,

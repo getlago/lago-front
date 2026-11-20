@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
+import { act, render, screen, within } from '@testing-library/react'
+import { useEffect } from 'react'
 
 import {
   CurrencyEnum,
@@ -456,6 +457,74 @@ describe('ContractUsageSection', () => {
       const categoryTotal = await screen.findByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)
 
       expect(await within(categoryTotal).findByText(/0\.00/)).toBeInTheDocument()
+    })
+  })
+  describe('GIVEN the table holds its own search term', () => {
+    const tableMounts = jest.fn()
+    const tableUnmounts = jest.fn()
+
+    const navigateTo = (search: string): void => {
+      act(() => {
+        window.history.pushState({}, '', search)
+        window.dispatchEvent(new PopStateEvent('popstate'))
+      })
+    }
+
+    beforeEach(() => {
+      tableMounts.mockClear()
+      tableUnmounts.mockClear()
+      window.history.pushState({}, '', '/?categoryId=cat-compute')
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ categories: [computeCategory, storageCategory] }),
+      )
+      mockContractUsageTable.mockImplementation(() => {
+        useEffect(() => {
+          tableMounts()
+
+          return () => tableUnmounts()
+        }, [])
+
+        return <div data-test="mocked-table" />
+      })
+    })
+
+    it('WHEN switching category THEN remounts the table, which drops the search term', async () => {
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+      expect(tableMounts).toHaveBeenCalledTimes(1)
+
+      navigateTo('/?categoryId=cat-storage')
+
+      expect(tableUnmounts).toHaveBeenCalledTimes(1)
+      expect(tableMounts).toHaveBeenCalledTimes(2)
+    })
+
+    it('WHEN only the page changes THEN keeps the same table and its search term', async () => {
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      navigateTo('/?categoryId=cat-compute&page=2')
+
+      expect(tableUnmounts).not.toHaveBeenCalled()
+      expect(tableMounts).toHaveBeenCalledTimes(1)
     })
   })
 })
