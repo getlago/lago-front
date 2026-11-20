@@ -11,6 +11,7 @@
  */
 export const NEVER_SLUG_PREFIXES = [
   '/admin',
+  '/__dev/',
   '/customer-portal',
   '/forbidden',
   '/404',

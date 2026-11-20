@@ -6,6 +6,7 @@ import CheckboxField from '~/components/form/Checkbox/CheckboxFieldForTanstack'
 import ComboBoxField from '~/components/form/ComboBox/ComboBoxFieldForTanstack'
 import CurrencyPickerField from '~/components/form/CurrencyPickerFieldForTanstack'
 import DatePickerField from '~/components/form/DatePicker/DatePickerFieldForTanstack'
+import InputField from '~/components/form/Input/InputFieldForTanstack'
 import JsonEditorField from '~/components/form/JsonEditor/JsonEditorFieldForTanstack'
 import MultipleComboBoxField from '~/components/form/MultipleComboBox/MultipleComboBoxFieldForTanstack'
 import RadioField from '~/components/form/Radio/RadioFieldForTanstack'
@@ -19,6 +20,7 @@ import { fieldContext, formContext } from './formContext.ts'
 export const { useAppForm, withForm, withFieldGroup } = createFormHook({
   fieldComponents: {
     TextInputField,
+    InputField,
     ComboBoxField,
     CurrencyPickerField,
     MultipleComboBoxField,

@@ -60,6 +60,7 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
+import { InputFieldIntegration } from './InputFieldIntegration'
 import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
@@ -182,6 +183,12 @@ const DesignSystem = () => {
         className="px-12"
         name="Design system tab switcher"
         tabs={[
+          {
+            title: 'Input integration',
+            link: '/design-system/input-integration',
+            match: ['/design-system/input-integration'],
+            component: <InputFieldIntegration />,
+          },
           {
             title: 'Display',
             link: DISPLAY_TAB_URL,

@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 
 import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 import { useFieldContext } from './formContext'
 
@@ -10,6 +10,7 @@ type UseFieldErrorOptions = {
   displayErrorText?: boolean
   showOnlyErrors?: string[]
   noBoolean?: boolean
+  translateError?: TranslateFunc
   translateErrors?: boolean
   firstOnly?: boolean
 }
@@ -27,6 +28,7 @@ export function useFieldError<TNoBoolean extends boolean | undefined = undefined
     showOnlyErrors,
     noBoolean,
     translateErrors = false,
+    translateError,
     firstOnly = false,
   } = options
 
@@ -47,7 +49,7 @@ export function useFieldError<TNoBoolean extends boolean | undefined = undefined
 
   // Translate errors if needed, then join
   const error = translateErrors
-    ? errorsToUse.map((errorKey) => translate(errorKey as string)).join('\n')
+    ? errorsToUse.map((errorKey) => (translateError ?? translate)(errorKey as string)).join('\n')
     : errorsToUse.join('')
 
   if (noBoolean) {
