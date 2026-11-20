@@ -52,8 +52,25 @@ describe('applyAgentStorefrontServerErrors', () => {
           buildErrors({ base: [LagoApiError.EventsTargetingWalletsDisabled] }),
         )
 
-        expect(setFieldValue).toHaveBeenCalledWith('isRefused', true)
+        expect(setFieldValue).toHaveBeenCalledWith('refusalReason', 'eventsTargetingWallets')
         expect(setErrorMap).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the API refuses because wallet refresh is unavailable', () => {
+    describe('WHEN the errors are applied', () => {
+      it('THEN should flag the form as refused for wallet refresh without field errors or toast', () => {
+        const { formApi, setFieldValue, setErrorMap } = buildFormApi()
+
+        applyAgentStorefrontServerErrors(
+          formApi,
+          buildErrors({ base: [LagoApiError.WalletRefreshUnavailable] }),
+        )
+
+        expect(setFieldValue).toHaveBeenCalledWith('refusalReason', 'walletRefresh')
+        expect(setErrorMap).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
@@ -156,7 +173,7 @@ describe('applyAgentStorefrontServerErrors', () => {
   )
 
   describe.each([
-    ['wallet_refresh_unavailable', { base: ['wallet_refresh_unavailable'] }],
+    ['unknown_code', { base: ['unknown_code'] }],
     ['premium_integration_missing', { base: [LagoApiError.PremiumIntegrationMissing] }],
   ])('GIVEN an unmapped %s error', (_, details) => {
     describe('WHEN the errors are applied', () => {

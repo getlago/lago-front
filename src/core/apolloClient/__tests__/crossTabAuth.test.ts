@@ -11,6 +11,7 @@ jest.mock('../cacheUtils', () => ({
 
 const ADMIN_PATH = '/acme/customers'
 const PORTAL_PATH = '/customer-portal/portal-token-abc'
+const CLAIM_PATH = '/agent-claim/storefront-id'
 
 const client = {} as ApolloClient<object>
 
@@ -220,6 +221,19 @@ describe('reconcileSession', () => {
       expect(mockClearLocalSession).not.toHaveBeenCalled()
       expect(authTokenVar()).toBeUndefined()
       expect(currentOrganizationVar()).toBeNull()
+    })
+  })
+
+  describe('GIVEN the agent claim page opened by a signed-in admin', () => {
+    it('THEN should sync the token without clearing the page or reloading it', async () => {
+      window.history.pushState({}, '', CLAIM_PATH)
+      localStorage.setItem('authToken', USER_B_TOKEN)
+
+      await reconcileSession(client)
+
+      expect(mockClearLocalSession).not.toHaveBeenCalled()
+      expect(window.location.pathname).toBe(CLAIM_PATH)
+      expect(authTokenVar()).toBe(USER_B_TOKEN)
     })
   })
 

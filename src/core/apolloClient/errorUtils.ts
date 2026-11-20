@@ -79,6 +79,20 @@ export const isSilencedGQLError = ({
   return silentErrorDetails.some((code) => detailCodes.includes(code as string))
 }
 
+export const getDetailError = (
+  details: unknown,
+  field: string,
+  messages: Record<string, string>,
+): string | undefined => {
+  if (typeof details !== 'object' || details === null) return undefined
+
+  const codes = Object.entries(details).find(([key]) => key === field)?.[1]
+
+  if (!Array.isArray(codes)) return undefined
+
+  return codes.map((code) => (typeof code === 'string' ? messages[code] : undefined)).find(Boolean)
+}
+
 // --------------------- Graphql errors checker ---------------------
 export const hasDefinedGQLError = (
   errorCode: keyof typeof LagoApiError,

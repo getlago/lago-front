@@ -20,6 +20,7 @@ import {
   ProviderTypeEnum,
   useCreateAgentStorefrontIntegrationMutation,
   useGetStripeProvidersForAgentStorefrontQuery,
+  useGetWalletRefreshForAgentStorefrontQuery,
   useUpdateAgentStorefrontIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -35,6 +36,7 @@ import {
 import {
   addAgentStorefrontDefaultValues,
   addAgentStorefrontValidationSchema,
+  AgentStorefrontRefusalReason,
   mapFromFormToApi,
 } from './validationSchema'
 
@@ -48,6 +50,13 @@ gql`
           code
         }
       }
+    }
+  }
+
+  query getWalletRefreshForAgentStorefront {
+    organization {
+      id
+      walletRefreshEnabled
     }
   }
 
@@ -86,6 +95,11 @@ const ADD_AGENT_STOREFRONT_FORM_ID = 'form-add-agent-storefront-integration'
 
 export const ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID = 'add-agent-storefront-submit'
 
+const REFUSAL_ALERTS: Record<AgentStorefrontRefusalReason, string> = {
+  eventsTargetingWallets: 'text_1795083825205hnjrsshuj3f',
+  walletRefresh: 'text_1795177414435gn7pn5ytu3s',
+}
+
 const AddAgentStorefrontDialogContent = withForm({
   defaultValues: addAgentStorefrontDefaultValues,
   props: {
@@ -94,7 +108,7 @@ const AddAgentStorefrontDialogContent = withForm({
   },
   render: function AddAgentStorefrontDialogContentRender({ form, isEdition, isPaymentLocked }) {
     const { translate } = useInternationalization()
-    const isRefused = useStore(form.store, (state) => state.values.isRefused)
+    const refusalReason = useStore(form.store, (state) => state.values.refusalReason)
 
     const { data, loading } = useGetStripeProvidersForAgentStorefrontQuery({
       variables: { limit: 1000, type: ProviderTypeEnum.Stripe },
@@ -108,7 +122,7 @@ const AddAgentStorefrontDialogContent = withForm({
 
     return (
       <div className="flex flex-col gap-6 p-8">
-        {isRefused && <Alert type="danger">{translate('text_1795083825205hnjrsshuj3f')}</Alert>}
+        {refusalReason && <Alert type="danger">{translate(REFUSAL_ALERTS[refusalReason])}</Alert>}
 
         <NameAndCodeGroup
           form={form}
@@ -186,6 +200,12 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
     useDeleteAgentStorefrontIntegrationDialog()
   const editedIntegrationRef = useRef<EditAgentStorefrontIntegrationFragment | null>(null)
 
+  // Kept out of the main organization query and silent: an API that does not expose the field
+  // yet must not break the app, the mutation still answers `wallet_refresh_unavailable`.
+  const { data: walletRefreshData } = useGetWalletRefreshForAgentStorefrontQuery({
+    context: { silentError: true },
+  })
+
   const [createAgentStorefrontIntegration] = useCreateAgentStorefrontIntegrationMutation({
     context: { silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS },
     refetchQueries: ['integrationsSetting'],
@@ -217,7 +237,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
         return
       }
 
-      if (value.isRefused) {
+      if (value.refusalReason) {
         throw new Error('Refused')
       }
 
@@ -248,12 +268,22 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
     },
   })
 
+  const getRefusalReason = (): AgentStorefrontRefusalReason | null => {
+    if (!hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.EventsTargetingWallets)) {
+      return 'eventsTargetingWallets'
+    }
+
+    if (walletRefreshData?.organization?.walletRefreshEnabled === false) return 'walletRefresh'
+
+    return null
+  }
+
   const openAddAgentStorefrontDialog = (): void => {
     editedIntegrationRef.current = null
     form.reset(
       {
         ...addAgentStorefrontDefaultValues,
-        isRefused: !hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.EventsTargetingWallets),
+        refusalReason: getRefusalReason(),
       },
       { keepDefaultValues: true },
     )
@@ -268,10 +298,10 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
       ),
       mainAction: (
         <form.AppForm>
-          <form.Subscribe selector={(state) => state.values.isRefused}>
-            {(isRefused) => (
+          <form.Subscribe selector={(state) => state.values.refusalReason}>
+            {(refusalReason) => (
               <form.SubmitButton
-                disabled={isRefused}
+                disabled={!!refusalReason}
                 dataTest={ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID}
               >
                 {translate('text_1795083825205xsbje4gbwqj')}
@@ -296,7 +326,7 @@ export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn
         resourceEndpoint: integration.resourceEndpoint ?? '',
         resourceInstructions: integration.resourceInstructions ?? '',
         paymentProviderCode: integration.paymentProviderCode,
-        isRefused: false,
+        refusalReason: null,
       },
       { keepDefaultValues: true },
     )

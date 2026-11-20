@@ -1,5 +1,6 @@
 import { envGlobalVar } from '~/core/apolloClient'
 
+import { AGENT_CLAIM_ROUTE } from './paths/agentClaim'
 import { CREATE_ORGANIZATION_ROUTE } from './paths/createOrganization'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
@@ -22,6 +23,7 @@ const LoginOkta = lazyLoad(() => import('~/pages/auth/LoginOkta'))
 const OktaAuthCallback = lazyLoad(() => import('~/pages/auth/OktaAuthCallback'))
 const LoginEntraId = lazyLoad(() => import('~/pages/auth/LoginEntraId'))
 const EntraIdAuthCallback = lazyLoad(() => import('~/pages/auth/EntraIdAuthCallback'))
+const AgentClaim = lazyLoad(() => import('~/pages/agentClaim/AgentClaim'))
 
 // ----------- Routes -----------
 export const LOGIN_ROUTE = '/login'
@@ -116,5 +118,9 @@ export const authRoutes: CustomRouteObject[] = [
   {
     path: INVITATION_ROUTE_FORM,
     element: <Invitation />,
+  },
+  {
+    path: AGENT_CLAIM_ROUTE,
+    element: <AgentClaim />,
   },
 ]
