@@ -34,6 +34,8 @@ Associate a label through htmlFor/id or provide an accessible name. Link descrip
 
 ## References
 
+The States story shows standalone controls. For labels, descriptions and errors across each state, see Components / Field.
+
 - [Field](./field.md)
 - Storybook: Components / Input
 - Tests: `__tests__/input.test.tsx`

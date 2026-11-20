@@ -53,6 +53,8 @@ Field CSS owns sibling spacing: 8px by default and 4px before a direct FieldErro
 
 ## References
 
+Storybook includes With Input, With Input Group and With Textarea galleries. Each shows empty, filled, disabled, read-only and invalid fields; hover and focus are exercised on the editable controls.
+
 - [Input](./input.md)
 - [Input Group](./input-group.md)
 - [Tooltip](./tooltip.md)

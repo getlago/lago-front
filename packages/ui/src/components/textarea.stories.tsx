@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { useState } from 'react'
 
 import { Button } from './button'
-import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from './field'
+import { Field, FieldContent, FieldDescription, FieldLabel } from './field'
 import { Textarea } from './textarea'
 import docs from './textarea.md?raw'
 
@@ -62,36 +62,22 @@ export const ContentGrowth: Story = {
 export const States: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
-      <Field>
-        <FieldLabel htmlFor="editable-description">Editable</FieldLabel>
-        <Textarea id="editable-description" defaultValue="Monthly subscription." />
-      </Field>
-      <Field data-disabled>
-        <FieldLabel htmlFor="disabled-description">Disabled</FieldLabel>
-        <Textarea id="disabled-description" defaultValue="Monthly subscription." disabled />
-      </Field>
-      <Field>
-        <FieldLabel htmlFor="readonly-description">Read-only</FieldLabel>
-        <Textarea id="readonly-description" defaultValue={longValue} readOnly />
-      </Field>
-      <Field>
-        <FieldContent>
-          <FieldLabel htmlFor="invalid-description">Description with an error</FieldLabel>
-          <FieldDescription id="invalid-description-help">
-            Shown on customer invoices.
-          </FieldDescription>
-        </FieldContent>
-        <Textarea
-          id="invalid-description"
-          defaultValue="Monthly subscription."
-          aria-invalid
-          aria-describedby="invalid-description-help invalid-description-error"
-        />
-        <FieldError id="invalid-description-error">Enter a more detailed description.</FieldError>
-      </Field>
+      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid'].map((state) => (
+        <div key={state} className="flex flex-col gap-2">
+          <p className="v2-text-caption text-text-muted">{state}</p>
+          <Textarea
+            aria-label={state}
+            placeholder="Enter a description…"
+            defaultValue={state === 'Empty' ? undefined : 'Monthly subscription.'}
+            disabled={state === 'Disabled'}
+            readOnly={state === 'Read-only'}
+            aria-invalid={state === 'Invalid' || undefined}
+          />
+        </div>
+      ))}
       <p className="v2-text-caption text-text-muted">
-        Hover and focus the editable controls to review their states, including error + hover and
-        error + focus. Use the toolbar to switch themes.
+        Hover and focus the editable controls to review hover, focus, invalid + hover and invalid +
+        focus. Use the toolbar to switch themes.
       </p>
     </div>
   ),

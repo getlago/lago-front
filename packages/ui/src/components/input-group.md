@@ -79,6 +79,8 @@ The group owns the background, border and 4px focus ring. Hovering the control o
 
 ## References
 
+The States story shows standalone controls. For labels, descriptions and errors across each state, see Components / Field.
+
 - [Input](./input.md)
 - [Field](./field.md)
 - [Figma](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=268-3507)

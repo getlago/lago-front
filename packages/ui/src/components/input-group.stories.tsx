@@ -3,7 +3,6 @@ import { Mail, Search } from 'lucide-react'
 import { useState } from 'react'
 
 import { Button } from './button'
-import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from './field'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from './input-group'
 import docs from './input-group.md?raw'
 
@@ -94,70 +93,30 @@ export const Compositions: Story = {
   ),
 }
 
-export const WithField: Story = {
-  render: () => (
-    <Field>
-      <FieldContent>
-        <FieldLabel htmlFor="contact-email">Email address</FieldLabel>
-        <FieldDescription id="contact-email-description">
-          Where we send billing notifications.
-        </FieldDescription>
-      </FieldContent>
-      <InputGroup>
-        <InputGroupInput
-          id="contact-email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          defaultValue="invalid-email"
-          aria-invalid
-          aria-describedby="contact-email-description contact-email-error"
-        />
-        <InputGroupAddon>
-          <Mail aria-hidden="true" />
-        </InputGroupAddon>
-      </InputGroup>
-      <FieldError id="contact-email-error">Enter a valid email address.</FieldError>
-    </Field>
-  ),
-}
-
 export const States: Story = {
   render: () => (
     <div className="flex flex-col gap-6">
-      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Error'].map((state) => {
-        const id = `group-${state.toLowerCase()}`
-        const invalid = state === 'Error'
-
-        return (
-          <Field key={state} data-disabled={state === 'Disabled' || undefined}>
-            <FieldContent>
-              <FieldLabel htmlFor={id}>{state} website</FieldLabel>
-              <FieldDescription id={`${id}-description`}>
-                Enter your company domain.
-              </FieldDescription>
-            </FieldContent>
-            <InputGroup>
-              <InputGroupInput
-                id={id}
-                placeholder="example.com"
-                defaultValue={state === 'Empty' ? undefined : 'acme.com'}
-                disabled={state === 'Disabled'}
-                readOnly={state === 'Read-only'}
-                aria-invalid={invalid || undefined}
-                aria-describedby={`${id}-description${invalid ? ` ${id}-error` : ''}`}
-              />
-              <InputGroupAddon>
-                <InputGroupText>https://</InputGroupText>
-              </InputGroupAddon>
-            </InputGroup>
-            {invalid && <FieldError id={`${id}-error`}>Enter a valid domain.</FieldError>}
-          </Field>
-        )
-      })}
+      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid'].map((state) => (
+        <div key={state} className="flex flex-col gap-2">
+          <p className="v2-text-caption text-text-muted">{state}</p>
+          <InputGroup>
+            <InputGroupInput
+              aria-label={state}
+              placeholder="example.com"
+              defaultValue={state === 'Empty' ? undefined : 'acme.com'}
+              disabled={state === 'Disabled'}
+              readOnly={state === 'Read-only'}
+              aria-invalid={state === 'Invalid' || undefined}
+            />
+            <InputGroupAddon>
+              <InputGroupText>https://</InputGroupText>
+            </InputGroupAddon>
+          </InputGroup>
+        </div>
+      ))}
       <p className="v2-text-caption text-text-muted">
-        Hover and focus the editable groups to review all nine states, including error + hover and
-        error + focus.
+        Hover and focus the editable controls to review hover, focus, invalid + hover and invalid +
+        focus. Use the toolbar to switch themes.
       </p>
     </div>
   ),
