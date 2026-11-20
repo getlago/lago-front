@@ -2,6 +2,9 @@ import { act, render as rtlRender, screen, waitFor } from '@testing-library/reac
 import userEvent from '@testing-library/user-event'
 
 import { TYPOGRAPHY_WITH_COPY_BUTTON_TEST_ID } from '~/components/designSystem/TypographyWithCopy'
+import { useInvoicingSettingsDrawer } from '~/components/invoicingSettings/useInvoicingSettingsDrawer'
+import { usePaymentSettingsDrawer } from '~/components/paymentSettings/usePaymentSettingsDrawer'
+import { paymentTermFormValuesFromTerm } from '~/components/paymentTerms/utils'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   ContractForContractDetailsOverviewFragment,
@@ -28,9 +31,14 @@ const mockOpenAttachedObjectDrawer = jest.fn()
 const mockOpenContractSettingsDrawer = jest.fn()
 const mockOpenInvoicingSettingsDrawer = jest.fn()
 const mockOpenPaymentSettingsDrawer = jest.fn()
-const mockInvoicingSettingsDrawerProps = jest.fn()
-const mockPaymentSettingsDrawerProps = jest.fn()
+const mockInvoicingSettingsDrawerProps = jest.fn(
+  (props: Parameters<typeof useInvoicingSettingsDrawer>[0]) => props,
+)
+const mockPaymentSettingsDrawerProps = jest.fn(
+  (props: Parameters<typeof usePaymentSettingsDrawer>[0]) => props,
+)
 const mockInvoiceCustomSectionDetailsProps = jest.fn()
+const mockUpdateContractSection = jest.fn()
 
 jest.mock('~/core/utils/copyToClipboard', () => ({ copyToClipboard: jest.fn() }))
 
@@ -50,18 +58,18 @@ jest.mock('~/components/contracts/drawers/contractSettings/useContractSettingsDr
 }))
 
 jest.mock('~/components/contracts/useUpdateContractSection', () => ({
-  useUpdateContractSection: () => ({ updateContractSection: jest.fn() }),
+  useUpdateContractSection: () => ({ updateContractSection: mockUpdateContractSection }),
 }))
 
 jest.mock('~/components/invoicingSettings/useInvoicingSettingsDrawer', () => ({
-  useInvoicingSettingsDrawer: (props: Record<string, unknown>) => {
+  useInvoicingSettingsDrawer: (props: Parameters<typeof useInvoicingSettingsDrawer>[0]) => {
     mockInvoicingSettingsDrawerProps(props)
     return { openDrawer: mockOpenInvoicingSettingsDrawer }
   },
 }))
 
 jest.mock('~/components/paymentSettings/usePaymentSettingsDrawer', () => ({
-  usePaymentSettingsDrawer: (props: Record<string, unknown>) => {
+  usePaymentSettingsDrawer: (props: Parameters<typeof usePaymentSettingsDrawer>[0]) => {
     mockPaymentSettingsDrawerProps(props)
     return { openDrawer: mockOpenPaymentSettingsDrawer }
   },
@@ -213,6 +221,41 @@ describe('ContractOverviewSection', () => {
     expect(mockPaymentSettingsDrawerProps).toHaveBeenCalledWith(
       expect.objectContaining({ externalCustomerId: 'external-customer-1' }),
     )
+  })
+
+  it('saves invoicing settings with the contract id', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+    await screen.findByTestId(CONTRACT_OVERVIEW_INVOICING_EDIT_TEST_ID)
+
+    await act(async () =>
+      mockInvoicingSettingsDrawerProps.mock.calls.at(-1)?.[0].onSave({
+        consolidateInvoice: false,
+        invoiceCustomSection: { invoiceCustomSections: [], skipInvoiceCustomSections: true },
+        paymentTerm: paymentTermFormValuesFromTerm(null, true),
+      }),
+    )
+
+    expect(mockUpdateContractSection).toHaveBeenCalledWith({
+      id: 'contract-1',
+      consolidateInvoice: false,
+      invoiceCustomSection: { invoiceCustomSectionIds: [], skipInvoiceCustomSections: true },
+    })
+  })
+
+  it('saves payment settings with the contract id', async () => {
+    await renderSection({ status: ContractStatusEnum.Active })
+    await screen.findByTestId(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID)
+
+    const paymentMethod = {
+      paymentMethodId: 'payment-method-2',
+      paymentMethodType: PaymentMethodTypeEnum.Provider,
+    }
+
+    await act(async () =>
+      mockPaymentSettingsDrawerProps.mock.calls.at(-1)?.[0].onSave({ paymentMethod }),
+    )
+
+    expect(mockUpdateContractSection).toHaveBeenCalledWith({ id: 'contract-1', paymentMethod })
   })
 
   it('hides every Edit action on a terminated contract', async () => {

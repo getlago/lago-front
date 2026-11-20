@@ -3,7 +3,11 @@ import { gql } from '@apollo/client'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { ContractStatusEnum, useTerminateContractMutation } from '~/generated/graphql'
+import {
+  ContractForContractDrawerFragment,
+  ContractStatusEnum,
+  useTerminateContractMutation,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
 gql`
@@ -48,10 +52,7 @@ export const getContractTerminationCopy = (
   return null
 }
 
-type ContractTerminationTarget = {
-  externalId: string
-  status: ContractStatusEnum
-}
+type ContractTerminationTarget = Pick<ContractForContractDrawerFragment, 'id' | 'status'>
 
 export const useTerminateContractDialog = () => {
   const centralizedDialog = useCentralizedDialog()
@@ -73,7 +74,7 @@ export const useTerminateContractDialog = () => {
       closeOnError: false,
       onAction: async () => {
         const result = await terminateContract({
-          variables: { input: { externalId: contract.externalId } },
+          variables: { input: { id: contract.id } },
         })
 
         if (!result.data?.terminateContract) {

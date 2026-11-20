@@ -85,7 +85,7 @@ describe('useContractSettingsDrawer', () => {
     expect(lastDrawerArgs?.children?.props.form.state.values.code).toBe('initial')
   })
 
-  it('submits the contract settings fields keyed on the contract external id, then closes', async () => {
+  it('submits the contract settings fields keyed on the contract id, then closes', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([
       updateContractMock((input) => {
@@ -97,7 +97,7 @@ describe('useContractSettingsDrawer', () => {
     await submit()
 
     expect(capturedInput).toEqual({
-      externalId: 'external-contract-1',
+      id: 'contract-1',
       name: 'Enterprise agreement',
       startedAt: '2026-01-01T00:00:00.000Z',
       endedAt: '2099-12-31T00:00:00.000Z',

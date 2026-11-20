@@ -21,11 +21,11 @@ const clearedValues: ContractSettingsFormValues = {
 }
 
 describe('buildContractSettingsInput', () => {
-  it('builds the update input keyed on the contract external id, ignoring the display-only field', () => {
+  it('builds the update input keyed on the contract id, ignoring the display-only field', () => {
     const input = buildContractSettingsInput(values, contractForDrawerFixture)
 
     expect(input).toEqual({
-      externalId: 'external-contract-1',
+      id: 'contract-1',
       name: 'Enterprise agreement',
       startedAt: '2099-01-01T00:00:00.000Z',
       endedAt: '2099-02-01T00:00:00.000Z',
