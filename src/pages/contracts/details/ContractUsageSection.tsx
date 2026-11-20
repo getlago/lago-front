@@ -135,8 +135,13 @@ export const ContractUsageSection = ({
   const showStandalone = usageCategories.hasStandaloneProducts || categories.length === 0
   const urlCategoryId = searchParams.get('categoryId')
 
+  const isUrlCategoryUsable =
+    !usageCategories.isResolved ||
+    usageCategories.hasError ||
+    categories.some(({ id }) => id === urlCategoryId)
+
   const getActiveCategoryId = (): string | null | undefined => {
-    if (urlCategoryId) return urlCategoryId
+    if (urlCategoryId && isUrlCategoryUsable) return urlCategoryId
     if (!usageCategories.isResolved) return undefined
     if (showStandalone) return null
 

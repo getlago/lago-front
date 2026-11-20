@@ -397,6 +397,51 @@ describe('ContractUsageSection', () => {
       ).toBeInTheDocument()
     })
 
+    it('THEN falls back to the default view when the contract has no such category', async () => {
+      window.history.pushState({}, '', '/?categoryId=cat-from-another-contract')
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageTable).toHaveBeenLastCalledWith(
+        expect.objectContaining({ categoryId: null }),
+      )
+      expect(mockContractUsageCategoryRail).toHaveBeenLastCalledWith(
+        expect.objectContaining({ activeCategoryId: null }),
+      )
+    })
+
+    it('THEN keeps the category of the URL when the categories failed to load, as none can be checked', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ hasError: true }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(mockContractUsageTable).toHaveBeenLastCalledWith(
+        expect.objectContaining({ categoryId: 'cat-storage' }),
+      )
+    })
+
     it('THEN shows $0.00 for a category the total reports nothing for', async () => {
       render(
         <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
