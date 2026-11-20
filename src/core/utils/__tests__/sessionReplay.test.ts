@@ -32,6 +32,20 @@ describe('sessionReplay', () => {
         expect(getInitialReplayIntegrations().map(({ name }) => name)).toEqual(['Replay'])
       })
     })
+
+    describe('GIVEN Replay is created', () => {
+      it('THEN should mask all text and inputs', () => {
+        window.history.replaceState({}, '', '/acme/customers')
+
+        const [replay] = getInitialReplayIntegrations() as unknown as Array<{
+          _initialOptions: { maskAllText: boolean; maskAllInputs: boolean }
+        }>
+
+        expect(replay._initialOptions).toEqual(
+          expect.objectContaining({ maskAllText: true, maskAllInputs: true }),
+        )
+      })
+    })
   })
 
   describe('GIVEN Sentry started on a token page without Replay', () => {
