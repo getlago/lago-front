@@ -85,8 +85,8 @@ catalogs:
       specifier: 18.3.1
       version: 18.3.1
     tailwind-merge:
-      specifier: 2.6.1
-      version: 2.6.1
+      specifier: 3.7.0
+      version: 3.7.0
     tailwindcss:
       specifier: 3.4.19
       version: 3.4.19
@@ -499,7 +499,7 @@ importers:
         version: 0.8.1(@trivago/prettier-plugin-sort-imports@6.0.2(prettier@3.9.10))(prettier@3.9.10)
       tailwind-merge:
         specifier: 'catalog:'
-        version: 2.6.1
+        version: 3.7.0
       tailwindcss:
         specifier: 'catalog:'
         version: 3.4.19(ts-node@10.9.2(@swc/core@1.15.46)(@swc/wasm@1.13.20)(@types/node@24.19.2)(typescript@6.0.3))
@@ -607,7 +607,7 @@ importers:
         version: 1.66.0(@types/react@18.3.31)(react@18.3.1)
       tailwind-merge:
         specifier: 'catalog:'
-        version: 2.6.1
+        version: 3.7.0
     devDependencies:
       '@storybook/addon-a11y':
         specifier: 10.6.5
@@ -9016,8 +9016,8 @@ packages:
     peerDependencies:
       tailwindcss: ^3.3.0 || ^4.0.0 || ^4.0.0-beta
 
-  tailwind-merge@2.6.1:
-    resolution: {integrity: sha512-Oo6tHdpZsGpkKG88HJ8RR1rg/RdnEkQEfMoEk2x1XRI3F1AxeU+ijRXpiVUF4UbLfcxxRGw6TbUINKYdWVsQTQ==}
+  tailwind-merge@3.7.0:
+    resolution: {integrity: sha512-XPPUyAc+cvspz3lHTcR/QgPfW2A0lv/xQNIjX3HGhLR+Nq2lHaLq5MtTesHn8GUr3W3DguT2KT5x3NVgRtYwmA==}
 
   tailwindcss@3.4.19:
     resolution: {integrity: sha512-3ofp+LL8E+pK/JuPLPggVAIaEuhvIz4qNcf3nA1Xn2o/7fb7s/TYpHhwGDv1ZU3PkBluUVaF8PyCHcm48cKLWQ==}
@@ -19048,7 +19048,7 @@ snapshots:
       local-pkg: 1.1.2
       tailwindcss: 3.4.19(ts-node@10.9.2(@swc/core@1.15.46)(@swc/wasm@1.13.20)(@types/node@24.19.2)(typescript@6.0.3))
 
-  tailwind-merge@2.6.1: {}
+  tailwind-merge@3.7.0: {}
 
   tailwindcss@3.4.19(ts-node@10.9.2(@swc/core@1.15.46)(@swc/wasm@1.13.20)(@types/node@24.19.2)(typescript@6.0.3)):
     dependencies:
