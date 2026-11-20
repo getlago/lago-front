@@ -1552,6 +1552,7 @@ export type ContractCurrentUsageTotal = {
 export enum ContractStatusEnum {
   Active = 'active',
   Canceled = 'canceled',
+  Draft = 'draft',
   Pending = 'pending',
   Terminated = 'terminated'
 }
