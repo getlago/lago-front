@@ -4,7 +4,7 @@ Native single-line inputs aligned with the v2 design.
 
 ## When to use
 
-Use Input for text entry, SearchInput for search, and PasswordInput for a password with a visibility toggle. Formatting and form state belong in the app. AmountInput, multiline fields, and arbitrary adornments are separate work. Existing legacy fields are not migrated automatically.
+Use Input for text entry, SearchInput for search, and PasswordInput for a password with a visibility toggle. For prefixes, suffixes or additional content such as a search result count, use [Input Group](./input-group.md). SearchInput remains the default for a standard search field; Input Group uses the standard bordered style. Formatting and form state belong in the app. AmountInput and multiline fields are separate work. Existing legacy fields are not migrated automatically.
 
 ## Import
 
