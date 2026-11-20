@@ -209,6 +209,12 @@ export enum ActivityTypeEnum {
   PlanRateCardUpdated = 'plan_rate_card_updated',
   /** plan.updated */
   PlanUpdated = 'plan_updated',
+  /** plan_wallet.created */
+  PlanWalletCreated = 'plan_wallet_created',
+  /** plan_wallet.deleted */
+  PlanWalletDeleted = 'plan_wallet_deleted',
+  /** plan_wallet.updated */
+  PlanWalletUpdated = 'plan_wallet_updated',
   /** product_category.created */
   ProductCategoryCreated = 'product_category_created',
   /** product_category.deleted */
@@ -11469,6 +11475,8 @@ export enum ResourceTypeEnum {
   Plan = 'plan',
   /** PlanRateCard */
   PlanRateCard = 'plan_rate_card',
+  /** PlanWallet */
+  PlanWallet = 'plan_wallet',
   /** Product */
   Product = 'product',
   /** ProductCategory */

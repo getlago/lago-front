@@ -5471,9 +5471,9 @@
   "text_1794896528911d809xmb50qq": "Taxes are being calculated.",
   "text_1794896528911z9fydq9ftum": "Taxes for this draft invoice are still being calculated. It may take a bit of time. Please refresh or check back later.",
   "text_1794221187063c6xcfwvtt6l": "Sandbox",
-  "text_1794221187063vcta3ox2a0c": "You're in your sandbox. Nothing here is billed or sent to customers.",
   "text_1794221187063tztk6kvdznf": "Switch to production",
   "text_17942211870635zfjx3ojmyy": "Managed in production",
+  "text_1794995101466zj746a29m20": "You are testing in a sandbox. Nothing here is billed or sent to customers.",
   "text_17950691724841bhd45g69u8": "Edit units",
   "text_1795069172484rfkxpyqkd6y": "The quantity billed for this fixed product. It can only be changed while the plan or the contract is still editable.",
   "text_1795069172484bkbt387tkf4": "Units updated",
@@ -5539,5 +5539,8 @@
   "text_1795096449973hbn8o7srlh5": "Plan successfully sold to agents",
   "text_1795096449973qg9fyttndtl": "Plan no longer sold to agents",
   "text_1795096449974nxoidu1m3z7": "This plan is sold to agents through an Agentic Storefront connection. Stop selling it before deleting it.",
-  "text_1795096449974kc0hhrdmonw": "This plan is sold to agents, so it must stay usage-only: no subscription fee and no fixed charges."
+  "text_1795096449974kc0hhrdmonw": "This plan is sold to agents, so it must stay usage-only: no subscription fee and no fixed charges.",
+  "text_1795093921133goym1lmktoq": "Plan wallet created",
+  "text_1795093921133a8yyd8l1i37": "Plan wallet deleted",
+  "text_1795093921133stwkpx4uv8x": "Plan wallet updated"
 }
