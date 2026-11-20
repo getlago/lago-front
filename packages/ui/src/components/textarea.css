@@ -4,7 +4,7 @@
   resize: vertical;
 }
 .v2-textarea:read-only,
-.v2-textarea:not(:disabled):not(:read-only):hover {
+.v2-textarea:not(:disabled):not(:read-only):not(:focus):hover {
   background-color: var(--color-surface-subtle);
 }
 .v2-textarea:focus {
@@ -19,7 +19,7 @@
   background-color: var(--color-surface);
   border-color: var(--color-danger-border);
 }
-.v2-textarea[aria-invalid='true']:not(:disabled):not(:read-only):hover {
+.v2-textarea[aria-invalid='true']:not(:disabled):not(:read-only):not(:focus):hover {
   background-color: var(--color-surface-subtle);
 }
 .v2-textarea:disabled {
