@@ -3,7 +3,7 @@ import { GraphQLFormattedError } from 'graphql'
 
 import { useCascadeFormDialog } from '~/components/plans/details-v2/shared/useCascadeFormDialog'
 import { LocalFixedChargeInput } from '~/components/plans/types'
-import { addToast } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { cacheArrayInsert, cacheArrayRemove } from '~/core/apolloClient/cacheHelpers'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import { serializeFixedChargeProperties } from '~/core/serializers/serializePlanInput'
@@ -52,7 +52,9 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   const { openCascadeDialog } = useCascadeFormDialog()
 
   const [createFixedCharge] = useCreateFixedChargeMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.PlanSoldByAgentStorefront],
+    },
     update(cache, { data }) {
       const created = data?.createFixedCharge
 
@@ -70,7 +72,9 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
   })
 
   const [updateFixedCharge] = useUpdateFixedChargeMutation({
-    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    context: {
+      silentErrorCodes: [LagoApiError.UnprocessableEntity, LagoApiError.PlanSoldByAgentStorefront],
+    },
     onCompleted(data) {
       if (data?.updateFixedCharge?.id) {
         addToast({
@@ -158,6 +162,10 @@ export const useFixedChargeMutationsWithCascade = ({ planId, hasOverriddenPlans 
             })
 
         mutationErrors = errors ?? undefined
+
+        if (hasDefinedGQLError('PlanSoldByAgentStorefront', errors)) {
+          addToast({ severity: 'danger', translateKey: 'text_1795096449974kc0hhrdmonw' })
+        }
       },
     })
 

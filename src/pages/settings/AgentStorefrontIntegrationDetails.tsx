@@ -9,6 +9,10 @@ import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { useAddAgentStorefrontDialog } from '~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog'
+import { useDeleteAgentStorefrontIntegrationDialog } from '~/components/settings/integrations/agentStorefront/DeleteAgentStorefrontIntegrationDialog'
+import { useSellPlanToAgentsDialog } from '~/components/settings/integrations/agentStorefront/SellPlanToAgentsDialog'
+import { useStopSellingPlanDialog } from '~/components/settings/integrations/agentStorefront/StopSellingPlanDialog'
 import {
   formatFreeCredits,
   formatTopupRange,
@@ -17,8 +21,13 @@ import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { AGENT_STOREFRONT_INTEGRATION_ROUTE, INTEGRATIONS_ROUTE, useNavigate } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { useGetAgentStorefrontIntegrationDetailsQuery } from '~/generated/graphql'
+import {
+  AgentStorefrontSoldPlansFragmentDoc,
+  EditAgentStorefrontIntegrationFragmentDoc,
+  useGetAgentStorefrontIntegrationDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import AgentStorefront from '~/public/images/agentic-storefront.svg'
 
 gql`
@@ -37,18 +46,8 @@ gql`
     authDocumentUrl
     billingDocumentUrl
     claimUrl
-    plans {
-      planCode
-      minimumTopupCents
-      maximumTopupCents
-      freeCreditsCents
-      plan {
-        id
-        name
-        code
-        amountCurrency
-      }
-    }
+    ...AgentStorefrontSoldPlans
+    ...EditAgentStorefrontIntegration
   }
 
   query getAgentStorefrontIntegrationDetails($id: ID!) {
@@ -59,9 +58,19 @@ gql`
       }
     }
   }
+
+  ${AgentStorefrontSoldPlansFragmentDoc}
+  ${EditAgentStorefrontIntegrationFragmentDoc}
 `
 
 export const AGENT_ACCESS_COPY_TEST_ID = 'agent-access-copy'
+export const AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID = 'agent-storefront-edit-connection'
+export const AGENT_STOREFRONT_SELL_PLAN_TEST_ID = 'agent-storefront-sell-plan'
+export const AGENT_STOREFRONT_ACTIONS_TEST_ID = 'agent-storefront-actions'
+export const AGENT_STOREFRONT_ACTIONS_EDIT_TEST_ID = 'agent-storefront-actions-edit'
+export const AGENT_STOREFRONT_ACTIONS_DELETE_TEST_ID = 'agent-storefront-actions-delete'
+export const AGENT_STOREFRONT_PLAN_EDIT_TEST_ID = 'agent-storefront-plan-edit'
+export const AGENT_STOREFRONT_PLAN_STOP_SELLING_TEST_ID = 'agent-storefront-plan-stop-selling'
 
 type AgentAccessRow = {
   id: 'agentUrl' | 'authDocumentUrl' | 'billingDocumentUrl' | 'claimUrl'
@@ -72,12 +81,17 @@ type AgentAccessRow = {
 }
 
 const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
-  const { integrationId } = useParams()
-  const navigate = useNavigate()
+  const { integrationId = '' } = useParams()
   const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
+  const { openEditAgentStorefrontDialog } = useAddAgentStorefrontDialog()
+  const { openDeleteAgentStorefrontIntegrationDialog } = useDeleteAgentStorefrontIntegrationDialog()
+  const { openSellPlanDialog, openEditPlanDialog } = useSellPlanToAgentsDialog(integrationId)
+  const { openStopSellingPlanDialog } = useStopSellingPlanDialog(integrationId)
 
   const { data, loading } = useGetAgentStorefrontIntegrationDetailsQuery({
-    variables: { id: integrationId ?? '' },
+    variables: { id: integrationId },
     skip: !integrationId,
   })
 
@@ -99,6 +113,30 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
   }, [isNotFound, navigate])
 
   if (isNotFound) return null
+
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+  const canSellPlan = canEditIntegration && hasPermissions(['plansView'])
+
+  const deleteCallback = (): void => {
+    navigate(
+      generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
+        integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+      }),
+    )
+  }
+
+  const openEditConnection = (): void => {
+    if (!integration) return
+
+    openEditAgentStorefrontDialog({ integration, deleteCallback })
+  }
+
+  const openSellPlan = (): void => {
+    if (!integration) return
+
+    openSellPlanDialog(integration.plans.map(({ planCode }) => planCode))
+  }
 
   const renderContent = (): JSX.Element | null => {
     if (isFirstLoad) {
@@ -149,7 +187,17 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
     return (
       <>
         <section>
-          <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')} />
+          <IntegrationsPage.Headline label={translate('text_664c732c264d7eed1c74fdc5')}>
+            {canEditIntegration && (
+              <Button
+                variant="inline"
+                data-test={AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID}
+                onClick={openEditConnection}
+              >
+                {translate('text_62b1edddbf5f461ab9712787')}
+              </Button>
+            )}
+          </IntegrationsPage.Headline>
           <IntegrationsPage.DetailsItem
             icon="text"
             label={translate('text_6419c64eace749372fc72b0f')}
@@ -227,7 +275,17 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
         </section>
 
         <section>
-          <IntegrationsPage.Headline label={translate('text_17950874033342k6s49m679r')} />
+          <IntegrationsPage.Headline label={translate('text_17950874033342k6s49m679r')}>
+            {canSellPlan && (
+              <Button
+                variant="inline"
+                data-test={AGENT_STOREFRONT_SELL_PLAN_TEST_ID}
+                onClick={openSellPlan}
+              >
+                {translate('text_1795096449972ph15gro1av3')}
+              </Button>
+            )}
+          </IntegrationsPage.Headline>
           <Table
             name="agent-storefront-plans"
             containerSize={0}
@@ -237,7 +295,34 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
               emptyState: {
                 title: translate('text_1795087403334adylfmop61u'),
                 subtitle: translate('text_1795087403334jwb61f37pou'),
+                ...(canSellPlan && {
+                  buttonTitle: translate('text_1795096449972ph15gro1av3'),
+                  buttonAction: openSellPlan,
+                }),
               },
+            }}
+            actionColumnTooltip={() => translate('text_1795096449972fw5x6253azm')}
+            actionColumn={(sold) => {
+              if (!canEditIntegration) return null
+
+              const { plan } = sold
+
+              return [
+                plan
+                  ? {
+                      startIcon: 'pen',
+                      title: translate('text_1789030049528hmelti5lsxj'),
+                      dataTest: AGENT_STOREFRONT_PLAN_EDIT_TEST_ID,
+                      onAction: () => openEditPlanDialog({ ...sold, plan }),
+                    }
+                  : null,
+                {
+                  startIcon: 'trash',
+                  title: translate('text_1795096449973pi06nk2ocoy'),
+                  dataTest: AGENT_STOREFRONT_PLAN_STOP_SELLING_TEST_ID,
+                  onAction: () => openStopSellingPlanDialog(sold),
+                },
+              ]
             }}
             columns={[
               {
@@ -302,6 +387,42 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
             ? [{ type: 'default', label: translate('text_62b1edddbf5f461ab971270d') }]
             : [],
           icon: <AgentStorefront />,
+        }}
+        snapshotKey={JSON.stringify(integration ?? null)}
+        actions={{
+          items: [
+            {
+              type: 'dropdown',
+              label: translate('text_626162c62f790600f850b6fe'),
+              dataTest: AGENT_STOREFRONT_ACTIONS_TEST_ID,
+              items: [
+                {
+                  label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
+                  dataTest: AGENT_STOREFRONT_ACTIONS_EDIT_TEST_ID,
+                  onClick: (closePopper) => {
+                    openEditConnection()
+                    closePopper()
+                  },
+                },
+                {
+                  label: translate('text_645d071272418a14c1c76a81'),
+                  hidden: !canDeleteIntegration,
+                  dataTest: AGENT_STOREFRONT_ACTIONS_DELETE_TEST_ID,
+                  onClick: (closePopper) => {
+                    if (integration) {
+                      openDeleteAgentStorefrontIntegrationDialog({
+                        integration,
+                        callback: deleteCallback,
+                      })
+                    }
+                    closePopper()
+                  },
+                },
+              ],
+            },
+          ],
+          loading: isFirstLoad,
         }}
       />
 

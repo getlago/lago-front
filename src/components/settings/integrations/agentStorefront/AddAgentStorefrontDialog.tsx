@@ -1,26 +1,33 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useRef } from 'react'
 import { generatePath } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
+import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast } from '~/core/apolloClient'
+import { addToast, onNetworkError } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { AGENT_STOREFRONT_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
+  DeleteAgentStorefrontIntegrationDialogFragmentDoc,
+  EditAgentStorefrontIntegrationFragment,
   PremiumIntegrationTypeEnum,
   ProviderTypeEnum,
   useCreateAgentStorefrontIntegrationMutation,
   useGetStripeProvidersForAgentStorefrontQuery,
+  useUpdateAgentStorefrontIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 
+import { useDeleteAgentStorefrontIntegrationDialog } from './DeleteAgentStorefrontIntegrationDialog'
 import {
   ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS,
   applyAgentStorefrontServerErrors,
@@ -49,6 +56,30 @@ gql`
       id
     }
   }
+
+  fragment EditAgentStorefrontIntegration on AgentStorefrontIntegration {
+    id
+    name
+    code
+    paymentProviderCode
+    resourceEndpoint
+    resourceInstructions
+    hasAgentsWithStripeCustomer
+    ...DeleteAgentStorefrontIntegrationDialog
+  }
+
+  mutation updateAgentStorefrontIntegration($input: UpdateAgentStorefrontIntegrationInput!) {
+    updateAgentStorefrontIntegration(input: $input) {
+      id
+      ...EditAgentStorefrontIntegration
+      paymentProvider {
+        id
+        name
+      }
+    }
+  }
+
+  ${DeleteAgentStorefrontIntegrationDialogFragmentDoc}
 `
 
 const ADD_AGENT_STOREFRONT_FORM_ID = 'form-add-agent-storefront-integration'
@@ -57,7 +88,11 @@ export const ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID = 'add-agent-storefront-submit'
 
 const AddAgentStorefrontDialogContent = withForm({
   defaultValues: addAgentStorefrontDefaultValues,
-  render: function AddAgentStorefrontDialogContentRender({ form }) {
+  props: {
+    isEdition: false,
+    isPaymentLocked: false,
+  },
+  render: function AddAgentStorefrontDialogContentRender({ form, isEdition, isPaymentLocked }) {
     const { translate } = useInternationalization()
     const isRefused = useStore(form.store, (state) => state.values.isRefused)
 
@@ -78,6 +113,7 @@ const AddAgentStorefrontDialogContent = withForm({
         <NameAndCodeGroup
           form={form}
           fields={{ name: 'name', code: 'code' }}
+          disableAutoGenerateCode={isEdition}
           nameProps={{
             label: translate('text_6584550dc4cec7adf861504d'),
             placeholder: translate('text_6584550dc4cec7adf861504f'),
@@ -116,6 +152,8 @@ const AddAgentStorefrontDialogContent = withForm({
               label={translate('text_1789557972392jhb3cywzp35')}
               placeholder={translate('text_179508382520571rmhiiha12')}
               data={stripeProviders}
+              disabled={isPaymentLocked}
+              helperText={isPaymentLocked ? translate('text_1795096449972uoff7jgz70t') : undefined}
               loading={loading && !data}
               emptyText={translate('text_1795083825205bzt16lj6yrs')}
               PopperProps={{ displayInDialog: true }}
@@ -127,15 +165,34 @@ const AddAgentStorefrontDialogContent = withForm({
   },
 })
 
-export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: () => void } => {
+type OpenEditAgentStorefrontDialogData = {
+  integration: EditAgentStorefrontIntegrationFragment
+  deleteCallback?: () => void
+}
+
+type UseAddAgentStorefrontDialogReturn = {
+  openAddAgentStorefrontDialog: () => void
+  openEditAgentStorefrontDialog: (data: OpenEditAgentStorefrontDialogData) => void
+}
+
+export const useAddAgentStorefrontDialog = (): UseAddAgentStorefrontDialogReturn => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const formDialog = useFormDialog()
+  const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
+  const { getDeleteAgentStorefrontIntegrationDialogProps } =
+    useDeleteAgentStorefrontIntegrationDialog()
+  const editedIntegrationRef = useRef<EditAgentStorefrontIntegrationFragment | null>(null)
 
   const [createAgentStorefrontIntegration] = useCreateAgentStorefrontIntegrationMutation({
     context: { silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS },
     refetchQueries: ['integrationsSetting'],
+  })
+
+  const [updateAgentStorefrontIntegration] = useUpdateAgentStorefrontIntegrationMutation({
+    context: { silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS },
   })
 
   const form = useAppForm({
@@ -143,6 +200,23 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
     validationLogic: revalidateLogic(),
     validators: { onDynamic: addAgentStorefrontValidationSchema },
     onSubmit: async ({ value, formApi }) => {
+      const editedIntegration = editedIntegrationRef.current
+
+      if (editedIntegration) {
+        const result = await updateAgentStorefrontIntegration({
+          variables: { input: { id: editedIntegration.id, ...mapFromFormToApi(value) } },
+        })
+
+        if (result.errors || !result.data?.updateAgentStorefrontIntegration?.id) {
+          applyAgentStorefrontServerErrors(formApi, result.errors ?? [])
+          throw new Error('Submit failed')
+        }
+
+        addToast({ severity: 'success', translateKey: 'text_1795096449972zd9goewh2tz' })
+
+        return
+      }
+
       if (value.isRefused) {
         throw new Error('Refused')
       }
@@ -175,6 +249,7 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
   })
 
   const openAddAgentStorefrontDialog = (): void => {
+    editedIntegrationRef.current = null
     form.reset(
       {
         ...addAgentStorefrontDefaultValues,
@@ -188,7 +263,9 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
       description: translate('text_1795083825204o2xktr1k5bf'),
       closeOnError: false,
       onEntered: focusFirstInput,
-      children: <AddAgentStorefrontDialogContent form={form} />,
+      children: (
+        <AddAgentStorefrontDialogContent form={form} isEdition={false} isPaymentLocked={false} />
+      ),
       mainAction: (
         <form.AppForm>
           <form.Subscribe selector={(state) => state.values.isRefused}>
@@ -207,5 +284,55 @@ export const useAddAgentStorefrontDialog = (): { openAddAgentStorefrontDialog: (
     })
   }
 
-  return { openAddAgentStorefrontDialog }
+  const openEditAgentStorefrontDialog = ({
+    integration,
+    deleteCallback,
+  }: OpenEditAgentStorefrontDialogData): void => {
+    editedIntegrationRef.current = integration
+    form.reset(
+      {
+        name: integration.name,
+        code: integration.code,
+        resourceEndpoint: integration.resourceEndpoint ?? '',
+        resourceInstructions: integration.resourceInstructions ?? '',
+        paymentProviderCode: integration.paymentProviderCode,
+        isRefused: false,
+      },
+      { keepDefaultValues: true },
+    )
+
+    void formDialogOpeningDialog.open({
+      title: translate('text_658461066530343fe1808cd9', {
+        name: translate('text_1795083825203aqsrrdi5tii'),
+      }),
+      description: translate('text_1795083825204o2xktr1k5bf'),
+      closeOnError: false,
+      onError: onNetworkError,
+      onEntered: focusFirstInput,
+      children: (
+        <AddAgentStorefrontDialogContent
+          form={form}
+          isEdition
+          isPaymentLocked={integration.hasAgentsWithStripeCustomer}
+        />
+      ),
+      mainAction: (
+        <form.AppForm>
+          <form.SubmitButton dataTest={ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID}>
+            {translate('text_17432414198706rdwf76ek3u')}
+          </form.SubmitButton>
+        </form.AppForm>
+      ),
+      form: dialogFormProps(ADD_AGENT_STOREFRONT_FORM_ID, form),
+      canOpenDialog: hasPermissions(['organizationIntegrationsDelete']),
+      disableOpenDialog: integration.hasEnrolledAgents,
+      openDialogText: translate('text_645d071272418a14c1c76a81'),
+      otherDialogProps: getDeleteAgentStorefrontIntegrationDialogProps({
+        integration,
+        callback: deleteCallback,
+      }),
+    })
+  }
+
+  return { openAddAgentStorefrontDialog, openEditAgentStorefrontDialog }
 }

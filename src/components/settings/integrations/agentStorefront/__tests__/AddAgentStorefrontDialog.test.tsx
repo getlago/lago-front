@@ -3,9 +3,15 @@ import { act, cleanup, renderHook, screen, waitFor } from '@testing-library/reac
 import userEvent from '@testing-library/user-event'
 import { ReactElement, ReactNode } from 'react'
 
+import { CentralizedDialogProps } from '~/components/dialogs/CentralizedDialog'
 import { FormDialogProps } from '~/components/dialogs/FormDialog'
-import { addToast } from '~/core/apolloClient'
-import { LagoApiError, ProviderTypeEnum } from '~/generated/graphql'
+import { FormDialogOpeningDialogProps } from '~/components/dialogs/FormDialogOpeningDialog'
+import { addToast, onNetworkError } from '~/core/apolloClient'
+import {
+  EditAgentStorefrontIntegrationFragment,
+  LagoApiError,
+  ProviderTypeEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, render, testMockNavigateFn } from '~/test-utils'
 
 import {
@@ -18,9 +24,29 @@ const mockCreate = jest.fn()
 const mockCreateMutationOptions = jest.fn()
 const mockStripeProvidersQuery = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
+const mockFormDialogOpeningDialogOpen = jest.fn()
+const mockUpdate = jest.fn()
+const mockUpdateMutationOptions = jest.fn()
+const mockHasPermissions = jest.fn()
+const mockGetDeleteProps = jest.fn()
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   useFormDialog: () => ({ open: mockFormDialogOpen, close: jest.fn() }),
+}))
+
+jest.mock('~/components/dialogs/FormDialogOpeningDialog', () => ({
+  useFormDialogOpeningDialog: () => ({ open: mockFormDialogOpeningDialogOpen, close: jest.fn() }),
+}))
+
+jest.mock('../DeleteAgentStorefrontIntegrationDialog', () => ({
+  useDeleteAgentStorefrontIntegrationDialog: () => ({
+    getDeleteAgentStorefrontIntegrationDialogProps: mockGetDeleteProps,
+    openDeleteAgentStorefrontIntegrationDialog: jest.fn(),
+  }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
 
 jest.mock('~/components/form/ComboBox/ComboBoxVirtualizedList', () => ({
@@ -52,6 +78,11 @@ jest.mock('~/generated/graphql', () => ({
   },
   useGetStripeProvidersForAgentStorefrontQuery: (options: unknown) =>
     mockStripeProvidersQuery(options),
+  useUpdateAgentStorefrontIntegrationMutation: (options: unknown) => {
+    mockUpdateMutationOptions(options)
+
+    return [mockUpdate]
+  },
 }))
 
 const wrapper = ({ children }: { children: ReactNode }): JSX.Element => (
@@ -64,6 +95,40 @@ const STRIPE_PROVIDERS_DATA = {
       { __typename: 'StripeProvider', id: 'stripe-1', name: 'Stripe Prod', code: 'stripe_1' },
     ],
   },
+}
+
+const DELETE_DIALOG_PROPS: CentralizedDialogProps = {
+  title: 'Delete',
+  actionText: 'Delete',
+  onAction: jest.fn(),
+}
+
+const createIntegration = (
+  overrides: Partial<EditAgentStorefrontIntegrationFragment> = {},
+): EditAgentStorefrontIntegrationFragment => ({
+  __typename: 'AgentStorefrontIntegration',
+  id: 'sf_1',
+  name: 'Agentic Flow A',
+  code: 'agentic_flow_a',
+  paymentProviderCode: 'stripe_1',
+  resourceEndpoint: 'https://api.acme.example/count',
+  resourceInstructions: null,
+  hasAgentsWithStripeCustomer: false,
+  hasEnrolledAgents: false,
+  ...overrides,
+})
+
+const openEditDialog = (
+  integration: EditAgentStorefrontIntegrationFragment = createIntegration(),
+  deleteCallback?: () => void,
+): FormDialogOpeningDialogProps => {
+  const { result } = renderHook(() => useAddAgentStorefrontDialog(), { wrapper })
+
+  act(() => {
+    result.current.openEditAgentStorefrontDialog({ integration, deleteCallback })
+  })
+
+  return mockFormDialogOpeningDialogOpen.mock.calls[0][0]
 }
 
 const buildErrors = (details: Record<string, string[]>): unknown[] => [
@@ -83,7 +148,7 @@ const openDialog = (): FormDialogProps => {
   return mockFormDialogOpen.mock.calls[0][0]
 }
 
-const renderDialog = (payload: FormDialogProps): AnyFormApi => {
+const renderDialog = (payload: FormDialogProps | FormDialogOpeningDialogProps): AnyFormApi => {
   render(
     <>
       {payload.children}
@@ -102,7 +167,9 @@ const fillRequiredFields = (form: AnyFormApi): void => {
   })
 }
 
-const submit = async (payload: FormDialogProps): Promise<PromiseSettledResult<unknown>> => {
+const submit = async (
+  payload: FormDialogProps | FormDialogOpeningDialogProps,
+): Promise<PromiseSettledResult<unknown>> => {
   let outcome: PromiseSettledResult<unknown> = { status: 'fulfilled', value: undefined }
 
   await act(async () => {
@@ -118,6 +185,9 @@ describe('useAddAgentStorefrontDialog', () => {
     mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
     mockStripeProvidersQuery.mockReturnValue({ data: STRIPE_PROVIDERS_DATA, loading: false })
+    mockFormDialogOpeningDialogOpen.mockResolvedValue({ reason: 'close' })
+    mockHasPermissions.mockReturnValue(true)
+    mockGetDeleteProps.mockReturnValue(DELETE_DIALOG_PROPS)
   })
 
   afterEach(cleanup)
@@ -142,6 +212,7 @@ describe('useAddAgentStorefrontDialog', () => {
               LagoApiError.UrlIsInvalid,
               LagoApiError.EventsTargetingWalletsDisabled,
               LagoApiError.PaymentProviderNotFound,
+              LagoApiError.AgentStorefrontHasEnrolledAgents,
             ],
           },
           refetchQueries: ['integrationsSetting'],
@@ -336,6 +407,160 @@ describe('useAddAgentStorefrontDialog', () => {
 
         expect(outcome.status).toBe('rejected')
         expect(mockCreate).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN an existing connection is edited', () => {
+    describe('WHEN the dialog opens', () => {
+      it('THEN should open the edit dialog with the delete footer wired to the delete dialog', () => {
+        const integration = createIntegration()
+        const deleteCallback = jest.fn()
+        const payload = openEditDialog(integration, deleteCallback)
+
+        expect(mockFormDialogOpen).not.toHaveBeenCalled()
+        expect(mockGetDeleteProps).toHaveBeenCalledWith({ integration, callback: deleteCallback })
+        expect(payload).toEqual(
+          expect.objectContaining({
+            closeOnError: false,
+            onError: onNetworkError,
+            canOpenDialog: true,
+            disableOpenDialog: false,
+            otherDialogProps: DELETE_DIALOG_PROPS,
+          }),
+        )
+      })
+
+      it('THEN should prefill the form with the connection', () => {
+        const form = renderDialog(openEditDialog())
+
+        expect(form.state.values).toEqual({
+          name: 'Agentic Flow A',
+          code: 'agentic_flow_a',
+          resourceEndpoint: 'https://api.acme.example/count',
+          resourceInstructions: '',
+          paymentProviderCode: 'stripe_1',
+          isRefused: false,
+        })
+      })
+
+      it('THEN should silence the enrolled-agents refusal on the update mutation', () => {
+        openEditDialog()
+
+        expect(mockUpdateMutationOptions).toHaveBeenCalledWith({
+          context: {
+            silentErrorDetails: expect.arrayContaining([
+              LagoApiError.AgentStorefrontHasEnrolledAgents,
+            ]),
+          },
+        })
+      })
+    })
+
+    describe('WHEN the connection has enrolled agents', () => {
+      it('THEN should disable the delete footer button', () => {
+        const payload = openEditDialog(createIntegration({ hasEnrolledAgents: true }))
+
+        expect(payload.canOpenDialog).toBe(true)
+        expect(payload.disableOpenDialog).toBe(true)
+      })
+    })
+
+    describe('WHEN the user cannot delete integrations', () => {
+      it('THEN should not offer the delete footer button', () => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('organizationIntegrationsDelete'),
+        )
+
+        expect(openEditDialog().canOpenDialog).toBe(false)
+      })
+    })
+
+    describe.each([
+      [true, 'disabled'],
+      [false, 'enabled'],
+    ])('WHEN hasAgentsWithStripeCustomer is %s', (hasAgentsWithStripeCustomer, state) => {
+      it(`THEN should render the payment connection ${state}`, () => {
+        renderDialog(openEditDialog(createIntegration({ hasAgentsWithStripeCustomer })))
+
+        const combobox = screen.getByRole('combobox')
+
+        if (hasAgentsWithStripeCustomer) {
+          expect(combobox).toBeDisabled()
+        } else {
+          expect(combobox).not.toBeDisabled()
+        }
+      })
+    })
+
+    describe('WHEN the update succeeds', () => {
+      it('THEN should send only the editable fields, toast success and stay on the page', async () => {
+        mockUpdate.mockResolvedValue({ data: { updateAgentStorefrontIntegration: { id: 'sf_1' } } })
+
+        const payload = openEditDialog()
+        const form = renderDialog(payload)
+
+        act(() => {
+          form.setFieldValue('name', 'Agentic Flow B')
+        })
+
+        const outcome = await submit(payload)
+
+        expect(outcome.status).toBe('fulfilled')
+        expect(mockCreate).not.toHaveBeenCalled()
+        expect(mockUpdate).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              id: 'sf_1',
+              name: 'Agentic Flow B',
+              code: 'agentic_flow_a',
+              paymentProviderCode: 'stripe_1',
+              resourceEndpoint: 'https://api.acme.example/count',
+              resourceInstructions: '',
+            },
+          },
+        })
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(testMockNavigateFn).not.toHaveBeenCalled()
+        expect(payload.form.didSubmitSucceed?.()).toBe(true)
+      })
+    })
+
+    describe('WHEN the API refuses the payment connection change', () => {
+      it('THEN should keep the dialog open with an error on the payment connection', async () => {
+        mockUpdate.mockResolvedValue({
+          data: { updateAgentStorefrontIntegration: null },
+          errors: buildErrors({
+            paymentProviderCode: [LagoApiError.AgentStorefrontHasEnrolledAgents],
+          }),
+        })
+
+        const payload = openEditDialog()
+        const form = renderDialog(payload)
+
+        const outcome = await submit(payload)
+
+        expect(outcome.status).toBe('rejected')
+        expect(addToast).not.toHaveBeenCalled()
+        expect(payload.form.didSubmitSucceed?.()).toBe(false)
+        expect(form.getFieldMeta('paymentProviderCode')?.errors.length).toBeGreaterThan(0)
+      })
+    })
+
+    describe('WHEN the update fails on the network', () => {
+      it('THEN should reject with the network error and leave the toast to onError', async () => {
+        const networkError = new Error('Network error')
+
+        mockUpdate.mockRejectedValue(networkError)
+
+        const payload = openEditDialog()
+
+        renderDialog(payload)
+
+        const outcome = await submit(payload)
+
+        expect(outcome).toEqual({ status: 'rejected', reason: networkError })
+        expect(addToast).not.toHaveBeenCalled()
       })
     })
   })
