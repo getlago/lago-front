@@ -391,6 +391,7 @@ export type AddStripePaymentProviderInput = {
   name: Scalars['String']['input'];
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
   secretKey?: InputMaybe<Scalars['String']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -5986,6 +5987,7 @@ export enum LagoApiError {
   MissingAddress = 'MissingAddress',
   NotEnoughAddressesInfo = 'NotEnoughAddressesInfo',
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
+  AgentStorefrontHasEnrolledAgents = 'agent_storefront_has_enrolled_agents',
   CannotLinkOrganizationToItself = 'cannot_link_organization_to_itself',
   CaptchaFailed = 'captcha_failed',
   CaptchaUnavailable = 'captcha_unavailable',
@@ -6036,8 +6038,11 @@ export enum LagoApiError {
   PasswordRequired = 'password_required',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PaymentProviderNotFound = 'payment_provider_not_found',
+  PaymentProviderUsedByAgentStorefront = 'payment_provider_used_by_agent_storefront',
   PlanNotFound = 'plan_not_found',
+  PlanNotUsageOnly = 'plan_not_usage_only',
   PlanOverlapping = 'plan_overlapping',
+  PlanSoldByAgentStorefront = 'plan_sold_by_agent_storefront',
   PremiumIntegrationMissing = 'premium_integration_missing',
   ProductExternalIdUnknown = 'productExternalIdUnknown',
   ProductAlreadyPriced = 'product_already_priced',
@@ -11841,6 +11846,7 @@ export type StripeProvider = {
   name: Scalars['String']['output'];
   requireTermsOfServiceConsent?: Maybe<Scalars['Boolean']['output']>;
   secretKey?: Maybe<Scalars['ObfuscatedString']['output']>;
+  sellerProfile?: Maybe<Scalars['String']['output']>;
   successRedirectUrl?: Maybe<Scalars['String']['output']>;
   supports3ds?: Maybe<Scalars['Boolean']['output']>;
 };
@@ -12485,6 +12491,7 @@ export type UpdateAdyenPaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -12593,6 +12600,7 @@ export type UpdateCashfreePaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -12841,6 +12849,7 @@ export type UpdateFlutterwavePaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -12854,6 +12863,7 @@ export type UpdateGocardlessPaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -12958,6 +12968,7 @@ export type UpdateMoneyhashPaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -13246,6 +13257,7 @@ export type UpdateStripePaymentProviderInput = {
   id: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
   requireTermsOfServiceConsent?: InputMaybe<Scalars['Boolean']['input']>;
+  sellerProfile?: InputMaybe<Scalars['String']['input']>;
   successRedirectUrl?: InputMaybe<Scalars['String']['input']>;
   supports3ds?: InputMaybe<Scalars['Boolean']['input']>;
 };
@@ -15963,7 +15975,7 @@ export type UpdateSalesforceIntegrationMutationVariables = Exact<{
 
 export type UpdateSalesforceIntegrationMutation = { __typename?: 'Mutation', updateSalesforceIntegration?: { __typename?: 'SalesforceIntegration', id: string, name: string, code: string, instanceId: string } | null };
 
-export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null };
+export type AddStripeProviderDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, sellerProfile?: string | null };
 
 export type GetProviderByCodeForStripeQueryVariables = Exact<{
   code?: InputMaybe<Scalars['String']['input']>;
@@ -15984,14 +15996,14 @@ export type AddStripeApiKeyMutationVariables = Exact<{
 }>;
 
 
-export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, successRedirectUrl?: string | null } | null };
+export type AddStripeApiKeyMutation = { __typename?: 'Mutation', addStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, sellerProfile?: string | null, successRedirectUrl?: string | null } | null };
 
 export type UpdateStripeApiKeyMutationVariables = Exact<{
   input: UpdateStripePaymentProviderInput;
 }>;
 
 
-export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, successRedirectUrl?: string | null } | null };
+export type UpdateStripeApiKeyMutation = { __typename?: 'Mutation', updateStripePaymentProvider?: { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, sellerProfile?: string | null, successRedirectUrl?: string | null } | null };
 
 export type XeroForCreateDialogDialogFragment = { __typename?: 'XeroIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
@@ -16237,7 +16249,7 @@ export type DeleteNetsuiteIntegrationDialogFragment = { __typename?: 'NetsuiteIn
 
 export type DeleteSalesforceIntegrationDialogFragment = { __typename?: 'SalesforceIntegration', id: string, name: string };
 
-export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string };
+export type DeleteStripeIntegrationDialogFragment = { __typename?: 'StripeProvider', id: string, name: string, code: string };
 
 export type DeleteStripeMutationVariables = Exact<{
   input: DestroyPaymentProviderInput;
@@ -16245,6 +16257,24 @@ export type DeleteStripeMutationVariables = Exact<{
 
 
 export type DeleteStripeMutation = { __typename?: 'Mutation', destroyPaymentProvider?: { __typename?: 'DestroyPaymentProviderPayload', id?: string | null } | null };
+
+export type GetAgentStorefrontsForStripeDeletionQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  types?: InputMaybe<Array<IntegrationTypeEnum> | IntegrationTypeEnum>;
+}>;
+
+
+export type GetAgentStorefrontsForStripeDeletionQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, paymentProviderCode: string }
+      | { __typename?: 'AnrokIntegration' }
+      | { __typename?: 'AvalaraIntegration' }
+      | { __typename?: 'EntraIdIntegration' }
+      | { __typename?: 'HubspotIntegration' }
+      | { __typename?: 'NetsuiteIntegration' }
+      | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'SalesforceIntegration' }
+      | { __typename?: 'XeroIntegration' }
+    > } | null };
 
 export type DeleteXeroIntegrationDialogFragment = { __typename?: 'XeroIntegration', id: string, name: string };
 
@@ -16455,6 +16485,42 @@ export type CreateAgentStorefrontIntegrationMutationVariables = Exact<{
 
 
 export type CreateAgentStorefrontIntegrationMutation = { __typename?: 'Mutation', createAgentStorefrontIntegration?: { __typename?: 'AgentStorefrontIntegration', id: string } | null };
+
+export type EditAgentStorefrontIntegrationFragment = { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, hasAgentsWithStripeCustomer: boolean, hasEnrolledAgents: boolean };
+
+export type UpdateAgentStorefrontIntegrationMutationVariables = Exact<{
+  input: UpdateAgentStorefrontIntegrationInput;
+}>;
+
+
+export type UpdateAgentStorefrontIntegrationMutation = { __typename?: 'Mutation', updateAgentStorefrontIntegration?: { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, hasAgentsWithStripeCustomer: boolean, hasEnrolledAgents: boolean, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null } | null };
+
+export type DeleteAgentStorefrontIntegrationDialogFragment = { __typename?: 'AgentStorefrontIntegration', id: string, name: string, hasEnrolledAgents: boolean };
+
+export type DestroyAgentStorefrontIntegrationMutationVariables = Exact<{
+  input: DestroyIntegrationInput;
+}>;
+
+
+export type DestroyAgentStorefrontIntegrationMutation = { __typename?: 'Mutation', destroyIntegration?: { __typename?: 'DestroyIntegrationPayload', id?: string | null } | null };
+
+export type GetPlansForAgentStorefrontQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetPlansForAgentStorefrontQuery = { __typename?: 'Query', plans: { __typename?: 'PlanCollection', collection: Array<{ __typename?: 'Plan', id: string, name: string, code: string, amountCurrency: CurrencyEnum }> } };
+
+export type AgentStorefrontSoldPlansFragment = { __typename?: 'AgentStorefrontIntegration', id: string, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, invoiceDisplayName?: string | null, amountCurrency: CurrencyEnum } | null }> };
+
+export type UpdateAgentStorefrontSoldPlansMutationVariables = Exact<{
+  input: UpdateAgentStorefrontIntegrationInput;
+}>;
+
+
+export type UpdateAgentStorefrontSoldPlansMutation = { __typename?: 'Mutation', updateAgentStorefrontIntegration?: { __typename?: 'AgentStorefrontIntegration', id: string, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, invoiceDisplayName?: string | null, amountCurrency: CurrencyEnum } | null }> } | null };
 
 export type DeleteCustomSectionFragment = { __typename?: 'InvoiceCustomSection', id: string };
 
@@ -19385,7 +19451,7 @@ export type GetAdyenIntegrationsListQuery = { __typename?: 'Query', paymentProvi
       | { __typename?: 'StripeProvider' }
     > } | null };
 
-export type AgentStorefrontIntegrationDetailsFragment = { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, amountCurrency: CurrencyEnum } | null }> };
+export type AgentStorefrontIntegrationDetailsFragment = { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, hasAgentsWithStripeCustomer: boolean, hasEnrolledAgents: boolean, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, invoiceDisplayName?: string | null, amountCurrency: CurrencyEnum } | null }> };
 
 export type GetAgentStorefrontIntegrationDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -19393,7 +19459,7 @@ export type GetAgentStorefrontIntegrationDetailsQueryVariables = Exact<{
 
 
 export type GetAgentStorefrontIntegrationDetailsQuery = { __typename?: 'Query', integration?:
-    | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, amountCurrency: CurrencyEnum } | null }> }
+    | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, agentUrl: string, authDocumentUrl: string, billingDocumentUrl: string, claimUrl: string, hasAgentsWithStripeCustomer: boolean, hasEnrolledAgents: boolean, paymentProvider?: { __typename?: 'StripeProvider', id: string, name: string } | null, plans: Array<{ __typename?: 'AgentStorefrontPlan', planCode: string, minimumTopupCents?: any | null, maximumTopupCents?: any | null, freeCreditsCents?: any | null, plan?: { __typename?: 'Plan', id: string, name: string, code: string, invoiceDisplayName?: string | null, amountCurrency: CurrencyEnum } | null }> }
     | { __typename?: 'AnrokIntegration' }
     | { __typename?: 'AvalaraIntegration' }
     | { __typename?: 'EntraIdIntegration' }
@@ -19411,7 +19477,7 @@ export type GetAgentStorefrontIntegrationsListQueryVariables = Exact<{
 
 
 export type GetAgentStorefrontIntegrationsListQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
-      | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string }
+      | { __typename?: 'AgentStorefrontIntegration', id: string, name: string, code: string, paymentProviderCode: string, resourceEndpoint?: string | null, resourceInstructions?: string | null, hasAgentsWithStripeCustomer: boolean, hasEnrolledAgents: boolean }
       | { __typename?: 'AnrokIntegration' }
       | { __typename?: 'AvalaraIntegration' }
       | { __typename?: 'EntraIdIntegration' }
@@ -20057,7 +20123,7 @@ export type GetStripeIntegrationsDetailsQuery = { __typename?: 'Query', paymentP
     | { __typename?: 'FlutterwaveProvider' }
     | { __typename?: 'GocardlessProvider' }
     | { __typename?: 'MoneyhashProvider' }
-    | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null }
+    | { __typename?: 'StripeProvider', id: string, code: string, name: string, secretKey?: any | null, successRedirectUrl?: string | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, sellerProfile?: string | null }
    | null, paymentProviders?: { __typename?: 'PaymentProviderCollection', collection: Array<
       | { __typename?: 'AdyenProvider' }
       | { __typename?: 'CashfreeProvider' }
@@ -20081,7 +20147,7 @@ export type GetStripeIntegrationsListQuery = { __typename?: 'Query', paymentProv
       | { __typename?: 'FlutterwaveProvider' }
       | { __typename?: 'GocardlessProvider' }
       | { __typename?: 'MoneyhashProvider' }
-      | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null }
+      | { __typename?: 'StripeProvider', id: string, name: string, code: string, secretKey?: any | null, supports3ds?: boolean | null, requireTermsOfServiceConsent?: boolean | null, sellerProfile?: string | null }
     > } | null };
 
 export type TaxItemForTaxSettingsFragment = { __typename?: 'Tax', id: string, code: string, name: string, rate: number, autoGenerated: boolean, customersCount: number };
@@ -23375,6 +23441,7 @@ export const AddStripeProviderDialogFragmentDoc = gql`
   secretKey
   supports3ds
   requireTermsOfServiceConsent
+  sellerProfile
 }
     `;
 export const AnrokIntegrationItemsListAddonsFragmentDoc = gql`
@@ -23542,6 +23609,7 @@ export const DeleteStripeIntegrationDialogFragmentDoc = gql`
     fragment DeleteStripeIntegrationDialog on StripeProvider {
   id
   name
+  code
 }
     `;
 export const NetsuiteIntegrationItemsListAddonsFragmentDoc = gql`
@@ -26972,6 +27040,43 @@ export const AdyenIntegrationsFragmentDoc = gql`
   code
 }
     `;
+export const AgentStorefrontSoldPlansFragmentDoc = gql`
+    fragment AgentStorefrontSoldPlans on AgentStorefrontIntegration {
+  id
+  plans {
+    planCode
+    minimumTopupCents
+    maximumTopupCents
+    freeCreditsCents
+    plan {
+      id
+      name
+      code
+      invoiceDisplayName
+      amountCurrency
+    }
+  }
+}
+    `;
+export const DeleteAgentStorefrontIntegrationDialogFragmentDoc = gql`
+    fragment DeleteAgentStorefrontIntegrationDialog on AgentStorefrontIntegration {
+  id
+  name
+  hasEnrolledAgents
+}
+    `;
+export const EditAgentStorefrontIntegrationFragmentDoc = gql`
+    fragment EditAgentStorefrontIntegration on AgentStorefrontIntegration {
+  id
+  name
+  code
+  paymentProviderCode
+  resourceEndpoint
+  resourceInstructions
+  hasAgentsWithStripeCustomer
+  ...DeleteAgentStorefrontIntegrationDialog
+}
+    ${DeleteAgentStorefrontIntegrationDialogFragmentDoc}`;
 export const AgentStorefrontIntegrationDetailsFragmentDoc = gql`
     fragment AgentStorefrontIntegrationDetails on AgentStorefrontIntegration {
   id
@@ -26988,20 +27093,11 @@ export const AgentStorefrontIntegrationDetailsFragmentDoc = gql`
   authDocumentUrl
   billingDocumentUrl
   claimUrl
-  plans {
-    planCode
-    minimumTopupCents
-    maximumTopupCents
-    freeCreditsCents
-    plan {
-      id
-      name
-      code
-      amountCurrency
-    }
-  }
+  ...AgentStorefrontSoldPlans
+  ...EditAgentStorefrontIntegration
 }
-    `;
+    ${AgentStorefrontSoldPlansFragmentDoc}
+${EditAgentStorefrontIntegrationFragmentDoc}`;
 export const DeleteAnrokIntegrationDialogFragmentDoc = gql`
     fragment DeleteAnrokIntegrationDialog on AnrokIntegration {
   id
@@ -38605,6 +38701,56 @@ export function useDeleteStripeMutation(baseOptions?: Apollo.MutationHookOptions
 export type DeleteStripeMutationHookResult = ReturnType<typeof useDeleteStripeMutation>;
 export type DeleteStripeMutationResult = Apollo.MutationResult<DeleteStripeMutation>;
 export type DeleteStripeMutationOptions = Apollo.BaseMutationOptions<DeleteStripeMutation, DeleteStripeMutationVariables>;
+export const GetAgentStorefrontsForStripeDeletionDocument = gql`
+    query getAgentStorefrontsForStripeDeletion($limit: Int, $types: [IntegrationTypeEnum!]) {
+  integrations(limit: $limit, types: $types) {
+    collection {
+      ... on AgentStorefrontIntegration {
+        id
+        name
+        paymentProviderCode
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAgentStorefrontsForStripeDeletionQuery__
+ *
+ * To run a query within a React component, call `useGetAgentStorefrontsForStripeDeletionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAgentStorefrontsForStripeDeletionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAgentStorefrontsForStripeDeletionQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *      types: // value for 'types'
+ *   },
+ * });
+ */
+export function useGetAgentStorefrontsForStripeDeletionQuery(baseOptions?: Apollo.QueryHookOptions<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>(GetAgentStorefrontsForStripeDeletionDocument, options);
+      }
+export function useGetAgentStorefrontsForStripeDeletionLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>(GetAgentStorefrontsForStripeDeletionDocument, options);
+        }
+// @ts-ignore
+export function useGetAgentStorefrontsForStripeDeletionSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>;
+export function useGetAgentStorefrontsForStripeDeletionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>): Apollo.UseSuspenseQueryResult<GetAgentStorefrontsForStripeDeletionQuery | undefined, GetAgentStorefrontsForStripeDeletionQueryVariables>;
+export function useGetAgentStorefrontsForStripeDeletionSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>(GetAgentStorefrontsForStripeDeletionDocument, options);
+        }
+export type GetAgentStorefrontsForStripeDeletionQueryHookResult = ReturnType<typeof useGetAgentStorefrontsForStripeDeletionQuery>;
+export type GetAgentStorefrontsForStripeDeletionLazyQueryHookResult = ReturnType<typeof useGetAgentStorefrontsForStripeDeletionLazyQuery>;
+export type GetAgentStorefrontsForStripeDeletionSuspenseQueryHookResult = ReturnType<typeof useGetAgentStorefrontsForStripeDeletionSuspenseQuery>;
+export type GetAgentStorefrontsForStripeDeletionQueryResult = Apollo.QueryResult<GetAgentStorefrontsForStripeDeletionQuery, GetAgentStorefrontsForStripeDeletionQueryVariables>;
 export const GetNetsuiteIntegrationCollectionMappingsDocument = gql`
     query getNetsuiteIntegrationCollectionMappings($integrationId: ID!) {
   integrationCollectionMappings(integrationId: $integrationId) {
@@ -39318,6 +39464,161 @@ export function useCreateAgentStorefrontIntegrationMutation(baseOptions?: Apollo
 export type CreateAgentStorefrontIntegrationMutationHookResult = ReturnType<typeof useCreateAgentStorefrontIntegrationMutation>;
 export type CreateAgentStorefrontIntegrationMutationResult = Apollo.MutationResult<CreateAgentStorefrontIntegrationMutation>;
 export type CreateAgentStorefrontIntegrationMutationOptions = Apollo.BaseMutationOptions<CreateAgentStorefrontIntegrationMutation, CreateAgentStorefrontIntegrationMutationVariables>;
+export const UpdateAgentStorefrontIntegrationDocument = gql`
+    mutation updateAgentStorefrontIntegration($input: UpdateAgentStorefrontIntegrationInput!) {
+  updateAgentStorefrontIntegration(input: $input) {
+    id
+    ...EditAgentStorefrontIntegration
+    paymentProvider {
+      id
+      name
+    }
+  }
+}
+    ${EditAgentStorefrontIntegrationFragmentDoc}`;
+export type UpdateAgentStorefrontIntegrationMutationFn = Apollo.MutationFunction<UpdateAgentStorefrontIntegrationMutation, UpdateAgentStorefrontIntegrationMutationVariables>;
+
+/**
+ * __useUpdateAgentStorefrontIntegrationMutation__
+ *
+ * To run a mutation, you first call `useUpdateAgentStorefrontIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAgentStorefrontIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAgentStorefrontIntegrationMutation, { data, loading, error }] = useUpdateAgentStorefrontIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAgentStorefrontIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAgentStorefrontIntegrationMutation, UpdateAgentStorefrontIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAgentStorefrontIntegrationMutation, UpdateAgentStorefrontIntegrationMutationVariables>(UpdateAgentStorefrontIntegrationDocument, options);
+      }
+export type UpdateAgentStorefrontIntegrationMutationHookResult = ReturnType<typeof useUpdateAgentStorefrontIntegrationMutation>;
+export type UpdateAgentStorefrontIntegrationMutationResult = Apollo.MutationResult<UpdateAgentStorefrontIntegrationMutation>;
+export type UpdateAgentStorefrontIntegrationMutationOptions = Apollo.BaseMutationOptions<UpdateAgentStorefrontIntegrationMutation, UpdateAgentStorefrontIntegrationMutationVariables>;
+export const DestroyAgentStorefrontIntegrationDocument = gql`
+    mutation destroyAgentStorefrontIntegration($input: DestroyIntegrationInput!) {
+  destroyIntegration(input: $input) {
+    id
+  }
+}
+    `;
+export type DestroyAgentStorefrontIntegrationMutationFn = Apollo.MutationFunction<DestroyAgentStorefrontIntegrationMutation, DestroyAgentStorefrontIntegrationMutationVariables>;
+
+/**
+ * __useDestroyAgentStorefrontIntegrationMutation__
+ *
+ * To run a mutation, you first call `useDestroyAgentStorefrontIntegrationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDestroyAgentStorefrontIntegrationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [destroyAgentStorefrontIntegrationMutation, { data, loading, error }] = useDestroyAgentStorefrontIntegrationMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDestroyAgentStorefrontIntegrationMutation(baseOptions?: Apollo.MutationHookOptions<DestroyAgentStorefrontIntegrationMutation, DestroyAgentStorefrontIntegrationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DestroyAgentStorefrontIntegrationMutation, DestroyAgentStorefrontIntegrationMutationVariables>(DestroyAgentStorefrontIntegrationDocument, options);
+      }
+export type DestroyAgentStorefrontIntegrationMutationHookResult = ReturnType<typeof useDestroyAgentStorefrontIntegrationMutation>;
+export type DestroyAgentStorefrontIntegrationMutationResult = Apollo.MutationResult<DestroyAgentStorefrontIntegrationMutation>;
+export type DestroyAgentStorefrontIntegrationMutationOptions = Apollo.BaseMutationOptions<DestroyAgentStorefrontIntegrationMutation, DestroyAgentStorefrontIntegrationMutationVariables>;
+export const GetPlansForAgentStorefrontDocument = gql`
+    query getPlansForAgentStorefront($page: Int, $limit: Int, $searchTerm: String) {
+  plans(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    collection {
+      id
+      name
+      code
+      amountCurrency
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetPlansForAgentStorefrontQuery__
+ *
+ * To run a query within a React component, call `useGetPlansForAgentStorefrontQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetPlansForAgentStorefrontQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetPlansForAgentStorefrontQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetPlansForAgentStorefrontQuery(baseOptions?: Apollo.QueryHookOptions<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>(GetPlansForAgentStorefrontDocument, options);
+      }
+export function useGetPlansForAgentStorefrontLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>(GetPlansForAgentStorefrontDocument, options);
+        }
+// @ts-ignore
+export function useGetPlansForAgentStorefrontSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>;
+export function useGetPlansForAgentStorefrontSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>): Apollo.UseSuspenseQueryResult<GetPlansForAgentStorefrontQuery | undefined, GetPlansForAgentStorefrontQueryVariables>;
+export function useGetPlansForAgentStorefrontSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>(GetPlansForAgentStorefrontDocument, options);
+        }
+export type GetPlansForAgentStorefrontQueryHookResult = ReturnType<typeof useGetPlansForAgentStorefrontQuery>;
+export type GetPlansForAgentStorefrontLazyQueryHookResult = ReturnType<typeof useGetPlansForAgentStorefrontLazyQuery>;
+export type GetPlansForAgentStorefrontSuspenseQueryHookResult = ReturnType<typeof useGetPlansForAgentStorefrontSuspenseQuery>;
+export type GetPlansForAgentStorefrontQueryResult = Apollo.QueryResult<GetPlansForAgentStorefrontQuery, GetPlansForAgentStorefrontQueryVariables>;
+export const UpdateAgentStorefrontSoldPlansDocument = gql`
+    mutation updateAgentStorefrontSoldPlans($input: UpdateAgentStorefrontIntegrationInput!) {
+  updateAgentStorefrontIntegration(input: $input) {
+    id
+    ...AgentStorefrontSoldPlans
+  }
+}
+    ${AgentStorefrontSoldPlansFragmentDoc}`;
+export type UpdateAgentStorefrontSoldPlansMutationFn = Apollo.MutationFunction<UpdateAgentStorefrontSoldPlansMutation, UpdateAgentStorefrontSoldPlansMutationVariables>;
+
+/**
+ * __useUpdateAgentStorefrontSoldPlansMutation__
+ *
+ * To run a mutation, you first call `useUpdateAgentStorefrontSoldPlansMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateAgentStorefrontSoldPlansMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateAgentStorefrontSoldPlansMutation, { data, loading, error }] = useUpdateAgentStorefrontSoldPlansMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateAgentStorefrontSoldPlansMutation(baseOptions?: Apollo.MutationHookOptions<UpdateAgentStorefrontSoldPlansMutation, UpdateAgentStorefrontSoldPlansMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateAgentStorefrontSoldPlansMutation, UpdateAgentStorefrontSoldPlansMutationVariables>(UpdateAgentStorefrontSoldPlansDocument, options);
+      }
+export type UpdateAgentStorefrontSoldPlansMutationHookResult = ReturnType<typeof useUpdateAgentStorefrontSoldPlansMutation>;
+export type UpdateAgentStorefrontSoldPlansMutationResult = Apollo.MutationResult<UpdateAgentStorefrontSoldPlansMutation>;
+export type UpdateAgentStorefrontSoldPlansMutationOptions = Apollo.BaseMutationOptions<UpdateAgentStorefrontSoldPlansMutation, UpdateAgentStorefrontSoldPlansMutationVariables>;
 export const DeleteCustomSectionDocument = gql`
     mutation deleteCustomSection($input: DestroyInvoiceCustomSectionInput!) {
   destroyInvoiceCustomSection(input: $input) {
@@ -53564,11 +53865,12 @@ export const GetAgentStorefrontIntegrationsListDocument = gql`
         id
         name
         code
+        ...EditAgentStorefrontIntegration
       }
     }
   }
 }
-    `;
+    ${EditAgentStorefrontIntegrationFragmentDoc}`;
 
 /**
  * __useGetAgentStorefrontIntegrationsListQuery__

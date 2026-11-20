@@ -181,4 +181,36 @@ describe('applyAgentStorefrontServerErrors', () => {
       })
     })
   })
+
+  describe('GIVEN the payment connection change is refused because agents already paid', () => {
+    const details = { paymentProviderCode: [LagoApiError.AgentStorefrontHasEnrolledAgents] }
+
+    describe('WHEN the errors are applied', () => {
+      it('THEN should set a field error on the payment connection without a toast', () => {
+        const { formApi, setFieldValue, setErrorMap } = buildFormApi()
+
+        applyAgentStorefrontServerErrors(formApi, buildErrors(details))
+
+        expect(setFieldValue).not.toHaveBeenCalled()
+        expect(setErrorMap).toHaveBeenCalledWith({
+          onDynamic: {
+            fields: {
+              paymentProviderCode: { message: expect.any(String), path: ['paymentProviderCode'] },
+            },
+          },
+        })
+        expect(addToast).not.toHaveBeenCalled()
+      })
+
+      it('THEN should be silenced, so the error link shows no toast', () => {
+        expect(
+          isSilencedGQLError({
+            extensions: { code: LagoApiError.UnprocessableEntity, details },
+            silentErrorCodes: [],
+            silentErrorDetails: ADD_AGENT_STOREFRONT_SILENT_ERROR_DETAILS,
+          }),
+        ).toBe(true)
+      })
+    })
+  })
 })

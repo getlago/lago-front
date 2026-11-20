@@ -3,6 +3,8 @@ import { GraphQLFormattedError } from 'graphql'
 
 import { LagoApiError } from '~/generated/graphql'
 
+import { addToast } from './reactiveVars/toastVar'
+
 export enum PspErrorCode {
   ThirdPartyError = 'third_party_error',
 }
@@ -120,4 +122,10 @@ export const hasDefinedGQLError = (
   if (!!code) {
     return code === LagoApiError[errorCode]
   }
+}
+
+export const onNetworkError = (error: Error): void => {
+  if (!(error instanceof ApolloError) || !error.networkError) return
+
+  addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }

@@ -1,19 +1,81 @@
-import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import {
   GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
   GENERIC_PLACEHOLDER_TEST_ID,
 } from '~/components/designSystem/GenericPlaceholder'
+import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
+import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { AgentStorefrontIntegrationDetailsFragment, CurrencyEnum } from '~/generated/graphql'
+import { AllTheProviders } from '~/test-utils'
 
 import { renderIntegrationPage } from './integrationTestHelpers'
 
 import AgentStorefrontIntegrationDetails, {
   AGENT_ACCESS_COPY_TEST_ID,
+  AGENT_STOREFRONT_ACTIONS_DELETE_TEST_ID,
+  AGENT_STOREFRONT_ACTIONS_EDIT_TEST_ID,
+  AGENT_STOREFRONT_ACTIONS_TEST_ID,
+  AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID,
+  AGENT_STOREFRONT_PLAN_EDIT_TEST_ID,
+  AGENT_STOREFRONT_PLAN_STOP_SELLING_TEST_ID,
+  AGENT_STOREFRONT_SELL_PLAN_TEST_ID,
 } from '../AgentStorefrontIntegrationDetails'
+
+const mockOpenEditConnection = jest.fn()
+const mockOpenDeleteConnection = jest.fn()
+const mockOpenSellPlan = jest.fn()
+const mockOpenEditPlan = jest.fn()
+const mockOpenStopSelling = jest.fn()
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog', () => ({
+  useAddAgentStorefrontDialog: () => ({
+    openAddAgentStorefrontDialog: jest.fn(),
+    openEditAgentStorefrontDialog: mockOpenEditConnection,
+  }),
+}))
+
+jest.mock(
+  '~/components/settings/integrations/agentStorefront/DeleteAgentStorefrontIntegrationDialog',
+  () => ({
+    useDeleteAgentStorefrontIntegrationDialog: () => ({
+      openDeleteAgentStorefrontIntegrationDialog: mockOpenDeleteConnection,
+      getDeleteAgentStorefrontIntegrationDialogProps: jest.fn(),
+    }),
+  }),
+)
+
+jest.mock('~/components/settings/integrations/agentStorefront/SellPlanToAgentsDialog', () => ({
+  useSellPlanToAgentsDialog: () => ({
+    openSellPlanDialog: mockOpenSellPlan,
+    openEditPlanDialog: mockOpenEditPlan,
+  }),
+}))
+
+jest.mock('~/components/settings/integrations/agentStorefront/StopSellingPlanDialog', () => ({
+  useStopSellingPlanDialog: () => ({ openStopSellingPlanDialog: mockOpenStopSelling }),
+}))
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+const ALL_PERMISSIONS = [
+  'organizationIntegrationsUpdate',
+  'organizationIntegrationsDelete',
+  'plansView',
+]
+
+const allowOnly = (allowed: string[]): void => {
+  mockHasPermissions.mockImplementation((permissions: string[]) =>
+    permissions.every((permission) => allowed.includes(permission)),
+  )
+}
 
 jest.mock('~/core/utils/copyToClipboard', () => ({ copyToClipboard: jest.fn() }))
 
@@ -45,6 +107,7 @@ const usdPlan: NonNullable<SoldPlan['plan']> = {
   id: 'plan-count',
   name: 'Count',
   code: 'count',
+  invoiceDisplayName: null,
   amountCurrency: CurrencyEnum.Usd,
 }
 
@@ -73,6 +136,8 @@ const createIntegration = (
   authDocumentUrl: 'https://api.getlago.com/agents/v1/abc/AUTH.md',
   billingDocumentUrl: 'https://api.getlago.com/agents/v1/abc/BILLING.md',
   claimUrl: 'https://app.getlago.com/agent-claim/abc',
+  hasEnrolledAgents: false,
+  hasAgentsWithStripeCustomer: false,
   plans: [createSoldPlan()],
   ...overrides,
 })
@@ -90,6 +155,7 @@ const renderWith = async (
 describe('AgentStorefrontIntegrationDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    allowOnly(ALL_PERMISSIONS)
   })
 
   afterEach(cleanup)
@@ -119,12 +185,186 @@ describe('AgentStorefrontIntegrationDetails', () => {
           )
         })
       })
+    })
+  })
 
-      it('THEN should not render any edit or sell action', async () => {
-        const { container } = await renderWith(createIntegration())
+  describe('GIVEN the user can edit and delete integrations and view plans', () => {
+    describe('WHEN clicking the Edit link of the connection details', () => {
+      it('THEN should open the edit dialog with the connection and a delete callback', async () => {
+        const integration = createIntegration()
 
-        expect(container.querySelector('[data-test="open-action-button"]')).not.toBeInTheDocument()
+        await renderWith(integration)
+
+        fireEvent.click(screen.getByTestId(AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID))
+
+        expect(mockOpenEditConnection).toHaveBeenCalledWith({
+          integration,
+          deleteCallback: expect.any(Function),
+        })
+      })
+    })
+
+    describe('WHEN picking edit in the header actions', () => {
+      it('THEN should open the edit dialog with the connection', async () => {
+        const user = userEvent.setup()
+        const integration = createIntegration()
+
+        await renderWith(integration)
+
+        await user.click(screen.getByTestId(AGENT_STOREFRONT_ACTIONS_TEST_ID))
+        await user.click(await screen.findByTestId(AGENT_STOREFRONT_ACTIONS_EDIT_TEST_ID))
+
+        expect(mockOpenEditConnection).toHaveBeenCalledWith(
+          expect.objectContaining({ integration }),
+        )
+      })
+    })
+
+    describe('WHEN picking delete in the header actions', () => {
+      it('THEN should open the delete dialog whose callback returns to the connections list', async () => {
+        const user = userEvent.setup()
+        const integration = createIntegration()
+
+        await renderWith(integration)
+
+        await user.click(screen.getByTestId(AGENT_STOREFRONT_ACTIONS_TEST_ID))
+        await user.click(await screen.findByTestId(AGENT_STOREFRONT_ACTIONS_DELETE_TEST_ID))
+
+        expect(mockOpenDeleteConnection).toHaveBeenCalledWith({
+          integration,
+          callback: expect.any(Function),
+        })
+
+        mockOpenDeleteConnection.mock.calls[0][0].callback()
+
+        expect(mockNavigate).toHaveBeenCalledWith('/settings/integrations/lago/agent-storefront')
+      })
+    })
+
+    describe('WHEN clicking Sell a plan on the plans section', () => {
+      it('THEN should open the sell dialog with the codes already sold', async () => {
+        await renderWith(createIntegration())
+
+        fireEvent.click(screen.getByTestId(AGENT_STOREFRONT_SELL_PLAN_TEST_ID))
+
+        expect(mockOpenSellPlan).toHaveBeenCalledWith(['count'])
+      })
+    })
+
+    describe('WHEN no plan is sold and the empty state button is clicked', () => {
+      it('THEN should open the sell dialog with no sold codes', async () => {
+        await renderWith(createIntegration({ plans: [] }))
+
+        fireEvent.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
+
+        expect(mockOpenSellPlan).toHaveBeenCalledWith([])
+      })
+    })
+
+    describe('WHEN picking edit in a plan row menu', () => {
+      it('THEN should open the edit plan dialog with that sold plan', async () => {
+        await renderWith(createIntegration())
+
+        fireEvent.click(screen.getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+        fireEvent.click(await screen.findByTestId(AGENT_STOREFRONT_PLAN_EDIT_TEST_ID))
+
+        expect(mockOpenEditPlan).toHaveBeenCalledWith(expect.objectContaining(createSoldPlan()))
+      })
+    })
+
+    describe('WHEN picking stop selling in a plan row menu', () => {
+      it('THEN should open the stop selling dialog with that sold plan', async () => {
+        await renderWith(createIntegration())
+
+        fireEvent.click(screen.getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+        fireEvent.click(await screen.findByTestId(AGENT_STOREFRONT_PLAN_STOP_SELLING_TEST_ID))
+
+        expect(mockOpenStopSelling).toHaveBeenCalledWith(expect.objectContaining(createSoldPlan()))
+      })
+    })
+
+    describe('WHEN the sold plan was deleted', () => {
+      it('THEN should offer stop selling but not edit', async () => {
+        await renderWith(createIntegration({ plans: [createSoldPlan({ plan: null })] }))
+
+        fireEvent.click(screen.getByTestId(OPEN_ACTION_BUTTON_TEST_ID))
+
+        expect(
+          await screen.findByTestId(AGENT_STOREFRONT_PLAN_STOP_SELLING_TEST_ID),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(AGENT_STOREFRONT_PLAN_EDIT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user can edit integrations but cannot view plans', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should hide both Sell a plan entry points but keep the edit actions', async () => {
+        allowOnly(['organizationIntegrationsUpdate'])
+
+        await renderWith(createIntegration({ plans: [] }))
+
+        expect(screen.queryByTestId(AGENT_STOREFRONT_SELL_PLAN_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user cannot edit integrations', () => {
+    describe('WHEN the page renders', () => {
+      it('THEN should hide the edit link, the sell entry points and the plan row menu', async () => {
+        allowOnly(['organizationIntegrationsDelete', 'plansView'])
+
+        await renderWith(createIntegration())
+
+        expect(
+          screen.queryByTestId(AGENT_STOREFRONT_EDIT_CONNECTION_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(screen.queryByTestId(AGENT_STOREFRONT_SELL_PLAN_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(OPEN_ACTION_BUTTON_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the header actions are configured once', () => {
+    describe('WHEN the connection data changes without remounting the page', () => {
+      it('THEN should open the edit dialog with the latest connection', async () => {
+        const user = userEvent.setup()
+        const Host = (): JSX.Element => (
+          <AllTheProviders useParams={{ integrationId: 'storefront-a' }} forceTypenames>
+            <MainHeader />
+            <AgentStorefrontIntegrationDetails />
+          </AllTheProviders>
+        )
+
+        mockQueryResult.mockReturnValue({
+          data: { integration: createIntegration() },
+          loading: false,
+        })
+
+        let rerender: ReturnType<typeof render>['rerender'] = () => undefined
+
+        await act(async () => {
+          ;({ rerender } = render(<Host />))
+        })
+
+        const updated = createIntegration({
+          resourceInstructions: 'https://api.acme.example/v2.md',
+        })
+
+        mockQueryResult.mockReturnValue({ data: { integration: updated }, loading: false })
+
+        await act(async () => {
+          rerender(<Host />)
+        })
+
+        await user.click(screen.getByTestId(AGENT_STOREFRONT_ACTIONS_TEST_ID))
+        await user.click(await screen.findByTestId(AGENT_STOREFRONT_ACTIONS_EDIT_TEST_ID))
+
+        expect(mockOpenEditConnection).toHaveBeenCalledWith(
+          expect.objectContaining({ integration: updated }),
+        )
       })
     })
   })
@@ -264,11 +504,11 @@ describe('AgentStorefrontIntegrationDetails', () => {
     })
 
     describe('WHEN no plan is sold', () => {
-      it('THEN should show the empty state without a button', async () => {
+      it('THEN should show the empty state with a sell button', async () => {
         await renderWith(createIntegration({ plans: [] }))
 
         expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
-        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).toBeInTheDocument()
       })
     })
   })
