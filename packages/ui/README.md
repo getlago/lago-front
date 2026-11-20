@@ -41,6 +41,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 | OverflowTabs | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
 | Separator    | `lago-ui/separator`     | [separator.md](src/components/separator.md)         |
 | Tabs         | `lago-ui/tabs`          | [tabs.md](src/components/tabs.md)                   |
+| Textarea     | `lago-ui/textarea`      | [textarea.md](src/components/textarea.md)           |
 | Tooltip      | `lago-ui/tooltip`       | [tooltip.md](src/components/tooltip.md)             |
 
 Each guide follows the same sections: **When to use**, **Import**, **API**, **Examples**, **Accessibility**, **Design**, **References**.

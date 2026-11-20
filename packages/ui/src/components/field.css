@@ -1,3 +1,9 @@
+.v2-field > * + * {
+  margin-block-start: 0.5rem;
+}
+.v2-field > * + [data-slot='field-error'] {
+  margin-block-start: 0.25rem;
+}
 .v2-field[data-disabled='true'] [data-slot='field-label'],
 .v2-field[data-disabled='true'] [data-slot='field-description'] {
   color: var(--color-disabled-foreground);
