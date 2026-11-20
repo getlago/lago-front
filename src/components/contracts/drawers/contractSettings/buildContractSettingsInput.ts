@@ -8,7 +8,7 @@ import { toUtcCalendarDay, toUtcDateTime } from '../contract/buildContractInput'
 
 // `Contracts::UpdateService` writes only present keys: a cleared value goes as null (Apollo
 // strips undefined), an untouched inherited billing anchor is omitted so a no-op save does
-// not pin it as an override. `externalId` is never sent as a value — only as the lookup key.
+// not pin it as an override.
 export const buildContractSettingsInput = (
   value: ContractSettingsFormValues,
   contract: ContractForContractDrawerFragment,
@@ -18,7 +18,7 @@ export const buildContractSettingsInput = (
     !contract.billingAnchorDate && value.billingAnchorDate === seededValues.billingAnchorDate
 
   return {
-    externalId: contract.externalId,
+    id: contract.id,
     name: value.name || null,
     startedAt: toUtcDateTime(value.startedAt),
     endedAt: value.endedAt ? toUtcDateTime(value.endedAt) : null,

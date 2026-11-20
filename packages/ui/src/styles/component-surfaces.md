@@ -41,7 +41,8 @@ Names in the background and border columns are semantic roles. “None” means 
 | Tooltip                                        | `inverse`                                                       | None                                              | `shadow-v2-floating`    |
 | Search bar                                     | `surface-subtle`                                                | `border-control`                                  | None                    |
 | Text input                                     | `surface` (default/invalid), `surface-subtle` (hover/read-only) | `border-control`                                  | None                    |
-| Search input / textarea                        | `surface-subtle`                                                | `border-control` (transparent for search at rest) | None                    |
+| Search input                                   | `surface-subtle`                                                | Transparent at rest                              | None                    |
+| Textarea                                       | `surface` (default/focus/invalid), `surface-subtle` (unfocused hover/read-only) | `border-control`                       | None                    |
 | Combo-box trigger / input                      | `surface-subtle`                                                | `border-control`                                  | None                    |
 | Combo-box dropdown                             | `surface-floating`                                              | `border-divider`                                  | `shadow-v2-floating`    |
 | Popover / dropdown menu                        | `surface-floating`                                              | `border-divider`                                  | `shadow-v2-floating`    |

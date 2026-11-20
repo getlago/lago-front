@@ -36,15 +36,13 @@ export const States: Story = {
         <FieldContent>
           <FieldLabel htmlFor="invalid-name">Customer name</FieldLabel>
         </FieldContent>
-        <div className="flex flex-col gap-1">
-          <Input
-            id="invalid-name"
-            aria-invalid
-            aria-describedby="invalid-name-error"
-            defaultValue="Acme Corporation"
-          />
-          <FieldError id="invalid-name-error">Please enter a valid value.</FieldError>
-        </div>
+        <Input
+          id="invalid-name"
+          aria-invalid
+          aria-describedby="invalid-name-error"
+          defaultValue="Acme Corporation"
+        />
+        <FieldError id="invalid-name-error">Please enter a valid value.</FieldError>
       </Field>
       <p className="v2-text-caption text-text-muted">
         Hover or focus any editable input to review its interactive states, including invalid +

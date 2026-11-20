@@ -12,7 +12,7 @@ export const Field = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLD
       {...props}
       ref={ref}
       data-slot="field"
-      className={cn('v2-field flex min-w-0 flex-col gap-2', className)}
+      className={cn('v2-field flex min-w-0 flex-col', className)}
     />
   ),
 )
