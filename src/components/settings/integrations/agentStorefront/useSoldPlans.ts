@@ -46,7 +46,10 @@ type UseSoldPlansReturn = {
   stopSellingPlan: (planCode: string) => Promise<SoldPlansResult>
 }
 
-const PLAN_NOT_USAGE_ONLY_CONTEXT = { silentErrorDetails: [LagoApiError.PlanNotUsageOnly] }
+const STOP_SELLING_CONTEXT = { silentErrorDetails: [LagoApiError.PlanNotFound] }
+const SELL_OR_EDIT_CONTEXT = {
+  silentErrorDetails: [LagoApiError.PlanNotFound, LagoApiError.PlanNotUsageOnly],
+}
 
 export const useSoldPlans = (integrationId: string): UseSoldPlansReturn => {
   const client = useApolloClient()
@@ -67,7 +70,7 @@ export const useSoldPlans = (integrationId: string): UseSoldPlansReturn => {
 
     const result = await updateSoldPlans({
       variables: { input: { id: integrationId, plans } },
-      ...(change.type === 'stop' ? {} : { context: PLAN_NOT_USAGE_ONLY_CONTEXT }),
+      context: change.type === 'stop' ? STOP_SELLING_CONTEXT : SELL_OR_EDIT_CONTEXT,
     })
 
     return { reason: 'mutation', result }

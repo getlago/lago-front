@@ -142,6 +142,30 @@ describe('useStopSellingPlanDialog', () => {
       })
     })
 
+    describe('WHEN another sold plan no longer resolves', () => {
+      it('THEN should toast that the stale plan must be stopped first', async () => {
+        mockStopSellingPlan.mockResolvedValue({
+          reason: 'mutation',
+          result: {
+            data: { updateAgentStorefrontIntegration: null },
+            errors: [
+              {
+                message: 'Unprocessable Entity',
+                extensions: {
+                  code: LagoApiError.UnprocessableEntity,
+                  details: { plans: [LagoApiError.PlanNotFound] },
+                },
+              },
+            ],
+          },
+        })
+
+        await openDialog().onAction()
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+
     describe('WHEN the request fails on the network', () => {
       it('THEN should reject so the dialog stays open', async () => {
         const networkError = new Error('Network error')

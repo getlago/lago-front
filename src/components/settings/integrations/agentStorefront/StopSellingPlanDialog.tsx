@@ -2,6 +2,7 @@ import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast, onNetworkError } from '~/core/apolloClient'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { notifyStaleSoldPlan } from './serverErrors'
 import { useSoldPlans } from './useSoldPlans'
 import { getSoldPlanName, SoldPlan } from './utils'
 
@@ -32,6 +33,8 @@ export const useStopSellingPlanDialog = (integrationId: string): UseStopSellingP
         }
 
         if (response.result.errors || !response.result.data?.updateAgentStorefrontIntegration) {
+          notifyStaleSoldPlan(response.result.errors)
+
           return
         }
 

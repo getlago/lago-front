@@ -16,6 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm, withForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { notifyStaleSoldPlan } from './serverErrors'
 import { useSoldPlans } from './useSoldPlans'
 import { SoldPlan, SoldPlanAmounts } from './utils'
 
@@ -232,6 +233,8 @@ export const useSellPlanToAgentsDialog = (
       const { result } = response
 
       if (result.errors || !result.data?.updateAgentStorefrontIntegration?.id) {
+        notifyStaleSoldPlan(result.errors)
+
         if (hasDefinedGQLError('PlanNotUsageOnly', result.errors, 'plans')) {
           formApi.setErrorMap({
             onDynamic: {

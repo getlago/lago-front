@@ -64,7 +64,10 @@ const INPUT_B = {
   freeCreditsCents: 50,
 }
 
-const NOT_USAGE_ONLY_CONTEXT = { silentErrorDetails: [LagoApiError.PlanNotUsageOnly] }
+const STOP_SELLING_CONTEXT = { silentErrorDetails: [LagoApiError.PlanNotFound] }
+const SELL_OR_EDIT_CONTEXT = {
+  silentErrorDetails: [LagoApiError.PlanNotFound, LagoApiError.PlanNotUsageOnly],
+}
 
 const mockCachedPlans = (plans: SoldPlan[] | null): void => {
   mockReadFragment.mockReturnValue(
@@ -103,7 +106,7 @@ describe('useSoldPlans', () => {
     })
 
     describe('WHEN selling a new plan', () => {
-      it('THEN should send the whole list with the new plan and silence plan_not_usage_only', async () => {
+      it('THEN should send the whole list with the new plan and silence the plan refusals', async () => {
         const result = await renderSoldPlans().sellPlan('c', {
           minimumTopupCents: 100,
           maximumTopupCents: 1000,
@@ -126,7 +129,7 @@ describe('useSoldPlans', () => {
               ],
             },
           },
-          context: NOT_USAGE_ONLY_CONTEXT,
+          context: SELL_OR_EDIT_CONTEXT,
         })
         expect(result).toEqual({
           reason: 'mutation',
@@ -158,17 +161,18 @@ describe('useSoldPlans', () => {
               ],
             },
           },
-          context: NOT_USAGE_ONLY_CONTEXT,
+          context: SELL_OR_EDIT_CONTEXT,
         })
       })
     })
 
     describe('WHEN stopping a sold plan', () => {
-      it('THEN should send the list without it and without a silencing context', async () => {
+      it('THEN should send the list without it and silence only plan_not_found', async () => {
         await renderSoldPlans().stopSellingPlan('a')
 
         expect(mockUpdateSoldPlans).toHaveBeenCalledWith({
           variables: { input: { id: 'sf_1', plans: [INPUT_B] } },
+          context: STOP_SELLING_CONTEXT,
         })
       })
     })
@@ -183,6 +187,7 @@ describe('useSoldPlans', () => {
 
         expect(mockUpdateSoldPlans).toHaveBeenCalledWith({
           variables: { input: { id: 'sf_1', plans: [] } },
+          context: STOP_SELLING_CONTEXT,
         })
       })
     })

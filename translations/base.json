@@ -5539,5 +5539,7 @@
   "text_1795096449973hbn8o7srlh5": "Plan successfully sold to agents",
   "text_1795096449973qg9fyttndtl": "Plan no longer sold to agents",
   "text_1795096449974nxoidu1m3z7": "This plan is sold to agents through an Agentic Storefront connection. Stop selling it before deleting it.",
-  "text_1795096449974kc0hhrdmonw": "This plan is sold to agents, so it must stay usage-only: no subscription fee and no fixed charges."
+  "text_1795096449974kc0hhrdmonw": "This plan is sold to agents, so it must stay usage-only: no subscription fee and no fixed charges.",
+  "text_1795155393899c6tjow98zc6": "This Stripe connection is used by an Agentic Storefront connection. Change its payment connection or delete it first.",
+  "text_1795155393899z7dii6si7le": "A plan sold through this connection no longer exists. Stop selling it before making other changes."
 }

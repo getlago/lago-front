@@ -275,9 +275,26 @@ describe('useSellPlanToAgentsDialog', () => {
       })
     })
 
+    describe('WHEN another sold plan no longer resolves', () => {
+      it('THEN should toast the stale plan instead of blaming the picked one', async () => {
+        mockSellPlan.mockResolvedValue(buildMutationError({ plans: [LagoApiError.PlanNotFound] }))
+
+        const payload = openSellDialog()
+        const form = renderDialog(payload)
+
+        fill(form, { planCode: 'count', minimumTopup: '10', maximumTopup: '50' })
+
+        const outcome = await submit(payload)
+
+        expect(outcome.status).toBe('rejected')
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        expect(form.getFieldMeta('planCode')?.errors ?? []).toHaveLength(0)
+      })
+    })
+
     describe('WHEN the API returns an error the dialog does not map', () => {
       it('THEN should keep the dialog open without a field error or a toast of its own', async () => {
-        mockSellPlan.mockResolvedValue(buildMutationError({ plans: [LagoApiError.PlanNotFound] }))
+        mockSellPlan.mockResolvedValue(buildMutationError({ plans: [LagoApiError.ValueIsInvalid] }))
 
         const payload = openSellDialog()
         const form = renderDialog(payload)

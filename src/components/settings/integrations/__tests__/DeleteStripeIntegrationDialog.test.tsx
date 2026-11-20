@@ -8,6 +8,7 @@ import {
   DeleteStripeIntegrationDialogFragment,
   GetStripeIntegrationsListDocument,
   IntegrationTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
@@ -77,6 +78,16 @@ const STOREFRONTS_DATA = {
       },
     ],
   },
+}
+
+const USED_BY_STOREFRONT_RESULT = {
+  data: { destroyPaymentProvider: null },
+  errors: [
+    {
+      message: 'Method Not Allowed',
+      extensions: { code: LagoApiError.PaymentProviderUsedByAgentStorefront },
+    },
+  ],
 }
 
 const enableStorefront = (isEnabled: boolean): void => {
@@ -181,7 +192,10 @@ describe('useDeleteStripeIntegrationDialog', () => {
           await props.onAction()
         })
 
-        expect(mockDeleteStripe).toHaveBeenCalledWith({ variables: { input: { id: 'stripe-1' } } })
+        expect(mockDeleteStripe).toHaveBeenCalledWith({
+          variables: { input: { id: 'stripe-1' } },
+          context: { silentErrorCodes: [LagoApiError.PaymentProviderUsedByAgentStorefront] },
+        })
         expect(evictFromCache).toHaveBeenCalledWith(expect.anything(), {
           id: 'stripe-1',
           __typename: 'StripeProvider',
@@ -190,6 +204,24 @@ describe('useDeleteStripeIntegrationDialog', () => {
         })
         expect(callback).toHaveBeenCalledTimes(1)
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+
+    describe('WHEN the API refuses because a Storefront connection uses it', () => {
+      it('THEN should toast the refusal instead of evicting the connection', async () => {
+        const callback = jest.fn()
+
+        mockDeleteStripe.mockResolvedValue(USED_BY_STOREFRONT_RESULT)
+
+        const props = getProps({ ...PROVIDER, code: 'stripe_other' }, callback)
+
+        await act(async () => {
+          await props.onAction()
+        })
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        expect(evictFromCache).not.toHaveBeenCalled()
+        expect(callback).not.toHaveBeenCalled()
       })
     })
 

@@ -5,13 +5,14 @@ import {
   CentralizedDialogProps,
   useCentralizedDialog,
 } from '~/components/dialogs/CentralizedDialog'
-import { addToast, onNetworkError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, onNetworkError } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteStripeIntegrationDialogFragment,
   FeatureFlagEnum,
   GetStripeIntegrationsListDocument,
   IntegrationTypeEnum,
+  LagoApiError,
   PremiumIntegrationTypeEnum,
   useDeleteStripeMutation,
   useGetAgentStorefrontsForStripeDeletionQuery,
@@ -45,6 +46,8 @@ gql`
     }
   }
 `
+
+const USED_BY_STOREFRONT_ERROR = 'text_1795155393899c6tjow98zc6'
 
 type TDeleteStripeIntegrationDialogProps = {
   provider: DeleteStripeIntegrationDialogFragment | null
@@ -110,7 +113,14 @@ export const useDeleteStripeIntegrationDialog = (): UseDeleteStripeIntegrationDi
       onAction: async () => {
         const result = await deleteStripe({
           variables: { input: { id: provider?.id as string } },
+          context: { silentErrorCodes: [LagoApiError.PaymentProviderUsedByAgentStorefront] },
         })
+
+        if (hasDefinedGQLError('PaymentProviderUsedByAgentStorefront', result.errors)) {
+          addToast({ severity: 'danger', translateKey: USED_BY_STOREFRONT_ERROR })
+
+          return
+        }
 
         const destroyedId = result.data?.destroyPaymentProvider?.id
 
