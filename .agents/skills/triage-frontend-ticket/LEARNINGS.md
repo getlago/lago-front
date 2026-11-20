@@ -81,3 +81,20 @@ the blocking ones: wrong diagnosis, a fix that does not work, a missed call site
 acceptance criterion that lets the bug ship. Everything else is `PASS with notes` — apply the
 notes and post, without spending a review round. Do not raise the cap of 2 to compensate; the
 cap is what makes the loop converge.
+
+## 2026-11-16 — Moving a stylesheet between build contexts changes the cascade, not just the location
+
+**What happened:** triaging the inlining of the legacy design-system package's `style.css` into the
+app's `src/main.css`, the analysis proposed copying its `@layer base` rules into the app's own
+`@layer base`. The independent review showed the package ships a *complete* Tailwind build,
+preflight included, inlined before the app's `@tailwind base` — so four of its eight rules (`svg`,
+`b`, `ul`, `a`) plus `body`'s line-height are overridden today and do nothing. Folding them into the
+app's layer puts them after preflight, flipping every `<svg>` to `inline-block`, `<b>` to 500 and
+`<ul>` to a disc marker, app-wide. The drafted criterion asserted only that the rules were present
+in the file, so it would have shipped the change.
+
+**Rule:** when a change moves CSS between bundles, layers or build contexts, verify the *emitted
+order* before and after, never the presence of rules. Compile the entry stylesheet both ways, diff
+the output, and make that diff the acceptance criterion. Tailwind v3 `@layer` is a build-time
+directive, not a native cascade layer: order alone decides a collision, so a rule that is dead in
+one position becomes live in another.

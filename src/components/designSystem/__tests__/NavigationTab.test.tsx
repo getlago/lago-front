@@ -159,4 +159,22 @@ describe('NavigationTab', () => {
       })
     })
   })
+
+  describe('GIVEN a single tab', () => {
+    const singleTab = [indexTabs[0]]
+
+    it('THEN should not render it by default', () => {
+      render(<NavigationTab managedBy={TabManagedBy.INDEX} tabs={singleTab} />)
+
+      expect(screen.queryByTestId('tab-first')).not.toBeInTheDocument()
+    })
+
+    describe('WHEN showSingleTab is set', () => {
+      it('THEN should render it', () => {
+        render(<NavigationTab managedBy={TabManagedBy.INDEX} tabs={singleTab} showSingleTab />)
+
+        expect(screen.getByTestId('tab-first')).toBeInTheDocument()
+      })
+    })
+  })
 })
