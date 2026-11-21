@@ -104,12 +104,23 @@ export const bigNumberShortenNotationFormater = (
     { value: 1e3, symbol: 'k' },
   ]
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/
-  const item = bigNumberLookup.find(function (localItem) {
+  let item = bigNumberLookup.find(function (localItem) {
     return amount >= localItem.value
   })
-  const formatedAmount = item
-    ? (amount / item.value).toFixed(1).replace(rx, '$1') + item.symbol
-    : '0'
+
+  let formatedAmount = '0'
+
+  if (item) {
+    let formatted = (amount / item.value).toFixed(1)
+    if (Number(formatted) >= 1e3) {
+      const nextIndex = bigNumberLookup.indexOf(item) - 1
+      if (nextIndex >= 0) {
+        item = bigNumberLookup[nextIndex]
+        formatted = (amount / item.value).toFixed(1)
+      }
+    }
+    formatedAmount = formatted.replace(rx, '$1') + item.symbol
+  }
 
   return `${getCurrencySymbol(currency)}${formatedAmount}`
 }
