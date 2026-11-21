@@ -28,6 +28,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { MAX_FEATURE_PRIVILEGES } from '~/pages/features/featureForm/constants'
 import {
   mapFeatureToFormValues,
   mapPrivilegesToApiInput,
@@ -50,8 +51,11 @@ export const FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID = 'feature-form-description-
 export const FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID = 'feature-form-description-delete-button'
 export const FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID = 'show-description'
 export const FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID = 'feature-form-add-privilege-button'
+export const FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID = 'feature-form-privilege-limit-hint'
 
-const SILENT_ERROR_CODES = [LagoApiError.UnprocessableEntity]
+// Silencing every `unprocessable_entity` hid the refusals the form does not handle,
+// the privilege-count one among them. Only the two it surfaces itself stay silent.
+const SILENT_ERROR_DETAILS = [LagoApiError.ValueIsDuplicated, LagoApiError.ValueAlreadyExist]
 
 gql`
   fragment FeatureForFeatureForm on FeatureObject {
@@ -176,6 +180,7 @@ const FeatureForm = () => {
 
   const isDirty = useStore(form.store, (state) => !state.isDefaultValue)
   const privileges = useStore(form.store, (state) => state.values.privileges)
+  const hasReachedPrivilegeLimit = privileges.length >= MAX_FEATURE_PRIVILEGES
 
   const onLeave = useCallback(() => {
     if (!!featureId) {
@@ -201,7 +206,7 @@ const FeatureForm = () => {
 
   const [updateFeature, { error: updateError }] = useUpdateFeatureMutation({
     context: {
-      silentErrorCodes: SILENT_ERROR_CODES,
+      silentErrorDetails: SILENT_ERROR_DETAILS,
     },
     onCompleted({ updateFeature: updatedFeature }) {
       if (!!updatedFeature?.id) {
@@ -217,7 +222,7 @@ const FeatureForm = () => {
 
   const [createFeature, { error: createError }] = useCreateFeatureMutation({
     context: {
-      silentErrorCodes: SILENT_ERROR_CODES,
+      silentErrorDetails: SILENT_ERROR_DETAILS,
     },
     onCompleted({ createFeature: createdFeature }) {
       if (!!createdFeature?.id) {
@@ -390,22 +395,36 @@ const FeatureForm = () => {
                       />
                     ))}
 
-                    <Button
-                      fitContent
-                      align="left"
-                      variant="inline"
-                      startIcon="plus"
-                      data-test={FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
-                      onClick={() => {
-                        form.pushFieldValue('privileges', {
-                          code: '',
-                          name: '',
-                          valueType: PrivilegeValueTypeEnum.Boolean,
-                        })
-                      }}
-                    >
-                      {translate('text_1752695518075ut8zscauuq3')}
-                    </Button>
+                    <div className="flex flex-col items-start gap-1">
+                      <Button
+                        fitContent
+                        align="left"
+                        variant="inline"
+                        startIcon="plus"
+                        disabled={hasReachedPrivilegeLimit}
+                        data-test={FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID}
+                        onClick={() => {
+                          form.pushFieldValue('privileges', {
+                            code: '',
+                            name: '',
+                            valueType: PrivilegeValueTypeEnum.Boolean,
+                          })
+                        }}
+                      >
+                        {translate('text_1752695518075ut8zscauuq3')}
+                      </Button>
+
+                      {hasReachedPrivilegeLimit && (
+                        <Typography
+                          variant="caption"
+                          data-test={FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID}
+                        >
+                          {translate('text_1794982684091muxo5g24smt', {
+                            max: MAX_FEATURE_PRIVILEGES,
+                          })}
+                        </Typography>
+                      )}
+                    </div>
                   </div>
                 </section>
               </div>
