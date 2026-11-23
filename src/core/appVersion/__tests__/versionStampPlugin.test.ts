@@ -147,7 +147,7 @@ describe('versionStampPlugin', () => {
     expect(idOf(bundle)).not.toBe(idOf(otherHtml))
   })
 
-  it('fails the build when index.html is missing', () => {
-    expect(() => runGenerateBundle({} as Rollup.OutputBundle)).toThrow('index.html')
+  it('leaves a bundle without index.html alone, as for Cypress specs', () => {
+    expect(runGenerateBundle({} as Rollup.OutputBundle)).not.toHaveBeenCalled()
   })
 })

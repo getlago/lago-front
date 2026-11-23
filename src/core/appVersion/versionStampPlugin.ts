@@ -53,9 +53,8 @@ export const versionStampPlugin = (): Plugin => ({
   generateBundle(_options, bundle) {
     const indexHtml = bundle[INDEX_HTML]
 
-    if (!indexHtml || indexHtml.type !== 'asset') {
-      throw new Error(`[lago-version-stamp] ${INDEX_HTML} is missing from the bundle`)
-    }
+    // Cypress bundles its specs with this config: no app page there, nothing to stamp.
+    if (!indexHtml || indexHtml.type !== 'asset') return
 
     // index.html is hashed before the meta tag goes in. Source maps only mirror the code.
     const files = Object.values(bundle)
