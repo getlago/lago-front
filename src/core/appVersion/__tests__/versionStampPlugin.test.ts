@@ -1,7 +1,7 @@
 import type { Rollup } from 'vite'
 
 import { BUILD_ID_FILE_NAME, isBuildId } from '../buildId'
-import { buildIdPlugin, computeBuildId, injectBuildIdMeta } from '../buildIdPlugin'
+import { computeBuildId, injectBuildIdMeta, versionStampPlugin } from '../versionStampPlugin'
 
 const HTML = '<!doctype html><html><head><title>Lago</title></head><body></body></html>'
 
@@ -57,9 +57,9 @@ describe('injectBuildIdMeta', () => {
   })
 })
 
-describe('buildIdPlugin', () => {
+describe('versionStampPlugin', () => {
   const runGenerateBundle = (bundle: Rollup.OutputBundle) => {
-    const plugin = buildIdPlugin()
+    const plugin = versionStampPlugin()
     const emitFile = jest.fn()
     const hook = plugin.generateBundle as (
       this: Pick<Rollup.PluginContext, 'emitFile'>,

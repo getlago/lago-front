@@ -157,7 +157,7 @@ export default [
   {
     files: [
       'vite.config.ts',
-      'src/core/appVersion/buildIdPlugin.ts',
+      'src/core/appVersion/versionStampPlugin.ts',
       'scripts/**/*.js',
       '**/eslint-rules/__tests__/*.js',
     ],

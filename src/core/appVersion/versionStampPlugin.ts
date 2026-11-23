@@ -24,7 +24,7 @@ export const computeBuildId = (files: BundleFile[]): string => {
 
 export const injectBuildIdMeta = (html: string, buildId: string): string => {
   if (!html.includes('</head>')) {
-    throw new Error(`[lago-build-id] ${INDEX_HTML} has no </head> to inject the build id into`)
+    throw new Error(`[lago-version-stamp] ${INDEX_HTML} has no </head> to inject the build id into`)
   }
 
   return html.replace(
@@ -35,8 +35,8 @@ export const injectBuildIdMeta = (html: string, buildId: string): string => {
 
 // Writes the same id into index.html (the build a tab runs) and version.json (the build
 // being served now). One build produces both, so they never disagree for the same build.
-export const buildIdPlugin = (): Plugin => ({
-  name: 'lago-build-id',
+export const versionStampPlugin = (): Plugin => ({
+  name: 'lago-version-stamp',
   apply: 'build',
   // After Vite's own HTML plugin, so index.html is already in the bundle.
   enforce: 'post',
@@ -44,7 +44,7 @@ export const buildIdPlugin = (): Plugin => ({
     const indexHtml = bundle[INDEX_HTML]
 
     if (!indexHtml || indexHtml.type !== 'asset') {
-      throw new Error(`[lago-build-id] ${INDEX_HTML} is missing from the bundle`)
+      throw new Error(`[lago-version-stamp] ${INDEX_HTML} is missing from the bundle`)
     }
 
     const files = Object.values(bundle)
