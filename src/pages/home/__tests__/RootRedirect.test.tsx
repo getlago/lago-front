@@ -1,6 +1,7 @@
 import { renderHook } from '@testing-library/react'
 
 import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
 import type { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 
 import RootRedirect from '../RootRedirect'
@@ -49,6 +50,16 @@ jest.mock('~/components/designSystem/Spinner', () => ({
 const membership = (slug: string, accessibleByCurrentSession = true) => ({
   id: `membership-${slug}`,
   organization: { id: `id-${slug}`, slug, accessibleByCurrentSession },
+})
+
+const pendingMembership = (slug: string) => ({
+  id: `membership-${slug}`,
+  organization: {
+    id: `id-${slug}`,
+    slug,
+    accessibleByCurrentSession: true,
+    activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+  },
 })
 
 const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void => {
@@ -332,6 +343,61 @@ describe('RootRedirect', () => {
           expect.objectContaining({ replace: true }),
         )
       })
+    })
+  })
+
+  describe('GIVEN a production organization waiting for a payment method next to its sandbox', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [pendingMembership('acme'), membership('acme-sandbox')] },
+      })
+    })
+
+    describe('WHEN the pending organization is the first membership', () => {
+      it('THEN should land on the sandbox', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme-sandbox',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+
+    describe.each([
+      [
+        'the persisted last-used slug',
+        () => mockGetPersistedOrganizationSlug.mockReturnValue('acme'),
+      ],
+      ['the SSO redirect path', () => mockGetItemFromLS.mockReturnValue('/acme/customers')],
+      [
+        'the saved `from` location',
+        () => mockUseLocation.mockReturnValue({ state: { from: { pathname: '/acme/customers' } } }),
+      ],
+    ])('WHEN %s names the pending organization', (_, arrange) => {
+      it('THEN should land on the sandbox, not the pending organization', () => {
+        arrange()
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith('/acme-sandbox', expect.anything())
+        expect(mockNavigate).not.toHaveBeenCalledWith('/acme', expect.anything())
+      })
+    })
+  })
+
+  describe('GIVEN the only organization the session can open is waiting for a payment method', () => {
+    it('THEN should still land on it', () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [pendingMembership('acme')] },
+      })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockNavigate).toHaveBeenCalledWith('/acme', expect.anything())
     })
   })
 })

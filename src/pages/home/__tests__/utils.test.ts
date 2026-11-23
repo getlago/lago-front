@@ -1,4 +1,8 @@
-import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
+import {
+  EventsStoreEnum,
+  FeatureFlagEnum,
+  OrganizationActivationStatusEnum,
+} from '~/generated/graphql'
 
 import { resolveRedirectTarget } from '../utils'
 
@@ -47,8 +51,19 @@ const ORG_ID = 'org-acme'
 const mockHasPermissions = jest.fn()
 const mockFindViewPermissions = jest.fn()
 
+type TestMembership = {
+  organization: {
+    id: string
+    slug: string
+    accessibleByCurrentSession: boolean
+    activationStatus?: OrganizationActivationStatusEnum
+  }
+}
+
 const buildUser = (
-  memberships = [{ organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } }],
+  memberships: TestMembership[] = [
+    { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+  ],
 ) => ({ memberships }) as unknown as Parameters<typeof resolveRedirectTarget>[0]['currentUser']
 
 const baseInput = (overrides: Partial<Parameters<typeof resolveRedirectTarget>[0]> = {}) => ({
@@ -382,6 +397,67 @@ describe('resolveRedirectTarget()', () => {
         )
 
         expect(result).toEqual({ to: '/forbidden', consumesSsoLs: true })
+      })
+    })
+  })
+
+  describe('GIVEN the user has a production organization waiting for a payment method', () => {
+    const PENDING_SLUG = 'acme-production'
+    const userWithPendingOrg = () =>
+      buildUser([
+        {
+          organization: {
+            id: 'org-pending',
+            slug: PENDING_SLUG,
+            accessibleByCurrentSession: true,
+            activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+          },
+        },
+        { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+      ])
+
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+    })
+
+    describe('WHEN the stored SSO redirect path targets it', () => {
+      it('THEN falls back to the default route of the open org and still drains LS', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            ssoRedirectPath: `/${PENDING_SLUG}/customers`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      })
+    })
+
+    describe('WHEN the router-state saved location targets it', () => {
+      it('THEN falls back to the default route of the open org', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            savedLocation: { pathname: `/${PENDING_SLUG}/plans` },
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
+      })
+    })
+
+    describe('WHEN the stored SSO redirect path targets the open org', () => {
+      it('THEN keeps redirecting to it', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            ssoRedirectPath: `/${SLUG}/plans`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/plans`, consumesSsoLs: true })
       })
     })
   })
