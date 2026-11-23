@@ -321,6 +321,66 @@ describe('ContractUsageSection', () => {
     })
   })
 
+  describe('GIVEN a contract with a single section', () => {
+    it('THEN hides the section total, which would repeat the contract total, for a single category', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ categories: [computeCategory] }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(screen.queryByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN hides the section total for standalone products only', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ hasStandaloneProducts: true }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      await screen.findByTestId('mocked-table')
+
+      expect(screen.queryByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('THEN shows the section total again once there are two sections', async () => {
+      mockUseContractUsageCategories.mockImplementation(() =>
+        buildUsageCategories({ categories: [computeCategory], hasStandaloneProducts: true }),
+      )
+
+      render(
+        <AllTheProviders forceTypenames mocks={[buildTotalMock('67050')]}>
+          <ContractUsageSection
+            contractId="contract-1"
+            currency={CurrencyEnum.Usd}
+            customerTimezone={TimezoneEnum.TzUtc}
+          />
+        </AllTheProviders>,
+      )
+
+      expect(await screen.findByTestId(CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
   describe('GIVEN a category in the URL', () => {
     beforeEach(() => {
       window.history.pushState({}, '', '/?categoryId=cat-storage')

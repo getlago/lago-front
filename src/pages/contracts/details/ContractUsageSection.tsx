@@ -131,8 +131,8 @@ export const ContractUsageSection = ({
   const usageCategories = useContractUsageCategories({ contractId, refreshToken })
 
   const { categories } = usageCategories
-  const hasRateCards = usageCategories.hasStandaloneProducts || categories.length > 0
   const showStandalone = usageCategories.hasStandaloneProducts || categories.length === 0
+  const hasSeveralSections = categories.length + (showStandalone ? 1 : 0) > 1
   const urlCategoryId = searchParams.get('categoryId')
 
   const isUrlCategoryUsable =
@@ -205,7 +205,7 @@ export const ContractUsageSection = ({
         />
         {activeCategoryId !== undefined && (
           <div className="flex min-w-0 flex-1 flex-col gap-4">
-            {hasRateCards && (
+            {hasSeveralSections && (
               <UsageTotalLine
                 className="flex items-center justify-between gap-6 pb-3 shadow-b"
                 dataTest={CONTRACT_USAGE_CATEGORY_TOTAL_TEST_ID}
