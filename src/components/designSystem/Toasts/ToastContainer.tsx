@@ -3,6 +3,7 @@ import { createRef, RefObject, useEffect, useRef } from 'react'
 
 import { removeAllToasts, toastsVar } from '~/core/apolloClient'
 
+import { NewVersionToast } from './NewVersionToast'
 import { Toast } from './Toast'
 
 const MAX_DISPLAYED_ITEMS = 3
@@ -44,10 +45,13 @@ export const ToastContainer = () => {
   }, [])
 
   return (
-    <div className="pointer-events-none fixed bottom-0 left-0 z-toast mb-4 ml-4 cursor-default">
-      {toasts.map((toast) => (
-        <Toast key={toast.id} ref={elementsRefs.current[toast.id]} toast={toast} />
-      ))}
-    </div>
+    <>
+      <div className="pointer-events-none fixed bottom-0 left-0 z-toast mb-4 ml-4 cursor-default">
+        {toasts.map((toast) => (
+          <Toast key={toast.id} ref={elementsRefs.current[toast.id]} toast={toast} />
+        ))}
+      </div>
+      <NewVersionToast />
+    </>
   )
 }
