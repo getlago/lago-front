@@ -171,7 +171,7 @@ describe('ActivateProduction', () => {
     })
 
     describe('WHEN refreshing the user fails after the activation', () => {
-      it('THEN should open the sandbox', async () => {
+      it('THEN should still show the success toast and open production', async () => {
         mockRefetchCurrentUserInfos
           .mockResolvedValueOnce(refetchedUser([pendingProductionMembership, sandboxMembership]))
           .mockRejectedValueOnce(new Error('network'))
@@ -179,12 +179,13 @@ describe('ActivateProduction', () => {
         render(<ActivateProduction />)
 
         await waitFor(() =>
-          expect(mockNavigate).toHaveBeenCalledWith('/acme-sandbox', {
+          expect(mockNavigate).toHaveBeenCalledWith('/acme', {
             replace: true,
             skipSlugPrepend: true,
           }),
         )
-        expect(mockAddToast).not.toHaveBeenCalled()
+        expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+        expect(mockNavigate).not.toHaveBeenCalledWith('/acme-sandbox', expect.anything())
       })
     })
 

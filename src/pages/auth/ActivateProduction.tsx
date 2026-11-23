@@ -66,24 +66,24 @@ const ActivateProduction = (): JSX.Element => {
 
       setActivatingOrganization(productionOrganization)
 
-      try {
-        const { isActive } = await activateBillingAccount(productionOrganization.id)
+      const isActive = await activateBillingAccount(productionOrganization.id).then(
+        (result) => result.isActive,
+        () => false,
+      )
 
-        if (!isActive) {
-          openSandbox()
-
-          return
-        }
-
-        await refetchCurrentUserInfos()
-        addToast({ severity: 'success', translateKey: 'text_1795423996044mbp29b5w9nn' })
-        navigate(`/${productionOrganization.slug}`, { replace: true, skipSlugPrepend: true })
-      } catch {
+      if (!isActive) {
         openSandbox()
+
+        return
       }
+
+      // Already active: if this read fails, the pending shell refetches `currentUser` on mount.
+      await refetchCurrentUserInfos().catch(() => undefined)
+      addToast({ severity: 'success', translateKey: 'text_1795423996044mbp29b5w9nn' })
+      navigate(`/${productionOrganization.slug}`, { replace: true, skipSlugPrepend: true })
     }
 
-    activate()
+    void activate()
   }, [navigate, refetchCurrentUserInfos])
 
   if (activatingOrganization) {

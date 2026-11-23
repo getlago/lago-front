@@ -197,7 +197,7 @@ export const PendingOrganizationShell = ({
     if (!shouldStartCheckoutOnMount || hasStartedCheckoutRef.current) return
 
     hasStartedCheckoutRef.current = true
-    startCheckout()
+    void startCheckout()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldStartCheckoutOnMount])
 
