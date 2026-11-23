@@ -1,5 +1,4 @@
 import { ApolloError, ApolloQueryResult, gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router'
 
@@ -12,6 +11,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Chip } from '~/components/designSystem/Chip'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon } from '~/components/designSystem/Icon'
 import { NavigationTab, TabManagedBy } from '~/components/designSystem/NavigationTab'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Table } from '~/components/designSystem/Table/Table'

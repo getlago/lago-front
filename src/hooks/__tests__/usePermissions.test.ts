@@ -1,5 +1,7 @@
 import { renderHook } from '@testing-library/react'
+import { print } from 'graphql'
 
+import { MembershipPermissionsFragmentDoc } from '~/generated/graphql'
 import { usePermissions } from '~/hooks/usePermissions'
 import { AllTheProviders } from '~/test-utils'
 
@@ -35,6 +37,16 @@ function prepare() {
 describe('usePermissions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+
+  // Reads the printed runtime document, not the TS types: a hand-edited
+  // graphql.tsx can update one without the other, silently dropping a field.
+  it('requests the charges permission fields in the actual GraphQL document', () => {
+    const printed = print(MembershipPermissionsFragmentDoc)
+
+    for (const field of ['chargesCreate', 'chargesDelete', 'chargesUpdate']) {
+      expect(printed).toMatch(new RegExp(`\\b${field}\\b`))
+    }
   })
 
   describe('hasPermissions', () => {

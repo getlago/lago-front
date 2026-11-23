@@ -8,6 +8,7 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { MANAGED_IN_PRODUCTION_ALERT_TEST_ID } from '~/components/sandbox/ManagedInProductionAlert'
 import { AllTheProviders } from '~/test-utils'
 
 import RoleDetails, {
@@ -26,6 +27,21 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 }))
 
 const mockHasOrganizationPremiumAddon = jest.fn()
+const mockUseSandbox = jest.fn()
+// useRoleDetails derives these from the rolesCreate, rolesUpdate and rolesDelete permissions
+let mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
@@ -71,9 +87,7 @@ jest.mock('../../hooks/useRoleDetails', () => ({
     },
     isLoadingRole: false,
     isSystem: false,
-    canBeDuplicated: true,
-    canBeEdited: true,
-    canBeDeleted: true,
+    ...mockRolePermissions,
   }),
 }))
 
@@ -105,6 +119,9 @@ describe('RoleDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: true }
+    mockDeniedPermissions = []
   })
 
   describe('GIVEN the role details page is rendered', () => {
@@ -195,6 +212,93 @@ describe('RoleDetails', () => {
         expect(screen.getByTestId(ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID)).toBeInTheDocument()
         expect(screen.queryByTestId(ROLE_DETAILS_EDIT_ACTION_TEST_ID)).not.toBeInTheDocument()
         expect(screen.queryByTestId(ROLE_DETAILS_DELETE_ACTION_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the rolesCreate permission', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
+      })
+
+      it('THEN should show no actions dropdown, as the duplicate upsell is its only item', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        expect(screen.queryByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the user has premium addon', () => {
+    const ROLE_ACTIONS = [
+      ['duplicate', ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID],
+      ['edit', ROLE_DETAILS_EDIT_ACTION_TEST_ID],
+      ['delete', ROLE_DETAILS_DELETE_ACTION_TEST_ID],
+    ]
+
+    beforeEach(() => {
+      mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    })
+
+    describe('WHEN the member has the rolesCreate, rolesUpdate and rolesDelete permissions', () => {
+      it.each(ROLE_ACTIONS)('THEN should enable the %s action', async (_, testId) => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
+
+        expect(screen.getByTestId(testId)).toBeEnabled()
+      })
+    })
+
+    describe('WHEN the member has none of the rolesCreate, rolesUpdate and rolesDelete permissions', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: false, canBeEdited: false, canBeDeleted: false }
+        mockDeniedPermissions = ['rolesCreate', 'rolesUpdate', 'rolesDelete']
+      })
+
+      it('THEN should show no actions dropdown', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        expect(screen.queryByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member can delete roles but the role is still assigned', () => {
+      beforeEach(() => {
+        mockRolePermissions = { canBeDuplicated: true, canBeEdited: true, canBeDeleted: false }
+      })
+
+      it('THEN should keep the delete action, disabled', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        await userEvent.click(screen.getAllByTestId(ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID)[0])
+
+        expect(screen.getByTestId(ROLE_DETAILS_DELETE_ACTION_TEST_ID)).toBeDisabled()
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should not display the managed in production alert', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await act(() => render(<RoleDetailsWithHeader />))
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
       })
     })
   })

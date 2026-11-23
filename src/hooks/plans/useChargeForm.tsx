@@ -1,5 +1,4 @@
-import { Icon } from 'lago-design-system'
-
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { BasicComboBoxData } from '~/components/form'
 import {

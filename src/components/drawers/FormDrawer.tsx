@@ -1,10 +1,10 @@
 import { create, useModal } from '@ebay/nice-modal-react'
-import { tw } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import { BaseDrawer } from './BaseDrawer'
 import { FormDrawerProps as FormProps } from './types'

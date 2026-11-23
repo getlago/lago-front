@@ -1,6 +1,8 @@
 import { gql } from '@apollo/client'
 
+import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
 import { LagoApiError, useOnConversationSubscription } from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 gql`
   subscription onConversation($id: ID!) {
@@ -13,9 +15,13 @@ gql`
 
 type UseOnConversationProps = {
   conversationId: string | undefined
+  onChunk: (chunk: string) => void
+  onDone: () => void
 }
 
-export const useOnConversation = ({ conversationId }: UseOnConversationProps) => {
+export const useOnConversation = ({ conversationId, onChunk, onDone }: UseOnConversationProps) => {
+  const { refetchCurrentUserInfos } = useCurrentUser()
+
   const subscription = useOnConversationSubscription({
     skip: !conversationId,
     variables: {
@@ -23,6 +29,18 @@ export const useOnConversation = ({ conversationId }: UseOnConversationProps) =>
     },
     fetchPolicy: 'no-cache',
     context: { silentErrorCodes: [LagoApiError.TokenExpired] },
+    // Handle every event as it arrives: reading the latest `data` in an effect drops a chunk
+    // equal to the previous one (two line breaks in a row) and chunks batched into one render.
+    onData: ({ data }) => {
+      const event = data.data?.aiConversationStreamed
+
+      if (!event) return
+      if (event.chunk) onChunk(event.chunk)
+      if (event.done) onDone()
+    },
+    onError: (error) => {
+      if (hasDefinedGQLError('OrganizationInactive', error)) refetchCurrentUserInfos()
+    },
   })
 
   return subscription

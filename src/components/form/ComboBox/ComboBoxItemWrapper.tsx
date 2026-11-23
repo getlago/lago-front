@@ -1,6 +1,6 @@
 import { cx } from 'class-variance-authority'
-import { Icon } from 'lago-design-system'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 
 import { ComboboxItem } from './ComboBoxItem'

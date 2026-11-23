@@ -1,11 +1,9 @@
-import { ReactNode } from 'react'
-
 import { RateCardForRatePhaseFields } from '~/components/appliedRateCards/drawers/ratePhase/types'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import { intlFormatDateTime } from '~/core/timezone'
-import { RatePhaseForDrawerFragment, TimezoneEnum } from '~/generated/graphql'
+import { ProductTypeEnum, RatePhaseForDrawerFragment, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { CatalogRelationsInfoGrid } from '~/pages/catalog/details/CatalogRelationsInfoGrid'
 
@@ -30,8 +28,6 @@ type AppliedRateCardDetailsOverviewProps = {
   getPhaseHref: (phase: RatePhaseForDrawerFragment) => string
 }
 
-type InfoGridItem = { label: string; value: ReactNode }
-
 export const AppliedRateCardDetailsOverview = ({
   data,
   rateCard,
@@ -42,18 +38,12 @@ export const AppliedRateCardDetailsOverview = ({
   const { translate } = useInternationalization()
   const { appliedRateCard } = data
 
-  const getEffectiveDateItem = (): InfoGridItem | false => {
-    if (data.context !== 'contract') return false
-
-    const { date } = intlFormatDateTime(data.appliedRateCard.effectiveDate, {
-      timezone: TimezoneEnum.TzUtc,
-    })
-
-    return {
-      label: translate('text_1787737220227bfxpshdo133'),
-      value: <span data-test={APPLIED_RATE_CARD_OVERVIEW_EFFECTIVE_DATE_TEST_ID}>{date}</span>,
-    }
-  }
+  const isFixedProduct = appliedRateCard.product.productType === ProductTypeEnum.Fixed
+  const effectiveDate =
+    data.context === 'contract'
+      ? intlFormatDateTime(data.appliedRateCard.effectiveDate, { timezone: TimezoneEnum.TzUtc })
+          .date
+      : undefined
 
   return (
     <div className="flex flex-col gap-12" data-test={APPLIED_RATE_CARD_OVERVIEW_TEST_ID}>
@@ -101,19 +91,28 @@ export const AppliedRateCardDetailsOverview = ({
             ]}
           />
 
-          <DetailsPage.InfoGrid
-            grid={[
-              {
-                label: translate('text_65771fa3f4ab9a00720726ce'),
-                value: (
-                  <span data-test={APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID}>
-                    {appliedRateCard.units ?? '-'}
-                  </span>
-                ),
-              },
-              getEffectiveDateItem(),
-            ]}
-          />
+          {(isFixedProduct || effectiveDate) && (
+            <DetailsPage.InfoGrid
+              grid={[
+                isFixedProduct && {
+                  label: translate('text_65771fa3f4ab9a00720726ce'),
+                  value: (
+                    <span data-test={APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID}>
+                      {appliedRateCard.units ?? '-'}
+                    </span>
+                  ),
+                },
+                !!effectiveDate && {
+                  label: translate('text_1787737220227bfxpshdo133'),
+                  value: (
+                    <span data-test={APPLIED_RATE_CARD_OVERVIEW_EFFECTIVE_DATE_TEST_ID}>
+                      {effectiveDate}
+                    </span>
+                  ),
+                },
+              ]}
+            />
+          )}
         </div>
       </section>
 

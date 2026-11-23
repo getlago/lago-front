@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { Icon, IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 import { boolean, number, object, string } from 'yup'
 
@@ -16,6 +15,7 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
 import { Drawer } from '~/components/designSystem/Drawer'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
@@ -64,7 +64,6 @@ import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
-import { lagoUiIntegrationTab } from './tabs/LagoUiIntegrationTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -2261,7 +2260,6 @@ const DesignSystem = () => {
             link: RICH_TEXT_EDITOR_TAB_URL,
             component: <EditorTest />,
           },
-          lagoUiIntegrationTab,
           // disabled simple tab
           {
             disabled: true,

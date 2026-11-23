@@ -560,6 +560,11 @@ export type FilterValueInputProps = {
   setFilterValue: (value: string) => void
 }
 
+export type ScopedFilterOption = {
+  id: string
+  label: string
+}
+
 export type DynamicFilter = {
   key: DynamicFilterKey
   label: string

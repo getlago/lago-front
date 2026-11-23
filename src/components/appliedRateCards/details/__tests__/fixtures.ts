@@ -55,6 +55,12 @@ const PRODUCT: PlanAppliedRateCardForDetailsFragment['product'] = {
   },
 }
 
+export const FIXED_PRODUCT: PlanAppliedRateCardForDetailsFragment['product'] = {
+  ...PRODUCT,
+  productType: ProductTypeEnum.Fixed,
+  billableMetric: null,
+}
+
 const RATE_CARD: PlanAppliedRateCardForDetailsFragment['rateCard'] = {
   __typename: 'RateCard',
   id: 'rate-card-1',

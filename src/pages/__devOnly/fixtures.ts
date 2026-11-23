@@ -1,6 +1,6 @@
-import { IconName } from 'lago-design-system'
 import { DateTime } from 'luxon'
 
+import { IconName } from '~/components/designSystem/Icon'
 import { TToast } from '~/core/apolloClient'
 
 export const POSSIBLE_TOAST: TToast[] = [

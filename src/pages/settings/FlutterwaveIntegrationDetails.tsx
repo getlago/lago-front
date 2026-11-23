@@ -1,10 +1,10 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'

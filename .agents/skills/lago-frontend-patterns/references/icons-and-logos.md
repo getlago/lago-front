@@ -7,15 +7,10 @@ three rendering patterns. The choice is driven by the surface, not by the brand.
 
 | | design-system icon set | brand plates |
 | --- | --- | --- |
-| Location | `packages/design-system/src/icons/*.svg` | `src/public/images/*.svg` (repo root `src/`) |
-| Registered in | `ALL_ICONS` (`packages/design-system/src/components/Icon/mapping.tsx`) | nothing — imported directly |
+| Location | `src/components/designSystem/Icon/icons/*.svg` | `src/public/images/*.svg` (repo root `src/`) |
+| Registered in | `ALL_ICONS` (`src/components/designSystem/Icon/mapping.tsx`) | nothing — imported directly |
 | Canvas | usually 16×16, mark fills the box | mostly 40×40, mark centred on a solid rounded plate |
 | Brand logos present | `google`, `okta` | most integrations: stripe, adyen, netsuite, okta, xero, hubspot… |
-
-`packages/design-system/` also carries its own `public/images/`, holding byte-identical
-copies of 18 of those files, served through `publicDir` and exported as
-`lago-design-system/images/*`. Nothing imports it today. Adding a plate to that copy
-will not make it reachable from the app — use the repo-root `src/public/images/`.
 
 ### The three rendering patterns
 
@@ -42,7 +37,7 @@ and `okta` glyphs next to it. Any plate shrunk into a button loses the same way.
 
 ### Adding a provider
 
-- Button or inline → add a 16×16 glyph to `packages/design-system/src/icons/`,
+- Button or inline → add a 16×16 glyph to `src/components/designSystem/Icon/icons/`,
   register it in `ALL_ICONS`, and pass it as `startIcon="<key>"`. Never render it
   as an inline child: `Button` treats `startIcon` as unset and routes its loading
   spinner to the `endIcon` slot, leaving the logo stranded on the left.

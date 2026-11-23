@@ -1,7 +1,7 @@
 import { NodeViewProps, NodeViewWrapper } from '@tiptap/react'
-import { Icon } from 'lago-design-system'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 
 import type { EditorTemplate } from './types'
 

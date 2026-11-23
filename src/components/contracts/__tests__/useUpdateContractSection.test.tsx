@@ -23,12 +23,12 @@ describe('useUpdateContractSection', () => {
     const { result } = renderHook(() => useUpdateContractSection())
 
     await result.current.updateContractSection({
-      externalId: 'external-contract-1',
+      id: 'contract-1',
       consolidateInvoice: false,
     })
 
     expect(mockUpdate).toHaveBeenCalledWith({
-      variables: { input: { externalId: 'external-contract-1', consolidateInvoice: false } },
+      variables: { input: { id: 'contract-1', consolidateInvoice: false } },
     })
   })
 
@@ -39,8 +39,6 @@ describe('useUpdateContractSection', () => {
 
     const { result } = renderHook(() => useUpdateContractSection())
 
-    await expect(
-      result.current.updateContractSection({ externalId: 'external-contract-1' }),
-    ).rejects.toThrow()
+    await expect(result.current.updateContractSection({ id: 'contract-1' })).rejects.toThrow()
   })
 })

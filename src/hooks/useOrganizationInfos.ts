@@ -33,6 +33,11 @@ gql`
     canCreateBillingEntity
     authenticationMethods
     authenticatedMethod
+    environment
+    productionOrganization {
+      id
+      slug
+    }
   }
 
   query getOrganizationInfos {

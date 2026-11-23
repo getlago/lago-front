@@ -1,4 +1,4 @@
-import { CurrencyEnum } from '~/generated/graphql'
+import { CurrencyEnum, ProductTypeEnum } from '~/generated/graphql'
 
 import { RATE_PHASE_FORM_DEFAULTS } from '../../ratePhase/ratePhaseFormSchema'
 import {
@@ -33,6 +33,45 @@ describe('buildAppliedRateCardFormSchema', () => {
 
     expect(result.success).toBe(true)
   })
+
+  it('GIVEN a fixed product AND units is left blank THEN validation rejects', () => {
+    const schema = buildAppliedRateCardFormSchema()
+    const result = schema.safeParse({
+      ...APPLIED_RATE_CARD_FORM_DEFAULTS,
+      productId: 'p1',
+      productType: ProductTypeEnum.Fixed,
+      rateCardId: 'rc1',
+      units: '   ',
+    })
+
+    expect(result.success).toBe(false)
+  })
+
+  it('GIVEN a fixed product AND units is set THEN validation passes', () => {
+    const schema = buildAppliedRateCardFormSchema()
+    const result = schema.safeParse({
+      ...APPLIED_RATE_CARD_FORM_DEFAULTS,
+      productId: 'p1',
+      productType: ProductTypeEnum.Fixed,
+      rateCardId: 'rc1',
+      units: '5',
+    })
+
+    expect(result.success).toBe(true)
+  })
+
+  it('GIVEN a metered product AND units is left blank THEN validation still passes', () => {
+    const schema = buildAppliedRateCardFormSchema()
+    const result = schema.safeParse({
+      ...APPLIED_RATE_CARD_FORM_DEFAULTS,
+      productId: 'p1',
+      productType: ProductTypeEnum.Metered,
+      rateCardId: 'rc1',
+      units: '',
+    })
+
+    expect(result.success).toBe(true)
+  })
 })
 
 describe('mapFromFormToApi', () => {
@@ -57,6 +96,24 @@ describe('mapFromFormToApi', () => {
     )
 
     expect(input.ratePhases).toEqual([expect.objectContaining({ code: 'a', position: 1 })])
+  })
+
+  it('GIVEN units is blank THEN omits units from the input entirely', () => {
+    const input = mapFromFormToApi(
+      { ...APPLIED_RATE_CARD_FORM_DEFAULTS, productId: 'p1', rateCardId: 'rc1', units: '   ' },
+      CurrencyEnum.Usd,
+    )
+
+    expect(input).not.toHaveProperty('units')
+  })
+
+  it('GIVEN units has surrounding whitespace THEN sends it trimmed and converted to a number', () => {
+    const input = mapFromFormToApi(
+      { ...APPLIED_RATE_CARD_FORM_DEFAULTS, productId: 'p1', rateCardId: 'rc1', units: '  5  ' },
+      CurrencyEnum.Usd,
+    )
+
+    expect(input.units).toBe(5)
   })
 
   it('GIVEN an overridden phase THEN serializes its spending minimum in the given currency', () => {

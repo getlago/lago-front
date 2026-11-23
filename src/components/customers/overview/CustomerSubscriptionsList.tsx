@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
 import { Status, StatusProps, StatusType } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'

@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack'
-import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { useFieldContext } from '~/hooks/forms/formContext'

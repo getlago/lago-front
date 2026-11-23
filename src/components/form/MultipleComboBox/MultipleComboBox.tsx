@@ -1,9 +1,9 @@
 import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete'
-import { Icon } from 'lago-design-system'
 import _sortBy from 'lodash/sortBy'
 import { HTMLAttributes, JSXElementConstructor, useMemo, useState } from 'react'
 
 import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { tw } from '~/styles/utils'
 

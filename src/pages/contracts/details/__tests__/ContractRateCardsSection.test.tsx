@@ -91,16 +91,12 @@ const buildDestroyMutationMock = (): TestMocksType[number] => ({
   },
 })
 
-const renderSection = (
-  mocks: TestMocksType,
-  { isLocked = false, hasExternalId = true }: { isLocked?: boolean; hasExternalId?: boolean } = {},
-) =>
+const renderSection = (mocks: TestMocksType, { isLocked = false }: { isLocked?: boolean } = {}) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
         <ContractRateCardsSection
           contractId="contract-1"
-          contractExternalId={hasExternalId ? 'contract-ext-1' : undefined}
           currency={CurrencyEnum.Usd}
           isLocked={isLocked}
         />
@@ -212,7 +208,7 @@ describe('ContractRateCardsSection', () => {
     expect(screen.getByText('text_1790284386156k2d8mjjy98f').closest('button')).toBeDisabled()
   })
 
-  it('GIVEN the section header THEN an Add rate card action renders and opens the drawer with the contract id and external id', async () => {
+  it('GIVEN the section header THEN an Add rate card action renders and opens the drawer with the contract id', async () => {
     const user = userEvent.setup()
 
     renderSection([buildListMock([])])
@@ -225,21 +221,12 @@ describe('ContractRateCardsSection', () => {
     expect(mockOpenAppliedRateCardDrawer).toHaveBeenCalledWith({
       context: 'contract',
       contractId: 'contract-1',
-      contractExternalId: 'contract-ext-1',
       currency: CurrencyEnum.Usd,
     })
   })
 
   it('GIVEN the contract is not pending THEN the Add rate card action is disabled', async () => {
     renderSection([buildListMock([])], { isLocked: true })
-
-    await waitFor(() =>
-      expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),
-    )
-  })
-
-  it('GIVEN the contract external id is not loaded yet THEN the Add rate card action is disabled', async () => {
-    renderSection([buildListMock([])], { hasExternalId: false })
 
     await waitFor(() =>
       expect(screen.getByTestId(CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID)).toBeDisabled(),

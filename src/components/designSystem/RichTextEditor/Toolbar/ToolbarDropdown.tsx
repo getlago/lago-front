@@ -1,7 +1,7 @@
-import { Icon } from 'lago-design-system'
 import { ReactElement } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'

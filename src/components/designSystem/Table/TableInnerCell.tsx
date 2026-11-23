@@ -1,5 +1,6 @@
-import { tw } from 'lago-design-system'
 import { PropsWithChildren } from 'react'
+
+import { tw } from '~/styles/utils'
 
 import { Align } from './types'
 

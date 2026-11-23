@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'

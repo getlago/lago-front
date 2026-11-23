@@ -1,10 +1,10 @@
-import { tw } from 'lago-design-system'
 import { FC } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { DrawerLayout } from '~/components/layouts/Drawer'
 import { TExtendedRemainingFee } from '~/core/formats/formatInvoiceItemsMap'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 import { InvoiceTableSection } from '../InvoiceDetailsTable'
 import { InvoiceDetailsTableBodyLine } from '../InvoiceDetailsTableBodyLine'

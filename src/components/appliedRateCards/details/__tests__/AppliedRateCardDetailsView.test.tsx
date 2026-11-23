@@ -19,6 +19,7 @@ import {
   CATALOG_PLAN_ID,
   CONTRACT_ID,
   FINITE_PHASE,
+  FIXED_PRODUCT,
   FOREVER_PHASE,
 } from './fixtures'
 
@@ -35,6 +36,7 @@ import {
   APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID,
   APPLIED_RATE_CARD_DETAILS_ACTIVITY_LOGS_TAB_TEST_ID,
   APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID,
+  APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID,
   APPLIED_RATE_CARD_DETAILS_OVERVIEW_TAB_TEST_ID,
   APPLIED_RATE_CARD_DETAILS_REMOVE_TEST_ID,
   AppliedRateCardDetailsView,
@@ -56,6 +58,7 @@ jest.setTimeout(15000)
 
 const mockOpenRatePhaseDrawer = jest.fn()
 const mockOpenRemoveDialog = jest.fn()
+const mockOpenEditUnitsDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockIsPremium = true
 
@@ -74,6 +77,12 @@ jest.mock('~/components/appliedRateCards/dialogs/useResetRatePhaseOverrideDialog
 jest.mock('~/components/appliedRateCards/dialogs/useRemoveAppliedRateCardDialog', () => ({
   useRemoveAppliedRateCardDialog: () => ({
     openRemoveAppliedRateCardDialog: mockOpenRemoveDialog,
+  }),
+}))
+
+jest.mock('~/components/appliedRateCards/dialogs/useEditAppliedRateCardUnitsDialog', () => ({
+  useEditAppliedRateCardUnitsDialog: () => ({
+    openEditAppliedRateCardUnitsDialog: mockOpenEditUnitsDialog,
   }),
 }))
 
@@ -149,7 +158,10 @@ describe('AppliedRateCardDetailsView', () => {
 
   describe('GIVEN a plan card', () => {
     it('THEN shows relations, rate card name and code, units, and no effective date', async () => {
-      renderView(PLAN_DATA)
+      renderView({
+        ...PLAN_DATA,
+        appliedRateCard: buildPlanAppliedRateCard({ product: FIXED_PRODUCT }),
+      })
 
       const relations = await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_RELATIONS_TEST_ID)
 
@@ -202,11 +214,21 @@ describe('AppliedRateCardDetailsView', () => {
     })
 
     it('GIVEN no units THEN shows a dash', async () => {
-      renderView({ ...PLAN_DATA, appliedRateCard: buildPlanAppliedRateCard({ units: null }) })
+      renderView({
+        ...PLAN_DATA,
+        appliedRateCard: buildPlanAppliedRateCard({ units: null, product: FIXED_PRODUCT }),
+      })
 
       expect(await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID)).toHaveTextContent(
         /^-$/,
       )
+    })
+
+    it('GIVEN a metered product THEN the units row does not render at all', async () => {
+      renderView(PLAN_DATA)
+
+      await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_TEST_ID)
+      expect(screen.queryByTestId(APPLIED_RATE_CARD_OVERVIEW_UNITS_TEST_ID)).not.toBeInTheDocument()
     })
   })
 
@@ -267,6 +289,70 @@ describe('AppliedRateCardDetailsView', () => {
           `/contracts/${CONTRACT_ID}/overview/rate-cards`,
         )
       })
+    })
+  })
+
+  describe('GIVEN a fixed product', () => {
+    const FIXED_PLAN_DATA: AppliedRateCardDetailsData = {
+      ...PLAN_DATA,
+      appliedRateCard: buildPlanAppliedRateCard({ product: FIXED_PRODUCT }),
+    }
+
+    describe('WHEN "Edit units" is used', () => {
+      it('THEN opens the units dialog seeded with the applied value', async () => {
+        renderView(FIXED_PLAN_DATA)
+
+        await openActions()
+        await userEvent.click(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID))
+
+        expect(mockOpenEditUnitsDialog).toHaveBeenCalledWith({
+          context: 'plan',
+          appliedRateCardId: APPLIED_RATE_CARD_ID,
+          units: 12,
+        })
+      })
+    })
+
+    describe('WHEN the parent is locked', () => {
+      it('THEN "Edit units" is disabled', async () => {
+        renderView(withLockedParent(FIXED_PLAN_DATA))
+
+        await openActions()
+
+        expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN the user cannot update the parent', () => {
+      it('THEN "Edit units" is not offered', async () => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('plansUpdate'),
+        )
+
+        renderView(FIXED_PLAN_DATA)
+
+        await screen.findByTestId(APPLIED_RATE_CARD_OVERVIEW_TEST_ID)
+
+        expect(
+          screen.queryByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(
+          screen.queryByTestId(APPLIED_RATE_CARD_DETAILS_ACTIONS_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a metered product', () => {
+    it('THEN "Edit units" is not offered', async () => {
+      renderView(PLAN_DATA)
+
+      await openActions()
+
+      expect(screen.getByTestId(APPLIED_RATE_CARD_DETAILS_CREATE_PHASE_TEST_ID)).toBeVisible()
+      expect(
+        screen.queryByTestId(APPLIED_RATE_CARD_DETAILS_EDIT_UNITS_TEST_ID),
+      ).not.toBeInTheDocument()
     })
   })
 

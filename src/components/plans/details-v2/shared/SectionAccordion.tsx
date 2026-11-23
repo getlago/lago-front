@@ -1,10 +1,10 @@
 import { TransitionProps } from '@mui/material/transitions'
-import { Icon, IconName } from 'lago-design-system'
 import { ReactNode } from 'react'
 
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { POPPER_GROUP_NAME } from '~/core/constants/popper'

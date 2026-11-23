@@ -1,10 +1,9 @@
-import { Icon } from 'lago-design-system'
-
 import { AnalyticsStateProvider } from '~/components/analytics/AnalyticsStateContext'
 import { useUsageAnalyticsOverview } from '~/components/analytics/usage/useUsageAnalyticsOverview'
 import { Button } from '~/components/designSystem/Button'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import AreaChart from '~/components/designSystem/graphs/AreaChart'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'

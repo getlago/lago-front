@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
 import { ReactNode, useEffect, useState } from 'react'
 
+import { AppliedRateCardUnitsField } from '~/components/appliedRateCards/AppliedRateCardUnitsField'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
 import {
   getInsertIndex,
@@ -29,6 +30,7 @@ import {
   ActiveRateForRatePhaseFragmentDoc,
   CurrencyEnum,
   ProductForAppliedRateCardDrawerFragment,
+  ProductTypeEnum,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
   useGetProductsForAppliedRateCardDrawerLazyQuery,
   useGetRateCardsForAppliedRateCardDrawerLazyQuery,
@@ -52,6 +54,7 @@ export const APPLIED_RATE_CARD_DRAWER_PRODUCT_FILTER_TEST_ID =
 export const APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID =
   'applied-rate-card-drawer-remove-filter'
 export const APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID = 'applied-rate-card-drawer-rate-card'
+export const APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID = 'applied-rate-card-drawer-units'
 export const APPLIED_RATE_CARD_DRAWER_ADD_PHASE_TEST_ID = 'applied-rate-card-drawer-add-phase'
 
 gql`
@@ -243,6 +246,7 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const productId = useStore(form.store, (state) => state.values.productId)
     const productFilterId = useStore(form.store, (state) => state.values.productFilterId)
+    const productType = useStore(form.store, (state) => state.values.productType)
     const rateCardId = useStore(form.store, (state) => state.values.rateCardId)
     const ratePhases = useStore(form.store, (state) => state.values.ratePhases)
 
@@ -395,7 +399,10 @@ export const AppliedRateCardDrawerContent = withForm({
 
     const resetFields = (
       fields: Array<
-        keyof Pick<typeof APPLIED_RATE_CARD_FORM_DEFAULTS, 'productFilterId' | 'rateCardId'>
+        keyof Pick<
+          typeof APPLIED_RATE_CARD_FORM_DEFAULTS,
+          'productFilterId' | 'rateCardId' | 'units'
+        >
       >,
     ): void => {
       fields.forEach((field) => {
@@ -409,8 +416,13 @@ export const AppliedRateCardDrawerContent = withForm({
       if (form.state.values.ratePhases.length > 0) form.setFieldValue('ratePhases', [])
     }
 
-    const handleProductChange = (): void => {
-      resetFields(['productFilterId', 'rateCardId'])
+    const handleProductChange = ({ value }: { value: string }): void => {
+      const newProductType = (productsData?.products.collection ?? []).find(
+        (product) => product.id === value,
+      )?.productType
+
+      form.setFieldValue('productType', newProductType ?? undefined)
+      resetFields(['productFilterId', 'rateCardId', 'units'])
       resetRatePhases()
       setShouldDisplayFilter(false)
     }
@@ -539,6 +551,14 @@ export const AppliedRateCardDrawerContent = withForm({
                   />
                 )}
               </form.AppField>
+
+              {productType === ProductTypeEnum.Fixed && (
+                <AppliedRateCardUnitsField
+                  form={form}
+                  fields={{ units: 'units' }}
+                  dataTest={APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID}
+                />
+              )}
             </CenteredPage.PageSection>
           )}
 

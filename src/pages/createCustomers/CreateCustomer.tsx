@@ -1,5 +1,4 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { Icon } from 'lago-design-system'
 import { ReactNode, useCallback } from 'react'
 
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
@@ -10,6 +9,7 @@ import {
 } from '~/components/customers/utils'
 import { SUBMIT_CUSTOMER_DATA_TEST } from '~/components/customers/utils/dataTestConstants'
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'

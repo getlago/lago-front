@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import Stack from '@mui/material/Stack'
-import { useCallback, useMemo, useRef } from 'react'
+import { ReactNode, useCallback, useMemo, useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { createCreditNoteForInvoiceButtonProps } from '~/components/creditNote/utils'
@@ -310,6 +310,22 @@ gql`
   ${FeeDetailsForInvoiceOverviewFragmentDoc}
   ${FeeForInvoiceDetailsTableFooterFragmentDoc}
 `
+
+export const INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID = 'invoice-pending-finalization-alert'
+export const INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID = 'invoice-draft-taxes-pending-alert'
+
+const TAX_STATUS_PENDING_ALERTS = {
+  draft: {
+    testId: INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID,
+    titleKey: 'text_1794896528911d809xmb50qq',
+    descriptionKey: 'text_1794896528911z9fydq9ftum',
+  },
+  pendingFinalization: {
+    testId: INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID,
+    titleKey: 'text_1735045451930tezr0et3e6l',
+    descriptionKey: 'text_1735045451931zfgc6yvvcfm',
+  },
+} as const
 
 const CustomerInvoiceDetails = () => {
   const { translate } = useInternationalization()
@@ -1015,6 +1031,29 @@ const CustomerInvoiceDetails = () => {
     },
   ]
 
+  const renderTaxStatusPendingAlert = (): ReactNode => {
+    if (!!errorMessage || taxStatus !== InvoiceTaxStatusTypeEnum.Pending) return null
+
+    const { testId, titleKey, descriptionKey } =
+      status === InvoiceStatusTypeEnum.Draft
+        ? TAX_STATUS_PENDING_ALERTS.draft
+        : TAX_STATUS_PENDING_ALERTS.pendingFinalization
+
+    return (
+      <Alert fullWidth className="md:px-12" type="info">
+        <div className="flex flex-col" data-test={testId}>
+          <Typography variant="body" color="grey700">
+            {translate(titleKey)}
+          </Typography>
+
+          <Typography variant="caption" color="grey600">
+            {translate(descriptionKey)}
+          </Typography>
+        </div>
+      </Alert>
+    )
+  }
+
   return (
     <>
       <MainHeader.Configure
@@ -1035,19 +1074,7 @@ const CustomerInvoiceDetails = () => {
           </Stack>
         </Alert>
       )}
-      {!errorMessage && taxStatus === InvoiceTaxStatusTypeEnum.Pending && (
-        <Alert fullWidth className="md:px-12" type="info">
-          <div className="flex flex-col">
-            <Typography variant="body" color="grey700">
-              {translate('text_1735045451930tezr0et3e6l')}
-            </Typography>
-
-            <Typography variant="caption" color="grey600">
-              {translate('text_1735045451931zfgc6yvvcfm')}
-            </Typography>
-          </div>
-        </Alert>
-      )}
+      {renderTaxStatusPendingAlert()}
       {status === InvoiceStatusTypeEnum.Draft && (
         <Alert fullWidth className="md:px-12" type="info">
           <div className="flex flex-col">

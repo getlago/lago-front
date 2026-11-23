@@ -1,4 +1,3 @@
-import { tw } from 'lago-design-system'
 import { useState } from 'react'
 import { generatePath, useParams } from 'react-router'
 
@@ -28,6 +27,7 @@ import { CurrencyEnum, TimeGranularityEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import ErrorImage from '~/public/images/maneki/error.svg'
 import { theme } from '~/styles'
+import { tw } from '~/styles/utils'
 
 const TRANSLATIONS_MAP: Record<UsageBreakdownType, string> = {
   [UsageBreakdownType.Units]: 'text_17465414264637hzft31ck6c',

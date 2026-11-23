@@ -1,5 +1,3 @@
-import { IconName } from 'lago-design-system'
-
 import { APPLIED_RATE_CARD_CONTEXT_CONFIG } from '~/components/appliedRateCards/appliedRateCardContextConfig'
 import { useDeleteRatePhaseDialog } from '~/components/appliedRateCards/dialogs/useDeleteRatePhaseDialog'
 import { useResetRatePhaseOverrideDialog } from '~/components/appliedRateCards/dialogs/useResetRatePhaseOverrideDialog'
@@ -11,6 +9,7 @@ import {
 import { useRatePhaseDrawer } from '~/components/appliedRateCards/drawers/ratePhase/useRatePhaseDrawer'
 import { formatRatePhaseName } from '~/components/appliedRateCards/ratePhaseDisplay'
 import { AppliedRateCardContext } from '~/components/appliedRateCards/types'
+import { IconName } from '~/components/designSystem/Icon'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import { RatePhaseForDrawerFragment } from '~/generated/graphql'

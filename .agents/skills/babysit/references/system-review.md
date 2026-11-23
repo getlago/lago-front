@@ -39,7 +39,7 @@ solves it. Search before judging:
 
 | Introduced                         | Look in                                                                   |
 | ---------------------------------- | ------------------------------------------------------------------------- |
-| UI piece (button, chip, table, chart, empty state, skeleton) | `packages/design-system`, `src/components/designSystem`, sibling features |
+| UI piece (button, chip, table, chart, empty state, skeleton) | `src/components/designSystem`, sibling features |
 | Rendering technique (raw SVG, canvas, custom layout) | `package.json` dependencies, then their current usages in `src/`          |
 | Hook or util                       | `src/hooks`, `src/core`, `src/components/**/utils`                        |
 | Formatting (dates, money, numbers) | `src/core/formats`, `src/core/timezone`, existing callers                 |

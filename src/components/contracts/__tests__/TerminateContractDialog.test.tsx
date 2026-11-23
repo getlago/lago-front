@@ -44,7 +44,7 @@ const TestWrapper = ({ status }: { status: ContractStatusEnum }) => {
       data-test="open-contract-lifecycle-dialog"
       onClick={() =>
         openTerminateContractDialog({
-          externalId: 'external-contract-1',
+          id: 'contract-1',
           status,
         })
       }
@@ -104,7 +104,7 @@ describe('TerminateContractDialog', () => {
 
     await waitFor(() => {
       expect(mockTerminateContract).toHaveBeenCalledWith({
-        variables: { input: { externalId: 'external-contract-1' } },
+        variables: { input: { id: 'contract-1' } },
       })
       expect(addToast).toHaveBeenCalledWith({
         severity: 'success',

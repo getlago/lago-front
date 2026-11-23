@@ -35,6 +35,7 @@ import {
   APPLIED_RATE_CARD_DRAWER_RATE_CARD_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_REMOVE_FILTER_TEST_ID,
   APPLIED_RATE_CARD_DRAWER_SHOW_FILTER_TEST_ID,
+  APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID,
   AppliedRateCardDrawerContent,
   AppliedRateCardParent,
 } from '../AppliedRateCardDrawerContent'
@@ -93,6 +94,14 @@ const CATEGORIZED_PRODUCT: ProductForAppliedRateCardDrawerFragment = {
     code: 'infra',
     invoiceDisplayName: null,
   },
+}
+const FIXED_PRODUCT: ProductForAppliedRateCardDrawerFragment = {
+  ...PRODUCT,
+  id: 'product-fixed-1',
+  code: 'prod-fixed-1',
+  name: 'Setup fee',
+  productType: ProductTypeEnum.Fixed,
+  billableMetric: null,
 }
 const PRODUCT_FILTER = {
   __typename: 'ProductFilter',
@@ -200,6 +209,9 @@ const Host = ({ parent }: { parent: AppliedRateCardParent }): JSX.Element => {
     <>
       <button type="button" onClick={() => form.setFieldValue('productId', PRODUCT.id)}>
         select product
+      </button>
+      <button type="button" onClick={() => form.setFieldValue('productId', FIXED_PRODUCT.id)}>
+        select fixed product
       </button>
       <form.Subscribe selector={(state) => state.values.rateCardId}>
         {(rateCardId) => <output data-test={RATE_CARD_ID_PROBE_TEST_ID}>{rateCardId}</output>}
@@ -1038,6 +1050,55 @@ describe('AppliedRateCardDrawerContent, contract lifecycle dates', () => {
 
     expect(screen.queryByText('Billing anchor date')).not.toBeInTheDocument()
     expect(screen.queryByText(/effective date/i)).not.toBeInTheDocument()
+  })
+})
+
+describe('AppliedRateCardDrawerContent, units for fixed products', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockImplementation(() => true)
+  })
+
+  it('GIVEN a metered product is selected THEN the units field does not render', async () => {
+    renderContent([productsMock(), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    await selectRateCard()
+
+    expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID)).not.toBeInTheDocument()
+  })
+
+  it('GIVEN a fixed product is selected THEN the units field renders', async () => {
+    renderContent([productsMock([PRODUCT, FIXED_PRODUCT]), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select fixed product' }))
+    await selectRateCard()
+
+    expect(await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID)).toBeInTheDocument()
+  })
+
+  it('GIVEN units is typed on a fixed product WHEN the product changes THEN units resets and stays empty if it is re-selected', async () => {
+    renderContent([productsMock([PRODUCT, FIXED_PRODUCT]), rateCardsMock(() => undefined)])
+
+    await userEvent.click(screen.getByRole('button', { name: 'select fixed product' }))
+    await selectRateCard()
+
+    const unitsInput = (
+      await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID)
+    ).querySelector('input') as HTMLInputElement
+
+    await userEvent.type(unitsInput, '5')
+    expect(unitsInput).toHaveValue('5')
+
+    await userEvent.click(screen.getByRole('button', { name: 'select product' }))
+    expect(screen.queryByTestId(APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID)).not.toBeInTheDocument()
+
+    await userEvent.click(screen.getByRole('button', { name: 'select fixed product' }))
+    await selectRateCard()
+
+    expect(
+      (await screen.findByTestId(APPLIED_RATE_CARD_DRAWER_UNITS_TEST_ID)).querySelector('input'),
+    ).toHaveValue('')
   })
 })
 

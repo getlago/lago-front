@@ -1,7 +1,6 @@
-import { Icon } from 'lago-design-system'
-
 import { RevenueStreamsBreakdownSection } from '~/components/analytics/revenueStreams/RevenueStreamsBreakdownSection'
 import { RevenueStreamsOverviewSection } from '~/components/analytics/revenueStreams/RevenueStreamsOverviewSection'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { FullscreenPage } from '~/components/layouts/FullscreenPage'

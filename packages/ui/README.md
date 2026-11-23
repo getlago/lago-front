@@ -27,29 +27,33 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 
 ## Components
 
-| Component | Import | Guide |
-| --- | --- | --- |
-| Badge | `lago-ui/badge` | [badge.md](src/components/badge.md) |
-| Button | `lago-ui/button` | [button.md](src/components/button.md) |
-| ColorTheme | `lago-ui/color-theme` | [color-theme.md](src/components/color-theme.md) |
+| Component    | Import                  | Guide                                               |
+| ------------ | ----------------------- | --------------------------------------------------- |
+| Badge        | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
+| Breadcrumb   | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
+| Button       | `lago-ui/button`        | [button.md](src/components/button.md)               |
+| ColorTheme   | `lago-ui/color-theme`   | [color-theme.md](src/components/color-theme.md)     |
 | DropdownMenu | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
-| IconButton | `lago-ui/icon-button` | [icon-button.md](src/components/icon-button.md) |
-| Input (provisional) | `lago-ui/input` | [input.md](src/components/input.md) |
+| Field        | `lago-ui/field`         | [field.md](src/components/field.md)                 |
+| IconButton   | `lago-ui/icon-button`   | [icon-button.md](src/components/icon-button.md)     |
+| Input        | `lago-ui/input`         | [input.md](src/components/input.md)                 |
+| InputGroup   | `lago-ui/input-group`   | [input-group.md](src/components/input-group.md)     |
 | NumericBadge | `lago-ui/numeric-badge` | [numeric-badge.md](src/components/numeric-badge.md) |
 | OverflowTabs | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
-| Separator | `lago-ui/separator` | [separator.md](src/components/separator.md) |
-| Tabs | `lago-ui/tabs` | [tabs.md](src/components/tabs.md) |
-| Tooltip | `lago-ui/tooltip` | [tooltip.md](src/components/tooltip.md) |
+| Separator    | `lago-ui/separator`     | [separator.md](src/components/separator.md)         |
+| Tabs         | `lago-ui/tabs`          | [tabs.md](src/components/tabs.md)                   |
+| Textarea     | `lago-ui/textarea`      | [textarea.md](src/components/textarea.md)           |
+| Tooltip      | `lago-ui/tooltip`       | [tooltip.md](src/components/tooltip.md)             |
 
 Each guide follows the same sections: **When to use**, **Import**, **API**, **Examples**, **Accessibility**, **Design**, **References**.
 
 ## Foundations
 
-| Topic | Guide |
-| --- | --- |
-| Colors, opacity, local themes, tokens | [colors.md](src/styles/colors.md) |
+| Topic                                                             | Guide                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------- |
+| Colors, opacity, local themes, tokens                             | [colors.md](src/styles/colors.md)                         |
 | Surfaces, borders, shadows, interaction states per component type | [component-surfaces.md](src/styles/component-surfaces.md) |
-| Typography classes | [typography.md](src/styles/typography.md) |
+| Typography classes                                                | [typography.md](src/styles/typography.md)                 |
 
 Fonts are owned by `lago-configs` (`lago-configs/fonts.css`), not by this package.
 
@@ -81,4 +85,4 @@ A story's deep link is built from its `title` (`ui/?path=/docs/components-button
 
 ## Using it in the app
 
-The app is already wired: `lago-ui` dependency, Tailwind preset and content scan, `lago-ui/styles.css` in `src/main.css`. Adopting a component is a single import. The dev-only tab `LagoUiIntegrationTest` is the reference consumer.
+The app is already wired: `lago-ui` dependency, Tailwind preset and content scan, `lago-ui/styles.css` in `src/main.css`. Adopting a component is a single import.

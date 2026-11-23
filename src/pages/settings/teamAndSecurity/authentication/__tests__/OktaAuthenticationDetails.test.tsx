@@ -10,6 +10,7 @@ import {
 } from '~/components/dialogs/const'
 import FormDialogOpeningDialog from '~/components/dialogs/FormDialogOpeningDialog'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MANAGED_IN_PRODUCTION_ALERT_TEST_ID } from '~/components/sandbox/ManagedInProductionAlert'
 import { initializeTranslations } from '~/core/apolloClient'
 import { GetOktaIntegrationDocument } from '~/generated/graphql'
 import { render, TestMocksType } from '~/test-utils'
@@ -24,6 +25,20 @@ import {
 
 const mockNavigateFn = jest.fn()
 const mockUseParams = jest.fn().mockReturnValue({ integrationId: 'integration-123' })
+const mockUseSandbox = jest.fn()
+
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
+
+let mockDeniedPermissions: string[] = []
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
+  }),
+}))
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -92,6 +107,8 @@ describe('OktaAuthenticationDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseParams.mockReturnValue({ integrationId: 'integration-123' })
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+    mockDeniedPermissions = []
   })
 
   afterEach(cleanup)
@@ -308,6 +325,76 @@ describe('OktaAuthenticationDetails', () => {
 
     await waitFor(() => {
       expect(document.querySelector('[class*="MuiDialog"]')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the member permissions', () => {
+    const waitForDetails = async (): Promise<void> => {
+      await waitFor(() => {
+        expect(screen.getByText('test.example.com')).toBeInTheDocument()
+      })
+    }
+
+    describe('WHEN the member has the authenticationMethodsUpdate permission', () => {
+      it.each([
+        ['actions dropdown', SSO_DETAILS_ACTIONS_TEST_ID],
+        ['inline edit button', SSO_DETAILS_INLINE_EDIT_TEST_ID],
+      ])('THEN should display the %s', async (_, testId) => {
+        await prepare()
+        await waitForDetails()
+
+        expect(screen.getByTestId(testId)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the authenticationMethodsUpdate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['authenticationMethodsUpdate']
+      })
+
+      it.each([
+        ['actions dropdown', SSO_DETAILS_ACTIONS_TEST_ID],
+        ['inline edit button', SSO_DETAILS_INLINE_EDIT_TEST_ID],
+      ])('THEN should hide the %s', async (_, testId) => {
+        await prepare()
+        await waitForDetails()
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the sandbox environment', () => {
+    const waitForDetails = async (): Promise<void> => {
+      await waitFor(() => {
+        expect(screen.getByText('test.example.com')).toBeInTheDocument()
+      })
+    }
+
+    describe('WHEN the organization is not a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+      })
+
+      it('THEN should not display the managed in production alert', async () => {
+        await prepare()
+        await waitForDetails()
+
+        expect(screen.queryByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is a sandbox', () => {
+      beforeEach(() => {
+        mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: '/acme/' })
+      })
+
+      it('THEN should display the managed in production alert', async () => {
+        await prepare()
+        await waitForDetails()
+
+        expect(screen.getByTestId(MANAGED_IN_PRODUCTION_ALERT_TEST_ID)).toBeInTheDocument()
+      })
     })
   })
 })
