@@ -102,6 +102,9 @@ const TOAST_OUTCOMES: Array<[string, ErrorResult]> = [
   ['the storefront is gone', STOREFRONT_GONE],
 ]
 
+const GENERIC_ERROR_KEY = 'text_622f7a3dc32ce100c46a5154'
+const TOO_MANY_REQUESTS_KEY = 'text_1793898059309ltbe60gt6pd'
+
 const getFieldInput = (testId: string): HTMLInputElement =>
   screen.getByTestId(testId).querySelector('input') as HTMLInputElement
 
@@ -150,28 +153,32 @@ describe('AgentClaim', () => {
   })
 
   describe('GIVEN the operations are set up', () => {
-    it('THEN should query the page of the storefront in the URL and silence only not found', () => {
+    it('THEN should query the page of the storefront in the URL and report no error itself', () => {
       renderPage()
 
       expect(mockUseGetAgentClaimPageQuery).toHaveBeenCalledWith({
         variables: { storefrontId: STOREFRONT_ID },
-        context: { silentErrorCodes: [LagoApiError.NotFound] },
+        context: { silentError: true },
       })
     })
 
     it.each([
       ['start', mockUseStartAgentClaimMutation, START_SILENT_ERROR_DETAILS],
       ['verify', mockUseVerifyAgentClaimMutation, VERIFY_SILENT_ERROR_DETAILS],
-    ])('THEN should silence only the known errors of the %s mutation', (_, hook, details) => {
-      renderPage()
+    ])(
+      'THEN should silence only the known errors of the %s mutation and never retry it',
+      (_, hook, details) => {
+        renderPage()
 
-      expect(hook).toHaveBeenCalledWith({
-        context: {
-          silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
-          silentErrorDetails: details,
-        },
-      })
-    })
+        expect(hook).toHaveBeenCalledWith({
+          context: {
+            disableRetry: true,
+            silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
+            silentErrorDetails: details,
+          },
+        })
+      },
+    )
 
     it.each([
       ['start', 'claimCode', 'invalid_claim_code', START_SILENT_ERROR_DETAILS],
@@ -357,8 +364,25 @@ describe('AgentClaim', () => {
       })
     })
 
+    describe('WHEN the caller is throttled', () => {
+      it('THEN should tell the user to wait rather than show the generic error', async () => {
+        const user = userEvent.setup()
+
+        mockStartClaim.mockResolvedValue(TOO_MANY_REQUESTS)
+        renderPage()
+        await fillClaimForm(user)
+        await submitClaimForm(user)
+
+        await waitFor(() => expect(addToast).toHaveBeenCalledTimes(1))
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: TOO_MANY_REQUESTS_KEY,
+        })
+      })
+    })
+
     describe('WHEN the request fails on the network', () => {
-      it('THEN should show one error toast', async () => {
+      it('THEN should show one generic error toast', async () => {
         const user = userEvent.setup()
 
         mockStartClaim.mockRejectedValue(new Error('Failed to fetch'))
@@ -367,6 +391,10 @@ describe('AgentClaim', () => {
         await submitClaimForm(user)
 
         await waitFor(() => expect(addToast).toHaveBeenCalledTimes(1))
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: GENERIC_ERROR_KEY,
+        })
       })
     })
 
@@ -487,6 +515,23 @@ describe('AgentClaim', () => {
         await waitFor(() => expect(addToast).toHaveBeenCalledTimes(1))
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
         expect(screen.getByTestId(AGENT_CLAIM_VERIFICATION_CODE_FIELD_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the caller is throttled', () => {
+      it('THEN should tell the user to wait rather than show the generic error', async () => {
+        const user = userEvent.setup()
+
+        mockVerifyClaim.mockResolvedValue(TOO_MANY_REQUESTS)
+        renderPage()
+        await goToVerifyStep(user)
+        await submitVerificationCode(user)
+
+        await waitFor(() => expect(addToast).toHaveBeenCalledTimes(1))
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: TOO_MANY_REQUESTS_KEY,
+        })
       })
     })
 

@@ -505,6 +505,49 @@ describe('useAddAgentStorefrontDialog', () => {
         expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
       })
     })
+
+    describe('WHEN it resolves to disabled after the dialog has opened', () => {
+      it('THEN should refuse without waiting for a submit', () => {
+        let isWalletRefreshLoaded = false
+
+        mockWalletRefreshQuery.mockImplementation(() =>
+          isWalletRefreshLoaded
+            ? { data: { organization: { id: 'org_1', walletRefreshEnabled: false } } }
+            : { data: undefined },
+        )
+
+        const payload = openDialog()
+
+        isWalletRefreshLoaded = true
+
+        const form = renderDialog(payload)
+
+        expect(screen.getByTestId('alert-type-danger')).toHaveTextContent(
+          WALLET_REFRESH_REFUSAL_KEY,
+        )
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeDisabled()
+        expect(form.state.values.refusalReason).toBe('walletRefresh')
+      })
+
+      it('THEN should not refuse an edit', () => {
+        let isWalletRefreshLoaded = false
+
+        mockWalletRefreshQuery.mockImplementation(() =>
+          isWalletRefreshLoaded
+            ? { data: { organization: { id: 'org_1', walletRefreshEnabled: false } } }
+            : { data: undefined },
+        )
+
+        const payload = openEditDialog()
+
+        isWalletRefreshLoaded = true
+
+        renderDialog(payload)
+
+        expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeEnabled()
+      })
+    })
   })
 
   describe('GIVEN an existing connection is edited', () => {

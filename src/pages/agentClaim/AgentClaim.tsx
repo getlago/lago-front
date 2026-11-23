@@ -11,6 +11,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import {
   addToast,
   getDetailError,
+  getGraphQLErrorCode,
   hasDefinedGQLError,
   isSilencedGQLError,
 } from '~/core/apolloClient'
@@ -78,17 +79,27 @@ const CLAIM_FORM_ID = 'agent-claim-form'
 const VERIFY_FORM_ID = 'agent-claim-verify-form'
 
 const GENERIC_ERROR = 'text_622f7a3dc32ce100c46a5154'
+const TOO_MANY_REQUESTS_ERROR = 'text_1793898059309ltbe60gt6pd'
 
-const showGenericError = (): void => {
-  addToast({ severity: 'danger', translateKey: GENERIC_ERROR })
+const showErrorToast = (translateKey: string): void => {
+  addToast({ severity: 'danger', translateKey })
 }
 
-const isToastError = (errors?: readonly GraphQLFormattedError[]): boolean =>
-  isSilencedGQLError({
-    extensions: errors?.[0]?.extensions,
+const getToastErrorKey = (errors?: readonly GraphQLFormattedError[]): string | null => {
+  const extensions = errors?.[0]?.extensions
+
+  if (getGraphQLErrorCode(extensions) === LagoApiError.TooManyRequests) {
+    return TOO_MANY_REQUESTS_ERROR
+  }
+
+  const isToastError = isSilencedGQLError({
+    extensions,
     silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
     silentErrorDetails: TOAST_ERROR_DETAILS,
   })
+
+  return isToastError ? GENERIC_ERROR : null
+}
 
 const AgentClaim = (): JSX.Element => {
   const { translate } = useInternationalization()
@@ -99,16 +110,20 @@ const AgentClaim = (): JSX.Element => {
 
   const { data, loading, error } = useGetAgentClaimPageQuery({
     variables: { storefrontId },
-    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    context: { silentError: true },
   })
+  // `retryLink` replays network errors on mutations too: a replayed `startAgentClaim` mails
+  // a second code and invalidates the one already read, `verifyAgentClaim` errors on it.
   const [startClaim] = useStartAgentClaimMutation({
     context: {
+      disableRetry: true,
       silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
       silentErrorDetails: START_SILENT_ERROR_DETAILS,
     },
   })
   const [verifyClaim] = useVerifyAgentClaimMutation({
     context: {
+      disableRetry: true,
       silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
       silentErrorDetails: VERIFY_SILENT_ERROR_DETAILS,
     },
@@ -154,9 +169,11 @@ const AgentClaim = (): JSX.Element => {
           return
         }
 
-        if (isToastError(result.errors)) showGenericError()
+        const toastErrorKey = getToastErrorKey(result.errors)
+
+        if (toastErrorKey) showErrorToast(toastErrorKey)
       } catch {
-        showGenericError()
+        showErrorToast(GENERIC_ERROR)
       }
     },
   })
@@ -217,9 +234,11 @@ const AgentClaim = (): JSX.Element => {
           return
         }
 
-        if (isToastError(result.errors)) showGenericError()
+        const toastErrorKey = getToastErrorKey(result.errors)
+
+        if (toastErrorKey) showErrorToast(toastErrorKey)
       } catch {
-        showGenericError()
+        showErrorToast(GENERIC_ERROR)
       }
     },
   })

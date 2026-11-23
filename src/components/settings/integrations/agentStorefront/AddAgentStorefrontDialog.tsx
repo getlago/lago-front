@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { revalidateLogic, useStore } from '@tanstack/react-form'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { generatePath } from 'react-router'
 
 import { Alert } from '~/components/designSystem/Alert'
@@ -113,6 +113,20 @@ const AddAgentStorefrontDialogContent = withForm({
     const { data, loading } = useGetStripeProvidersForAgentStorefrontQuery({
       variables: { limit: 1000, type: ProviderTypeEnum.Stripe },
     })
+
+    const { data: walletRefreshData } = useGetWalletRefreshForAgentStorefrontQuery({
+      context: { silentError: true },
+    })
+    const isWalletRefreshDisabled = walletRefreshData?.organization?.walletRefreshEnabled === false
+
+    // The reason is seeded when the dialog opens, so a query still in flight then would
+    // leave the form filled before the refusal shows up.
+    useEffect(() => {
+      if (isEdition || !isWalletRefreshDisabled) return
+      if (form.state.values.refusalReason) return
+
+      form.setFieldValue('refusalReason', 'walletRefresh')
+    }, [form, isEdition, isWalletRefreshDisabled])
 
     const stripeProviders = (data?.paymentProviders?.collection ?? []).flatMap((provider) =>
       provider.__typename === 'StripeProvider'
