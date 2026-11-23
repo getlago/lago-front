@@ -6,10 +6,13 @@ import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDi
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { formatFiltersForCustomerQuery } from '~/components/Filters'
+import {
+  CustomerFiltersHiddenForProductCatalog,
+  formatFiltersForCustomerQuery,
+} from '~/components/Filters'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { PaymentProviderChip } from '~/components/PaymentProviderChip'
@@ -24,6 +27,8 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  CustomersQuery,
+  FeatureFlagEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -42,7 +47,6 @@ gql`
     lastname
     externalId
     createdAt
-    activeSubscriptionsCount
     ...AddCustomerDrawer
   }
 
@@ -63,6 +67,7 @@ gql`
     $hasTaxIdentificationNumber: Boolean
     $hasCustomerType: Boolean
     $metadata: [CustomerMetadataFilter!]
+    $isProductCatalogEnabled: Boolean!
   ) {
     customers(
       page: $page
@@ -86,9 +91,13 @@ gql`
         currentPage
         totalPages
         totalCount
+        totalCountCapped
+        hasNextPage
       }
       collection {
         ...CustomerItem
+        activeSubscriptionsCount @skip(if: $isProductCatalogEnabled)
+        activeContractsCount @include(if: $isProductCatalogEnabled)
       }
     }
   }
@@ -97,16 +106,30 @@ gql`
   ${AddCustomerDrawerFragmentDoc}
 `
 
+type CustomerRow = CustomersQuery['customers']['collection'][number]
+
 const CustomersList = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
-  const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
+  const {
+    intlFormatDateTimeOrgaTZ,
+    hasFeatureFlag,
+    loading: isOrganizationLoading,
+  } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const filtersForCustomerQuery = useMemo(() => {
-    return formatFiltersForCustomerQuery(searchParams)
-  }, [searchParams])
+  const filtersForCustomerQuery = useMemo(
+    () =>
+      formatFiltersForCustomerQuery(
+        searchParams,
+        isProductCatalogEnabled ? CustomerFiltersHiddenForProductCatalog : undefined,
+      ),
+    [searchParams, isProductCatalogEnabled],
+  )
+
+  const { accountType, ...otherFiltersForCustomerQuery } = filtersForCustomerQuery
 
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
@@ -115,11 +138,11 @@ const CustomersList = () => {
     variables: {
       limit: pageSize,
       page,
-      ...filtersForCustomerQuery,
-      accountType: [
-        (filtersForCustomerQuery.accountType as CustomerAccountTypeEnum) ??
-          CustomerAccountTypeEnum.Customer,
-      ],
+      isProductCatalogEnabled,
+      ...otherFiltersForCustomerQuery,
+      ...(!isProductCatalogEnabled && {
+        accountType: [accountType ?? CustomerAccountTypeEnum.Customer],
+      }),
     },
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
@@ -128,7 +151,9 @@ const CustomersList = () => {
 
   const { openDeleteCustomerDialog } = useDeleteCustomerDialog()
 
-  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading)
+  const { debouncedSearch, isLoading } = useDebouncedSearch(getCustomers, loading, {
+    fetchOnMount: !isOrganizationLoading,
+  })
 
   const searchAndResetPage = (value: string) => {
     goToPage(1)
@@ -139,6 +164,7 @@ const CustomersList = () => {
   const headerFilters = useCustomersListHeaderFilters({ debouncedSearch: searchAndResetPage })
 
   const customersTotalCount = data?.customers?.metadata?.totalCount
+  const customersTotalCountCapped = data?.customers?.metadata?.totalCountCapped
 
   const hasSearchOrFilters = useMemo(() => {
     const hasPopperFilters = Object.keys(filtersForCustomerQuery).some(
@@ -148,12 +174,30 @@ const CustomersList = () => {
     return !!variables?.searchTerm || hasPopperFilters
   }, [filtersForCustomerQuery, variables?.searchTerm])
 
+  const activeCountColumn: TableColumn<CustomerRow> = isProductCatalogEnabled
+    ? {
+        key: 'activeContractsCount',
+        title: translate('text_1795187036698g1pnr18vrtb'),
+        content: ({ activeContractsCount }) => activeContractsCount,
+        textAlign: 'right',
+      }
+    : {
+        key: 'activeSubscriptionsCount',
+        title: translate('text_1734452833961chacuky8218'),
+        content: ({ activeSubscriptionsCount }) => activeSubscriptionsCount,
+        textAlign: 'right',
+      }
+
   return (
     <>
       <MainHeader.Configure
         entity={{
           viewName: translate('text_624efab67eb2570101d117a5'),
-          metadata: formatCountToMetadata(customersTotalCount, translate),
+          metadata: formatCountToMetadata(
+            customersTotalCount,
+            translate,
+            customersTotalCountCapped,
+          ),
           metadataLoading: isLoading && customersTotalCount === undefined,
         }}
         actions={{ items: headerActions }}
@@ -226,12 +270,7 @@ const CustomersList = () => {
               title: translate('text_17436114971570doqrwuwhf0'),
               content: ({ billingEntity }) => billingEntity.name || billingEntity.code || '-',
             },
-            {
-              key: 'activeSubscriptionsCount',
-              title: translate('text_1734452833961chacuky8218'),
-              content: ({ activeSubscriptionsCount }) => activeSubscriptionsCount,
-              textAlign: 'right',
-            },
+            activeCountColumn,
             {
               key: 'paymentProvider',
               title: translate('text_6419c64eace749372fc72b40'),

@@ -9,12 +9,17 @@ import {
   useGetBillableMetricsForAvalaraItemsListLazyQuery,
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
   useGetBillableMetricsForXeroItemsListLazyQuery,
+  useGetProductsForAnrokItemsListLazyQuery,
+  useGetProductsForAvalaraItemsListLazyQuery,
 } from '~/generated/graphql'
 import {
   FetchableIntegrationItemsListData,
   MappableIntegrationProvider,
   OpenMappableIntegrationMapItemDrawer,
 } from '~/pages/settings/integrations/common'
+
+type SupportedMappableType =
+  MappableTypeEnum.AddOn | MappableTypeEnum.BillableMetric | MappableTypeEnum.Product
 
 export type FetchMoreFunction = ReturnType<
   | typeof useGetAddOnsForNetsuiteItemsListLazyQuery
@@ -25,6 +30,8 @@ export type FetchMoreFunction = ReturnType<
   | typeof useGetBillableMetricsForAvalaraItemsListLazyQuery
   | typeof useGetAddOnsForXeroItemsListLazyQuery
   | typeof useGetBillableMetricsForXeroItemsListLazyQuery
+  | typeof useGetProductsForAnrokItemsListLazyQuery
+  | typeof useGetProductsForAvalaraItemsListLazyQuery
 >[1]['fetchMore']
 
 export type FetchIntegrationItemsListProps = {
@@ -36,7 +43,7 @@ export type FetchIntegrationItemsListProps = {
   isLoading: boolean
   openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
   createRoute: string
-  mappableType: MappableTypeEnum
+  mappableType: SupportedMappableType
   provider: MappableIntegrationProvider
   firstColumnName?: string
 }
@@ -47,6 +54,6 @@ export type FetchableIntegrationItemErrorProps = {
 
 export type FetchableIntegrationItemEmptyProps = {
   hasSearchTerm: boolean
-  type: MappableTypeEnum
+  type: SupportedMappableType
   createRoute: string
 }

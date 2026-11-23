@@ -13,13 +13,12 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE } from '~/core/router'
 import {
   CreditNotesForTableFragmentDoc,
-  InvoiceStatusTypeEnum,
   TimezoneEnum,
   useGetInvoiceCreditNotesQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
-import { usePermissions } from '~/hooks/usePermissions'
+import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import ErrorImage from '~/public/images/maneki/error.svg'
 
 gql`
@@ -54,8 +53,7 @@ export const InvoiceCreditNoteList = () => {
   const { invoiceId, customerId } = useParams()
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
-  const { hasPermissions } = usePermissions()
-  const canIssueCreditNote = hasPermissions(['creditNotesCreate'])
+  const { canIssueCreditNote } = usePermissionsInvoiceActions()
   const premiumWarningDialog = usePremiumWarningDialog()
   const { data, loading, error, fetchMore, variables } = useGetInvoiceCreditNotesQuery({
     notifyOnNetworkStatusChange: true,
@@ -72,48 +70,43 @@ export const InvoiceCreditNoteList = () => {
       associatedActiveWalletPresent: invoice?.associatedActiveWalletPresent,
     })
 
+  const renderIssueCreditNoteButton = () => {
+    if (!invoice || !canIssueCreditNote(invoice)) return null
+
+    if (!isPremium) {
+      return (
+        <Button variant="quaternary" onClick={() => premiumWarningDialog.open()} endIcon="sparkles">
+          {translate('text_636bdef6565341dcb9cfb127')}
+        </Button>
+      )
+    }
+
+    return (
+      <Tooltip
+        title={disabledIssueCreditNoteButtonLabel && translate(disabledIssueCreditNoteButtonLabel)}
+        placement="top-start"
+      >
+        <ButtonLink
+          type="button"
+          disabled={disabledIssueCreditNoteButton}
+          buttonProps={{ variant: 'quaternary' }}
+          to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
+            customerId: customerId as string,
+            invoiceId: invoiceId as string,
+          })}
+        >
+          {translate('text_636bdef6565341dcb9cfb127')}
+        </ButtonLink>
+      </Tooltip>
+    )
+  }
+
   return (
     <div>
       {(!loading || !!creditNotes?.length) && (
         <div className="flex h-18 items-center justify-between shadow-b">
           <Typography variant="subhead1">{translate('text_636bdef6565341dcb9cfb129')}</Typography>
-          {data?.invoice?.status !== InvoiceStatusTypeEnum.Draft && canIssueCreditNote && (
-            <>
-              {data?.invoice?.status !== InvoiceStatusTypeEnum.Voided && (
-                <>
-                  {isPremium ? (
-                    <Tooltip
-                      title={
-                        disabledIssueCreditNoteButtonLabel &&
-                        translate(disabledIssueCreditNoteButtonLabel)
-                      }
-                      placement="top-start"
-                    >
-                      <ButtonLink
-                        type="button"
-                        disabled={disabledIssueCreditNoteButton}
-                        buttonProps={{ variant: 'quaternary' }}
-                        to={generatePath(CUSTOMER_INVOICE_CREATE_CREDIT_NOTE_ROUTE, {
-                          customerId: customerId as string,
-                          invoiceId: invoiceId as string,
-                        })}
-                      >
-                        {translate('text_636bdef6565341dcb9cfb127')}
-                      </ButtonLink>
-                    </Tooltip>
-                  ) : (
-                    <Button
-                      variant="quaternary"
-                      onClick={() => premiumWarningDialog.open()}
-                      endIcon="sparkles"
-                    >
-                      {translate('text_636bdef6565341dcb9cfb127')}
-                    </Button>
-                  )}
-                </>
-              )}
-            </>
-          )}
+          {renderIssueCreditNoteButton()}
         </div>
       )}
       <>

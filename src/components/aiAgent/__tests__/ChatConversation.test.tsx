@@ -1,3 +1,4 @@
+import { ApolloError } from '@apollo/client'
 import { screen } from '@testing-library/react'
 
 import { CHAT_CONVERSATION_TEST_ID, ChatConversation } from '~/components/aiAgent/ChatConversation'
@@ -8,7 +9,7 @@ import {
   CHAT_MESSAGE_RECEIVED_TEST_ID,
   CHAT_MESSAGE_SENT_TEST_ID,
 } from '~/components/aiAgent/ChatMessages'
-import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
+import { LagoApiError, OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatMessage, ChatRole, ChatState, ChatStatus } from '~/hooks/aiAgent/aiAgentReducer'
 import { AiAgentTypeEnum } from '~/hooks/aiAgent/useAiAgent'
 import { render } from '~/test-utils'
@@ -23,9 +24,6 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
-const mockStreamChunk = jest.fn()
-const mockSetChatDone = jest.fn()
-
 let mockState: ChatState
 let mockAgentType: AiAgentTypeEnum
 
@@ -34,11 +32,6 @@ jest.mock('~/hooks/aiAgent/useAiAgent', () => ({
   useAiAgent: () => ({
     agentType: mockAgentType,
     state: mockState,
-    lastAssistantMessage: mockState.messages
-      .filter((message: ChatMessage) => message.role === 'assistant')
-      .pop(),
-    streamChunk: mockStreamChunk,
-    setChatDone: mockSetChatDone,
   }),
 }))
 
@@ -144,6 +137,32 @@ describe('ChatConversation', () => {
       })
     })
 
+    describe('WHEN the stream ends because the organization is waiting for a payment method', () => {
+      const organizationInactiveSubscription = {
+        data: undefined,
+        error: new ApolloError({
+          graphQLErrors: [
+            { message: 'Forbidden', extensions: { code: LagoApiError.OrganizationInactive } },
+          ],
+        }),
+      } as unknown as OnConversationSubscriptionHookResult
+
+      it('THEN should not display the generic error message', () => {
+        render(<ChatConversation subscription={organizationInactiveSubscription} />)
+
+        expect(screen.queryByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.getByTestId(CHAT_MESSAGE_SENT_TEST_ID)).toHaveTextContent('question')
+      })
+
+      it('THEN should still display the error message when the chat state carries one', () => {
+        mockState = buildState({ hasError: true, messages: conversationMessages })
+
+        render(<ChatConversation subscription={organizationInactiveSubscription} />)
+
+        expect(screen.getByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
     describe('WHEN the chat state carries an error', () => {
       it('THEN should display the error message', () => {
         mockState = buildState({ hasError: true, messages: conversationMessages })
@@ -151,46 +170,6 @@ describe('ChatConversation', () => {
         render(<ChatConversation subscription={idleSubscription} />)
 
         expect(screen.getByTestId(CHAT_MESSAGE_ERROR_TEST_ID)).toBeInTheDocument()
-      })
-    })
-  })
-
-  describe('GIVEN the subscription streams', () => {
-    describe('WHEN a chunk arrives', () => {
-      it('THEN should append the chunk to the last assistant message', () => {
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: { aiConversationStreamed: { chunk: 'partial', done: false } },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockStreamChunk).toHaveBeenCalledWith({
-          messageId: 'assistant-1',
-          chunk: 'partial',
-        })
-      })
-    })
-
-    describe('WHEN the stream completes', () => {
-      it('THEN should mark the last assistant message as done', () => {
-        render(
-          <ChatConversation
-            subscription={
-              {
-                data: { aiConversationStreamed: { chunk: null, done: true } },
-                error: undefined,
-              } as unknown as OnConversationSubscriptionHookResult
-            }
-          />,
-        )
-
-        expect(mockSetChatDone).toHaveBeenCalledWith('assistant-1')
-        expect(mockStreamChunk).not.toHaveBeenCalled()
       })
     })
   })

@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { useId, useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -14,6 +13,7 @@ import {
 } from '~/core/constants/form'
 import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 gql`
   fragment PricingGroupKeys on Properties {
@@ -55,16 +55,20 @@ const PricingGroupKeys = () => {
               <Chip
                 key={`pricing-groupe-key-chip-${groupKey}-${groupKeyIndex}`}
                 label={groupKey}
-                onDelete={() => {
-                  const newPricingGroupKeys = valuePointer?.pricingGroupKeys?.filter(
-                    (_, index) => index !== groupKeyIndex,
-                  )
+                onDelete={
+                  disabled
+                    ? undefined
+                    : () => {
+                        const newPricingGroupKeys = valuePointer?.pricingGroupKeys?.filter(
+                          (_, index) => index !== groupKeyIndex,
+                        )
 
-                  form.setFieldValue(
-                    `${propertyCursor}.pricingGroupKeys`,
-                    newPricingGroupKeys || [],
-                  )
-                }}
+                        form.setFieldValue(
+                          `${propertyCursor}.pricingGroupKeys`,
+                          newPricingGroupKeys || [],
+                        )
+                      }
+                }
               />
             ))}
           </div>
@@ -108,6 +112,7 @@ const PricingGroupKeys = () => {
             fitContent
             startIcon="plus"
             variant="inline"
+            disabled={disabled}
             onClick={() => {
               setShouldDisplayPricingGroupKeys(true)
 

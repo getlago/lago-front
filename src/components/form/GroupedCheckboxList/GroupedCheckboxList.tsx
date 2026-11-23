@@ -1,9 +1,9 @@
 import { useStore } from '@tanstack/react-form'
-import { Icon, IconName } from 'lago-design-system'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import {
   TableWithGroups,
   TableWithGroupsRef,
@@ -58,7 +58,14 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
 
   const groupingMap = useMemo(() => createGroupingMap(groups), [groups])
 
-  const overallCheckboxValue = getOverallCheckboxValue(checkboxValues)
+  const displayedItemIds = useMemo(
+    () => groups.flatMap((g) => g.items.map((item) => item.id)) as Array<keyof TValues & string>,
+    [groups],
+  )
+
+  const overallCheckboxValue = getOverallCheckboxValue(
+    Object.fromEntries(displayedItemIds.map((itemId) => [itemId, !!checkboxValues[itemId]])),
+  )
 
   const updateFieldValues = (itemIds: Array<keyof TValues & string>, checked: boolean) => {
     itemIds.forEach((itemId) => {
@@ -67,9 +74,7 @@ function GroupedCheckboxList<TValues extends Record<string, boolean>>({
   }
 
   const handleOverallCheckboxChange = (_e: unknown, checked: boolean) => {
-    const itemsToUpdate = Object.keys(checkboxValues) as Array<keyof TValues & string>
-
-    updateFieldValues(itemsToUpdate, checked)
+    updateFieldValues(displayedItemIds, checked)
   }
 
   const handleGroupCheckboxClick = (

@@ -17,6 +17,23 @@ const exhaustiveCheck = (value: never): never => {
 }
 
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
+  [ActivityTypeEnum.ContractCreated]: 'text_1791921842761by5ureagbe9',
+  [ActivityTypeEnum.ContractUpdated]: 'text_1791921974802th7lzdwh96w',
+  [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
+  [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
+  [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
+  [ActivityTypeEnum.ContractRateCardCreated]: 'text_17919219748028qs8slf9r4r',
+  [ActivityTypeEnum.ContractRateCardDeleted]: 'text_1791921974802buml62fqqaz',
+  [ActivityTypeEnum.ContractRateCardUpdated]: 'text_1791921974802geeg4bwwkvk',
+  [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
+  [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
+  [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
+  [ActivityTypeEnum.PlanWalletCreated]: 'text_1795093921133goym1lmktoq',
+  [ActivityTypeEnum.PlanWalletDeleted]: 'text_1795093921133a8yyd8l1i37',
+  [ActivityTypeEnum.PlanWalletUpdated]: 'text_1795093921133stwkpx4uv8x',
+  [ActivityTypeEnum.RateCardRateCreated]: 'text_1791921974803r2tomq2nay3',
+  [ActivityTypeEnum.RateCardRateDeleted]: 'text_1791921974803zghgbb7drn4',
+  [ActivityTypeEnum.RateCardRateUpdated]: 'text_1791921974803lfnnssptes9',
   [ActivityTypeEnum.AppliedCouponCreated]: 'text_1747404806714mt6os3k8404',
   [ActivityTypeEnum.AppliedCouponDeleted]: 'text_1747404902717ou47ei2bfd3',
   [ActivityTypeEnum.BillableMetricCreated]: 'text_17474046566318icwya96cm4',
@@ -95,6 +112,10 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
 }
 
 const resourceTypeTranslations: Record<string, string> = {
+  Contract: 'text_1791921974803dy39wywfdfl',
+  ContractAppliedRateCard: 'text_1791921974803pyof8qcdfk5',
+  PlanAppliedRateCard: 'text_1791921974803v4u3b2dekrv',
+  RateCardRate: 'text_17919219748033tsf7k2uaro',
   BillableMetric: 'text_64352657267c3d916f962757',
   BillingEntity: 'text_1743077296189ms0shds6g53',
   Coupon: 'text_628b8c693e464200e00e4677',
@@ -119,7 +140,9 @@ export const useActivityLogsInformation = () => {
   const { translate } = useInternationalization()
 
   const getResourceType = (resourceType: string): string => {
-    return translate(resourceTypeTranslations[resourceType] || resourceType)
+    const description = resourceTypeTranslations[resourceType] || resourceType
+
+    return translate(description)
   }
 
   const getActivityDescription = (
@@ -171,6 +194,24 @@ export const useActivityLogsInformation = () => {
         parameters = {
           couponCode: activityObject.code,
         }
+        break
+      case ActivityTypeEnum.ContractCreated:
+      case ActivityTypeEnum.ContractUpdated:
+      case ActivityTypeEnum.ContractStarted:
+      case ActivityTypeEnum.ContractTerminated:
+      case ActivityTypeEnum.ContractCanceled:
+      case ActivityTypeEnum.ContractRateCardCreated:
+      case ActivityTypeEnum.ContractRateCardDeleted:
+      case ActivityTypeEnum.ContractRateCardUpdated:
+      case ActivityTypeEnum.PlanRateCardCreated:
+      case ActivityTypeEnum.PlanRateCardDeleted:
+      case ActivityTypeEnum.PlanRateCardUpdated:
+      case ActivityTypeEnum.PlanWalletCreated:
+      case ActivityTypeEnum.PlanWalletDeleted:
+      case ActivityTypeEnum.PlanWalletUpdated:
+      case ActivityTypeEnum.RateCardRateCreated:
+      case ActivityTypeEnum.RateCardRateDeleted:
+      case ActivityTypeEnum.RateCardRateUpdated:
         break
       case ActivityTypeEnum.CreditNoteCreated:
       case ActivityTypeEnum.CreditNoteGenerated:
@@ -339,7 +380,9 @@ export const useActivityLogsInformation = () => {
         exhaustiveCheck(activityType)
     }
 
-    return translate(activityTypeTranslations[activityType], parameters)
+    const description = activityTypeTranslations[activityType]
+
+    return translate(description, parameters)
   }
 
   return {

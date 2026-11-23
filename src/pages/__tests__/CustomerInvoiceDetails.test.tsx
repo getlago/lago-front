@@ -16,7 +16,10 @@ import {
 } from '~/generated/graphql'
 import { render, testMockNavigateFn } from '~/test-utils'
 
-import CustomerInvoiceDetails from '../CustomerInvoiceDetails'
+import CustomerInvoiceDetails, {
+  INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID,
+  INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID,
+} from '../CustomerInvoiceDetails'
 
 let capturedConfig: MainHeaderConfig | null = null
 
@@ -49,6 +52,14 @@ const mockUseCurrentUser = jest.fn().mockReturnValue({ isPremium: true })
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockUseCurrentUser(),
+}))
+
+let mockIsProductCatalogEnabled = false
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: () => mockIsProductCatalogEnabled,
+  }),
 }))
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
@@ -280,6 +291,7 @@ describe('CustomerInvoiceDetails', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     capturedConfig = null
+    mockIsProductCatalogEnabled = false
     mockHasPermissions.mockReturnValue(true)
     mockUseCurrentUser.mockReturnValue({ isPremium: true })
     mockUseInvoiceAuthorizations.mockReturnValue(mockDefaultAuthorizationsReturn)
@@ -583,6 +595,130 @@ describe('CustomerInvoiceDetails', () => {
 
         // Finalized + tax pending: overview + payments + activity logs = 3
         expect(capturedConfig?.tabs).toHaveLength(3)
+      })
+    })
+
+    describe.each([InvoiceStatusTypeEnum.Pending, InvoiceStatusTypeEnum.Open])(
+      'WHEN the invoice is waiting to be finalized with status %s',
+      (status) => {
+        beforeEach(() => {
+          mockUseGetInvoiceDetailsQuery.mockReturnValue({
+            data: {
+              invoice: {
+                ...mockInvoiceData.invoice,
+                status,
+                taxStatus: InvoiceTaxStatusTypeEnum.Pending,
+              },
+            },
+            loading: false,
+            error: null,
+            refetch: jest.fn(),
+          })
+        })
+
+        it('THEN should show the pending finalization alert', () => {
+          render(<CustomerInvoiceDetails />)
+
+          expect(screen.getByTestId(INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID)).toBeInTheDocument()
+        })
+
+        it('THEN should not show the draft taxes pending alert', () => {
+          render(<CustomerInvoiceDetails />)
+
+          expect(
+            screen.queryByTestId(INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID),
+          ).not.toBeInTheDocument()
+        })
+      },
+    )
+
+    describe('WHEN the invoice is still a draft', () => {
+      beforeEach(() => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: {
+              ...mockInvoiceData.invoice,
+              status: InvoiceStatusTypeEnum.Draft,
+              taxStatus: InvoiceTaxStatusTypeEnum.Pending,
+            },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+      })
+
+      it('THEN should show the draft taxes pending alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.getByTestId(INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID)).toBeInTheDocument()
+      })
+
+      // Regression: a draft was told it was "pending finalization" while the tax
+      // provider was still computing its taxes.
+      it('THEN should not show the pending finalization alert', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(
+          screen.queryByTestId(INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the invoice also carries an error', () => {
+      beforeEach(() => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: {
+              ...mockInvoiceData.invoice,
+              status: InvoiceStatusTypeEnum.Draft,
+              taxStatus: InvoiceTaxStatusTypeEnum.Pending,
+              errorDetails: [{ errorCode: 'tax_error', errorDetails: 'Tax failed' }],
+            },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+
+        mockUseInvoiceAuthorizations.mockReturnValue({
+          ...mockDefaultAuthorizationsReturn,
+          hasTaxProviderError: true,
+          errorMessage: 'tax-provider-error',
+        })
+      })
+
+      it.each([
+        ['pending finalization', INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID],
+        ['draft taxes pending', INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID],
+      ])('THEN should not show the %s alert', (_, testId) => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the invoice has no pending tax status', () => {
+    describe('WHEN the invoice is a draft', () => {
+      beforeEach(() => {
+        mockUseGetInvoiceDetailsQuery.mockReturnValue({
+          data: {
+            invoice: { ...mockInvoiceData.invoice, status: InvoiceStatusTypeEnum.Draft },
+          },
+          loading: false,
+          error: null,
+          refetch: jest.fn(),
+        })
+      })
+
+      it.each([
+        ['pending finalization', INVOICE_PENDING_FINALIZATION_ALERT_TEST_ID],
+        ['draft taxes pending', INVOICE_DRAFT_TAXES_PENDING_ALERT_TEST_ID],
+      ])('THEN should not show the %s alert', (_, testId) => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
       })
     })
   })
@@ -1082,6 +1218,64 @@ describe('CustomerInvoiceDetails', () => {
         onCompleted?.({ syncSalesforceInvoice: { invoiceId: 'invoice-123' } })
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN the regenerate authorization is granted', () => {
+    const REGENERATE_LABEL = 'text_1750678506388oynw9hd01l9'
+    const VOID_AND_REGENERATE_LABEL = 'text_1750678506388d4fr5etxbhh'
+    const VOID_LABEL = 'text_65269b43d4d2b15dd929a259'
+
+    const getVisibleDropdownLabels = (): Array<string | undefined> => {
+      const dropdownAction = capturedConfig?.actions?.items[0]
+
+      if (dropdownAction?.type !== 'dropdown') return []
+
+      return dropdownAction.items.filter((item) => !item.hidden).map((item) => item.label)
+    }
+
+    beforeEach(() => {
+      mockUseInvoiceAuthorizations.mockReturnValue({
+        ...mockDefaultAuthorizationsReturn,
+        authorizations: {
+          ...mockDefaultAuthorizations,
+          canVoid: true,
+          canRegenerate: true,
+        },
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is off', () => {
+      it('THEN should show the regenerate action', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(REGENERATE_LABEL)
+      })
+
+      it('THEN should label the void action as void and/or regenerate', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(VOID_AND_REGENERATE_LABEL)
+      })
+    })
+
+    describe('WHEN the product catalog feature flag is on', () => {
+      beforeEach(() => {
+        mockIsProductCatalogEnabled = true
+      })
+
+      it('THEN should hide the regenerate action', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).not.toContain(REGENERATE_LABEL)
+      })
+
+      it('THEN should label the void action as void only', () => {
+        render(<CustomerInvoiceDetails />)
+
+        expect(getVisibleDropdownLabels()).toContain(VOID_LABEL)
+        expect(getVisibleDropdownLabels()).not.toContain(VOID_AND_REGENERATE_LABEL)
       })
     })
   })

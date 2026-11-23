@@ -1,5 +1,9 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 
+import {
+  GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+  GENERIC_PLACEHOLDER_TEST_ID,
+} from '~/components/designSystem/GenericPlaceholder'
 import { GetInvitesDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -10,7 +14,10 @@ import {
   rolesListMock,
 } from './membershipMocks'
 
-import MembersInvitationList from '../MembersInvitationList'
+import MembersInvitationList, {
+  MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+  MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+} from '../MembersInvitationList'
 
 // Mock IntersectionObserver for jsdom
 const mockIntersectionObserver = jest.fn()
@@ -28,9 +35,12 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   }),
 }))
 
+let mockDeniedPermissions: string[] = []
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
-    hasPermissions: () => true,
+    hasPermissions: (permissions: string[]) =>
+      !permissions.some((permission) => mockDeniedPermissions.includes(permission)),
   }),
 }))
 
@@ -96,6 +106,10 @@ async function prepare({
 }
 
 describe('MembersInvitationList', () => {
+  beforeEach(() => {
+    mockDeniedPermissions = []
+  })
+
   afterEach(() => {
     cleanup()
     jest.clearAllMocks()
@@ -496,6 +510,91 @@ describe('MembersInvitationList', () => {
 
         expect(await screen.findByText('text_63208c701ce25db78140745e')).toBeInTheDocument()
         expect(screen.queryByTestId('copy-invite-link')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the member permissions', () => {
+    const emptyMock = {
+      request: {
+        query: GetInvitesDocument,
+        variables: DEFAULT_VARIABLES,
+      },
+      result: buildInvitesResult({ collection: [] }),
+    }
+
+    const openFirstInvitationActions = async (): Promise<void> => {
+      await waitFor(
+        () => {
+          expect(screen.getByText('test1@example.com')).toBeInTheDocument()
+        },
+        { timeout: SEARCH_TIMEOUT },
+      )
+
+      fireEvent.click(screen.getAllByTestId('open-action-button')[0])
+
+      await screen.findByTestId('copy-invite-link')
+    }
+
+    describe('WHEN the member has every members permission', () => {
+      it.each([
+        ['edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
+        ['delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
+      ])('THEN should display the %s action', async (_, testId) => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.getByTestId(testId)).toBeInTheDocument()
+      })
+
+      it('THEN should display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(
+            GENERIC_PLACEHOLDER_BUTTON_TEST_ID,
+            {},
+            { timeout: SEARCH_TIMEOUT },
+          ),
+        ).toBeInTheDocument()
+      })
+    })
+
+    describe.each([
+      ['organizationMembersUpdate', 'edit', MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID],
+      ['organizationMembersDelete', 'delete', MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID],
+    ])('WHEN the member does not have the %s permission', (permission, action, testId) => {
+      beforeEach(() => {
+        mockDeniedPermissions = [permission]
+      })
+
+      it(`THEN should hide the ${action} action`, async () => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.queryByTestId(testId)).not.toBeInTheDocument()
+      })
+
+      it('THEN should keep the copy invite link action', async () => {
+        await prepare()
+        await openFirstInvitationActions()
+
+        expect(screen.getByTestId('copy-invite-link')).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the member does not have the organizationMembersCreate permission', () => {
+      beforeEach(() => {
+        mockDeniedPermissions = ['organizationMembersCreate']
+      })
+
+      it('THEN should not display the invite button in the empty state', async () => {
+        await prepare({ mocks: [emptyMock, rolesListMock] })
+
+        expect(
+          await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID, {}, { timeout: SEARCH_TIMEOUT }),
+        ).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

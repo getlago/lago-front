@@ -181,7 +181,7 @@ export const RevenueStreamsPlanBreakdownSection = () => {
               content({ planInterval }) {
                 return (
                   <Typography variant="body" noWrap>
-                    {translate(getIntervalTranslationKey[planInterval])}
+                    {planInterval ? translate(getIntervalTranslationKey[planInterval]) : '-'}
                   </Typography>
                 )
               },

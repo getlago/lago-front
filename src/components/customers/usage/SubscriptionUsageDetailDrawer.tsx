@@ -134,7 +134,7 @@ export const SubscriptionUsageDetailDrawer = forwardRef<
       <Drawer
         ref={drawerRef}
         title={
-          <div className="flex flex-1 items-center justify-between gap-4 pr-3">
+          <div className="flex w-0 min-w-0 flex-1 items-center justify-between gap-4 pr-3">
             <Typography variant="bodyHl" color="textSecondary" noWrap>
               {translate('text_1778836980285mhlwwvofsqm', {
                 billableMetricName: displayName,

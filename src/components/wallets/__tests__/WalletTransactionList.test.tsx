@@ -19,6 +19,14 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+const mockHasPermissions = jest.fn(() => true)
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: mockHasPermissions,
+  }),
+}))
+
 jest.mock('~/components/wallets/WalletDetailsDrawer', () => {
   const { forwardRef } = jest.requireActual<typeof import('react')>('react')
 
@@ -50,6 +58,7 @@ describe('WalletTransactionList', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     jest.mocked(useParams).mockReturnValue({ customerId: 'customer-1' })
+    mockHasPermissions.mockReturnValue(true)
   })
 
   it.each([undefined, ''])(
@@ -64,7 +73,18 @@ describe('WalletTransactionList', () => {
     },
   )
 
-  it('GIVEN a customer ID THEN the empty state can navigate to top-up', async () => {
+  it('GIVEN a user without the walletsTopUp permission THEN keeps the empty state without the top-up action', () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    render(<WalletTransactionList isOpen wallet={wallet} footer={null} />)
+
+    expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+    expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
+    expect(mockHasPermissions).toHaveBeenCalledWith(['walletsTopUp'])
+  })
+
+  it('GIVEN a customer ID and the walletsTopUp permission THEN the empty state can navigate to top-up', async () => {
+    mockHasPermissions.mockReturnValue(true)
     const user = userEvent.setup()
     const navigate = jest.requireMock('react-router').useNavigate()
 

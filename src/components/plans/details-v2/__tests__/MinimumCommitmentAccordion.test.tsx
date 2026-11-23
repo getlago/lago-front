@@ -141,6 +141,17 @@ describe('MinimumCommitmentAccordion', () => {
     ).not.toBeInTheDocument()
   })
 
+  // Deleting a commitment submits through updatePlan (plans:update) - there is no
+  // plans:delete for a plan sub-resource, so plansDelete alone must not hide it.
+  it('keeps the Delete action visible when only plansDelete is missing', async () => {
+    mockHasPermissions.mockImplementation((perms) => !perms.includes('plansDelete'))
+
+    render(<MinimumCommitmentAccordion plan={planWithCommitment} />, { wrapper: Wrapper })
+
+    await userEvent.click(await screen.findByRole('button', { name: /actions/i }))
+    expect(screen.getByText('text_63ea0f84f400488553caa786')).toBeInTheDocument()
+  })
+
   // ── 4. isInSubscriptionForm → Edit visible, Add + Delete hidden ───────────
   it('shows Edit but hides Add + Delete when isInSubscriptionForm is true', async () => {
     const { container } = render(

@@ -1,9 +1,12 @@
 import { fireEvent, screen } from '@testing-library/react'
 
+import { ContractStatusEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
+import { getContractFieldLocks } from '../../contract/fieldLocks'
 import {
+  CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID,
   ContractSettingsFormValues,
@@ -24,6 +27,7 @@ const getInputByTestId = (testId: string): HTMLInputElement | null => {
 
 const defaultValues: ContractSettingsFormValues = {
   externalId: 'external-contract-1',
+  code: 'initial',
   name: '',
   startedAt: '2026-01-01T00:00:00Z',
   endedAt: '2099-12-31T00:00:00Z',
@@ -44,6 +48,20 @@ const Wrapper = ({ locked }: { locked: boolean }) => {
 }
 
 describe('ContractSettingsDrawerContent', () => {
+  describe('GIVEN an active or pending contract', () => {
+    it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
+      'THEN displays a disabled code for %s contracts',
+      (status) => {
+        render(<Wrapper locked={getContractFieldLocks(status).startedAt} />)
+
+        const codeInput = getInputByTestId(CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID)
+
+        expect(codeInput).toHaveValue('initial')
+        expect(codeInput).toBeDisabled()
+      },
+    )
+  })
+
   it('renders the drawer title and description', async () => {
     render(<Wrapper locked={false} />)
 

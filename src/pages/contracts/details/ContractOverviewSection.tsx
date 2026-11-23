@@ -106,7 +106,7 @@ export const ContractOverviewSection = (): JSX.Element => {
     withInvoiceConsolidation: true,
     onSave: ({ consolidateInvoice, invoiceCustomSection }) =>
       updateContractSection({
-        externalId: contract?.externalId ?? '',
+        id: contract?.id ?? '',
         consolidateInvoice,
         invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
       }),
@@ -115,8 +115,7 @@ export const ContractOverviewSection = (): JSX.Element => {
   const { openDrawer: openPaymentSettingsDrawer } = usePaymentSettingsDrawer({
     viewType: ViewTypeEnum.Contract,
     externalCustomerId: contract?.customer.externalId ?? '',
-    onSave: ({ paymentMethod }) =>
-      updateContractSection({ externalId: contract?.externalId ?? '', paymentMethod }),
+    onSave: ({ paymentMethod }) => updateContractSection({ id: contract?.id ?? '', paymentMethod }),
   })
 
   if (!contract && loading) {
@@ -179,6 +178,16 @@ export const ContractOverviewSection = (): JSX.Element => {
   const paymentSettingsEditAction = buildEditAction(CONTRACT_OVERVIEW_PAYMENT_EDIT_TEST_ID, () =>
     openPaymentSettingsDrawer({ paymentMethod: selectedPaymentMethod }),
   )
+
+  const renderContractCode = (): JSX.Element | string => {
+    if (!contract?.code) return '-'
+
+    return (
+      <TypographyWithCopy compact variant="body" color="grey700">
+        {contract.code}
+      </TypographyWithCopy>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-12 pb-6">
@@ -246,6 +255,10 @@ export const ContractOverviewSection = (): JSX.Element => {
                 '-'
               )
             }
+          />
+          <DetailsPage.InfoGridItem
+            label={translate('text_17950335898708mg94k6t8ej')}
+            value={renderContractCode()}
           />
           <DetailsPage.InfoGrid
             grid={[

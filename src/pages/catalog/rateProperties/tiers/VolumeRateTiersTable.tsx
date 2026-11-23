@@ -11,8 +11,8 @@ import { FieldErrorTooltip } from '~/components/form/FieldErrorTooltip'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, RateTierInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
 import {
   getTierLowerBound,
@@ -45,11 +45,13 @@ gql`
 type VolumeRateTiersTableProps = {
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
 }
 
 const volumeRateTiersTableDefaultProps: VolumeRateTiersTableProps = {
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
 }
 
 const createVolumeTier = (toValue: string | null): RateTierInput => ({
@@ -58,16 +60,15 @@ const createVolumeTier = (toValue: string | null): RateTierInput => ({
   flatAmount: '',
 })
 
-export const VolumeRateTiersTable = withForm({
-  defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
+export const VolumeRateTiersTable = withFieldGroup({
+  defaultValues: getRatePropertiesShape(),
   props: volumeRateTiersTableDefaultProps,
-  render: function VolumeRateTiersTableRender({ form, currency, pricingUnitShortName }) {
+  render: function VolumeRateTiersTableRender({ group, currency, pricingUnitShortName, disabled }) {
     const { translate } = useInternationalization()
-    const tiers = useStore(form.store, (state) => state.values.properties?.volumeRanges)
+    const tiers = useStore(group.store, (state) => state.values.volumeRanges)
     const handleTiersChange = useCallback(
-      (nextTiers: RateTierInput[]): void =>
-        form.setFieldValue('properties.volumeRanges', nextTiers),
-      [form],
+      (nextTiers: RateTierInput[]): void => group.setFieldValue('volumeRanges', nextTiers),
+      [group],
     )
     const { rows, addTier, deleteTier } = useRateTiers({
       tiers,
@@ -101,7 +102,7 @@ export const VolumeRateTiersTable = withForm({
       }
 
       return (
-        <form.AppField name={`properties.volumeRanges[${index}].toValue`}>
+        <group.AppField name={`volumeRanges[${index}].toValue`}>
           {(field) => (
             <FieldErrorTooltip
               title={translate(RATE_TIER_UP_TO_ERROR_KEY, {
@@ -112,11 +113,12 @@ export const VolumeRateTiersTable = withForm({
                 variant="outlined"
                 beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                 displayErrorText={false}
+                disabled={disabled}
                 data-test={getRateTierTestId(RATE_TIER_UP_TO_TEST_ID, index)}
               />
             </FieldErrorTooltip>
           )}
-        </form.AppField>
+        </group.AppField>
       )
     }
 
@@ -127,6 +129,7 @@ export const VolumeRateTiersTable = withForm({
           startIcon="plus"
           variant="inline"
           onClick={addTier}
+          disabled={disabled}
           data-test={RATE_TIERS_ADD_TIER_TEST_ID}
         >
           {translate('text_6304e74aab6dbc18d615f38e')}
@@ -135,7 +138,7 @@ export const VolumeRateTiersTable = withForm({
           <ChargeTable
             name="volume-rate-tiers-table"
             data={rows}
-            onDeleteRow={(_, index) => deleteTier(index)}
+            onDeleteRow={disabled ? undefined : (_, index) => deleteTier(index)}
             columns={[
               {
                 size: 181,
@@ -166,7 +169,7 @@ export const VolumeRateTiersTable = withForm({
                 ),
                 size: 181,
                 content: (_, index) => (
-                  <form.AppField name={`properties.volumeRanges[${index}].perUnitAmount`}>
+                  <group.AppField name={`volumeRanges[${index}].perUnitAmount`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -174,6 +177,7 @@ export const VolumeRateTiersTable = withForm({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -183,7 +187,7 @@ export const VolumeRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
               {
@@ -194,7 +198,7 @@ export const VolumeRateTiersTable = withForm({
                 ),
                 size: 181,
                 content: (_, index) => (
-                  <form.AppField name={`properties.volumeRanges[${index}].flatAmount`}>
+                  <group.AppField name={`volumeRanges[${index}].flatAmount`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -202,6 +206,7 @@ export const VolumeRateTiersTable = withForm({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -211,7 +216,7 @@ export const VolumeRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
             ]}

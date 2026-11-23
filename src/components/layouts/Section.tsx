@@ -7,6 +7,7 @@ export const PageSectionTitle = ({
   className,
   title,
   subtitle,
+  subtitleDataTest,
   action,
   customAction,
   loading,
@@ -14,6 +15,7 @@ export const PageSectionTitle = ({
   className?: string
   title: string
   subtitle?: string
+  subtitleDataTest?: string
   action?: { title: string; onClick: () => void; dataTest?: string; isDisabled?: boolean }
   customAction?: React.ReactNode
   loading?: boolean
@@ -34,7 +36,7 @@ export const PageSectionTitle = ({
             </Typography>
 
             {subtitle && (
-              <Typography variant="body" color="grey600">
+              <Typography variant="body" color="grey600" data-test={subtitleDataTest}>
                 {subtitle}
               </Typography>
             )}

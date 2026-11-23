@@ -4,6 +4,7 @@ import {
   FeeForInvoiceDetailsTableBodyLineFragmentDoc,
   InvoiceForDetailsTableFooterFragmentDoc,
   InvoiceForFormatInvoiceItemMapFragmentDoc,
+  PaymentTermFieldsFragmentDoc,
   useGetInvoiceBuildRegenerationPreviewQuery,
 } from '~/generated/graphql'
 
@@ -38,6 +39,9 @@ gql`
     paymentDueDate
     paymentOverdue
     paymentStatus
+    paymentTerm {
+      ...PaymentTermFields
+    }
     purchaseOrderNumber
     refundableAmountCents
     regeneratedInvoiceId
@@ -176,6 +180,8 @@ gql`
   ${InvoiceForDetailsTableFooterFragmentDoc}
   ${InvoiceForFormatInvoiceItemMapFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLineFragmentDoc}
+
+  ${PaymentTermFieldsFragmentDoc}
 `
 
 export const useInvoiceBuildRegenerationPreview = (invoiceId?: string) => {

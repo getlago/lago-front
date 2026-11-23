@@ -2,6 +2,7 @@ import { ReactNode } from 'react'
 import { useParams } from 'react-router'
 
 import { ContractOverviewSectionsEnum } from '~/core/constants/tabsOptions'
+import { CurrencyEnum } from '~/generated/graphql'
 
 import { ContractOverviewNav } from './ContractOverviewNav'
 import { ContractOverviewSection } from './ContractOverviewSection'
@@ -11,15 +12,17 @@ const isOverviewSection = (value?: string): value is ContractOverviewSectionsEnu
   Object.values(ContractOverviewSectionsEnum).includes(value as ContractOverviewSectionsEnum)
 
 type ContractDetailsOverviewProps = {
+  currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
-  isRateCardRemovalLocked: boolean
+  isRateCardsLocked: boolean
 }
 
 export const ContractDetailsOverview = ({
+  currency,
   rateCardsCount,
   loading = false,
-  isRateCardRemovalLocked,
+  isRateCardsLocked,
 }: ContractDetailsOverviewProps): JSX.Element => {
   const { id = '', section } = useParams()
   const activeSection = isOverviewSection(section)
@@ -28,7 +31,13 @@ export const ContractDetailsOverview = ({
 
   const renderSection = (): ReactNode => {
     if (activeSection === ContractOverviewSectionsEnum.rateCards) {
-      return <ContractRateCardsSection contractId={id} isRemovalLocked={isRateCardRemovalLocked} />
+      return (
+        <ContractRateCardsSection
+          contractId={id}
+          currency={currency}
+          isLocked={isRateCardsLocked}
+        />
+      )
     }
 
     return <ContractOverviewSection />

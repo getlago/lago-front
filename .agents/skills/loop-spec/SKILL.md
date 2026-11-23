@@ -20,7 +20,7 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
 
 2. **Fetch all sources**:
    - Linear ticket via the Linear MCP `get_issue` tool — the WHOLE ticket: title, description, acceptance criteria, current state, labels, relations, attachments and linked designs. Then the full comment thread via `list_comments`: comments carry decisions, scope changes and repro details that never made it back into the description — on conflict, a later comment overrides the description; note it in spec.md.
-   - **A design attachment is a source, not a bookmark.** When the ticket links a Figma node or any mockup, OPEN it (`get_screenshot` on the node, `get_metadata` for its sub-frames) and derive acceptance criteria from it: the literal copy of every label and empty state, the container shape, one criterion per state the mockup draws for the same control.
+   - **A design attachment is a source, not a bookmark.** When the ticket links a Figma node or any mockup, OPEN it (`get_screenshot` on the node, `get_metadata` for its sub-frames) and derive acceptance criteria from it: the literal copy of every label and empty state, the container shape, one criterion per state the mockup draws for the same control. Figma MCP refuses (rate limit, seat) → open the `?node-id=` URL in the browser, select the frame in the Layers panel, `shift+2`, screenshot each child frame; only when that fails too may spec.md say the design was not read, listing every criterion inferred rather than seen as a risk.
    - Every Notion URL given, via the Notion MCP `notion-fetch` tool, plus any Notion page linked inside the ticket that clearly holds the product/tech spec.
    - Conflict between sources → the Linear ticket wins for scope, Notion wins for product/UX detail; note the conflict in spec.md.
 
@@ -29,7 +29,7 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
    <!-- checks:start -->
    1. **Every premise is verified or marked.** For each constraint the ticket states as a fact about the code ("the frontend must handle X itself", "the backend does not send Y", "this component is only used here"), find the line that confirms it and record it under `## Premises` as `verified: <path:line>`. Nothing confirms it → `premise: unverified — <what the code shows instead>`. A criterion resting on an unverified premise is flagged in `## Acceptance criteria`. The most expensive diff this pipeline has shipped solved around a constraint that was false against the running code.
    2. **A backend default is a backend fact.** When the ticket says the backend derives, defaults or backfills a value, open the model and the service: record the callback, when it fires, and what input triggers it, then state which side owns the default. A front-end fallback mirroring a backend default is duplication to delete, not scope to add.
-   3. **Date fields** are pinned as calendar day or instant, with write zone and display zone stated together. Lago floors arrears dates to UTC midnight and date-only pickers are pinned to `TimezoneEnum.TzUtc`, so a date-only field is written AND displayed in UTC.
+   3. **Date fields** are pinned as calendar day or instant, with write zone and display zone stated together. Lago floors arrears dates to UTC midnight and date-only pickers are pinned to `TimezoneEnum.TzUtc`, so a date-only field is written AND displayed in UTC. A day range pins both bounds separately: an end stored at `T23:59:59.999Z` crosses midnight under a zone shift the `T00:00:00.000Z` start survives, so a conclusion verified on one bound does not transfer.
    4. **Existing mechanism first.** For each behaviour the ticket asks for, name the global or shared thing that may already provide it (Apollo error link, toast layer, router wrappers, design-system component, a sibling hook) and record whether it covers the case. "Files to touch" lists a new file only when this search came back empty, with the search recorded.
    <!-- checks:end -->
 
@@ -55,7 +55,7 @@ If no Linear URL was provided, ask for it with AskUserQuestion and stop until gi
    <numbered list, testable statements, taken/derived from the ticket; a criterion resting on an unverified premise says so>
 
    ## Files to touch
-   <bullet list of exact paths relative to front/, one line each with what changes there; a new file names the existing-mechanism search that came back empty>
+   <bullet list of exact paths relative to front/, one line each with what changes there; a new file names the existing-mechanism search that came back empty; a copy change lists every consumer of the translation key (`grep -rn '<key>' src/`) rendering the same entity, or names it in Non-goals with why it differs>
 
    ## Non-goals
    <what is explicitly out of scope>

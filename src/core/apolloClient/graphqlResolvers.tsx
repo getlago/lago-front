@@ -5,13 +5,31 @@ export const typeDefs = gql`
     internal_error
     unauthorized
     forbidden
+    organization_inactive
     feature_unavailable
+    production_is_a_sandbox
+    production_already_has_sandbox
+    sandbox_already_linked
+    sandbox_has_sandbox
+    sandbox_is_self_serve
+    sandbox_has_sso_integration
+    sandbox_has_extra_premium_integrations
+    sandbox_has_extra_feature_flags
+    sandbox_has_stricter_authentication
+    sandbox_has_pending_invites
+    sandbox_has_other_members
+    sandbox_has_other_roles
+    sandbox_has_other_member_roles
+    sandbox_managed_by_production
+    lock_acquisition_failed
+    cannot_link_organization_to_itself
     not_found
     unprocessable_entity
 
     # Authentication & authentication errors
     token_encoding_error
     expired_jwt_token
+    token_expired
     incorrect_login_or_password
     not_organization_member
     login_method_not_authorized
@@ -34,6 +52,8 @@ export const typeDefs = gql`
     not_voidable
     payment_processor_is_currently_handling_payment
     plan_overlapping
+    product_already_priced
+    product_filter_already_priced
     url_is_invalid
     user_already_exists
     user_does_not_exist
@@ -41,15 +61,39 @@ export const typeDefs = gql`
     value_is_duplicated
     value_is_invalid
     value_is_out_of_range
+    value_is_too_long
+    invalid_characters
     last_admin
 
     # Object not found
     missing_payment_provider_customer
     plan_not_found
 
+    # Self-serve signup errors
+    self_serve_disabled
+    signup_disabled
+    too_many_requests
+    lock_acquisition_failed
+    captcha_failed
+    captcha_unavailable
+    resend_too_soon
+    resend_limit_reached
+    signup_resend_exhausted
+    signup_expired
+    email_already_verified
+    signup_secret_expired
+    signup_token_expired
+    signup_token_replaced
+    signup_token_locked
+    password_required
+    incorrect_password
+    user_not_eligible
+
     # SSO errors
     invalid_google_code
     invalid_google_token
+    invalid_google_state
+    company_google_account_required
     google_auth_missing_setup
     google_login_method_not_authorized
     domain_not_configured
@@ -80,9 +124,13 @@ export const typeDefs = gql`
     add_on
     alert
     analytic
+    api_log
     applied_coupon
+    attributed_usage
     billable_metric
     billing_entity
+    contract
+    contract_rate_card
     coupon
     credit_note
     customer
@@ -99,6 +147,10 @@ export const typeDefs = gql`
     payment_request
     payment_method
     plan
+    plan_rate_card
+    product
+    product_category
+    rate_card
     security_log
     subscription
     tax

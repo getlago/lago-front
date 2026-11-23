@@ -63,6 +63,7 @@ import { FiltersItemQuoteStatus } from '~/components/Filters/graphql/filtersElem
 import { FiltersItemRateCardProduct } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProduct'
 import { FiltersItemRateCardProductCategory } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductCategory'
 import { FiltersItemRateCardProductFilter } from '~/components/Filters/graphql/filtersElements/FiltersItemRateCardProductFilter'
+import { FiltersItemRealtimeDimensions } from '~/components/Filters/graphql/filtersElements/FiltersItemRealtimeDimensions'
 import { FiltersItemRequestPath } from '~/components/Filters/graphql/filtersElements/FiltersItemRequestPath'
 import { FiltersItemResourceIds } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceIds'
 import { FiltersItemResourceTypes } from '~/components/Filters/graphql/filtersElements/FiltersItemResourceTypes'
@@ -72,6 +73,7 @@ import { FiltersItemStates } from '~/components/Filters/graphql/filtersElements/
 import { FiltersItemStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemStatus'
 import { FiltersItemSubscription } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscription'
 import { FiltersItemSubscriptionStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemSubscriptionStatus'
+import { FiltersItemTimeRange } from '~/components/Filters/graphql/filtersElements/FiltersItemTimeRange'
 import { FiltersItemUserEmails } from '~/components/Filters/graphql/filtersElements/FiltersItemUserEmails'
 import { FiltersItemUserIds } from '~/components/Filters/graphql/filtersElements/FiltersItemUserIds'
 import { FiltersItemWebhookDate } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookDate'
@@ -80,7 +82,13 @@ import { FiltersItemWebhookHttpStatuses } from '~/components/Filters/graphql/fil
 import { FiltersItemWebhookStatus } from '~/components/Filters/graphql/filtersElements/FiltersItemWebhookStatus'
 import { FiltersItemZipcodes } from '~/components/Filters/graphql/filtersElements/FiltersItemZipcodes'
 import { FiltersItemDates } from '~/components/Filters/graphql/utils'
-import { AvailableFiltersEnum, FiltersFormValues } from '~/components/Filters/presentation/types'
+import {
+  AvailableFiltersEnum,
+  DynamicFilter,
+  FilterKey,
+  FiltersFormValues,
+  isDynamicFilterKey,
+} from '~/components/Filters/presentation/types'
 import { LogEventEnum, LogTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -91,13 +99,15 @@ export const FILTERS_PANEL_ITEM_TYPE_SWITCH_DATE_HELP_TEST_ID =
 export const FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID = 'filters-panel-item-type-switch-help'
 
 type FiltersPanelItemTypeSwitchProps = {
-  filterType: AvailableFiltersEnum | undefined
+  filterType: FilterKey | undefined
+  dynamicFilter?: DynamicFilter
   value: FiltersFormValues['filters'][0]['value']
   setFilterValue: (value: string) => void
 }
 
 export const FiltersPanelItemTypeSwitch = ({
   filterType,
+  dynamicFilter,
   ...props
 }: FiltersPanelItemTypeSwitchProps) => {
   const { translate } = useInternationalization()
@@ -108,6 +118,25 @@ export const FiltersPanelItemTypeSwitch = ({
         data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_PLACEHOLDER_TEST_ID}
         className="h-[46px] rounded-xl border border-dashed border-grey-300 lg:flex-1"
       />
+    )
+  }
+
+  if (isDynamicFilterKey(filterType)) {
+    return (
+      <>
+        <Typography
+          data-test={FILTERS_PANEL_ITEM_TYPE_SWITCH_HELP_TEST_ID}
+          variant="body"
+          color="grey700"
+        >
+          {translate(
+            dynamicFilter?.isRangeValue?.(props.value)
+              ? 'text_66ab42d4ece7e6b7078993e2'
+              : 'text_66ab42d4ece7e6b7078993d0',
+          )}
+        </Typography>
+        {dynamicFilter?.renderValueInput(props)}
+      </>
     )
   }
 
@@ -211,6 +240,8 @@ export const FiltersPanelItemTypeSwitch = ({
     [AvailableFiltersEnum.adminActions]: <FiltersItemAdminActions {...props} />,
     [AvailableFiltersEnum.adminOrganizations]: <FiltersItemAdminOrganizations {...props} />,
     [AvailableFiltersEnum.adminAuditDate]: <FiltersItemDate {...props} />,
+    [AvailableFiltersEnum.realtimeDimensions]: <FiltersItemRealtimeDimensions {...props} />,
+    [AvailableFiltersEnum.timeRange]: <FiltersItemTimeRange {...props} />,
   }
 
   return (

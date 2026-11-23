@@ -13,8 +13,8 @@ import { render } from '~/test-utils'
 import {
   SubscriptionDetailAlerts,
   SubscriptionDowngradeAlert,
+  SubscriptionInformationFields,
 } from '../SubscriptionInformationFields'
-import { SubscriptionInformations } from '../SubscriptionInformations'
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -203,10 +203,10 @@ describe('SubscriptionDetailAlerts', () => {
   })
 })
 
-describe('SubscriptionInformations payment activation fields', () => {
+describe('SubscriptionInformationFields payment activation fields', () => {
   it('renders activation rule and timeout fields for incomplete payment-gated subscriptions', () => {
     render(
-      <SubscriptionInformations
+      <SubscriptionInformationFields
         subscription={baseSubscription({
           status: StatusTypeEnum.Incomplete,
           activationRules: [

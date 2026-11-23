@@ -1,8 +1,10 @@
 import { useStore } from '@tanstack/react-form'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
+import { syncCustomerShippingAddress } from '~/components/customers/utils'
 import { Accordion } from '~/components/designSystem/Accordion'
 import { Typography } from '~/components/designSystem/Typography'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -10,10 +12,37 @@ import { emptyCreateCustomerDefaultValues } from '~/pages/createCustomers/formIn
 
 import BillingFields from './BillingFields'
 
+const BILLING_SECTION_FIELDS = ['legalName', 'taxIdentificationNumber']
+
+const isBillingSectionField = (name: string): boolean =>
+  BILLING_SECTION_FIELDS.includes(name) ||
+  name.startsWith('billingAddress.') ||
+  name.startsWith('shippingAddress.')
+
 const BillingAccordion = withForm({
   defaultValues: emptyCreateCustomerDefaultValues,
   render: function Render({ form }) {
     const { translate } = useInternationalization()
+    const [isOpen, setIsOpen] = useState(false)
+    const hasErrors = useStore(form.store, (state) => {
+      const hasServerErrors = Object.entries(state.fieldMeta).some(
+        ([name, meta]) => isBillingSectionField(name) && !!meta?.errorMap.onServer,
+      )
+
+      // The accordion unmounts its fields when closed, so a schema error on a collapsed field
+      // only exists on the form error map
+      return (
+        hasServerErrors || Object.keys(state.errorMap.onDynamic ?? {}).some(isBillingSectionField)
+      )
+    })
+
+    // Keyed on the attempt too: a user who collapses the accordion without fixing the field
+    // leaves `hasErrors` true, and the next submit would otherwise do nothing visible
+    const submissionAttempts = useStore(form.store, (state) => state.submissionAttempts)
+
+    useEffect(() => {
+      if (hasErrors) setIsOpen(true)
+    }, [hasErrors, submissionAttempts])
 
     const billingAddress = useStore(form.store, (state) => state.values.billingAddress)
     const isShippingEqualBillingAddress = useStore(
@@ -23,7 +52,7 @@ const BillingAccordion = withForm({
 
     useEffect(() => {
       if (isShippingEqualBillingAddress) {
-        form.setFieldValue('shippingAddress', billingAddress ? { ...billingAddress } : undefined)
+        syncCustomerShippingAddress(form, billingAddress ? { ...billingAddress } : undefined)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [billingAddress, isShippingEqualBillingAddress])
@@ -35,6 +64,23 @@ const BillingAccordion = withForm({
     return (
       <Accordion
         variant="borderless"
+        isOpen={isOpen}
+        onToggle={setIsOpen}
+        transitionProps={{
+          onEntered: () => {
+            const erroredFieldNames = [
+              ...Object.keys(form.state.errorMap.onDynamic ?? {}),
+              ...Object.entries(form.state.fieldMeta)
+                .filter(([, meta]) => !!meta?.errorMap.onServer)
+                .map(([name]) => name),
+            ].filter(isBillingSectionField)
+
+            scrollToFirstInputError(
+              'create-customer',
+              Object.fromEntries(erroredFieldNames.map((name) => [name, true])),
+            )
+          },
+        }}
         summary={
           <div className="flex flex-col gap-2">
             <Typography variant="subhead1">{translate('text_632b49e2620ea4c6d96c9662')}</Typography>

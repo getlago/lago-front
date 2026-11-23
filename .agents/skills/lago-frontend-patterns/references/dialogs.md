@@ -108,4 +108,10 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 
 ## Implementation notes
 
-No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.
+**A failed action closes the dialog silently by default.** Every dialog hook defaults
+`closeOnError` to `true`: when `onAction` (or the form submit) rejects, the dialog hides
+and the promise `open()` returned rejects. A network failure rejects without a toast,
+since the error link only reports GraphQL errors (`graphql-errors.md`). For any action
+that calls the API, pass `closeOnError: false` with an `onError` that shows a danger
+toast, and test the network-failure path: the dialog stays, the callback does not run,
+the toast shows. Reference: `useAddPaymentMethodDialog.tsx`.

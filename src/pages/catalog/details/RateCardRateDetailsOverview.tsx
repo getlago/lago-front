@@ -1,6 +1,10 @@
 import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
+import {
+  formatConversionRateAmount,
+  formatSpendingMinimum,
+} from '~/components/appliedRateCards/ratePhaseDisplay'
 import { Status } from '~/components/designSystem/Status'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
@@ -8,9 +12,7 @@ import { PageSectionTitle } from '~/components/layouts/Section'
 import { chargeModelLookupTranslation } from '~/core/constants/form'
 import { rateCardRateStatusMapping } from '~/core/constants/statusRateCardRateMapping'
 import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { Link, RATE_CARD_DETAILS_ROUTE } from '~/core/router'
-import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
 import {
   ProductCategoryForCatalogRelationsFragmentDoc,
@@ -63,6 +65,8 @@ gql`
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_EDIT_TEST_ID = 'rate-card-rate-details-overview-edit'
 export const RATE_CARD_RATE_DETAILS_OVERVIEW_STATUS_TEST_ID =
   'rate-card-rate-details-overview-status'
+export const RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID =
+  'rate-card-rate-details-overview-conversion-rate'
 
 export const RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY = 'text_17877372202287udsa3vj1ul'
 
@@ -100,18 +104,8 @@ const RateCardRateDetailsOverview = ({
   // The backend rejects a spending minimum on a pay-in-advance card.
   const hasSpendingMinimum = rateCard.billingTiming === RateCardBillingTimingEnum.Arrears
 
-  // A rate saved without one stores 0, which would read as a configured zero floor.
-  const minAmountCents = Number(rate.minAmountCents ?? 0)
-
-  const spendingMinimum =
-    minAmountCents > 0
-      ? intlFormatNumber(deserializeAmount(minAmountCents, rateCard.currency), {
-          currencyDisplay: 'symbol',
-          currency: rateCard.currency,
-          pricingUnitShortName,
-          maximumFractionDigits: 15,
-        })
-      : '-'
+  const spendingMinimum = formatSpendingMinimum(rate, rateCard.currency, pricingUnitShortName)
+  const conversionRate = rate.appliedPricingUnitConversionRate ?? 0
 
   return (
     <section className="flex flex-col gap-4">
@@ -164,15 +158,34 @@ const RateCardRateDetailsOverview = ({
         ]}
       />
 
-      <DetailsPage.InfoGridItem
-        className="col-span-2"
-        label={translate('text_1787737220227tqziocrcywv')}
-        value={translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
-          count: rate.billingIntervalCount,
-          unit: translate(
-            BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
-          ).toLocaleLowerCase(),
-        })}
+      <DetailsPage.InfoGrid
+        grid={[
+          {
+            label: translate('text_1787737220227tqziocrcywv'),
+            value: translate(RATE_CARD_RATE_DETAILS_BILLING_INTERVAL_VALUE_KEY, {
+              count: rate.billingIntervalCount,
+              unit: translate(
+                BILLING_INTERVAL_UNIT_TRANSLATION_KEY[rate.billingIntervalUnit],
+              ).toLocaleLowerCase(),
+            }),
+          },
+          !!rateCard.appliedPricingUnitCode && {
+            label: translate('text_1750411499858su5b7bbp5t9'),
+            value: (
+              <span data-test={RATE_CARD_RATE_DETAILS_OVERVIEW_CONVERSION_RATE_TEST_ID}>
+                {conversionRate > 0
+                  ? translate('text_1750424999815sw5whlu1xj0', {
+                      shortName: pricingUnitShortName ?? rateCard.appliedPricingUnitCode,
+                      conversionRateAmount: formatConversionRateAmount(
+                        conversionRate,
+                        rateCard.currency,
+                      ),
+                    })
+                  : '-'}
+              </span>
+            ),
+          },
+        ]}
       />
 
       <DetailsPage.InfoGridItem

@@ -13,6 +13,8 @@ import {
   GetBillableMetricsForAvalaraItemsListQuery,
   GetBillableMetricsForNetsuiteItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
+  GetProductsForAnrokItemsListQuery,
+  GetProductsForAvalaraItemsListQuery,
   IntegrationTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
@@ -54,6 +56,8 @@ export type FetchableIntegrationItemsListData =
   | GetBillableMetricsForAvalaraItemsListQuery['billableMetrics']
   | GetAddOnsForXeroItemsListQuery['addOns']
   | GetBillableMetricsForXeroItemsListQuery['billableMetrics']
+  | GetProductsForAnrokItemsListQuery['products']
+  | GetProductsForAvalaraItemsListQuery['products']
   | undefined
 
 export type MappableIntegrationProvider = PickEnum<
@@ -131,7 +135,11 @@ export type OpenMappableIntegrationMapItemDrawer = (
 ) => void
 
 export type CreateUpdateDeleteSuccessAnswer =
-  | { success: true }
+  | {
+      success: true
+      appliedMapping?:
+        ItemMappingForTaxMapping | ItemMappingForNonTaxMapping | ItemMappingForMappable
+    }
   | { success: false; errors: readonly GraphQLFormattedError[] }
   | { success: false; reasons: readonly string[] }
 

@@ -4,11 +4,12 @@ import {
   AvailableFiltersEnum,
   AvailableQuickFilters,
   CustomerAvailableFilters,
+  CustomerFiltersHiddenForProductCatalog,
   Filters,
 } from '~/components/Filters'
 import { SearchInput } from '~/components/SearchInput'
 import { CUSTOMER_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
@@ -20,22 +21,36 @@ export function useCustomersListHeaderFilters({
   debouncedSearch,
 }: UseCustomersListFiltersSectionParams): ReactNode {
   const { translate } = useInternationalization()
-  const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasOrganizationPremiumAddon, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
     PremiumIntegrationTypeEnum.RevenueShare,
   )
 
-  const availableFilters = hasAccessToRevenueShare
-    ? CustomerAvailableFilters
-    : CustomerAvailableFilters.filter(
-        (filter) => filter !== AvailableFiltersEnum.customerAccountType,
+  const getAvailableFilters = (): AvailableFiltersEnum[] => {
+    if (isProductCatalogEnabled) {
+      return CustomerAvailableFilters.filter(
+        (filter) => !CustomerFiltersHiddenForProductCatalog.includes(filter),
       )
+    }
+
+    if (hasAccessToRevenueShare) return CustomerAvailableFilters
+
+    return CustomerAvailableFilters.filter(
+      (filter) => filter !== AvailableFiltersEnum.customerAccountType,
+    )
+  }
+
+  const availableFilters = getAvailableFilters()
+  const quickFiltersType = isProductCatalogEnabled
+    ? undefined
+    : AvailableQuickFilters.customerAccountType
 
   return (
     <Filters.Provider
       filtersNamePrefix={CUSTOMER_LIST_FILTER_PREFIX}
-      quickFiltersType={AvailableQuickFilters.customerAccountType}
+      quickFiltersType={quickFiltersType}
       availableFilters={availableFilters}
     >
       <div className="flex flex-col gap-4">

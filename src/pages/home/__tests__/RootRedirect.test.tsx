@@ -1,12 +1,22 @@
 import { renderHook } from '@testing-library/react'
 
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
+import type { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
+
 import RootRedirect from '../RootRedirect'
+
+type NeedsOrganizationAnswer = ReturnType<typeof useNeedsOrganization>
 
 const mockNavigate = jest.fn()
 const mockUseLocation = jest.fn()
 const mockUseCurrentUser = jest.fn()
 const mockGetItemFromLS = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
+const mockUseNeedsOrganization = jest.fn<
+  NeedsOrganizationAnswer,
+  Parameters<typeof useNeedsOrganization>
+>()
 
 // Stub the `~/core/router` barrel so the route modules (which pull in
 // `envGlobalVar`) aren't traversed during the test.
@@ -28,6 +38,11 @@ jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockUseCurrentUser(),
 }))
 
+jest.mock('~/hooks/useNeedsOrganization', () => ({
+  useNeedsOrganization: (...args: Parameters<typeof useNeedsOrganization>) =>
+    mockUseNeedsOrganization(...args),
+}))
+
 jest.mock('~/components/designSystem/Spinner', () => ({
   Spinner: () => null,
 }))
@@ -37,12 +52,33 @@ const membership = (slug: string, accessibleByCurrentSession = true) => ({
   organization: { id: `id-${slug}`, slug, accessibleByCurrentSession },
 })
 
+const pendingMembership = (slug: string) => ({
+  id: `membership-${slug}`,
+  organization: {
+    id: `id-${slug}`,
+    slug,
+    accessibleByCurrentSession: true,
+    activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+  },
+})
+
+const answerNeedsOrganization = (answer: Partial<NeedsOrganizationAnswer>): void => {
+  mockUseNeedsOrganization.mockReturnValue({
+    needsOrganization: false,
+    loading: false,
+    hasError: false,
+    retry: jest.fn(),
+    ...answer,
+  })
+}
+
 describe('RootRedirect', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseLocation.mockReturnValue({ state: null })
     mockGetItemFromLS.mockReturnValue(null)
     mockGetPersistedOrganizationSlug.mockReturnValue(null)
+    answerNeedsOrganization({ needsOrganization: false })
     mockUseCurrentUser.mockReturnValue({
       loading: false,
       currentUser: { memberships: [membership('acme'), membership('globex')] },
@@ -91,6 +127,28 @@ describe('RootRedirect', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/globex', expect.objectContaining({ replace: true }))
   })
 
+  it.each(['/globex', '/globex?tab=1', '/globex#top'])(
+    'reads the whole first segment of the SSO redirect path %s',
+    (ssoPath) => {
+      mockGetItemFromLS.mockReturnValue(ssoPath)
+
+      renderHook(() => RootRedirect())
+
+      expect(mockNavigate).toHaveBeenCalledWith(
+        '/globex',
+        expect.objectContaining({ replace: true }),
+      )
+    },
+  )
+
+  it('reads the whole first segment of the saved `from` path', () => {
+    mockUseLocation.mockReturnValue({ state: { from: { pathname: '/globex?tab=1' } } })
+
+    renderHook(() => RootRedirect())
+
+    expect(mockNavigate).toHaveBeenCalledWith('/globex', expect.objectContaining({ replace: true }))
+  })
+
   it('ignores a persisted slug that is not an accessible membership', () => {
     mockGetPersistedOrganizationSlug.mockReturnValue('not-a-member')
 
@@ -132,5 +190,214 @@ describe('RootRedirect', () => {
       '/acme',
       expect.objectContaining({ state, replace: true }),
     )
+  })
+
+  describe('GIVEN who needs the needs-organization check', () => {
+    it('THEN should skip it while the user is loading', () => {
+      mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenLastCalledWith({ skip: true })
+    })
+
+    it('THEN should skip it for a user who already has an organization', () => {
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenCalled()
+      expect(mockUseNeedsOrganization.mock.calls.every(([options]) => options?.skip)).toBe(true)
+    })
+
+    it('THEN should run it for a user without an accessible organization', () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [membership('acme', false)] },
+      })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockUseNeedsOrganization).toHaveBeenLastCalledWith({ skip: false })
+    })
+  })
+
+  describe('GIVEN the needs-organization check is still loading', () => {
+    beforeEach(() => {
+      answerNeedsOrganization({ loading: true })
+    })
+
+    describe('WHEN the user has no organization', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({ loading: false, currentUser: { memberships: [] } })
+      })
+
+      it('THEN should wait for the check instead of redirecting', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+
+      it('THEN should redirect only to the create organization page once the check says so', () => {
+        const { rerender } = renderHook(() => RootRedirect())
+
+        answerNeedsOrganization({ needsOrganization: true })
+        rerender()
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      })
+    })
+
+    describe('WHEN the user already has an organization', () => {
+      it('THEN should redirect to it without waiting for the check', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a self-serve user who needs an organization', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [] },
+      })
+      answerNeedsOrganization({ needsOrganization: true })
+    })
+
+    describe('WHEN the user is loaded', () => {
+      it('THEN should redirect to the create organization page instead of forbidden', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+        expect(mockNavigate).not.toHaveBeenCalledWith('/forbidden', expect.anything())
+      })
+
+      it('THEN should redirect only once when the user is re-delivered', () => {
+        const { rerender } = renderHook(() => RootRedirect())
+
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { memberships: [] },
+        })
+        rerender()
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the user is still loading', () => {
+      it('THEN should not redirect yet', () => {
+        mockUseCurrentUser.mockReturnValue({ loading: true, currentUser: undefined })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the needs-organization check failed', () => {
+    beforeEach(() => {
+      answerNeedsOrganization({ hasError: true })
+    })
+
+    describe('WHEN the user has no accessible membership', () => {
+      it('THEN should redirect to the create organization page instead of forbidden', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { memberships: [] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(CREATE_ORGANIZATION_ROUTE, { replace: true })
+      })
+    })
+
+    describe('WHEN the user only has memberships refused for this session', () => {
+      it('THEN should redirect to forbidden instead of the create organization page', () => {
+        mockUseCurrentUser.mockReturnValue({
+          loading: false,
+          currentUser: { memberships: [membership('locked', false)] },
+        })
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith('/forbidden', { replace: true })
+      })
+    })
+
+    describe('WHEN the user has an accessible membership', () => {
+      it('THEN should still land on that organization', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme',
+          expect.objectContaining({ replace: true }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a production organization waiting for a payment method next to its sandbox', () => {
+    beforeEach(() => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [pendingMembership('acme'), membership('acme-sandbox')] },
+      })
+    })
+
+    describe('WHEN the pending organization is the first membership', () => {
+      it('THEN should land on the sandbox', () => {
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/acme-sandbox',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+
+    describe.each([
+      [
+        'the persisted last-used slug',
+        () => mockGetPersistedOrganizationSlug.mockReturnValue('acme'),
+      ],
+      ['the SSO redirect path', () => mockGetItemFromLS.mockReturnValue('/acme/customers')],
+      [
+        'the saved `from` location',
+        () => mockUseLocation.mockReturnValue({ state: { from: { pathname: '/acme/customers' } } }),
+      ],
+    ])('WHEN %s names the pending organization', (_, arrange) => {
+      it('THEN should land on the sandbox, not the pending organization', () => {
+        arrange()
+
+        renderHook(() => RootRedirect())
+
+        expect(mockNavigate).toHaveBeenCalledWith('/acme-sandbox', expect.anything())
+        expect(mockNavigate).not.toHaveBeenCalledWith('/acme', expect.anything())
+      })
+    })
+  })
+
+  describe('GIVEN the only organization the session can open is waiting for a payment method', () => {
+    it('THEN should still land on it', () => {
+      mockUseCurrentUser.mockReturnValue({
+        loading: false,
+        currentUser: { memberships: [pendingMembership('acme')] },
+      })
+
+      renderHook(() => RootRedirect())
+
+      expect(mockNavigate).toHaveBeenCalledWith('/acme', expect.anything())
+    })
   })
 })

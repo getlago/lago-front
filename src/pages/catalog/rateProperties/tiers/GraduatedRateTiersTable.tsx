@@ -11,8 +11,8 @@ import { FieldErrorTooltip } from '~/components/form/FieldErrorTooltip'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, RateTierInput } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
-import { withForm } from '~/hooks/forms/useAppform'
-import { RATE_CARD_RATE_FORM_DEFAULTS } from '~/pages/catalog/drawers/rateCardRate/constants'
+import { withFieldGroup } from '~/hooks/forms/useAppform'
+import { getRatePropertiesShape } from '~/pages/catalog/drawers/rateCardRate/getRatePropertiesShape'
 
 import {
   getTierLabelKey,
@@ -45,11 +45,13 @@ gql`
 type GraduatedRateTiersTableProps = {
   currency: CurrencyEnum
   pricingUnitShortName: string | undefined
+  disabled?: boolean
 }
 
 const graduatedRateTiersTableDefaultProps: GraduatedRateTiersTableProps = {
   currency: CurrencyEnum.Usd,
   pricingUnitShortName: undefined,
+  disabled: false,
 }
 
 const createGraduatedTier = (toValue: string | null): RateTierInput => ({
@@ -58,16 +60,20 @@ const createGraduatedTier = (toValue: string | null): RateTierInput => ({
   flatAmount: '',
 })
 
-export const GraduatedRateTiersTable = withForm({
-  defaultValues: RATE_CARD_RATE_FORM_DEFAULTS,
+export const GraduatedRateTiersTable = withFieldGroup({
+  defaultValues: getRatePropertiesShape(),
   props: graduatedRateTiersTableDefaultProps,
-  render: function GraduatedRateTiersTableRender({ form, currency, pricingUnitShortName }) {
+  render: function GraduatedRateTiersTableRender({
+    group,
+    currency,
+    pricingUnitShortName,
+    disabled,
+  }) {
     const { translate } = useInternationalization()
-    const tiers = useStore(form.store, (state) => state.values.properties?.graduatedRanges)
+    const tiers = useStore(group.store, (state) => state.values.graduatedRanges)
     const handleTiersChange = useCallback(
-      (nextTiers: RateTierInput[]): void =>
-        form.setFieldValue('properties.graduatedRanges', nextTiers),
-      [form],
+      (nextTiers: RateTierInput[]): void => group.setFieldValue('graduatedRanges', nextTiers),
+      [group],
     )
     const { rows, addTier, deleteTier } = useRateTiers({
       tiers,
@@ -123,7 +129,7 @@ export const GraduatedRateTiersTable = withForm({
       }
 
       return (
-        <form.AppField name={`properties.graduatedRanges[${index}].toValue`}>
+        <group.AppField name={`graduatedRanges[${index}].toValue`}>
           {(field) => (
             <FieldErrorTooltip
               title={translate(RATE_TIER_UP_TO_ERROR_KEY, {
@@ -134,11 +140,12 @@ export const GraduatedRateTiersTable = withForm({
                 variant="outlined"
                 beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                 displayErrorText={false}
+                disabled={disabled}
                 data-test={getRateTierTestId(RATE_TIER_UP_TO_TEST_ID, index)}
               />
             </FieldErrorTooltip>
           )}
-        </form.AppField>
+        </group.AppField>
       )
     }
 
@@ -149,6 +156,7 @@ export const GraduatedRateTiersTable = withForm({
           startIcon="plus"
           variant="inline"
           onClick={addTier}
+          disabled={disabled}
           data-test={RATE_TIERS_ADD_TIER_TEST_ID}
         >
           {translate('text_62793bbb599f1c01522e91a5')}
@@ -157,7 +165,7 @@ export const GraduatedRateTiersTable = withForm({
           <ChargeTable
             name="graduated-rate-tiers-table"
             data={rows}
-            onDeleteRow={(_, index) => deleteTier(index)}
+            onDeleteRow={disabled ? undefined : (_, index) => deleteTier(index)}
             columns={[
               {
                 size: 181,
@@ -188,7 +196,7 @@ export const GraduatedRateTiersTable = withForm({
                 ),
                 size: 181,
                 content: (_, index) => (
-                  <form.AppField name={`properties.graduatedRanges[${index}].perUnitAmount`}>
+                  <group.AppField name={`graduatedRanges[${index}].perUnitAmount`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -196,6 +204,7 @@ export const GraduatedRateTiersTable = withForm({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -205,7 +214,7 @@ export const GraduatedRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
               {
@@ -216,7 +225,7 @@ export const GraduatedRateTiersTable = withForm({
                 ),
                 size: 181,
                 content: (_, index) => (
-                  <form.AppField name={`properties.graduatedRanges[${index}].flatAmount`}>
+                  <group.AppField name={`graduatedRanges[${index}].flatAmount`}>
                     {(field) => (
                       <FieldErrorTooltip>
                         <field.AmountInputField
@@ -224,6 +233,7 @@ export const GraduatedRateTiersTable = withForm({
                           beforeChangeFormatter={['chargeDecimal', 'positiveNumber']}
                           currency={currency}
                           displayErrorText={false}
+                          disabled={disabled}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">{amountAdornment}</InputAdornment>
@@ -233,7 +243,7 @@ export const GraduatedRateTiersTable = withForm({
                         />
                       </FieldErrorTooltip>
                     )}
-                  </form.AppField>
+                  </group.AppField>
                 ),
               },
             ]}

@@ -122,6 +122,30 @@ describe('Authentication redirect flows', () => {
     })
   })
 
+  describe('Cross-tab logout', () => {
+    it('should log this tab out when another tab logs out', () => {
+      cy.login(testUser.email, testUser.password)
+
+      cy.visitApp('/customers')
+      cy.url().should('include', '/customers')
+
+      // `storage` never fires in the tab that wrote, so the event is dispatched
+      // here the way the browser delivers it to the other tabs.
+      cy.window().then((win) => {
+        win.localStorage.removeItem('authToken')
+        win.dispatchEvent(
+          new win.StorageEvent('storage', {
+            key: 'authToken',
+            newValue: null,
+            storageArea: win.localStorage,
+          }),
+        )
+      })
+
+      cy.url().should('include', '/login')
+    })
+  })
+
   describe('Edge cases and corner scenarios', () => {
     it('should handle navigation to public pages while authenticated', () => {
       // Login

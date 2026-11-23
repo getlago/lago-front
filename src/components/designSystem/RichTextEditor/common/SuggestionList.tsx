@@ -1,8 +1,8 @@
 import type { SuggestionKeyDownProps } from '@tiptap/suggestion'
-import { IconName } from 'lago-design-system'
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { IconName } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { MenuPopper } from '~/styles/designSystem/PopperComponents'
 

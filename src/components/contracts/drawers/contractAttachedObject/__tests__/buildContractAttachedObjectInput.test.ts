@@ -7,13 +7,12 @@ const values: ContractAttachedObjectFormValues = {
   externalCustomerId: 'external-customer-1',
   billingEntityId: 'billing-entity-1',
   planCode: 'enterprise',
-  isPlanRequired: true,
 }
 
 describe('buildContractAttachedObjectInput', () => {
-  it('builds the update input keyed on the contract external id', () => {
+  it('builds the update input keyed on the contract id', () => {
     expect(buildContractAttachedObjectInput(values, contractForDrawerFixture)).toEqual({
-      externalId: 'external-contract-1',
+      id: 'contract-1',
       planCode: 'enterprise',
       billingEntityId: 'billing-entity-1',
     })

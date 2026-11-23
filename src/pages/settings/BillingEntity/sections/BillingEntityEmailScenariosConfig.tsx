@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 import { generatePath, useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'

@@ -1,132 +1,27 @@
 import { PASSWORD_VALIDATION_ERRORS } from '~/formValidation/zodCustoms'
 
-import {
-  invitationDefaultValues,
-  InvitationFormValues,
-  invitationValidationSchema,
-} from '../validationSchema'
+import { invitationLogInValidationSchema, invitationValidationSchema } from '../validationSchema'
 
 describe('invitationValidationSchema', () => {
-  describe('password validation', () => {
-    it('should fail for empty password', () => {
-      const result = invitationValidationSchema.safeParse({ password: '' })
+  it('rejects a password that does not follow the creation rules', () => {
+    expect(invitationValidationSchema.safeParse({ password: 'weak' }).success).toBe(false)
+  })
 
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.REQUIRED)
-      }
-    })
-
-    it('should fail for password shorter than 8 characters', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'Pass1!' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.MIN)
-      }
-    })
-
-    it('should fail for password without lowercase letters', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'PASSWORD1!' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.LOWERCASE)
-      }
-    })
-
-    it('should fail for password without uppercase letters', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'password1!' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.UPPERCASE)
-      }
-    })
-
-    it('should fail for password without numbers', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'Password!' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.NUMBER)
-      }
-    })
-
-    it('should fail for password without special characters', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'Password1' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.SPECIAL)
-      }
-    })
-
-    it('should pass for valid password', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'Password1!' })
-
-      expect(result.success).toBe(true)
-    })
-
-    it('should pass for password with various special characters', () => {
-      const validPasswords = [
-        'Password1!',
-        'Password1@',
-        'Password1#',
-        'Password1$',
-        'Password1%',
-        'Password1^',
-        'Password1&',
-        'Password1*',
-        'Password1/',
-        'Password1.',
-        'Password1,',
-        'Password1?',
-      ]
-
-      validPasswords.forEach((password) => {
-        const result = invitationValidationSchema.safeParse({ password })
-
-        expect(result.success).toBe(true)
-      })
-    })
-
-    it('should return multiple errors for password missing multiple requirements', () => {
-      const result = invitationValidationSchema.safeParse({ password: 'short' })
-
-      expect(result.success).toBe(false)
-      if (!result.success) {
-        const errors = result.error.flatten().fieldErrors.password || []
-
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.MIN)
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.UPPERCASE)
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.NUMBER)
-        expect(errors).toContain(PASSWORD_VALIDATION_ERRORS.SPECIAL)
-      }
-    })
+  it('accepts a password that follows the creation rules', () => {
+    expect(invitationValidationSchema.safeParse({ password: 'ILoveLago1!' }).success).toBe(true)
   })
 })
 
-describe('invitationDefaultValues', () => {
-  it('should have empty password as default', () => {
-    expect(invitationDefaultValues.password).toBe('')
+describe('invitationLogInValidationSchema', () => {
+  // The password of an existing account can be older than the creation rules.
+  it('accepts a password that does not follow the creation rules', () => {
+    expect(invitationLogInValidationSchema.safeParse({ password: 'weak' }).success).toBe(true)
   })
 
-  it('should match the expected type', () => {
-    const values: InvitationFormValues = invitationDefaultValues
+  it('rejects an empty password', () => {
+    const result = invitationLogInValidationSchema.safeParse({ password: '' })
 
-    expect(values).toHaveProperty('password')
+    expect(result.success).toBe(false)
+    expect(result.error?.issues[0].message).toBe(PASSWORD_VALIDATION_ERRORS.REQUIRED)
   })
 })

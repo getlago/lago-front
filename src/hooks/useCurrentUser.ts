@@ -26,6 +26,13 @@ gql`
         name
         logoUrl
         accessibleByCurrentSession
+        environment
+        productionOrganization {
+          id
+        }
+        sandboxOrganization {
+          id
+        }
       }
     }
   }
@@ -43,9 +50,10 @@ gql`
 type UseCurrentUser = () => {
   isPremium: boolean
   loading: boolean
+  error?: ReturnType<typeof useGetCurrentUserInfosQuery>['error']
   currentUser?: CurrentUserInfosFragment
   currentMembership?: CurrentUserInfosFragment['memberships'][0]
-  refetchCurrentUserInfos: () => void
+  refetchCurrentUserInfos: ReturnType<typeof useGetCurrentUserInfosQuery>['refetch']
 }
 
 export const useCurrentUser: UseCurrentUser = () => {
@@ -56,6 +64,7 @@ export const useCurrentUser: UseCurrentUser = () => {
   const {
     data,
     loading,
+    error,
     refetch: refetchCurrentUserInfos,
   } = useGetCurrentUserInfosQuery({
     fetchPolicy: 'cache-first',
@@ -104,6 +113,7 @@ export const useCurrentUser: UseCurrentUser = () => {
     currentUser: data?.currentUser,
     isPremium: data?.currentUser.premium || false,
     loading: loading,
+    error,
     refetchCurrentUserInfos,
   }
 }

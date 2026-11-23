@@ -1,5 +1,6 @@
 import { PermissionEnum } from '~/generated/graphql'
 
+import { allPermissions } from '../../../permissionsConst'
 import { mapFromFormToApi } from '../mapFromFormToApi'
 
 describe('mapFromFormToApi', () => {
@@ -15,7 +16,7 @@ describe('mapFromFormToApi', () => {
       },
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.name).toBe('Custom Role')
     expect(result.code).toBe('custom-role')
@@ -36,7 +37,7 @@ describe('mapFromFormToApi', () => {
       },
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.permissions).toHaveLength(0)
   })
@@ -49,7 +50,7 @@ describe('mapFromFormToApi', () => {
       permissions: {},
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.permissions).toHaveLength(0)
   })
@@ -69,7 +70,7 @@ describe('mapFromFormToApi', () => {
       },
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.permissions).toHaveLength(6)
     expect(result.permissions).toContain(PermissionEnum.PlansView)
@@ -88,7 +89,7 @@ describe('mapFromFormToApi', () => {
       permissions: { PlansView: true },
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.description).toBe('')
   })
@@ -101,8 +102,25 @@ describe('mapFromFormToApi', () => {
       permissions: { PlansView: true },
     }
 
-    const result = mapFromFormToApi(formValues)
+    const result = mapFromFormToApi(formValues, allPermissions)
 
     expect(result.code).toBe('')
+  })
+
+  it('sends only the displayed permissions, dropping granted ones the editor hides', () => {
+    const formValues = {
+      name: 'Duplicated Admin',
+      code: 'duplicated_admin',
+      description: '',
+      permissions: {
+        PlansView: true,
+        WalletsCreate: true,
+        CouponsAttach: true,
+      },
+    }
+
+    const result = mapFromFormToApi(formValues, ['PlansView', 'PlansCreate'])
+
+    expect(result.permissions).toEqual([PermissionEnum.PlansView])
   })
 })

@@ -8,24 +8,46 @@ import PageTitle from '~/components/customerPortal/common/PageTitle'
 import SectionError from '~/components/customerPortal/common/SectionError'
 import { LoaderCustomerInformationPage } from '~/components/customerPortal/common/SectionLoading'
 import useCustomerPortalTranslate from '~/components/customerPortal/common/useCustomerPortalTranslate'
-import { TRANSLATIONS_MAP_CUSTOMER_TYPE } from '~/components/customers/utils'
+import {
+  clearCustomerServerError,
+  getCustomerFieldErrors,
+  setCustomerServerErrors,
+  syncCustomerShippingAddress,
+  TRANSLATIONS_MAP_CUSTOMER_TYPE,
+} from '~/components/customers/utils'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
 import { Checkbox } from '~/components/form'
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalEditableFields,
+  pickCustomerPortalEditableFields,
+} from '~/core/constants/customerPortalEditableFields'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { countryDataForCombobox } from '~/core/formats/countryDataForCombobox'
 import {
+  CustomerPortalFieldEnum,
   CustomerTypeEnum,
+  LagoApiError,
   UpdateCustomerPortalCustomerInput,
   useUpdatePortalCustomerMutation,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { editCustomerBillingValidationSchema, mapCustomerToFormValues } from './validationSchema'
+import {
+  buildEditCustomerBillingValidationSchema,
+  mapCustomerToFormValues,
+} from './validationSchema'
 
 type EditCustomerBillingFormProps = {
   customer?: UpdateCustomerPortalCustomerInput | null
+  editableFields: CustomerPortalFieldEnum[]
   onSuccess?: () => void
 }
+
+export const READ_ONLY_FIELDS_ALERT_TEST_ID = 'read-only-fields-alert'
+
+const EDIT_CUSTOMER_BILLING_FORM_ID = 'edit-customer-billing-form'
 
 gql`
   mutation updatePortalCustomer($input: UpdateCustomerPortalCustomerInput!) {
@@ -35,8 +57,16 @@ gql`
   }
 `
 
-const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFormProps) => {
+const EditCustomerBillingForm = ({
+  customer,
+  editableFields,
+  onSuccess,
+}: EditCustomerBillingFormProps) => {
   const { translate } = useCustomerPortalTranslate()
+
+  const isEditable = (field: CustomerPortalFieldEnum): boolean => editableFields.includes(field)
+  const canEditShippingAddress = isEditable(CustomerPortalFieldEnum.ShippingAddress)
+  const hasReadOnlyFields = CUSTOMER_PORTAL_FORM_FIELDS.some(({ field }) => !isEditable(field))
 
   const initialValues = mapCustomerToFormValues(customer)
   const shipping = initialValues.shippingAddress
@@ -57,21 +87,32 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
     updatePortalCustomer,
     { loading: updatePortalCustomerLoading, error: updatePortalCustomerError },
   ] = useUpdatePortalCustomerMutation({
+    context: {
+      silentErrorDetails: [LagoApiError.InvalidCharacters, LagoApiError.ValueIsTooLong],
+    },
     refetchQueries: ['getCustomerPortalData'],
     onCompleted(res) {
-      if (res) {
+      if (res?.updateCustomerPortalCustomer) {
         onSuccess?.()
       }
     },
   })
 
+  const [hasOnlyFieldErrors, setHasOnlyFieldErrors] = useState(false)
+
   const form = useAppForm({
     defaultValues: initialValues,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: editCustomerBillingValidationSchema,
+      onDynamic: buildEditCustomerBillingValidationSchema(
+        initialValues,
+        isShippingEqualBillingAddress,
+      ),
     },
-    onSubmit: async ({ value }) => {
+    listeners: {
+      onChange: clearCustomerServerError,
+    },
+    onSubmit: async ({ value, formApi }) => {
       const { shippingAddress, ...rest } = value
 
       const normalizedShippingAddress = shippingAddress
@@ -83,21 +124,35 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
           )
         : shippingAddress
 
-      updatePortalCustomer({
+      setHasOnlyFieldErrors(false)
+
+      const { errors } = await updatePortalCustomer({
         variables: {
-          input: {
-            ...rest,
-            shippingAddress: normalizedShippingAddress,
-          },
+          input: pickCustomerPortalEditableFields(
+            { ...rest, shippingAddress: normalizedShippingAddress },
+            editableFields,
+          ),
         },
       })
+
+      const customerFieldErrors = getCustomerFieldErrors({ errors, isShippingEqualBillingAddress })
+
+      setHasOnlyFieldErrors(customerFieldErrors.hasOnlyFieldErrors)
+      setCustomerServerErrors(formApi, customerFieldErrors.fields)
+
+      if (Object.keys(customerFieldErrors.fields).length > 0) {
+        scrollToFirstInputError(EDIT_CUSTOMER_BILLING_FORM_ID, customerFieldErrors.fields)
+      }
+    },
+    onSubmitInvalid({ formApi }) {
+      scrollToFirstInputError(EDIT_CUSTOMER_BILLING_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
   })
 
   const syncShippingAddress = () => {
     const values = form.store.state.values
 
-    form.setFieldValue('shippingAddress', {
+    syncCustomerShippingAddress(form, {
       addressLine1: values.addressLine1,
       addressLine2: values.addressLine2,
       city: values.city,
@@ -109,7 +164,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
 
   const billingAddressChangeListener = {
     onChange: () => {
-      if (isShippingEqualBillingAddress) {
+      // A locked shipping address is never saved, so it must not appear to follow billing edits
+      if (canEditShippingAddress && isShippingEqualBillingAddress) {
         syncShippingAddress()
       }
     },
@@ -125,14 +181,25 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form
+      id={EDIT_CUSTOMER_BILLING_FORM_ID}
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4"
+    >
       <Typography variant="subhead2" color="grey700">
         {translate('text_1728377307159eu0ihwiyrf0')}
       </Typography>
 
+      {hasReadOnlyFields && (
+        <Alert type="info" data-test={READ_ONLY_FIELDS_ALERT_TEST_ID}>
+          <Typography>{translate('text_1792713576578hbdtwgcoy2a')}</Typography>
+        </Alert>
+      )}
+
       <form.AppField name="customerType">
         {(field) => (
           <field.ComboBoxField
+            disabled={!isEditable(CustomerPortalFieldEnum.CustomerType)}
             label={translate('text_1726128938631ioz4orixel3')}
             placeholder={translate('text_17261289386318j0nhr1ms3t')}
             PopperProps={{ displayInDialog: true }}
@@ -147,6 +214,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="name">
         {(field) => (
           <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.Name)}
+            translateError={translate}
             label={translate('text_634687079be251fdb43833cb')}
             placeholder={translate('text_1728654170904707saidat0f')}
           />
@@ -157,6 +226,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="firstname">
           {(field) => (
             <field.TextInputField
+              disabled={!isEditable(CustomerPortalFieldEnum.Firstname)}
+              translateError={translate}
               label={translate('text_1726128938631ggtf2ggqs4b')}
               placeholder={translate('text_1726128938631ntcpbzv7x7s')}
             />
@@ -166,6 +237,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="lastname">
           {(field) => (
             <field.TextInputField
+              disabled={!isEditable(CustomerPortalFieldEnum.Lastname)}
+              translateError={translate}
               label={translate('text_1726128938631ymctg83bygm')}
               placeholder={translate('text_1726128938631xmpsba9ssuo')}
             />
@@ -176,6 +249,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="legalName">
         {(field) => (
           <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.LegalName)}
+            translateError={translate}
             label={translate('text_626c0c09812bbc00e4c59e01')}
             placeholder={translate('text_626c0c09812bbc00e4c59e03')}
           />
@@ -184,6 +259,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="taxIdentificationNumber">
         {(field) => (
           <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.TaxIdentificationNumber)}
+            translateError={translate}
             label={translate('text_648053ee819b60364c675d05')}
             placeholder={translate('text_648053ee819b60364c675d0b')}
           />
@@ -192,6 +269,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="email">
         {(field) => (
           <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.Email)}
+            translateError={translate}
             beforeChangeFormatter={['lowercase']}
             label={translate('text_626c0c09812bbc00e4c59e09')}
             placeholder={translate('text_626c0c09812bbc00e4c59e0b')}
@@ -206,6 +285,8 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="addressLine1" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.AddressLine1)}
+            translateError={translate}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
           />
@@ -213,31 +294,48 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       </form.AppField>
       <form.AppField name="addressLine2" listeners={billingAddressChangeListener}>
         {(field) => (
-          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e1f')} />
+          <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.AddressLine2)}
+            translateError={translate}
+            placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
+          />
         )}
       </form.AppField>
 
       <div className="grid grid-cols-2 gap-4">
         <form.AppField name="zipcode" listeners={billingAddressChangeListener}>
           {(field) => (
-            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e21')} />
+            <field.TextInputField
+              disabled={!isEditable(CustomerPortalFieldEnum.Zipcode)}
+              translateError={translate}
+              placeholder={translate('text_626c0c09812bbc00e4c59e21')}
+            />
           )}
         </form.AppField>
         <form.AppField name="city" listeners={billingAddressChangeListener}>
           {(field) => (
-            <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e23')} />
+            <field.TextInputField
+              disabled={!isEditable(CustomerPortalFieldEnum.City)}
+              translateError={translate}
+              placeholder={translate('text_626c0c09812bbc00e4c59e23')}
+            />
           )}
         </form.AppField>
       </div>
 
       <form.AppField name="state" listeners={billingAddressChangeListener}>
         {(field) => (
-          <field.TextInputField placeholder={translate('text_626c0c09812bbc00e4c59e25')} />
+          <field.TextInputField
+            disabled={!isEditable(CustomerPortalFieldEnum.State)}
+            translateError={translate}
+            placeholder={translate('text_626c0c09812bbc00e4c59e25')}
+          />
         )}
       </form.AppField>
       <form.AppField name="country" listeners={billingAddressChangeListener}>
         {(field) => (
           <field.ComboBoxField
+            disabled={!isEditable(CustomerPortalFieldEnum.Country)}
             data={countryDataForCombobox}
             placeholder={translate('text_626c0c09812bbc00e4c59e27')}
             PopperProps={{ displayInDialog: true }}
@@ -249,32 +347,36 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         {translate('text_667d708c1359b49f5a5a8230')}
       </Typography>
 
-      <Checkbox
-        label={translate('text_667d708c1359b49f5a5a8234')}
-        value={isShippingEqualBillingAddress}
-        onChange={() => {
-          const next = !isShippingEqualBillingAddress
+      {canEditShippingAddress && (
+        <Checkbox
+          label={translate('text_667d708c1359b49f5a5a8234')}
+          value={isShippingEqualBillingAddress}
+          onChange={() => {
+            const next = !isShippingEqualBillingAddress
 
-          setIsShippingEqualBillingAddress(next)
-          if (next) {
-            syncShippingAddress()
-          }
-        }}
-      />
+            setIsShippingEqualBillingAddress(next)
+            if (next) {
+              syncShippingAddress()
+            }
+          }}
+        />
+      )}
       <form.AppField name="shippingAddress.addressLine1">
         {(field) => (
           <field.TextInputField
+            translateError={translate}
             label={translate('text_626c0c09812bbc00e4c59e1b')}
             placeholder={translate('text_626c0c09812bbc00e4c59e1d')}
-            disabled={isShippingEqualBillingAddress}
+            disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
           />
         )}
       </form.AppField>
       <form.AppField name="shippingAddress.addressLine2">
         {(field) => (
           <field.TextInputField
+            translateError={translate}
             placeholder={translate('text_626c0c09812bbc00e4c59e1f')}
-            disabled={isShippingEqualBillingAddress}
+            disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
           />
         )}
       </form.AppField>
@@ -283,16 +385,18 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
         <form.AppField name="shippingAddress.zipcode">
           {(field) => (
             <field.TextInputField
+              translateError={translate}
               placeholder={translate('text_626c0c09812bbc00e4c59e21')}
-              disabled={isShippingEqualBillingAddress}
+              disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
             />
           )}
         </form.AppField>
         <form.AppField name="shippingAddress.city">
           {(field) => (
             <field.TextInputField
+              translateError={translate}
               placeholder={translate('text_626c0c09812bbc00e4c59e23')}
-              disabled={isShippingEqualBillingAddress}
+              disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
             />
           )}
         </form.AppField>
@@ -301,8 +405,9 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
       <form.AppField name="shippingAddress.state">
         {(field) => (
           <field.TextInputField
+            translateError={translate}
             placeholder={translate('text_626c0c09812bbc00e4c59e25')}
-            disabled={isShippingEqualBillingAddress}
+            disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
           />
         )}
       </form.AppField>
@@ -322,13 +427,13 @@ const EditCustomerBillingForm = ({ customer, onSuccess }: EditCustomerBillingFor
           <field.ComboBoxField
             data={countryDataForCombobox}
             placeholder={translate('text_626c0c09812bbc00e4c59e27')}
-            disabled={isShippingEqualBillingAddress}
+            disabled={!canEditShippingAddress || isShippingEqualBillingAddress}
             PopperProps={{ displayInDialog: true }}
           />
         )}
       </form.AppField>
 
-      {updatePortalCustomerError && (
+      {updatePortalCustomerError && !hasOnlyFieldErrors && (
         <Alert className="mt-8" type="danger" data-test="error-alert">
           <Typography>{translate('text_1728377307160tb09yisgxk9')}</Typography>
         </Alert>
@@ -385,7 +490,15 @@ const CustomerInformationPage = () => {
 
       {isLoading && <LoaderCustomerInformationPage />}
 
-      {!isLoading && <EditCustomerBillingForm customer={customerPortalUser} onSuccess={goHome} />}
+      {!isLoading && (
+        <EditCustomerBillingForm
+          customer={customerPortalUser}
+          editableFields={getCustomerPortalEditableFields(
+            portalCustomerInfosData?.customerPortalOrganization?.customerPortalLockedFields,
+          )}
+          onSuccess={goHome}
+        />
+      )}
     </div>
   )
 }

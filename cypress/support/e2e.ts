@@ -9,24 +9,10 @@ import { SIGNUP_SUBMIT_BUTTON_TEST_ID } from '~/pages/auth/signUpTestIds'
 import { userEmail, userPassword } from './reusableConstants'
 
 /**
- * Paths that pass through `cy.visitApp()` unchanged (no slug prepended).
- *
- * Extends the app's `NEVER_SLUG_PREFIXES` with auth entry pages that are
- * reachable only from outside the app (signup, invitation, password reset)
- * — those aren't in `NEVER_SLUG_PREFIXES` because the in-app wrappers
- * (`useNavigate` / `<Link>`) never build `navigate('/sign-up')` calls, but
- * Cypress tests do visit those pages directly.
- *
- * Importing `NEVER_SLUG_PREFIXES` from the source keeps the two lists in
- * sync — any new public route added there is reflected here automatically.
+ * Paths that `cy.visitApp()` should not prefix with an organization slug.
+ * Includes app routes and auth pages opened directly by Cypress.
  */
-const PUBLIC_PATHS = [
-  ...NEVER_SLUG_PREFIXES,
-  '/sign-up',
-  '/invitation',
-  '/password-reset',
-  '/forgot-password',
-]
+const PUBLIC_PATHS = [...NEVER_SLUG_PREFIXES, '/sign-up', '/password-reset', '/forgot-password']
 
 /**
  * Regex matching the first authenticated URL after login/signup.

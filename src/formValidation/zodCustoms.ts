@@ -86,12 +86,6 @@ export const zodDomain = z.string().refine((val) => {
   return DOMAIN_REGEX.test(val)
 }, 'text_664c732c264d7eed1c74fe03')
 
-export const zodHost = z.string().refine((val) => {
-  if (typeof val !== 'string') return false
-
-  return validateHostWithoutProtocol(val)
-}, 'text_664c732c264d7eed1c74fdd3')
-
 export const zodOptionalHost = z.string().refine((val) => {
   if (typeof val !== 'string') return false
   if (!val.length) return true
@@ -127,6 +121,11 @@ export const zodRequiredUrl = z
   .string()
   .min(1, { message: 'text_624ea7c29103fd010732ab7d' })
   .and(zodOptionalUrl)
+
+export const zodRequiredString = z
+  .string()
+  .trim()
+  .min(1, { message: 'text_1771342994699klxu2paz7g8' })
 
 // Password validation error messages
 export const PASSWORD_VALIDATION_ERRORS = {

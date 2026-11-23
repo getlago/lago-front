@@ -51,7 +51,6 @@
   "text_66b378e748cda1004ff00db0": "Hei {{customerName}},",
   "text_66b378e748cda1004ff00db1": "Dette er en påminnelse fra økonomiavdelingen i {{organizationName}} om at noen fakturaer er forfalt.",
   "text_66b378e748cda1004ff00db2": "Totalbeløpet som forfaller er {{amount}}.",
-  "text_66b378e748cda1004ff00db3": "Våre avtalte betalingsbetingelser krever betaling ved fakturautstedelse.|Våre avtalte betalingsbetingelser er {{netPaymentTerm}} dag.|Våre avtalte betalingsbetingelser er {{netPaymentTerm}} dager.",
   "text_66b378e748cda1004ff00db4": "Hvis du allerede har foretatt betalingen, vennligst se bort fra denne e-posten.",
   "text_66b378e748cda1004ff00db5": "Takk.",
   "text_66b378e748cda1004ff00db6": "Gjenstående beløp å betale",
@@ -298,5 +297,9 @@
   "text_1784883525803guz1xdk6ub7": "Ukentlig",
   "text_17848835258036aevge8fx0s": "Halvårlig",
   "text_1784883525803ghc0vq94t5u": "Årlig",
-  "text_1787723331045u6dbfhsdn6n": "Faste gebyrer"
+  "text_1787723331045u6dbfhsdn6n": "Faste gebyrer",
+  "text_1792713576578hbdtwgcoy2a": "Noen opplysninger kan bare endres av leverandøren din. Kontakt dem hvis de må oppdateres.",
+  "text_1793265036704cnkqwk0atap": "Dette feltet er for langt. Det kan inneholde opptil 255 tegn.",
+  "text_17932959847757c9xwcz2ltv": "Dette feltet er for langt. Det kan inneholde opptil 500 tegn.",
+  "text_1793265036704k3gcjfhp5lo": "Dette feltet inneholder tegn som ikke er tillatt, for eksempel linjeskift, tabulatorer eller usynlige tegn."
 }

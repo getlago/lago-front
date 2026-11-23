@@ -206,7 +206,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should create mapping for mappable type', async () => {
@@ -254,7 +254,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should create without billing entity ID when billing entity has no ID', async () => {
@@ -417,7 +417,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should update mapping for mappable type', async () => {
@@ -465,7 +465,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should skip update when values are the same', async () => {
@@ -647,7 +647,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should delete mapping for mappable type', async () => {
@@ -687,7 +687,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
           },
         },
       })
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should return error when cannot determine action with initial data but no clear operation', async () => {
@@ -816,7 +816,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
         IntegrationTypeEnum.Netsuite,
       )
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should handle Netsuite non-tax mapping validation correctly', async () => {
@@ -856,7 +856,7 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
         IntegrationTypeEnum.Netsuite,
       )
 
-      expect(result).toEqual({ success: true })
+      expect(result).toEqual(expect.objectContaining({ success: true }))
     })
 
     it('should update when some parameters differ from initial mapping', async () => {
@@ -1004,6 +1004,136 @@ describe('handleIntegrationMappingCreateUpdateDelete', () => {
         IntegrationTypeEnum.Netsuite,
       )
 
+      expect(result).toEqual(expect.objectContaining({ success: true }))
+    })
+  })
+  describe('Applied mapping', () => {
+    const mappableMapping: ItemMappingForMappable = {
+      itemId: null,
+      itemExternalId: null,
+      itemExternalName: undefined,
+      itemExternalCode: undefined,
+      lagoMappableId: 'mappable-123',
+      lagoMappableName: 'Test Mappable',
+    }
+
+    const taxMapping: ItemMappingForTaxMapping = {
+      itemId: 'tax-mapping-123',
+      itemExternalId: 'ext-123',
+      itemExternalName: 'External Name',
+      itemExternalCode: 'code-123',
+      taxCode: 'tax-code',
+      taxNexus: 'tax-nexus',
+      taxType: 'tax-type',
+    }
+
+    it('should report the created mapping with the id returned by the mutation', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: { externalId: 'ext-123', externalName: 'External Name' },
+      })
+      mockCreateMapping.mockResolvedValue({
+        data: { createIntegrationMapping: { id: 'created-mapping-id' } },
+      })
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        { externalId: 'ext-123', externalName: 'External Name' },
+        mappableMapping,
+        MappableTypeEnum.BillableMetric,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Anrok,
+      )
+
+      expect(result).toEqual({
+        success: true,
+        appliedMapping: { ...mappableMapping, itemId: 'created-mapping-id' },
+      })
+    })
+
+    it('should report the created collection mapping with the id returned by the mutation', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: { externalId: 'ext-123', externalName: 'External Name' },
+      })
+      mockCreateCollectionMapping.mockResolvedValue({
+        data: { createIntegrationCollectionMapping: { id: 'created-collection-id' } },
+      })
+      const emptyMapping: ItemMappingForNonTaxMapping = { itemId: null, itemExternalId: null }
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        { externalId: 'ext-123', externalName: 'External Name' },
+        emptyMapping,
+        MappingTypeEnum.FallbackItem,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Anrok,
+      )
+
+      expect(result).toEqual({
+        success: true,
+        appliedMapping: { ...emptyMapping, itemId: 'created-collection-id' },
+      })
+    })
+
+    it('should report an emptied mapping after a delete', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: {
+          externalId: '',
+          externalName: '',
+          externalAccountCode: '',
+          taxCode: undefined,
+          taxNexus: undefined,
+          taxType: undefined,
+        },
+      })
+      mockDeleteCollectionMapping.mockResolvedValue({})
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        {},
+        taxMapping,
+        MappingTypeEnum.Tax,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Netsuite,
+      )
+
+      expect(result).toEqual({
+        success: true,
+        appliedMapping: {
+          itemId: null,
+          itemExternalId: null,
+          itemExternalName: undefined,
+          itemExternalCode: undefined,
+          taxCode: null,
+          taxNexus: null,
+          taxType: null,
+        },
+      })
+    })
+
+    it('should not report an applied mapping after an update', async () => {
+      mockGetParametersFromProvider.mockReturnValue({
+        success: true,
+        parameters: { externalId: 'ext-456', externalName: 'Renamed' },
+      })
+      mockUpdateMapping.mockResolvedValue({})
+
+      const result = await handleIntegrationMappingCreateUpdateDelete(
+        { externalId: 'ext-456', externalName: 'Renamed' },
+        { ...mappableMapping, itemId: 'mapping-123', itemExternalId: 'ext-123' },
+        MappableTypeEnum.BillableMetric,
+        mockIntegrationId,
+        mockFunctions,
+        mockBillingEntity,
+        IntegrationTypeEnum.Anrok,
+      )
+
+      expect(mockUpdateMapping).toHaveBeenCalled()
       expect(result).toEqual({ success: true })
     })
   })

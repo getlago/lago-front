@@ -32,6 +32,7 @@ import {
 
 let mockTranslationSuffix = ''
 let mockIsPremium = false
+const mockHasPermissions = jest.fn()
 
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => ({ isPremium: mockIsPremium }),
@@ -53,6 +54,27 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   }),
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/components/taxes/TaxesSelectorSection', () => ({
+  TaxesSelectorSection: ({
+    onUpdate,
+  }: {
+    onUpdate: (taxes: Array<{ id: string; code: string; name: string; rate: number }>) => void
+  }) => (
+    <div data-test="taxes-selector-section">
+      <button
+        data-test="select-tax"
+        onClick={() => onUpdate([{ id: 'tax-1', code: 'vat_20', name: 'VAT', rate: 20 }])}
+      >
+        Select tax
+      </button>
+    </div>
+  ),
+}))
+
 // jsdom has no scrollIntoView, and `scrollToAndClickElement` calls it before the click that
 // opens the pricing unit combobox.
 Element.prototype.scrollIntoView = jest.fn()
@@ -63,6 +85,7 @@ const PRICING_UNIT_PROBE_TEST_ID = 'pricing-unit-probe'
 const PRODUCT_ID_PROBE_TEST_ID = 'product-id-probe'
 const PRORATION_PROBE_TEST_ID = 'proration-probe'
 const INVOICING_STRATEGY_PROBE_TEST_ID = 'invoicing-strategy-probe'
+const SELECTED_TAX_CODES_TEST_ID = 'selected-tax-codes'
 
 const DYNAMIC_MODEL_KEY = 'text_1727711520232zpp50zgnam5'
 const STANDARD_MODEL_KEY = 'text_624aa732d6af4e0103d40e6f'
@@ -113,6 +136,7 @@ type HarnessProps = {
   isAttached?: boolean
   isEdit?: boolean
   hasRates?: boolean
+  isCurrencyLocked?: boolean
   values?: Partial<RateCardFormValues>
   productSeed?: RateCardProductSeed
 }
@@ -124,6 +148,7 @@ const Harness = ({
   isAttached = false,
   isEdit = false,
   hasRates = false,
+  isCurrencyLocked = false,
 }: HarnessProps): JSX.Element => {
   const form = useAppForm({ defaultValues: { ...RATE_CARD_FORM_DEFAULTS, ...values } })
   const { resetSignal, notifyReset } = useCreateMore()
@@ -163,12 +188,20 @@ const Harness = ({
       >
         reset for next create
       </button>
+      <form.Subscribe selector={(state) => state.values.taxes}>
+        {(taxes) => (
+          <span data-test={SELECTED_TAX_CODES_TEST_ID}>
+            {taxes.map((tax) => tax.code).join(',')}
+          </span>
+        )}
+      </form.Subscribe>
       <RateCardDrawerContent
         form={form}
         resetSignal={resetSignal}
         isEdit={isEdit}
         isAttached={isAttached}
         hasRates={hasRates}
+        isCurrencyLocked={isCurrencyLocked}
         disableCodeInput={disableCodeInput}
         productSeed={productSeed}
         productFilterSeed={null}
@@ -216,6 +249,11 @@ const getAvailableModelLabels = (): string[] =>
     .map((chip) => chip.textContent ?? '')
 
 describe('RateCardDrawerContent', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
+  })
+
   describe('GIVEN the product selection', () => {
     it('WHEN no product is selected THEN hides invoicing settings', () => {
       renderContent()
@@ -535,6 +573,12 @@ describe('RateCardDrawerContent', () => {
 
       expect(currencyInput()).toBeDisabled()
     })
+
+    it('WHEN the caller locks the currency THEN the currency freezes', () => {
+      renderContent({ isCurrencyLocked: true, values: { productId: PRODUCT_ID } })
+
+      expect(currencyInput()).toBeDisabled()
+    })
   })
 })
 
@@ -801,7 +845,7 @@ describe('invoicing strategy selection', () => {
         billingTiming: RateCardBillingTimingEnum.Advance,
         invoicingStrategy: 'regroupPaidFees',
       },
-      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+      productSeed: buildUsageSeed(AggregationTypeEnum.SumAgg),
     })
 
     expect(
@@ -835,6 +879,56 @@ describe('invoicing strategy selection', () => {
         .closest('label')
         ?.querySelector('circle[r="4"]'),
     ).toBeInTheDocument()
+  })
+
+  it('hides the invoicing strategy section for a fixed product', () => {
+    renderContent({
+      isEdit: true,
+      values: {
+        productId: PRODUCT_ID,
+        billingTiming: RateCardBillingTimingEnum.Advance,
+        invoicingStrategy: 'regroupPaidFees',
+      },
+      productSeed: { value: PRODUCT_ID, label: 'Seats', productType: ProductTypeEnum.Fixed },
+    })
+
+    expect(
+      screen.queryByRole('radio', { name: 'text_6687b0081931407697975945' }),
+    ).not.toBeInTheDocument()
+  })
+
+  it('resets a stale strategy when switching to a fixed product', async () => {
+    renderContent(
+      {
+        values: {
+          productId: betaProduct.id,
+          billingTiming: RateCardBillingTimingEnum.Advance,
+          invoicingStrategy: 'regroupPaidFees',
+        },
+        productSeed: {
+          value: betaProduct.id,
+          label: betaProduct.name,
+          productType: ProductTypeEnum.Metered,
+          aggregationType: AggregationTypeEnum.SumAgg,
+          recurring: false,
+        },
+      },
+      [...buildMocks(), productQueryMock([alphaProduct]), filterQueryMock],
+    )
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent(
+      'regroupPaidFees',
+    )
+
+    await userEvent.click(productInput())
+    await userEvent.keyboard('{ArrowDown}')
+    await userEvent.click(
+      await screen.findByRole('option', { name: new RegExp(alphaProduct.name) }),
+    )
+
+    expect(screen.getByTestId(INVOICING_STRATEGY_PROBE_TEST_ID)).toHaveTextContent('invoiceable')
+    expect(
+      screen.queryByRole('radio', { name: 'text_6687b0081931407697975945' }),
+    ).not.toBeInTheDocument()
   })
 })
 
@@ -878,4 +972,32 @@ describe('selected product reset lifecycle', () => {
       }
     },
   )
+})
+
+describe('GIVEN organization tax permissions', () => {
+  beforeEach(() => {
+    mockHasPermissions.mockReturnValue(true)
+  })
+
+  it('THEN shows the tax selector', () => {
+    renderContent()
+
+    expect(screen.getByTestId('taxes-selector-section')).toBeInTheDocument()
+  })
+
+  it('THEN hides the tax selector without the view permission', () => {
+    mockHasPermissions.mockReturnValue(false)
+
+    renderContent()
+
+    expect(screen.queryByTestId('taxes-selector-section')).not.toBeInTheDocument()
+  })
+
+  it('THEN allows changing taxes when the rate card settings are locked', async () => {
+    renderContent({ isAttached: true, hasRates: true })
+
+    await userEvent.click(screen.getByTestId('select-tax'))
+
+    expect(screen.getByTestId(SELECTED_TAX_CODES_TEST_ID)).toHaveTextContent('vat_20')
+  })
 })

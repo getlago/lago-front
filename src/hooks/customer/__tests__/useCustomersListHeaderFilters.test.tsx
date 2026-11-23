@@ -1,6 +1,7 @@
 import { configure, render, screen } from '@testing-library/react'
 
-import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
+import { AvailableFiltersEnum, AvailableQuickFilters } from '~/components/Filters'
+import { FeatureFlagEnum, PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { useCustomersListHeaderFilters } from '../useCustomersListHeaderFilters'
@@ -10,6 +11,7 @@ configure({ testIdAttribute: 'data-test' })
 const mockDebouncedSearch =
   jest.fn() as unknown as ReturnType<UseDebouncedSearch>['debouncedSearch']
 const mockHasOrganizationPremiumAddon = jest.fn(() => false)
+const mockHasFeatureFlag = jest.fn<boolean, [FeatureFlagEnum]>(() => false)
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
@@ -20,6 +22,7 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+    hasFeatureFlag: mockHasFeatureFlag,
   }),
 }))
 
@@ -59,6 +62,7 @@ describe('useCustomersListHeaderFilters', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasOrganizationPremiumAddon.mockReturnValue(false)
+    mockHasFeatureFlag.mockReturnValue(false)
   })
 
   describe('GIVEN the hook is called', () => {
@@ -119,6 +123,66 @@ describe('useCustomersListHeaderFilters', () => {
         ]
 
         expect(providerCall[0].availableFilters).not.toContain('customerAccountType')
+      })
+    })
+
+    describe('WHEN the organization does not have the product catalog feature flag', () => {
+      it('THEN should keep the account type quick filter and the active subscriptions filter', () => {
+        mockHasOrganizationPremiumAddon.mockImplementation(
+          ((type: PremiumIntegrationTypeEnum) =>
+            type === PremiumIntegrationTypeEnum.RevenueShare) as unknown as () => boolean,
+        )
+
+        render(<TestComponent />)
+
+        const providerProps = mockFiltersProvider.mock.calls[0] as unknown as [
+          { availableFilters: AvailableFiltersEnum[]; quickFiltersType?: AvailableQuickFilters },
+        ]
+
+        expect(providerProps[0].quickFiltersType).toBe(AvailableQuickFilters.customerAccountType)
+        expect(providerProps[0].availableFilters).toContain(
+          AvailableFiltersEnum.customerAccountType,
+        )
+        expect(providerProps[0].availableFilters).toContain(
+          AvailableFiltersEnum.activeSubscriptions,
+        )
+      })
+    })
+
+    describe('WHEN the organization has the product catalog feature flag', () => {
+      beforeEach(() => {
+        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      })
+
+      it('THEN should not pass a quick filters type to the provider', () => {
+        render(<TestComponent />)
+
+        const providerProps = mockFiltersProvider.mock.calls[0] as unknown as [
+          { quickFiltersType?: AvailableQuickFilters },
+        ]
+
+        expect(providerProps[0].quickFiltersType).toBeUndefined()
+      })
+
+      it('THEN should remove the account type and active subscriptions filters even with the revenue share addon', () => {
+        mockHasOrganizationPremiumAddon.mockImplementation(
+          ((type: PremiumIntegrationTypeEnum) =>
+            type === PremiumIntegrationTypeEnum.RevenueShare) as unknown as () => boolean,
+        )
+
+        render(<TestComponent />)
+
+        const providerProps = mockFiltersProvider.mock.calls[0] as unknown as [
+          { availableFilters: AvailableFiltersEnum[] },
+        ]
+
+        expect(providerProps[0].availableFilters).not.toContain(
+          AvailableFiltersEnum.customerAccountType,
+        )
+        expect(providerProps[0].availableFilters).not.toContain(
+          AvailableFiltersEnum.activeSubscriptions,
+        )
+        expect(providerProps[0].availableFilters).toContain(AvailableFiltersEnum.billingEntityIds)
       })
     })
   })

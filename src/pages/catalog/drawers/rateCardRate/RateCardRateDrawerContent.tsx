@@ -1,72 +1,38 @@
-import InputAdornment from '@mui/material/InputAdornment'
 import { useStore } from '@tanstack/react-form'
 import { useMemo, useRef } from 'react'
 
-import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
-import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateMoreResetBoundary'
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
-import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
-import { ChargeModelSelector } from '~/components/plans/chargeAccordion/ChargeModelSelector'
-import { SpendingMinimumOptionSection } from '~/components/plans/chargeAccordion/SpendingMinimumOptionSection'
-import { useCustomChargeDrawer } from '~/components/plans/drawers/common/useCustomChargeDrawer'
-import { chargeModelLookupTranslation } from '~/core/constants/form'
-import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
 import { getTimezoneConfig } from '~/core/timezone'
 import {
-  AggregationTypeEnum,
   CurrencyEnum,
   ProductTypeEnum,
   RateCardBillingTimingEnum,
-  RateCardRateModelEnum,
   TimezoneEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { useChargeForm } from '~/hooks/plans/useChargeForm'
-import { useCustomPricingUnits } from '~/hooks/plans/useCustomPricingUnits'
-import { useCurrentUser } from '~/hooks/useCurrentUser'
 
 import {
-  BILLING_INTERVAL_UNIT_TRANSLATION_KEY,
   RATE_CARD_RATE_EFFECTIVE_DATE_AFTER_ACTIVE_KEY,
   RATE_CARD_RATE_FORM_DEFAULTS,
 } from './constants'
-import { getRatePropertiesShape } from './getRatePropertiesShape'
+import {
+  RATE_FIELD_GROUP_FIELDS,
+  RateBillingIntervalFields,
+  RateCardRateDrawerRateCard,
+  RateInvoicingSettingsSection,
+  RatePricingSettingsSection,
+} from './RateCardRateFieldGroups'
 import {
   buildRateCodeFromEffectiveDate,
   formatEffectiveDate,
   isEffectiveFromAppendable,
-  toChargeModel,
 } from './utils'
 
-import { RateWrapperSwitch } from '../../rateProperties/RateWrapperSwitch'
-import {
-  getAvailableRateModels,
-  NO_AVAILABLE_RATE_MODELS_KEY,
-  RATE_MODEL_AVAILABILITY_LOADING_KEY,
-  RATE_MODEL_UNAVAILABLE_KEY,
-} from '../../utils/rateModelAvailability'
-
 export const RATE_CARD_RATE_DRAWER_CODE_TEST_ID = 'rate-card-rate-code'
-export const RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID =
-  'rate-card-rate-billing-interval-count'
-export const RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID =
-  'rate-card-rate-billing-interval-unit'
-export const RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID = 'rate-card-rate-conversion-rate'
-export const RATE_CARD_RATE_DRAWER_SPENDING_MINIMUM_TEST_ID = 'rate-card-rate-spending-minimum'
-
-export type RateCardRateDrawerRateCard = {
-  currency: CurrencyEnum
-  appliedPricingUnitCode?: string | null
-  billingTiming: RateCardBillingTimingEnum
-  productType: ProductTypeEnum
-  aggregationType?: AggregationTypeEnum | null
-  recurring?: boolean | null
-  proration: boolean
-}
 
 type RateCardRateDrawerSectionsExtraProps = {
   rateCard: RateCardRateDrawerRateCard
@@ -108,72 +74,14 @@ const RateCardRateDrawerFormSections = withForm({
     initialMinAmountCents,
   }) {
     const { translate } = useInternationalization()
-    const { isPremium } = useCurrentUser()
-    const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
-    const { getFixedChargeModelComboboxData, getUsageChargeModelComboboxData } = useChargeForm()
-    const { pricingUnits } = useCustomPricingUnits()
-
-    // Resolved on render, not at open(): `children` is captured once, so a short name read
-    // before the pricing-units query resolved would stick for the whole session.
-    const pricingUnitShortName = pricingUnits.find(
-      (unit) => unit.code === rateCard.appliedPricingUnitCode,
-    )?.shortName
 
     const effectiveFrom = useStore(form.store, (state) => state.values.effectiveFrom)
     const effectiveFromBoundary = getEffectiveFromBoundary()
-    const rateModel = useStore(form.store, (state) => state.values.rateModel)
-    const minAmountCents = useStore(form.store, (state) => state.values.minAmountCents)
 
     // Seeding stops once the code is edited by hand. The second ref marks this component's
     // own writes, which the code field's listener would otherwise read as a hand edit.
     const isCodeDerivedFromDateRef = useRef(!isEdit)
     const isSeedingCodeRef = useRef(false)
-
-    const availableRateModels = getAvailableRateModels(rateCard)
-    const availableRateModelValues: readonly string[] = availableRateModels ?? []
-    const isRateModelAvailable = availableRateModelValues.includes(rateModel)
-    let rateModelOptions: BasicComboBoxData[] = []
-
-    if (rateCard.productType === ProductTypeEnum.Fixed) {
-      rateModelOptions = getFixedChargeModelComboboxData()
-    } else if (rateCard.aggregationType) {
-      rateModelOptions = getUsageChargeModelComboboxData({
-        isPremium,
-        aggregationType: rateCard.aggregationType,
-      })
-    }
-
-    const rateModelComboboxData = rateModelOptions.filter((option) =>
-      availableRateModelValues.includes(option.value),
-    )
-
-    if (!isRateModelAvailable) {
-      const currentModelOption = rateModelOptions.find((option) => option.value === rateModel) ?? {
-        label: translate(chargeModelLookupTranslation[toChargeModel(rateModel)]),
-        value: rateModel,
-      }
-
-      rateModelComboboxData.push({ ...currentModelOption, disabled: true })
-    }
-
-    let modelCompatibilityMessage: string | undefined
-
-    if (!isActiveRate) {
-      if (availableRateModels?.length === 0) {
-        modelCompatibilityMessage = translate(NO_AVAILABLE_RATE_MODELS_KEY)
-      } else if (availableRateModels && !isRateModelAvailable) {
-        modelCompatibilityMessage = translate(RATE_MODEL_UNAVAILABLE_KEY)
-      }
-    }
-
-    const billingIntervalUnitComboboxData = useMemo(
-      () =>
-        Object.entries(BILLING_INTERVAL_UNIT_TRANSLATION_KEY).map(([unit, labelKey]) => ({
-          value: unit,
-          label: translate(labelKey),
-        })),
-      [translate],
-    )
 
     // Interpolates the boundary date, which `translate()` cannot do from a zod message.
     const effectiveFromErrorOverride = useMemo(() => {
@@ -184,37 +92,6 @@ const RateCardRateDrawerFormSections = withForm({
         date: formatEffectiveDate(effectiveFromBoundary),
       })
     }, [effectiveFrom, effectiveFromBoundary, translate])
-
-    const localCharge = { chargeModel: toChargeModel(rateModel) }
-    const spendingMinimumLocalCharge = { minAmountCents }
-    const spendingMinimumInitialCharge = { minAmountCents: initialMinAmountCents }
-
-    // Without this the Custom model's JSON editor never writes back to the form.
-    const { openCustomChargeDrawer } = useCustomChargeDrawer({
-      onSave: (customProperties) =>
-        form.setFieldValue('properties.customProperties', customProperties),
-    })
-
-    const handleRateModelUpdate = (name: string, value: unknown) => {
-      if (name !== 'chargeModel') return
-
-      const nextRateModel = availableRateModels?.find((model) => model === value)
-
-      if (!nextRateModel || nextRateModel === rateModel || isActiveRate) return
-
-      if (!isPremium && nextRateModel === RateCardRateModelEnum.GraduatedPercentage) {
-        openPremiumWarningDialog()
-        return
-      }
-
-      // Not `form.reset`: that clears `isDirty` too, and the drawer would stop prompting.
-      Object.keys(form.state.fieldMeta)
-        .filter((field) => field === 'properties' || field.startsWith('properties.'))
-        .forEach((field) => form.resetField(field as keyof typeof form.state.values))
-
-      form.setFieldValue('rateModel', nextRateModel)
-      form.setFieldValue('properties', getRatePropertiesShape())
-    }
 
     return (
       <>
@@ -275,153 +152,28 @@ const RateCardRateDrawerFormSections = withForm({
             )}
           </form.AppField>
 
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col gap-1">
-              <Typography variant="captionHl" color="grey700">
-                {translate('text_1787737220227tqziocrcywv')}
-              </Typography>
-              <Typography variant="caption" color="grey600">
-                {translate('text_1787737220227zq85vxlw0aq')}
-              </Typography>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <form.AppField name="billingIntervalCount">
-                {(field) => (
-                  <field.TextInputField
-                    data-test={RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID}
-                    className="w-30"
-                    beforeChangeFormatter={['int', 'positiveNumber']}
-                    disabled={isActiveRate}
-                  />
-                )}
-              </form.AppField>
-
-              <form.AppField name="billingIntervalUnit">
-                {(field) => (
-                  <field.ComboBoxField
-                    dataTest={RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID}
-                    containerClassName="flex-1"
-                    disableClearable
-                    sortValues={false}
-                    data={billingIntervalUnitComboboxData}
-                    disabled={isActiveRate}
-                  />
-                )}
-              </form.AppField>
-            </div>
-          </div>
-        </CenteredPage.PageSection>
-
-        <CenteredPage.PageSection>
-          <CenteredPage.PageSectionTitle title={translate('text_1772133285141xbpuxbd4vrk')} />
-
-          {!!rateCard.appliedPricingUnitCode && (
-            <div
-              data-test={RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID}
-              className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1"
-            >
-              <Typography variant="captionHl" color="textSecondary">
-                {translate('text_1750411499858qxgqjoqtr3e')}
-              </Typography>
-
-              <Typography variant="captionHl" color="textSecondary">
-                {translate('text_1750411499858su5b7bbp5t9')}
-              </Typography>
-
-              <div className="flex items-center gap-4">
-                <div className="flex h-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100 px-3">
-                  <Typography variant="body" color="grey500" noWrap>
-                    {`1 ${pricingUnitShortName || rateCard.appliedPricingUnitCode}`}
-                  </Typography>
-                </div>
-
-                <div className="flex size-12 items-center justify-center rounded-xl border border-grey-300 bg-grey-100">
-                  =
-                </div>
-              </div>
-
-              <form.AppField name="conversionRate">
-                {(field) => (
-                  <field.AmountInputField
-                    currency={rateCard.currency}
-                    beforeChangeFormatter={['positiveNumber', 'chargeDecimal']}
-                    placeholder={translate('text_643e592657fc1ba5ce110c80')}
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          {getCurrencySymbol(rateCard.currency)}
-                        </InputAdornment>
-                      ),
-                    }}
-                  />
-                )}
-              </form.AppField>
-            </div>
-          )}
-
-          {!isActiveRate && availableRateModels === undefined && (
-            <Alert type="info">{translate(RATE_MODEL_AVAILABILITY_LOADING_KEY)}</Alert>
-          )}
-          <form.AppField name="rateModel">
-            {() => (
-              <ChargeModelSelector
-                label={translate('text_65201b8216455901fe273dd5')}
-                disabled={isActiveRate || availableRateModels === undefined}
-                localCharge={localCharge}
-                chargeModelComboboxData={rateModelComboboxData}
-                handleUpdate={handleRateModelUpdate}
-                alreadyUsedChargeAlertMessage={modelCompatibilityMessage}
-              />
-            )}
-          </form.AppField>
-
-          <RateWrapperSwitch
+          <RateBillingIntervalFields
             form={form}
-            rateModel={rateModel}
-            productType={rateCard.productType}
-            currency={rateCard.currency}
-            pricingUnitShortName={pricingUnitShortName}
-            onExpandCustomCharge={openCustomChargeDrawer}
+            fields={RATE_FIELD_GROUP_FIELDS}
+            disabled={isActiveRate}
           />
         </CenteredPage.PageSection>
 
-        {rateCard.billingTiming === RateCardBillingTimingEnum.Arrears && (
-          <CenteredPage.PageSection>
-            <CenteredPage.PageSectionTitle title={translate('text_17423672025282dl7iozy1ru')} />
+        <RatePricingSettingsSection
+          form={form}
+          fields={RATE_FIELD_GROUP_FIELDS}
+          rateCard={rateCard}
+          isRateModelLocked={isActiveRate}
+          disabled={false}
+        />
 
-            <div
-              className="flex flex-col gap-4"
-              data-test={RATE_CARD_RATE_DRAWER_SPENDING_MINIMUM_TEST_ID}
-            >
-              <div className="flex flex-col gap-1">
-                <Typography variant="captionHl" color="grey700">
-                  {translate('text_643e592657fc1ba5ce110c30')}
-                </Typography>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_1787737220228b7rp4u9zxp6')}
-                </Typography>
-              </div>
-
-              <SpendingMinimumOptionSection
-                initialLocalCharge={spendingMinimumInitialCharge}
-                subscriptionFormType={undefined}
-                disabled={isActiveRate}
-                localCharge={spendingMinimumLocalCharge}
-                chargePricingUnitShortName={pricingUnitShortName}
-                currency={rateCard.currency}
-                isPremium={isPremium}
-                chargeIndex={0}
-                handleUpdate={(_name, value) => {
-                  form.setFieldValue('minAmountCents', value as string)
-                }}
-                handleRemoveSpendingMinimum={() => {
-                  form.setFieldValue('minAmountCents', '')
-                }}
-              />
-            </div>
-          </CenteredPage.PageSection>
-        )}
+        <RateInvoicingSettingsSection
+          form={form}
+          fields={RATE_FIELD_GROUP_FIELDS}
+          rateCard={rateCard}
+          disabled={isActiveRate}
+          initialMinAmountCents={initialMinAmountCents}
+        />
       </>
     )
   },

@@ -31,6 +31,7 @@ type AnrokIntegrationItemsListDefaultProps = {
   integrationId: string
   isLoading: boolean
   openIntegrationMapItemDrawer: OpenMappableIntegrationMapItemDrawer
+  canViewLegacyMappings: boolean
 }
 
 const AnrokIntegrationItemsListDefault = ({
@@ -39,6 +40,7 @@ const AnrokIntegrationItemsListDefault = ({
   integrationId,
   isLoading,
   openIntegrationMapItemDrawer,
+  canViewLegacyMappings,
 }: AnrokIntegrationItemsListDefaultProps) => {
   const { translate } = useInternationalization()
 
@@ -90,7 +92,9 @@ const AnrokIntegrationItemsListDefault = ({
     <IntegrationItemsTable
       integrationId={integrationId}
       openIntegrationMapItemDrawer={openIntegrationMapItemDrawer}
-      items={defaultListToDisplay}
+      items={defaultListToDisplay.filter(
+        ({ mappingType }) => mappingType === MappingTypeEnum.FallbackItem || canViewLegacyMappings,
+      )}
       provider={IntegrationTypeEnum.Anrok}
       isLoading={isLoading}
     />

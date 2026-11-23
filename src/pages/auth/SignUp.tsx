@@ -4,6 +4,7 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 
+import { AuthOrDivider } from '~/components/auth/AuthOrDivider'
 import GoogleAuthButton from '~/components/auth/GoogleAuthButton'
 import { Alert } from '~/components/designSystem/Alert'
 import { Typography } from '~/components/designSystem/Typography'
@@ -175,11 +176,7 @@ const SignUp = () => {
                   label={translate('text_660bf95c75dd928ced0ecb21')}
                 />
 
-                <div className="flex items-center justify-center gap-4 before:flex-1 before:border before:border-grey-300 before:content-[''] after:flex-1 after:border after:border-grey-300 after:content-['']">
-                  <Typography variant="captionHl" color="grey500">
-                    {translate('text_6303351deffd2a0d70498675').toUpperCase()}
-                  </Typography>
-                </div>
+                <AuthOrDivider />
               </>
             )}
 

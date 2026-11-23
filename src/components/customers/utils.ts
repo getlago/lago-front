@@ -1,8 +1,149 @@
+import { AnyFormApi } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
+
+import {
+  CUSTOMER_CONSTRAINED_FIELDS,
+  CUSTOMER_TEXT_MAX_LENGTH,
+  getCustomerConstrainedField,
+  getCustomerFieldFormPath,
+  getCustomerTooLongErrorKey,
+} from '~/components/customers/fieldConstraints'
 import {
   Customer,
   CustomerTypeEnum,
   IntegrationsListForCustomerMainInfosQuery,
+  LagoApiError,
 } from '~/generated/graphql'
+
+const CUSTOMER_FIELD_ERROR_CODES: string[] = [
+  LagoApiError.InvalidCharacters,
+  LagoApiError.ValueIsTooLong,
+]
+const isCustomerFieldErrorCode = (code: unknown): code is string =>
+  typeof code === 'string' && CUSTOMER_FIELD_ERROR_CODES.includes(code)
+
+const BILLING_ADDRESS_KEYS = CUSTOMER_CONSTRAINED_FIELDS.filter(
+  ({ group }) => group === 'billingAddress',
+).map(({ name }) => name)
+const SHIPPING_KEY_PREFIX = 'shipping'
+
+const getCustomerFieldPath = (key: string, billingAddressPath?: string): string => {
+  const constrainedField = getCustomerConstrainedField(key)
+
+  if (constrainedField) return getCustomerFieldFormPath(constrainedField, billingAddressPath)
+
+  // A field the API constrains but the forms do not: keep it addressable so its error still
+  // lands on the matching input
+  if (key.startsWith(SHIPPING_KEY_PREFIX)) {
+    const addressKey = key.slice(SHIPPING_KEY_PREFIX.length)
+
+    return `shippingAddress.${addressKey.charAt(0).toLowerCase()}${addressKey.slice(1)}`
+  }
+
+  return key
+}
+
+const getCustomerFieldErrorKey = (key: string, code: string): string => {
+  if (code === LagoApiError.InvalidCharacters) return 'text_1793265036704k3gcjfhp5lo'
+
+  return getCustomerTooLongErrorKey(
+    getCustomerConstrainedField(key)?.maxLength ?? CUSTOMER_TEXT_MAX_LENGTH,
+  )
+}
+
+type CustomerFieldErrors = {
+  fields: Record<string, { message: string }>
+  hasOnlyFieldErrors: boolean
+}
+
+export const getCustomerFieldErrors = ({
+  errors,
+  billingAddressPath,
+  isShippingEqualBillingAddress = false,
+}: {
+  errors?: readonly GraphQLFormattedError[]
+  billingAddressPath?: string
+  isShippingEqualBillingAddress?: boolean
+}): CustomerFieldErrors => {
+  const details = errors?.[0]?.extensions?.details
+  const detailEntries: [string, unknown][] =
+    details && typeof details === 'object' ? Object.entries(details) : []
+  const fields: CustomerFieldErrors['fields'] = {}
+
+  detailEntries.forEach(([key, codes]) => {
+    const code = Array.isArray(codes) ? codes.find(isCustomerFieldErrorCode) : undefined
+
+    if (!code) return
+
+    let path = getCustomerFieldPath(key, billingAddressPath)
+
+    if (isShippingEqualBillingAddress && path.startsWith('shippingAddress.')) {
+      const addressKey = path.slice('shippingAddress.'.length)
+
+      path = billingAddressPath ? `${billingAddressPath}.${addressKey}` : addressKey
+    }
+
+    fields[path] = {
+      message: getCustomerFieldErrorKey(key, code),
+    }
+  })
+
+  return {
+    fields,
+    hasOnlyFieldErrors:
+      errors?.length === 1 &&
+      detailEntries.length > 0 &&
+      detailEntries.every(
+        ([, codes]) => Array.isArray(codes) && codes.every(isCustomerFieldErrorCode),
+      ),
+  }
+}
+
+export const setCustomerServerErrors = (
+  formApi: Pick<AnyFormApi, 'getFieldMeta' | 'setFieldMeta'>,
+  fields: CustomerFieldErrors['fields'],
+): void => {
+  Object.entries(fields).forEach(([name, error]) => {
+    formApi.setFieldMeta(name, (prev) => ({
+      ...prev,
+      isTouched: prev?.isTouched ?? true,
+      isBlurred: prev?.isBlurred ?? false,
+      isDirty: prev?.isDirty ?? false,
+      isValidating: prev?.isValidating ?? false,
+      errorMap: { ...prev?.errorMap, onServer: error },
+      errorSourceMap: { ...prev?.errorSourceMap, onServer: 'field' },
+    }))
+  })
+}
+
+export const syncCustomerShippingAddress = (
+  formApi: Pick<AnyFormApi, 'getFieldValue' | 'setFieldValue' | 'getFieldMeta' | 'setFieldMeta'>,
+  address: Record<string, unknown> | undefined,
+): void => {
+  BILLING_ADDRESS_KEYS.forEach((key) => {
+    const name = `shippingAddress.${key}`
+
+    if (
+      formApi.getFieldValue(name) !== address?.[key] &&
+      formApi.getFieldMeta(name)?.errorMap.onServer
+    ) {
+      formApi.setFieldMeta(name, (prev) => ({
+        ...prev,
+        errorMap: { ...prev.errorMap, onServer: undefined },
+      }))
+    }
+  })
+  formApi.setFieldValue('shippingAddress', address)
+}
+
+type ServerErrorFieldApi = {
+  state: { meta: { errorMap: { onServer?: unknown } } }
+  setErrorMap: (errorMap: { onServer: undefined }) => void
+}
+
+export const clearCustomerServerError = ({ fieldApi }: { fieldApi: ServerErrorFieldApi }): void => {
+  if (fieldApi.state.meta.errorMap.onServer) fieldApi.setErrorMap({ onServer: undefined })
+}
 
 type RawIntegration = NonNullable<
   NonNullable<IntegrationsListForCustomerMainInfosQuery['integrations']>['collection']

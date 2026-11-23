@@ -1,30 +1,37 @@
-import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
-import { DetailsPage } from '~/components/layouts/DetailsPage'
-import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { PLAN_PRICING_ROUTE } from '~/core/router'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-import ThinkingImage from '~/public/images/maneki/thinking.svg'
+import { useParams } from 'react-router'
+
+import {
+  APPLIED_RATE_CARD_DETAILS_CONFIG,
+  APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
+} from '~/components/appliedRateCards/details/appliedRateCardDetailsConfig'
+import { AppliedRateCardDetailsView } from '~/components/appliedRateCards/details/AppliedRateCardDetailsView'
+import { toPlanAppliedRateCardDetailsData } from '~/components/appliedRateCards/details/toAppliedRateCardDetailsData'
+import { usePlanAppliedRateCardForDetails } from '~/components/appliedRateCards/details/usePlanAppliedRateCardForDetails'
+import { hasDefinedGQLError } from '~/core/apolloClient'
+import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 
 const CatalogPlanRateCardDetails = (): JSX.Element => {
-  const { translate } = useInternationalization()
+  const { catalogPlanId = '', appliedRateCardId = '' } = useParams()
+
+  const { data, loading, error } = usePlanAppliedRateCardForDetails(appliedRateCardId)
+
+  const detailsData = toPlanAppliedRateCardDetailsData(data?.planAppliedRateCard, catalogPlanId)
+
+  useNotFoundRedirect({
+    error,
+    loading,
+    notFound: !!data && !detailsData,
+    redirectTo: APPLIED_RATE_CARD_DETAILS_CONFIG.plan.buildParentRateCardsPath(catalogPlanId),
+    translateKey: APPLIED_RATE_CARD_NOT_FOUND_TRANSLATION_KEY,
+  })
 
   return (
-    <>
-      <MainHeader.Configure
-        breadcrumb={[
-          { label: translate('text_62442e40cea25600b0b6d85a'), path: PLAN_PRICING_ROUTE },
-          { label: translate('text_17902866782060xpq8p9bh3a') },
-        ]}
-        entity={{ viewName: translate('text_17902866782060xpq8p9bh3a') }}
-      />
-      <DetailsPage.Container className="pt-6">
-        <GenericPlaceholder
-          title={translate('text_1790286678206zy40b7ktge5')}
-          subtitle={translate('text_17902866782061brel90bgxt')}
-          image={<ThinkingImage />}
-        />
-      </DetailsPage.Container>
-    </>
+    <AppliedRateCardDetailsView
+      context="plan"
+      data={detailsData}
+      loading={loading}
+      hasError={!!error && !hasDefinedGQLError('NotFound', error)}
+    />
   )
 }
 

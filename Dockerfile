@@ -1,81 +1,87 @@
-# syntax=docker/dockerfile:1.26
+# syntax=docker/dockerfile:1.28
 
-# --- deps stage: install node_modules only ---------------------------------
-FROM node:24.21.0-alpine AS deps
+# Hardened Wolfi/apko image. Replaces the node:24-alpine -> nginx:1.31-alpine
+# chain, which ran as root with a writable root filesystem. FROMs the bases
+# published by getlago/lago-packages to GHCR; they are public, so no registry
+# credentials are needed to build this file.
+#
+# Listens on 8080, not 80: nginx runs as uid 65532 and cannot bind a
+# privileged port. The chart's containerPort and the pod's /tmp emptyDir move
+# with it -- see the companion lago-deploy change.
+#
+# nginx.main.staging.conf / nginx.staging.conf are shared with
+# ./Dockerfile.staging. The `.staging` suffix is now a misnomer: both files
+# describe the hardened runtime, not an environment. Renaming them is a
+# follow-up, kept out of this diff so the change stays reviewable.
+
+# BASE PIN: `:<YYYYMMDD>-r<run>@sha256:<index digest>`, an immutable
+# lago-packages publish. Docker builds from the digest, so a build is
+# reproducible. Renovate (getlago/lago-packages renovate/lago-bases) moves tag
+# and digest together when a newer base is published; the base refresh
+# rebuilds deployed tags with a newer RUNTIME_IMAGE in between.
+#
+# Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
+# lago-packages#33), runtime e2374ae (20261023-r68). Both ship
+# ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261112-r1772@sha256:f16ee96853d7f937ca5b0b49214c5be5b5baca67fbf721aeb2f0f2548cefc4fc
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261111-r1727@sha256:40f1134c639ed6a101be50cee6f93191e9504f8f5a4a1f16412c5d32bb0684dc
+
+# --- deps stage --------------------------------------------------------------
+FROM ${BUILD_IMAGE} AS deps
 
 WORKDIR /app
 
-# corepack reads the pinned pnpm version from package.json's `packageManager`
-# field — no `pnpm@latest` drift.
-RUN apk add --no-cache python3 build-base && corepack enable
-
-# Only copy manifests here so this layer — and the pnpm install below — stay
-# cached across any source-only change.
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY packages/configs/package.json        ./packages/configs/
-COPY packages/design-system/package.json  ./packages/design-system/
+COPY packages/ui/package.json             ./packages/ui/
 
-# --ignore-scripts skips `postinstall` (which would try to build workspace
-# packages that we haven't copied source for yet — `prebuild` in the build
-# stage takes care of that). Replaces the previous `pnpmfile.docker.cjs` hack.
-# The BuildKit cache mount on pnpm's content-addressable store means repeat
-# installs re-use downloaded tarballs even across `--no-cache` rebuilds, as
-# long as the runner persists the mount (e.g. buildx `cache-to`/`cache-from`).
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
     pnpm install --frozen-lockfile --ignore-scripts
 
 
-# --- build stage: compile the app ------------------------------------------
-FROM node:24.21.0-alpine AS build
+# --- build stage -------------------------------------------------------------
+FROM ${BUILD_IMAGE} AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
-RUN apk add --no-cache python3 build-base && corepack enable
-
 COPY --from=deps /app /app
 COPY . .
 
-# Late ARGs — declared here so a change to APP_VERSION only invalidates the
-# final `pnpm build` step, never the install above.
-# SENTRY_AUTH_TOKEN is intentionally NOT an ARG: it's a credential, and ARG
-# values can leak into the final image's history layers and are flagged by
-# the Dockerfile linter (SecretsUsedInArgOrEnv). It's mounted as a build
-# secret on the RUN below instead.
+# Late ARGs: an APP_VERSION change invalidates only `pnpm build`.
+# SENTRY_AUTH_TOKEN is a secret mount, not an ARG: ARGs leak into the image
+# history.
 ARG SENTRY_DSN
 ARG SENTRY_ORG
 ARG SENTRY_FRONT_PROJECT
 ARG APP_VERSION
 ENV APP_VERSION=$APP_VERSION
 
-# `pnpm build` runs `prebuild` first, which builds `lago-design-system`.
-# `--mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN` exposes
-# the secret only as an env var to this single RUN — never written to the
-# image filesystem, never persisted in build history. Requires the calling
-# workflow to pass `secrets: sentry_auth_token=...` to docker buildx build.
 RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
     pnpm build
 
 
-# --- runtime stage: nginx serving the built dist ---------------------------
-FROM nginx:1.31-alpine AS runtime
+# --- runtime stage: hardened Wolfi nginx -------------------------------------
+FROM ${RUNTIME_IMAGE}
 
 WORKDIR /usr/share/nginx/html
 
-# Blanket `apk upgrade` pulls the latest CVE patches for every package in the
-# base image. Costs ~5 MB vs hand-curating a package list, but auto-catches
-# new CVEs (e.g. a future zlib bump) without anyone remembering to add them.
-RUN apk upgrade --no-cache && apk add --no-cache bash
-
 COPY --from=build /app/dist .
-COPY ./nginx/nginx.conf /etc/nginx/conf.d/default.conf
+COPY ./nginx/nginx.main.staging.conf /etc/nginx/nginx.conf
+COPY ./nginx/nginx.staging.conf /etc/nginx/conf.d/default.conf
 COPY ./nginx/gzip.conf /etc/nginx/conf.d/gzip.conf
-COPY ./nginx/csp.conf /etc/nginx/conf.d/csp.conf
+COPY ./nginx/csp.conf.template /etc/nginx/csp.conf.template
 COPY ./.env.sh ./.env.sh
 
-EXPOSE 80
+# Everything nginx writes goes to the /tmp emptyDir the pod mounts: the pid
+# file, the temp paths (both in nginx.main.staging.conf), and the two files
+# .env.sh renders at start: env-config.js (into its cwd) and csp.conf. The
+# dist stays read-only and unmounted: an emptyDir over it would mask the
+# built assets. Files stay root-owned so nginx cannot rewrite them, even on
+# a writable root filesystem.
+USER 65532
 
-# `exec` so nginx replaces bash as PID 1 and receives SIGTERM directly.
-# (bash would implicitly exec a single trailing command anyway, but being
-# explicit removes the reliance on that interpreter optimization.)
-ENTRYPOINT ["/bin/bash", "-c", "./.env.sh && exec nginx -g \"daemon off;\""]
+EXPOSE 8080
+
+# `exec` makes nginx PID 1, so it gets SIGTERM.
+ENTRYPOINT ["/bin/bash", "-c", "cd /tmp && /usr/share/nginx/html/.env.sh && exec nginx -e /dev/stderr -g \"daemon off;\""]

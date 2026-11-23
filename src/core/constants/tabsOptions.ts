@@ -1,3 +1,13 @@
+export enum AppliedRateCardDetailsTabsOptionsEnum {
+  overview = 'overview',
+  activityLogs = 'activity-logs',
+}
+
+export enum RatePhaseDetailsTabsOptionsEnum {
+  overview = 'overview',
+  activityLogs = 'activity-logs',
+}
+
 export enum BillableMetricDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
   overview = 'overview',
@@ -25,6 +35,7 @@ export enum CustomerInvoiceDetailsTabsOptionsEnum {
 export enum CustomerSubscriptionDetailsTabsOptionsEnum {
   activityLogs = 'activity-logs',
   alerts = 'alerts',
+  attribution = 'attribution',
   entitlements = 'entitlements',
   overview = 'overview',
   progressiveBilling = 'progressive-billing',

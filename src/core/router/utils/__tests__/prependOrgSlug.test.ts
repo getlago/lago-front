@@ -1,3 +1,4 @@
+import { CREATE_ORGANIZATION_ROUTE } from '../../paths/createOrganization'
 import { prependOrgSlug } from '../prependOrgSlug'
 
 describe('prependOrgSlug', () => {
@@ -57,6 +58,18 @@ describe('prependOrgSlug', () => {
         expect(prependOrgSlug('/acme', 'acme')).toBe('/acme')
       })
     })
+
+    describe('WHEN the path is the org root followed by a query or hash', () => {
+      it.each(['/acme?tab=1', '/acme#top'])('THEN should not double-prepend %s', (path) => {
+        expect(prependOrgSlug(path, 'acme')).toBe(path)
+      })
+    })
+
+    describe('WHEN the path only starts with the characters of the slug', () => {
+      it.each(['/acme-extended', '/acme-extended?tab=1'])('THEN should prepend to %s', (path) => {
+        expect(prependOrgSlug(path, 'acme')).toBe(`/acme${path}`)
+      })
+    })
   })
 
   describe('GIVEN the path starts with a NEVER_SLUG_PREFIX', () => {
@@ -69,6 +82,12 @@ describe('prependOrgSlug', () => {
       ['/login/okta', '/login/okta'],
     ])('THEN should return "%s" unchanged', (input, expected) => {
       expect(prependOrgSlug(input, 'acme')).toBe(expected)
+    })
+
+    describe('WHEN navigating to the create organization route from inside an organization', () => {
+      it('THEN should not prepend the organization slug', () => {
+        expect(prependOrgSlug(CREATE_ORGANIZATION_ROUTE, 'acme')).toBe('/create-organization')
+      })
     })
   })
 

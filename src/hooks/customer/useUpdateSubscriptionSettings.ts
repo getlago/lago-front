@@ -3,6 +3,8 @@ import { SelectedConnection } from '~/components/connectionSelection/types'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
 import { SelectedPaymentMethod } from '~/components/paymentMethodSelection/types'
+import { PaymentTermFormValues } from '~/components/paymentTerms/types'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { addToast } from '~/core/apolloClient'
 import {
   ConnectionBehaviorEnum,
@@ -61,14 +63,17 @@ export const useUpdateSubscriptionSettings = (subscriptionId: string) => {
   const saveInvoicing = ({
     consolidateInvoice,
     invoiceCustomSection,
+    paymentTerm,
   }: {
     consolidateInvoice: boolean
     invoiceCustomSection: InvoiceCustomSectionInput
+    paymentTerm: PaymentTermFormValues
   }): Promise<void> =>
     update({
       id: subscriptionId,
       consolidateInvoice,
       invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
+      paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     })
 
   const saveAdditionalIntegrations = (values: AdditionalIntegrationSettingsValues): Promise<void> =>

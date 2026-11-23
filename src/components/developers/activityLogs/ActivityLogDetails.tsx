@@ -15,6 +15,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { CustomerSubscriptionDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CUSTOMER_DETAILS_ROUTE, CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE } from '~/core/router'
 import {
+  isOrganizationPathAvailable,
+  isOrganizationRouteAvailable,
+} from '~/core/router/utils/routeRegistry'
+import {
   LagoApiError,
   ResourceTypeEnum,
   useGetCustomerIdForActivityLogDetailsQuery,
@@ -25,11 +29,12 @@ import { useActivityLogsInformation } from '~/hooks/activityLogs/useActivityLogs
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFormatterDateHelper } from '~/hooks/helpers/useFormatterDateHelper'
 import { useDeveloperTool } from '~/hooks/useDeveloperTool'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 export const ACTIVITY_LOG_DETAILS_LOADING_TEST_ID = 'activity-log-details-loading'
 export const ACTIVITY_LOG_DETAILS_CONTENT_TEST_ID = 'activity-log-details-content'
 export const ACTIVITY_LOG_DETAILS_CLOSE_BUTTON_TEST_ID = 'activity-log-details-close-button'
-const ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID = 'activity-log-details-resource-link'
+export const ACTIVITY_LOG_DETAILS_RESOURCE_LINK_TEST_ID = 'activity-log-details-resource-link'
 
 export const ACTIVITY_LOG_DETAILS_CUSTOMER_LINK_TEST_ID = 'activity-log-details-customer-link'
 export const ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID =
@@ -37,6 +42,8 @@ export const ACTIVITY_LOG_DETAILS_SUBSCRIPTION_LINK_TEST_ID =
 
 const remapResourceTypeNames = (resourceType: string): keyof typeof ResourceTypeEnum => {
   if (resourceType === 'FeatureObject') return 'Feature'
+  if (resourceType === 'ContractAppliedRateCard') return 'ContractRateCard'
+  if (resourceType === 'PlanAppliedRateCard') return 'PlanRateCard'
   return resourceType as keyof typeof ResourceTypeEnum
 }
 
@@ -61,6 +68,24 @@ gql`
         code
       }
       ... on CatalogPlan {
+        id
+      }
+      ... on Contract {
+        id
+      }
+      ... on ContractAppliedRateCard {
+        id
+        contract {
+          id
+        }
+      }
+      ... on PlanAppliedRateCard {
+        id
+        catalogPlan {
+          id
+        }
+      }
+      ... on RateCardRate {
         id
       }
       ... on Coupon {
@@ -159,6 +184,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
   const { formattedDateTimeWithSecondsOrgaTZ } = useFormatterDateHelper()
   const { getActivityDescription, getResourceType } = useActivityLogsInformation()
   const { setMainRouterUrl, closePanel } = useDeveloperTool()
+  const { hasFeatureFlag } = useOrganizationInfos()
 
   const handleResourceNavigate = (path: string) => {
     setMainRouterUrl(path)
@@ -173,7 +199,9 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
       activityType,
     })
 
-    if (!link) return resource.id
+    const resourceId = 'id' in resource ? resource.id : '-'
+
+    if (!link || !isOrganizationPathAvailable(link, hasFeatureFlag)) return resourceId
 
     return (
       <Button
@@ -181,7 +209,7 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
         variant="inline"
         onClick={() => handleResourceNavigate(link)}
       >
-        {resource.id}
+        {resourceId}
       </Button>
     )
   }
@@ -213,9 +241,18 @@ export const ActivityLogDetails = ({ goBack }: { goBack: () => void }) => {
     },
   })
 
+  const canOpenSubscription = isOrganizationRouteAvailable(
+    CUSTOMER_SUBSCRIPTION_DETAILS_ROUTE,
+    hasFeatureFlag,
+  )
+
   const { data: subscriptionData } = useGetSubscriptionIdForActivityLogDetailsQuery({
     variables: { externalId: externalSubscriptionId },
-    skip: !externalSubscriptionId || !activityType || isDeletedActivityType(activityType),
+    skip:
+      !canOpenSubscription ||
+      !externalSubscriptionId ||
+      !activityType ||
+      isDeletedActivityType(activityType),
     context: {
       silentErrorCodes: [LagoApiError.NotFound],
     },

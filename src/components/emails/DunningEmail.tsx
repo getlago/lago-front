@@ -23,7 +23,6 @@ gql`
     id
     displayName
     paymentProvider
-    netPaymentTerm
     billingConfiguration {
       id
       documentLocale
@@ -35,7 +34,6 @@ gql`
     name
     logoUrl
     email
-    netPaymentTerm
     billingConfiguration {
       id
       documentLocale
@@ -58,14 +56,8 @@ gql`
 export interface DunningEmailProps {
   locale: LocaleEnum
   invoices: InvoicesForDunningEmailFragment[]
-  customer?: Pick<
-    CustomerForDunningEmailFragment,
-    'displayName' | 'paymentProvider' | 'netPaymentTerm'
-  >
-  // Omit the netPaymentTerm from the organization and add it possible string
-  organization?: Pick<OrganizationForDunningEmailFragment, 'name' | 'logoUrl' | 'email'> & {
-    netPaymentTerm: OrganizationForDunningEmailFragment['netPaymentTerm'] | string
-  }
+  customer?: Pick<CustomerForDunningEmailFragment, 'displayName' | 'paymentProvider'>
+  organization?: Pick<OrganizationForDunningEmailFragment, 'name' | 'logoUrl' | 'email'>
   currency: CurrencyEnum
   overdueAmount: number
 }
@@ -100,8 +92,6 @@ export const DunningEmail: FC<DunningEmailProps> = ({
     currencyDisplay: 'narrowSymbol',
   })
 
-  const netPaymentTerm = customer?.netPaymentTerm ?? organization?.netPaymentTerm
-
   return (
     <>
       <div className="flex flex-col gap-6 pb-8 shadow-b">
@@ -113,16 +103,6 @@ export const DunningEmail: FC<DunningEmailProps> = ({
         </Typography>
         <Typography className={paragraphStyle} color="textSecondary">
           {translate('text_66b378e748cda1004ff00db2', { amount: formattedOverdueAmount })}
-        </Typography>
-        <Typography className={paragraphStyle} color="textSecondary">
-          {translate(
-            'text_66b378e748cda1004ff00db3',
-            { netPaymentTerm: netPaymentTerm },
-            typeof netPaymentTerm === 'number'
-              ? netPaymentTerm
-              : // If netPaymentTerm is a string (fake data), the plural version is returned
-                2,
-          )}
         </Typography>
         <Typography className={paragraphStyle} color="textSecondary">
           {translate('text_66b378e748cda1004ff00db4')}

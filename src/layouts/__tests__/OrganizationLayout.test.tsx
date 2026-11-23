@@ -1,8 +1,15 @@
 import * as Sentry from '@sentry/react'
-import { renderHook } from '@testing-library/react'
+import { fireEvent, render, renderHook, waitFor } from '@testing-library/react'
+import { useEffect } from 'react'
+
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
 
 // Import after mocks
-import OrganizationLayout from '../OrganizationLayout'
+import OrganizationLayout, {
+  SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
+  SANDBOX_BANNER_TEST_ID,
+} from '../OrganizationLayout'
+import { SANDBOX_BANNER_HEIGHT_CSS_VAR } from '../sandboxBannerHeight'
 
 // ---------- Mock fns ----------
 const mockNavigate = jest.fn()
@@ -16,6 +23,17 @@ const mockGetCurrentOrganizationId = jest.fn()
 const mockGetPersistedOrganizationSlug = jest.fn()
 const mockSetPersistedOrganizationSlug = jest.fn()
 const mockLocationHistoryVar = jest.fn()
+const mockUseSandbox = jest.fn()
+const mockOutletMount = jest.fn()
+const mockPendingOrganizationShell = jest.fn()
+
+const MockOutlet = () => {
+  useEffect(() => {
+    mockOutletMount()
+  }, [])
+
+  return <div data-test="outlet" />
+}
 
 // ---------- Mocks ----------
 jest.mock('react-router', () => ({
@@ -23,7 +41,7 @@ jest.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
   useParams: () => mockUseParams(),
   useLocation: () => mockUseLocation(),
-  Outlet: () => <div data-test="outlet" />,
+  Outlet: () => <MockOutlet />,
 }))
 
 // `~/core/router` barrel pulls in route modules that depend on
@@ -68,6 +86,16 @@ jest.mock('~/core/apolloClient/reactiveVars', () => ({
   locationHistoryVar: () => mockLocationHistoryVar(),
 }))
 
+jest.mock('~/hooks/useSandbox', () => ({
+  useSandbox: () => mockUseSandbox(),
+}))
+
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({
+    translate: (key: string) => jest.requireActual('../../../translations/base.json')[key],
+  }),
+}))
+
 jest.mock('~/hooks/useCurrentUser', () => ({
   useCurrentUser: () => mockUseCurrentUser(),
 }))
@@ -76,9 +104,22 @@ jest.mock('~/components/designSystem/Spinner', () => ({
   Spinner: () => <div data-test="spinner" />,
 }))
 
+jest.mock('~/layouts/PendingOrganizationShell', () => ({
+  PendingOrganizationShell: (props: unknown) => {
+    mockPendingOrganizationShell(props)
+
+    return <div data-test="pending-organization-shell" />
+  },
+}))
+
 jest.mock('~/pages/Error404', () => ({
   __esModule: true,
   default: () => <div data-test="error-404" />,
+}))
+
+jest.mock('~/pages/Forbidden', () => ({
+  __esModule: true,
+  default: () => <div data-test="forbidden" />,
 }))
 
 const TEST_ORG_SLUG = 'acme'
@@ -88,11 +129,21 @@ const OTHER_ORG_ID = 'org-2'
 const defaultMemberships = [
   {
     id: 'membership-1',
-    organization: { id: TEST_ORG_ID, name: 'Acme Corp', slug: TEST_ORG_SLUG },
+    organization: {
+      id: TEST_ORG_ID,
+      name: 'Acme Corp',
+      slug: TEST_ORG_SLUG,
+      accessibleByCurrentSession: true,
+    },
   },
   {
     id: 'membership-2',
-    organization: { id: OTHER_ORG_ID, name: 'Other Corp', slug: 'other-corp' },
+    organization: {
+      id: OTHER_ORG_ID,
+      name: 'Other Corp',
+      slug: 'other-corp',
+      accessibleByCurrentSession: true,
+    },
   },
 ]
 
@@ -105,9 +156,11 @@ describe('OrganizationLayout', () => {
       hash: '',
     })
     mockLocationHistoryVar.mockReturnValue([])
+    window.history.replaceState(null, '')
     mockGetCurrentOrganizationId.mockReturnValue(TEST_ORG_ID)
     // Persisted last-used slug (read by the missed-migration detection).
     mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
+    mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
   })
 
   describe('GIVEN the user is loading', () => {
@@ -175,6 +228,160 @@ describe('OrganizationLayout', () => {
       })
     })
 
+    describe('WHEN the sandbox environment is resolved', () => {
+      const PRODUCTION_PATH = '/acme-prod/customers'
+
+      const queryByDataTest = (testId: string): HTMLElement | null =>
+        document.querySelector(`[data-test="${testId}"]`)
+      const getOutlet = (): HTMLElement | null => queryByDataTest('outlet')
+
+      beforeEach(() => {
+        mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+        mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships },
+          loading: false,
+        })
+      })
+
+      describe('WHEN the organization is not a sandbox', () => {
+        it('THEN should render the Outlet without the sandbox banner', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          render(<OrganizationLayout />)
+
+          expect(getOutlet()).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the organization is a sandbox with a production path', () => {
+        beforeEach(() => {
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+        })
+
+        it('THEN should render the sandbox banner with its switch button above the Outlet', () => {
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toBeInTheDocument()
+          expect(getOutlet()).toBeInTheDocument()
+        })
+
+        it('THEN should render the sandbox title and message from the design', () => {
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toHaveTextContent(
+            'Sandbox • You are testing in a sandbox. Nothing here is billed or sent to customers.',
+          )
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toHaveTextContent(
+            'Switch to production',
+          )
+        })
+
+        it('THEN should render the banner as a full-width dark info alert with the light button', () => {
+          render(<OrganizationLayout />)
+
+          const alert = queryByDataTest(SANDBOX_BANNER_TEST_ID)?.querySelector(
+            '[data-test="alert-type-info"]',
+          )
+
+          expect(alert).toHaveClass('bg-purple-800', 'w-full', 'rounded-none', 'px-7')
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).toHaveClass(
+            'button-quaternary-light',
+          )
+        })
+
+        it('THEN should navigate to the production path without prepending the slug on click', () => {
+          render(<OrganizationLayout />)
+
+          mockNavigate.mockClear()
+          fireEvent.click(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID) as HTMLElement)
+
+          expect(mockNavigate).toHaveBeenCalledTimes(1)
+          expect(mockNavigate).toHaveBeenCalledWith(PRODUCTION_PATH, { skipSlugPrepend: true })
+        })
+      })
+
+      describe('WHEN the organization is a sandbox without a production path', () => {
+        it('THEN should render the sandbox banner without the switch button', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: null })
+
+          render(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(queryByDataTest(SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID)).not.toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the user switches organization through the switch spinner', () => {
+        it('THEN should only read the sandbox state once the new organization is resolved', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          mockCurrentOrganizationVar.mockReturnValue('previous-org-id')
+          mockUseSandbox.mockClear()
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest('spinner')).toBeInTheDocument()
+          expect(mockUseSandbox).not.toHaveBeenCalled()
+
+          mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+        })
+      })
+
+      describe('WHEN the organization switches from non-sandbox to sandbox on rerender', () => {
+        it('THEN should show the banner without remounting the Outlet', () => {
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+
+          const { rerender } = render(<OrganizationLayout />)
+          const outletBefore = getOutlet()
+
+          expect(mockOutletMount).toHaveBeenCalledTimes(1)
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).toBeInTheDocument()
+          expect(mockOutletMount).toHaveBeenCalledTimes(1)
+          expect(getOutlet()).toBe(outletBefore)
+        })
+      })
+
+      describe('WHEN the sandbox banner is shown then hidden', () => {
+        const readBannerHeightVar = (): string =>
+          document.documentElement.style.getPropertyValue(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+
+        afterEach(() => {
+          jest.restoreAllMocks()
+          document.documentElement.style.removeProperty(SANDBOX_BANNER_HEIGHT_CSS_VAR)
+        })
+
+        it('THEN should expose the banner height as a CSS variable only while it is shown', () => {
+          jest
+            .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+            .mockReturnValue({ height: 28 } as DOMRect)
+          mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: PRODUCTION_PATH })
+
+          const { rerender } = render(<OrganizationLayout />)
+
+          expect(readBannerHeightVar()).toBe('28px')
+
+          mockUseSandbox.mockReturnValue({ isSandbox: false, productionPath: null })
+          rerender(<OrganizationLayout />)
+
+          expect(queryByDataTest(SANDBOX_BANNER_TEST_ID)).not.toBeInTheDocument()
+          expect(readBannerHeightVar()).toBe('')
+        })
+      })
+    })
+
     describe('WHEN currentOrgId does not yet match org.id (transition)', () => {
       it('THEN should render a spinner while waiting', () => {
         mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
@@ -189,6 +396,336 @@ describe('OrganizationLayout', () => {
 
         // During transition it renders spinner (since currentOrgId !== org.id)
         expect(result.current).toBeTruthy()
+      })
+    })
+  })
+
+  describe('GIVEN the slug matches a production organization waiting for a payment method', () => {
+    const pendingOrganization = {
+      ...defaultMemberships[0].organization,
+      activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+    }
+    const currentUserWithPendingOrg = {
+      memberships: [
+        { ...defaultMemberships[0], organization: pendingOrganization },
+        defaultMemberships[1],
+      ],
+    }
+
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithPendingOrg, loading: false })
+    })
+
+    it('THEN should render the pending organization shell instead of the Outlet', () => {
+      const { container } = render(<OrganizationLayout />)
+
+      expect(
+        container.querySelector('[data-test="pending-organization-shell"]'),
+      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
+      expect(container.querySelector('[data-test="spinner"]')).not.toBeInTheDocument()
+      expect(mockOutletMount).not.toHaveBeenCalled()
+    })
+
+    it('THEN should not render the sandbox banner', () => {
+      mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: null })
+
+      const { container } = render(<OrganizationLayout />)
+
+      expect(
+        container.querySelector(`[data-test="${SANDBOX_BANNER_TEST_ID}"]`),
+      ).not.toBeInTheDocument()
+      expect(mockUseSandbox).not.toHaveBeenCalled()
+    })
+
+    it('THEN should pass the organization and an add payment method callback to the shell', () => {
+      render(<OrganizationLayout />)
+
+      expect(mockPendingOrganizationShell).toHaveBeenCalledWith({
+        organization: pendingOrganization,
+        onAddPaymentMethod: expect.any(Function),
+      })
+    })
+
+    describe.each([
+      ['no organization is set yet', undefined],
+      ['another organization is set', OTHER_ORG_ID],
+    ])('WHEN %s', (_, currentOrgId) => {
+      it('THEN should neither set, switch to nor persist the pending organization', () => {
+        mockCurrentOrganizationVar.mockReturnValue(currentOrgId)
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+        expect(mockSetPersistedOrganizationSlug).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization becomes active', () => {
+      it('THEN should set it as the current organization and persist it', () => {
+        const { rerender } = render(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: {
+            memberships: [
+              {
+                ...defaultMemberships[0],
+                organization: {
+                  ...pendingOrganization,
+                  activationStatus: OrganizationActivationStatusEnum.Active,
+                },
+              },
+              defaultMemberships[1],
+            ],
+          },
+          loading: false,
+        })
+        rerender(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(TEST_ORG_ID)
+        expect(mockSetPersistedOrganizationSlug).toHaveBeenCalledWith(TEST_ORG_SLUG)
+      })
+    })
+  })
+
+  describe.each([
+    ['active', OrganizationActivationStatusEnum.Active],
+    ['null (not reported)', null],
+  ])('GIVEN the slug matches an organization whose activation status is %s', (_, status) => {
+    it('THEN should open it as today', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: {
+          memberships: [
+            {
+              ...defaultMemberships[0],
+              organization: { ...defaultMemberships[0].organization, activationStatus: status },
+            },
+          ],
+        },
+        loading: false,
+      })
+
+      const { container } = render(<OrganizationLayout />)
+
+      expect(container.querySelector('[data-test="outlet"]')).toBeInTheDocument()
+      expect(
+        container.querySelector('[data-test="pending-organization-shell"]'),
+      ).not.toBeInTheDocument()
+      expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(TEST_ORG_ID)
+    })
+  })
+
+  describe('GIVEN the slug matches a membership the current session cannot access', () => {
+    const currentUserWithLockedOrg = {
+      memberships: [
+        defaultMemberships[0],
+        {
+          ...defaultMemberships[1],
+          organization: {
+            ...defaultMemberships[1].organization,
+            accessibleByCurrentSession: false,
+          },
+        },
+      ],
+    }
+
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: false })
+    })
+
+    it('THEN should render the forbidden page', async () => {
+      const { container } = render(<OrganizationLayout />)
+
+      await waitFor(() => {
+        expect(container.querySelector('[data-test="forbidden"]')).toBeInTheDocument()
+      })
+      expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
+    })
+
+    it('THEN should not switch to that organization', () => {
+      renderHook(() => OrganizationLayout())
+
+      expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+      expect(mockSetPersistedOrganizationSlug).not.toHaveBeenCalled()
+    })
+
+    it('THEN should not auto-recover nor emit the slug migration signal', () => {
+      renderHook(() => OrganizationLayout())
+
+      expect(mockNavigate).not.toHaveBeenCalled()
+      expect(Sentry.captureException).not.toHaveBeenCalledWith(
+        expect.objectContaining({ name: 'SlugMigrationMissedLink' }),
+        expect.anything(),
+      )
+    })
+
+    describe('WHEN the user lands on it from outside the app (bookmark, shared link)', () => {
+      it('THEN should report it as external even with a stale in-app location history', () => {
+        mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
+
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'OrganizationInaccessible' }),
+          expect.objectContaining({ tags: expect.objectContaining({ source: 'external' }) }),
+        )
+      })
+
+      it('THEN should emit an external org_inaccessible_for_session warning once', () => {
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'OrganizationInaccessible',
+            message: 'org_inaccessible_for_session',
+          }),
+          expect.objectContaining({
+            level: 'warning',
+            tags: expect.objectContaining({ attemptedSlug: 'other-corp', source: 'external' }),
+            extra: expect.objectContaining({ accessibleMembershipsCount: 1 }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the user was already navigating inside the app', () => {
+      it('THEN should emit an in_app org_inaccessible_for_session warning', () => {
+        window.history.replaceState({ idx: 2 }, '')
+        mockLocationHistoryVar.mockReturnValue([{ pathname: `/${TEST_ORG_SLUG}/plans` }])
+
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({ name: 'OrganizationInaccessible' }),
+          expect.objectContaining({
+            tags: expect.objectContaining({ source: 'in_app' }),
+            extra: expect.objectContaining({ previousPath: `/${TEST_ORG_SLUG}/plans` }),
+          }),
+        )
+      })
+    })
+
+    describe('WHEN the current user is refetched while the forbidden page is shown', () => {
+      it('THEN should not report the same visit again', () => {
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithLockedOrg, loading: true })
+        rerender()
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: currentUserWithLockedOrg,
+          loading: false,
+        })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the user leaves and comes back to the same organization', () => {
+      it('THEN should report the new visit', () => {
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'a' })
+        const { rerender } = renderHook(() => OrganizationLayout())
+
+        mockUseLocation.mockReturnValue({ pathname: '/other-corp', search: '', hash: '', key: 'b' })
+        rerender()
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(2)
+      })
+    })
+  })
+
+  describe('GIVEN the slug matches an accessible membership', () => {
+    it('THEN should not emit the org_inaccessible_for_session warning', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: defaultMemberships },
+        loading: false,
+      })
+
+      renderHook(() => OrganizationLayout())
+
+      expect(Sentry.captureException).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN a legacy path AND some memberships the session cannot access', () => {
+    const lockOrganization = (membership: (typeof defaultMemberships)[number]) => ({
+      ...membership,
+      organization: { ...membership.organization, accessibleByCurrentSession: false },
+    })
+
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'customers' })
+      mockUseLocation.mockReturnValue({ pathname: '/customers', search: '', hash: '' })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockGetCurrentOrganizationId.mockReturnValue(undefined)
+    })
+
+    describe('WHEN the persisted last-used org is not accessible', () => {
+      it('THEN should recover into the accessible organization', () => {
+        mockGetPersistedOrganizationSlug.mockReturnValue(TEST_ORG_SLUG)
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: {
+            memberships: [lockOrganization(defaultMemberships[0]), defaultMemberships[1]],
+          },
+          loading: false,
+        })
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockNavigate).toHaveBeenCalledWith(
+          '/other-corp/customers',
+          expect.objectContaining({ replace: true, skipSlugPrepend: true }),
+        )
+      })
+    })
+
+    describe('WHEN no membership is accessible', () => {
+      beforeEach(() => {
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: { memberships: defaultMemberships.map(lockOrganization) },
+          loading: false,
+        })
+      })
+
+      it('THEN should render the forbidden page without navigating', async () => {
+        const { container } = render(<OrganizationLayout />)
+
+        await waitFor(() => {
+          expect(container.querySelector('[data-test="forbidden"]')).toBeInTheDocument()
+        })
+        expect(mockNavigate).not.toHaveBeenCalled()
+      })
+
+      it('THEN should emit the no_org_accessible_for_session warning', () => {
+        renderHook(() => OrganizationLayout())
+
+        expect(Sentry.captureException).toHaveBeenCalledTimes(1)
+        expect(Sentry.captureException).toHaveBeenCalledWith(
+          expect.objectContaining({
+            name: 'NoOrganizationAccessible',
+            message: 'no_org_accessible_for_session',
+          }),
+          expect.objectContaining({
+            level: 'warning',
+            tags: expect.objectContaining({ attemptedSlug: 'customers', source: 'external' }),
+            extra: expect.objectContaining({ accessibleMembershipsCount: 0 }),
+          }),
+        )
       })
     })
   })
@@ -259,7 +796,12 @@ describe('OrganizationLayout', () => {
     const singleMembership = [
       {
         id: 'membership-1',
-        organization: { id: TEST_ORG_ID, name: 'Acme Corp', slug: TEST_ORG_SLUG },
+        organization: {
+          id: TEST_ORG_ID,
+          name: 'Acme Corp',
+          slug: TEST_ORG_SLUG,
+          accessibleByCurrentSession: true,
+        },
       },
     ]
 
@@ -455,6 +997,34 @@ describe('OrganizationLayout', () => {
           `/${TEST_ORG_SLUG}/customers?ifrm=true`,
           expect.objectContaining({ replace: true, skipSlugPrepend: true }),
         )
+      })
+    })
+  })
+
+  describe('GIVEN the previous session ended and forgot its organization', () => {
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: 'other-corp' })
+      mockCurrentOrganizationVar.mockReturnValue(null)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: { memberships: defaultMemberships },
+        loading: false,
+      })
+    })
+
+    describe('WHEN the next session enters an organization', () => {
+      it('THEN should set the organization without switching from a previous one', () => {
+        render(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(OTHER_ORG_ID)
+        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+      })
+
+      it('THEN should show a spinner until the organization is set, never the 404', () => {
+        const { container } = render(<OrganizationLayout />)
+
+        expect(container.querySelector('[data-test="spinner"]')).toBeInTheDocument()
+        expect(container.querySelector('[data-test="error-404"]')).not.toBeInTheDocument()
+        expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
       })
     })
   })

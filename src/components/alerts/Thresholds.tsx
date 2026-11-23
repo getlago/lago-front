@@ -8,17 +8,24 @@ import { Typography } from '~/components/designSystem/Typography'
 import {
   AmountInput,
   AmountValueFormatter,
+  ComboBox,
   Switch,
   TextInput,
   ValueFormatter,
   ValueFormatterType,
 } from '~/components/form'
 import { getCurrencySymbol } from '~/core/formats/intlFormatNumber'
-import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 
 export const THRESHOLDS_ROW_LABEL_TEST_ID = 'thresholds-row-label'
 export const THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID = 'thresholds-recurring-row-label'
+export const THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID = 'thresholds-notify-when-resolved'
+export const THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID =
+  'thresholds-recurring-notify-when-resolved'
+export const THRESHOLDS_CODE_ERROR_TEST_ID = 'thresholds-code-error'
+export const THRESHOLDS_ADD_ROW_TEST_ID = 'add-new-non-recurring-threshold-button'
+export const THRESHOLDS_RECURRING_SWITCH_TEST_ID = 'add-new-recurring-threshold-switch'
 
 export const isThresholdValueValid = (
   index: number,
@@ -52,7 +59,7 @@ const ValueInput = ({
   translate: TranslateFunc
   unitsLabel?: string
   allowNegativeValues?: boolean
-}) => {
+}): JSX.Element => {
   if (shouldHandleUnits) {
     const beforeChangeFormatter: ValueFormatterType[] = [
       ...(allowNegativeValues ? [] : [ValueFormatter.positiveNumber]),
@@ -99,6 +106,38 @@ const ValueInput = ({
   )
 }
 
+const NOTIFY_WHEN_RESOLVED_TRUE = 'true'
+const NOTIFY_WHEN_RESOLVED_FALSE = 'false'
+
+const NotifyWhenResolvedInput = ({
+  value,
+  onChange,
+  translate,
+  disabled = false,
+  dataTest,
+}: {
+  value: boolean
+  translate: TranslateFunc
+  dataTest: string
+} & (
+  { disabled: true; onChange?: never } | { disabled?: false; onChange: (value: boolean) => void }
+)): JSX.Element => (
+  <ComboBox
+    variant="outlined"
+    disableClearable
+    sortValues={false}
+    containerClassName="w-full"
+    disabled={disabled}
+    data-test={dataTest}
+    value={value ? NOTIFY_WHEN_RESOLVED_TRUE : NOTIFY_WHEN_RESOLVED_FALSE}
+    data={[
+      { label: translate('text_65251f4cd55aeb004e5aa5ef'), value: NOTIFY_WHEN_RESOLVED_FALSE },
+      { label: translate('text_65251f46339c650084ce0d57'), value: NOTIFY_WHEN_RESOLVED_TRUE },
+    ]}
+    onChange={(newValue) => onChange?.(newValue === NOTIFY_WHEN_RESOLVED_TRUE)}
+  />
+)
+
 const INCREASING_COPY_KEYS = {
   firstRow: 'text_1747921119080dk04aab1ecy',
   recurringSwitchLabel: 'text_1791364076473ecdejxgegz1',
@@ -113,17 +152,7 @@ const DECREASING_COPY_KEYS: typeof INCREASING_COPY_KEYS = {
   recurringRow: 'text_1791364076473tj13xy14d28',
 }
 
-const AlertThresholds = ({
-  thresholds,
-  setThresholds,
-  setThresholdValue,
-  currency,
-  shouldHandleUnits,
-  unitsLabel,
-  unitsTitle,
-  reversedThreshold,
-  allowNegativeValues,
-}: {
+export type AlertThresholdsProps = {
   thresholds: ThresholdInput[]
   setThresholds: (thresholds: ThresholdInput[]) => void
   setThresholdValue: ({
@@ -141,7 +170,21 @@ const AlertThresholds = ({
   unitsTitle?: string
   reversedThreshold?: boolean
   allowNegativeValues?: boolean
-}) => {
+  codeErrors: Record<number, string>
+}
+
+const AlertThresholds = ({
+  thresholds,
+  setThresholds,
+  setThresholdValue,
+  currency,
+  shouldHandleUnits,
+  unitsLabel,
+  unitsTitle,
+  reversedThreshold,
+  allowNegativeValues,
+  codeErrors,
+}: AlertThresholdsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const copyKeys = reversedThreshold ? DECREASING_COPY_KEYS : INCREASING_COPY_KEYS
 
@@ -154,6 +197,7 @@ const AlertThresholds = ({
       code: '',
       value: '',
       recurring,
+      notifyOn: [NotifyOnEnum.Triggered],
     }
 
     if (!recurring && hasRecurringThreshold && recurringIndex > 0) {
@@ -186,6 +230,29 @@ const AlertThresholds = ({
     [thresholds],
   )
 
+  const renderCodeInput = (row: ThresholdInput, index: number): JSX.Element => {
+    const codeError = codeErrors[index]
+
+    return (
+      <Tooltip
+        placement="top"
+        title={codeError ? translate(codeError) : row.code || ''}
+        disableHoverListener={!codeError && !row.code}
+      >
+        <TextInput
+          variant="outlined"
+          error={!!codeError}
+          data-test={codeError ? THRESHOLDS_CODE_ERROR_TEST_ID : undefined}
+          placeholder={translate('text_1747921154885jqsl0c9xhro')}
+          value={row.code ?? ''}
+          onChange={(value) => {
+            setThresholdValue({ index, key: 'code', newValue: value === '' ? undefined : value })
+          }}
+        />
+      </Tooltip>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col">
@@ -194,7 +261,7 @@ const AlertThresholds = ({
           startIcon="plus"
           variant="inline"
           onClick={() => addThreshold()}
-          data-test="add-new-non-recurring-threshold-button"
+          data-test={THRESHOLDS_ADD_ROW_TEST_ID}
         >
           {translate('text_1724233213997l2ksi40t8q6')}
         </Button>
@@ -213,12 +280,11 @@ const AlertThresholds = ({
             deleteTooltipContent={translate('text_17242522324608198c2vblmw')}
             columns={[
               {
-                size: 200,
+                size: 150,
                 content: (_, i) => (
                   <Typography
                     className="px-4"
                     variant="captionHl"
-                    noWrap
                     data-test={THRESHOLDS_ROW_LABEL_TEST_ID}
                   >
                     {translate(i === 0 ? copyKeys.firstRow : 'text_1724179887723917j8ezkd9v')}
@@ -226,7 +292,7 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 225,
+                size: 210,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate(
@@ -280,22 +346,31 @@ const AlertThresholds = ({
                 },
               },
               {
-                size: 250,
+                size: 140,
                 title: (
                   <Typography className="px-4" variant="captionHl">
                     {translate('text_1748334091887k4p2p41jdou')}
                   </Typography>
                 ),
+                content: renderCodeInput,
+              },
+              {
+                size: 180,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_1792439710542ctc2yq2zptb')}
+                  </Typography>
+                ),
                 content: (row, i) => (
-                  <TextInput
-                    variant="outlined"
-                    placeholder={translate('text_1747921154885jqsl0c9xhro')}
-                    value={row.code ?? ''}
-                    onChange={(value) => {
+                  <NotifyWhenResolvedInput
+                    dataTest={THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                    translate={translate}
+                    value={!!row.notifyOn?.includes(NotifyOnEnum.Resolved)}
+                    onChange={(notifyWhenResolved) => {
                       setThresholdValue({
                         index: i,
-                        key: 'code',
-                        newValue: value === '' ? undefined : value,
+                        key: 'notifyOn',
+                        newValue: notifyWhenResolved,
                       })
                     }}
                   />
@@ -308,7 +383,7 @@ const AlertThresholds = ({
       <Switch
         name="recurring-threshold"
         className="w-fit cursor-pointer"
-        data-test="add-new-recurring-threshold-switch"
+        data-test={THRESHOLDS_RECURRING_SWITCH_TEST_ID}
         checked={hasRecurringThreshold}
         onChange={onSwitchClick}
         label={translate(copyKeys.recurringSwitchLabel)}
@@ -321,12 +396,16 @@ const AlertThresholds = ({
             data={thresholds.filter((threshold) => threshold.recurring) || []}
             columns={[
               {
-                size: 200,
+                size: 150,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_632d68358f1fedc68eed3e64')}
+                  </Typography>
+                ),
                 content: () => (
                   <Typography
                     className="px-4"
                     variant="captionHl"
-                    noWrap
                     data-test={THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID}
                   >
                     {translate(copyKeys.recurringRow)}
@@ -334,7 +413,16 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 225,
+                size: 210,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate(
+                      shouldHandleUnits
+                        ? unitsTitle || 'text_1748858070139kmh56doz3la'
+                        : 'text_1748858044483q61vd2npre7',
+                    )}
+                  </Typography>
+                ),
                 content: (row) => (
                   <ValueInput
                     currency={currency}
@@ -354,19 +442,27 @@ const AlertThresholds = ({
                 ),
               },
               {
-                size: 250,
-                content: (row) => (
-                  <TextInput
-                    variant="outlined"
-                    placeholder={translate('text_1747921154885jqsl0c9xhro')}
-                    value={row.code ?? ''}
-                    onChange={(value) => {
-                      setThresholdValue({
-                        index: recurringIndex,
-                        key: 'code',
-                        newValue: value === '' ? undefined : value,
-                      })
-                    }}
+                size: 140,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_1748334091887k4p2p41jdou')}
+                  </Typography>
+                ),
+                content: (row) => renderCodeInput(row, recurringIndex),
+              },
+              {
+                size: 180,
+                title: (
+                  <Typography className="px-4" variant="captionHl" noWrap>
+                    {translate('text_1792439710542ctc2yq2zptb')}
+                  </Typography>
+                ),
+                content: () => (
+                  <NotifyWhenResolvedInput
+                    disabled
+                    dataTest={THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID}
+                    translate={translate}
+                    value={false}
                   />
                 ),
               },

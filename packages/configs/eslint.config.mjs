@@ -14,6 +14,7 @@ import pluginTypescriptEslint from 'typescript-eslint'
 
 import noDirectRrdNavImport from './eslint-rules/no-direct-rrd-nav-import.js'
 import noFormikPropsInEffect from './eslint-rules/no-formik-props-in-effect.js'
+import useDesignSystem from './eslint-rules/use-design-system.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -78,6 +79,7 @@ export default [
         rules: {
           'no-direct-rrd-nav-import': noDirectRrdNavImport,
           'no-formik-props-in-effect': noFormikPropsInEffect,
+          'use-design-system': useDesignSystem,
         },
       },
     },
@@ -106,22 +108,17 @@ export default [
       'no-unneeded-ternary': 'warn',
       'no-duplicate-imports': 'error',
 
-      // Prevent barrel imports from large libraries (impacts bundle size and dev performance)
-      'no-restricted-imports': [
+      // `no-restricted-syntax`, not `no-restricted-imports`: the formik/dialog block below
+      // reuses that rule key at a different severity, and flat config doesn't merge options.
+      'no-restricted-syntax': [
         'error',
         {
-          paths: [
-            {
-              name: '@mui/material',
-              message:
-                'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
-            },
-          ],
+          selector:
+            ":matches(ImportDeclaration, ExportNamedDeclaration, ExportAllDeclaration)[source.value='@mui/material']",
+          message:
+            'Import from @mui/material/* instead. E.g., import Button from "@mui/material/Button"',
         },
       ],
-      // Enforce slug-aware navigation wrappers (custom rule — error level,
-      // kept separate from `no-restricted-imports` which is also used below
-      // at `warn` severity for formik/dialog deprecations).
       'lago/no-direct-rrd-nav-import': 'error',
 
       // Plugins
@@ -158,7 +155,7 @@ export default [
     },
   },
   {
-    files: ['vite.config.ts', 'scripts/**/*.js'],
+    files: ['vite.config.ts', 'scripts/**/*.js', '**/eslint-rules/__tests__/*.js'],
     rules: {
       'import/order': 'off',
     },

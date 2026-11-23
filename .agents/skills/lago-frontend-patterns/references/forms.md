@@ -220,4 +220,10 @@ but reading it as a template reproduces two things a new form should not do.
 
 ## Implementation notes
 
-No implementation notes yet - this section fills in reactively, the same way the design-system component docs do.
+**`dialogFormProps` closes on `isSubmitSuccessful`, so `onSubmit` must throw on failure.**
+GraphQL errors resolve instead of rejecting (`graphql-errors.md`), so an `onSubmit` that
+only sets field errors from `result.errors`, or catches a network error and shows a
+toast, counts as a success and the dialog closes. Map the server errors onto the fields,
+then throw; toast the network error, then rethrow. Keep the server-error mapping out of
+the dialog hook, in a typed module beside the schema that narrows `extensions.details`
+with type guards instead of asserting its shape.

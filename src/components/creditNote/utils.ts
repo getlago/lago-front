@@ -1,4 +1,5 @@
-import { deserializeAmount, serializeAmount } from '~/core/serializers/serializeAmount'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { serializeCheckedCreditNoteFees } from '~/core/serializers/serializeCreditNoteInput'
 import {
   CreditNoteItemInput,
   CreditNoteTableItemFragment,
@@ -63,6 +64,7 @@ export type CreditNoteFormCalculationCalculationProps = {
   currency: CurrencyEnum
   fees: FeesPerInvoice | undefined
   addonFees: FromFee[] | undefined
+  productFees: FromFee[] | undefined
   hasError: boolean
 }
 
@@ -73,44 +75,26 @@ export const creditNoteFormCalculationCalculation = ({
   currency,
   fees,
   addonFees,
+  productFees,
   hasError,
 }: CreditNoteFormCalculationCalculationProps): {
   feeForEstimate: CreditNoteItemInput[] | undefined
 } => {
   if (hasError) return { feeForEstimate: undefined }
 
-  let feeForEstimate: CreditNoteItemInput[] | undefined = undefined
+  const hasSubscriptionFees = !!Object.keys(fees || {}).length
 
-  if (!!Object.keys(fees || {}).length) {
-    feeForEstimate = Object.keys(fees || {}).reduce<CreditNoteItemInput[]>((accSub, subKey) => {
-      const subChild = ((fees as FeesPerInvoice) || {})[subKey]
-      const subValues = subChild?.fees?.reduce<CreditNoteItemInput[]>((accFees, fee) => {
-        if (fee.checked) {
-          accFees.push({
-            feeId: fee.id,
-            amountCents: serializeAmount(fee.value, currency),
-          })
-        }
-        return accFees
-      }, [])
+  if (!hasSubscriptionFees && !addonFees && !productFees) return { feeForEstimate: undefined }
 
-      return [...accSub, ...(subValues || [])]
-    }, [])
-  } else if (addonFees) {
-    feeForEstimate = addonFees.reduce<CreditNoteItemInput[]>((acc, fee) => {
-      if (!!fee.checked) {
-        acc.push({
-          feeId: fee.id,
-          amountCents: serializeAmount(fee.value, currency),
-        })
-      }
-
-      return acc
-    }, [])
-  }
+  const subscriptionFees = Object.values(fees || {}).flatMap(
+    (subscription) => subscription?.fees || [],
+  )
 
   return {
-    feeForEstimate,
+    feeForEstimate: serializeCheckedCreditNoteFees(
+      [...subscriptionFees, ...(addonFees || []), ...(productFees || [])],
+      currency,
+    ),
   }
 }
 
@@ -267,24 +251,15 @@ export const createCreditNoteForInvoiceButtonProps = ({
 export const creditNoteFormHasAtLeastOneFeeChecked = (
   formValues: Partial<CreditNoteForm>,
 ): boolean => {
-  const { fees, addOnFee, creditFee } = formValues
+  const { fees, addOnFee, productFee, creditFee } = formValues
   const groupedFeesValues = Object.values(fees || {})
 
-  if (addOnFee?.length) {
-    return addOnFee?.some((aof) => {
-      return aof?.checked
-    })
-  } else if (creditFee?.length) {
-    return creditFee?.some((cf) => {
-      return cf?.checked
-    })
-  } else if (groupedFeesValues.length) {
-    return groupedFeesValues.some((fee) => {
-      return fee?.fees?.some((f) => f?.checked)
-    })
-  }
-
-  return false
+  return !!(
+    addOnFee?.some((fee) => fee?.checked) ||
+    productFee?.some((fee) => fee?.checked) ||
+    creditFee?.some((fee) => fee?.checked) ||
+    groupedFeesValues.some((fee) => fee?.fees?.some((item) => item?.checked))
+  )
 }
 
 // ----------------------------------------

@@ -1,8 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual'
-import { Icon } from 'lago-design-system'
 import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useAnalyticsState } from '~/components/analytics/AnalyticsStateContext'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { tw } from '~/styles/utils'
 
@@ -88,16 +88,21 @@ export const HorizontalDataTable = <T extends DataItem>({
     [columnIdPrefix],
   )
 
+  const hasData = !!data?.length
+  const lastIndexRef = useRef(0)
+
+  lastIndexRef.current = Math.max((data?.length || 1) - 1, 0)
+
+  // Only on load: a refresh that appends a column must not move the user's scroll.
   useEffect(() => {
-    if (!loading && !!data?.length) {
-      // On init, scroll to the last element
+    if (!loading && hasData) {
       if (initScrollTo === InitScrollTo.END) {
-        return columnVirtualizer.scrollToIndex((data?.length || 1) - 1)
+        return columnVirtualizer.scrollToIndex(lastIndexRef.current)
       }
 
       return columnVirtualizer.scrollToIndex(0)
     }
-  }, [columnVirtualizer, data?.length, loading, initScrollTo])
+  }, [columnVirtualizer, hasData, loading, initScrollTo])
 
   useEffect(() => {
     if (typeof clickedDataIndex === 'number') {

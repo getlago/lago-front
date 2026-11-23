@@ -1,7 +1,7 @@
 import { useStore } from '@tanstack/react-form'
 
 import { getErrorToDisplay } from '~/core/form/getErrorToDisplay'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useFieldContext } from '~/hooks/forms/formContext'
 
 import { TextInput, TextInputProps } from './TextInput'
@@ -11,6 +11,7 @@ const TextInputField = ({
   displayErrorText = true,
   showOnlyErrors,
   errorOverride,
+  translateError,
   ...props
 }: Omit<TextInputProps, 'name' | 'value' | 'onChange' | 'onBlur' | 'error'> & {
   silentError?: boolean
@@ -21,6 +22,7 @@ const TextInputField = ({
    * variables). When omitted, the field meta errors are used.
    */
   errorOverride?: string | boolean
+  translateError?: TranslateFunc
 }) => {
   const field = useFieldContext<string>()
   const { translate } = useInternationalization()
@@ -36,7 +38,9 @@ const TextInputField = ({
     : allErrors
 
   // Translate each error key and join them before passing to getErrorToDisplay
-  const translatedError = filteredErrors.map((errorKey) => translate(errorKey as string)).join('\n')
+  const translatedError = filteredErrors
+    .map((errorKey) => (translateError ?? translate)(errorKey as string))
+    .join('\n')
 
   const finalError = getErrorToDisplay({
     error: translatedError,
@@ -45,6 +49,9 @@ const TextInputField = ({
     displayErrorText,
   })
 
+  const displayedError = errorOverride ?? finalError
+  const errorText = typeof displayedError === 'string' ? displayedError : undefined
+
   return (
     <TextInput
       {...props}
@@ -52,7 +59,8 @@ const TextInputField = ({
       value={field.state.value}
       onChange={(value) => field.handleChange(value)}
       onBlur={field.handleBlur}
-      error={errorOverride ?? finalError}
+      error={!!displayedError}
+      helperText={errorText || props.helperText}
     />
   )
 }

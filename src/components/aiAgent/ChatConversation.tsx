@@ -1,7 +1,8 @@
-import { FC, useEffect } from 'react'
+import { FC } from 'react'
 
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
 import { Message } from '~/components/aiAgent/llmOutputs'
+import { hasDefinedGQLError } from '~/core/apolloClient/errorUtils'
 import { OnConversationSubscriptionHookResult } from '~/generated/graphql'
 import { ChatRole } from '~/hooks/aiAgent/aiAgentReducer'
 import { useAiAgent } from '~/hooks/aiAgent/useAiAgent'
@@ -14,27 +15,10 @@ interface ChatConversationProps {
 }
 
 export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) => {
-  const { agentType, lastAssistantMessage, state, setChatDone, streamChunk } = useAiAgent()
+  const { agentType, state } = useAiAgent()
   const { translate } = useInternationalization()
-
-  useEffect(() => {
-    if (subscription.data?.aiConversationStreamed.chunk) {
-      if (lastAssistantMessage) {
-        streamChunk({
-          messageId: lastAssistantMessage.id,
-          chunk: subscription.data.aiConversationStreamed.chunk,
-        })
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription.data?.aiConversationStreamed.chunk])
-
-  useEffect(() => {
-    if (lastAssistantMessage && subscription.data?.aiConversationStreamed.done) {
-      setChatDone(lastAssistantMessage.id)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscription.data?.aiConversationStreamed.done])
+  const hasStreamError =
+    !!subscription.error && !hasDefinedGQLError('OrganizationInactive', subscription.error)
 
   return (
     <div
@@ -67,7 +51,7 @@ export const ChatConversation: FC<ChatConversationProps> = ({ subscription }) =>
 
       {state.isLoading && <ChatMessages.Loading agentType={agentType} />}
 
-      {(subscription.error || state.hasError) && (
+      {(hasStreamError || state.hasError) && (
         <ChatMessages.Error>{translate('text_1757417225851jw88w0yfa0n')}</ChatMessages.Error>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useRef } from 'react'
 
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
 import {
   LagoApiError,
@@ -20,7 +21,11 @@ import {
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
-import { RATE_CARD_RATE_DEPENDENT_QUERIES, RATE_CARD_RATE_FORM_DEFAULTS } from './constants'
+import {
+  RATE_CARD_RATE_DEPENDENT_QUERIES,
+  RATE_CARD_RATE_FORM_DEFAULTS,
+  RATE_CARD_RATE_FORM_ID,
+} from './constants'
 import { mapRateToFormValues } from './mapRateToFormValues'
 import { buildRateCardRateSchema, RateCardRateSchemaContext } from './schema'
 import { serializeRateProperties } from './serializeRateProperties'
@@ -133,6 +138,9 @@ export const useRateCardRateForm = ({
     validationLogic: revalidateLogic(),
     validators: {
       onDynamic: buildRateCardRateSchema(() => schemaContextRef.current),
+    },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstInputError(RATE_CARD_RATE_FORM_ID, formApi.state.errorMap.onDynamic || {})
     },
     onSubmit: async ({ value, formApi }) => {
       const rateCard = rateCardRef.current

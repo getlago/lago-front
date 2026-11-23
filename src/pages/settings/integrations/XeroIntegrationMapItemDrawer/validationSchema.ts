@@ -12,14 +12,17 @@ export const xeroMappingValidationSchema = z
     }),
   )
   .superRefine(
-    refineIntegrationMapItemEntries(({ selectedElementValue }) => {
-      const { externalAccountCode, externalId, externalName } = extractOptionValue(
-        selectedElementValue ?? '',
-      )
+    refineIntegrationMapItemEntries({
+      isFilled: ({ selectedElementValue }) => !!selectedElementValue,
+      getMissingFields: ({ selectedElementValue }) => {
+        const { externalAccountCode, externalId, externalName } = extractOptionValue(
+          selectedElementValue ?? '',
+        )
 
-      if (externalAccountCode && externalId && externalName) return []
+        if (externalAccountCode && externalId && externalName) return []
 
-      return ['selectedElementValue']
+        return ['selectedElementValue']
+      },
     }),
   )
 

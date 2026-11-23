@@ -1,12 +1,38 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
-import { CurrencyEnum, ThresholdInput } from '~/generated/graphql'
+import { getThresholdCodeErrorsFromForm } from '~/components/alerts/utils'
+import { ComboBoxProps } from '~/components/form/ComboBox/types'
+import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import AlertThresholds, {
+  THRESHOLDS_ADD_ROW_TEST_ID,
+  THRESHOLDS_CODE_ERROR_TEST_ID,
+  THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID,
+  THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID,
   THRESHOLDS_RECURRING_ROW_LABEL_TEST_ID,
+  THRESHOLDS_RECURRING_SWITCH_TEST_ID,
   THRESHOLDS_ROW_LABEL_TEST_ID,
 } from '../Thresholds'
+
+// The combobox list is virtualized, so jsdom renders no option: a native select
+// keeps the value, the labels, the disabled state and the change wiring real.
+jest.mock('~/components/form/ComboBox/ComboBox', () => ({
+  ComboBox: ({ data, disabled, value, onChange, 'data-test': dataTest }: ComboBoxProps) => (
+    <select
+      data-test={dataTest}
+      disabled={disabled}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    >
+      {data?.map(({ value: optionValue, label }) => (
+        <option key={optionValue} value={optionValue}>
+          {label}
+        </option>
+      ))}
+    </select>
+  ),
+}))
 
 const getMockThresholds = (): ThresholdInput[] => [
   {
@@ -36,6 +62,7 @@ const getMockThresholdsWithRecurring = (): ThresholdInput[] => [
 
 const defaultProps = {
   currency: CurrencyEnum.Usd,
+  codeErrors: {},
   setThresholds: jest.fn(),
   setThresholdValue: jest.fn(),
 }
@@ -73,7 +100,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds(), { setThresholds })
 
       // Find the add button by its text
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -88,6 +115,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
     })
 
@@ -97,7 +125,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds(), { setThresholds })
 
       // Find and click the recurring threshold switch
-      const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+      const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
       await act(async () => {
         fireEvent.click(recurringSwitch)
@@ -112,6 +140,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: true,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
     })
 
@@ -121,7 +150,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholdsWithRecurring(), { setThresholds })
 
       // Find and click the recurring threshold switch to turn it off
-      const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+      const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
       await act(async () => {
         fireEvent.click(recurringSwitch)
@@ -144,7 +173,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -158,6 +187,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
     })
 
@@ -171,7 +201,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -185,6 +215,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
       expect(callArgs[3].recurring).toBe(true) // Recurring should still be last
     })
@@ -195,7 +226,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -209,6 +240,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
     })
 
@@ -218,7 +250,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -232,6 +264,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
     })
 
@@ -246,7 +279,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -261,6 +294,7 @@ describe('AlertThresholds Component', () => {
         code: '',
         value: '',
         recurring: false,
+        notifyOn: [NotifyOnEnum.Triggered],
       })
       expect(callArgs[4].recurring).toBe(true) // Recurring should still be last
     })
@@ -275,7 +309,7 @@ describe('AlertThresholds Component', () => {
 
       await renderComponent(thresholds, { setThresholds })
 
-      const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+      const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
       await act(async () => {
         fireEvent.click(addButton)
@@ -297,7 +331,7 @@ describe('AlertThresholds Component', () => {
 
       // Look for button with correct text
       await waitFor(() => {
-        const addButton = screen.getByTestId('add-new-non-recurring-threshold-button')
+        const addButton = screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)
 
         expect(addButton).toBeInTheDocument()
       })
@@ -307,7 +341,7 @@ describe('AlertThresholds Component', () => {
       await renderComponent(getMockThresholds())
 
       await waitFor(() => {
-        expect(screen.getByTestId('add-new-recurring-threshold-switch')).toBeInTheDocument()
+        expect(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)).toBeInTheDocument()
       })
     })
 
@@ -371,7 +405,7 @@ describe('AlertThresholds Component', () => {
         it('THEN should describe the recurring switch as an alert', async () => {
           await renderComponent(getMockThresholds(), props)
 
-          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+          const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
           expect(recurringSwitch).toHaveTextContent(switchLabel)
           expect(recurringSwitch).toHaveTextContent(switchSubLabel)
@@ -380,7 +414,7 @@ describe('AlertThresholds Component', () => {
         it('THEN should not mention billing on the recurring switch', async () => {
           await renderComponent(getMockThresholds(), props)
 
-          const recurringSwitch = screen.getByTestId('add-new-recurring-threshold-switch')
+          const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
 
           expect(recurringSwitch).not.toHaveTextContent(/billing|billed/i)
         })
@@ -395,4 +429,185 @@ describe('AlertThresholds Component', () => {
       },
     )
   })
+})
+
+describe('GIVEN the "Notify when resolved" column', () => {
+  const TRIGGERED = [NotifyOnEnum.Triggered]
+  const TRIGGERED_AND_RESOLVED = [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved]
+
+  const selectedLabel = (element: HTMLElement): string | undefined =>
+    (element as HTMLSelectElement).selectedOptions[0]?.textContent ?? undefined
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('WHEN rendering the thresholds', () => {
+    it('THEN should show the column header', async () => {
+      await renderComponent(getMockThresholds())
+
+      expect(screen.getByText('Notify when resolved')).toBeInTheDocument()
+    })
+
+    it('THEN should show False for a threshold only notifying when triggered, and for one without notifyOn', async () => {
+      await renderComponent([
+        { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
+        { code: 'hard', value: '20', recurring: false },
+      ])
+
+      const cells = screen.getAllByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+      expect(cells.map(selectedLabel)).toEqual(['False', 'False'])
+    })
+
+    it('THEN should prefill True for a threshold notifying when resolved', async () => {
+      await renderComponent([
+        { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+      ])
+
+      expect(selectedLabel(screen.getByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID))).toBe(
+        'True',
+      )
+    })
+  })
+
+  describe('WHEN switching a threshold to True', () => {
+    it('THEN should patch its notifyOn through setThresholdValue', async () => {
+      await renderComponent(getMockThresholdsWithRecurring())
+
+      const cells = screen.getAllByTestId(THRESHOLDS_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+      await act(async () => {
+        fireEvent.change(cells[1], { target: { value: 'true' } })
+      })
+
+      expect(defaultProps.setThresholdValue).toHaveBeenCalledWith({
+        index: 1,
+        key: 'notifyOn',
+        newValue: true,
+      })
+    })
+  })
+
+  describe('WHEN a recurring threshold exists', () => {
+    it('THEN should show its cell disabled at False', async () => {
+      await renderComponent(getMockThresholdsWithRecurring())
+
+      const recurringCell = screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+      expect(recurringCell).toBeDisabled()
+      expect(selectedLabel(recurringCell)).toBe('False')
+    })
+
+    it('THEN should not explain why with a tooltip', async () => {
+      await renderComponent(getMockThresholdsWithRecurring())
+
+      const recurringCell = screen.getByTestId(THRESHOLDS_RECURRING_NOTIFY_WHEN_RESOLVED_TEST_ID)
+
+      await act(async () => {
+        fireEvent.mouseOver(recurringCell)
+      })
+
+      expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
+      expect(recurringCell.closest('[aria-label]')).toBeNull()
+    })
+  })
+
+  describe('WHEN a threshold notifying when resolved has no code', () => {
+    it('THEN should flag that row code cell only', async () => {
+      await renderComponent(
+        [
+          { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
+          { code: undefined, value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+        ],
+        { codeErrors: { 1: 'text_1792439710542tbnwvrxl0g7' } },
+      )
+
+      const errorCells = screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)
+
+      expect(errorCells).toHaveLength(1)
+      expect(
+        screen.getByDisplayValue('warn').closest(`[data-test="${THRESHOLDS_CODE_ERROR_TEST_ID}"]`),
+      ).toBeNull()
+    })
+  })
+
+  describe('WHEN two thresholds share the code of one notifying when resolved', () => {
+    it('THEN should flag both code cells', async () => {
+      await renderComponent(
+        [
+          { code: 'hard', value: '10', recurring: false, notifyOn: TRIGGERED },
+          { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+        ],
+        { codeErrors: { 0: 'text_17924397105421fihqq5j6ns', 1: 'text_17924397105421fihqq5j6ns' } },
+      )
+
+      expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
+    })
+  })
+
+  describe('WHEN deleting a row', () => {
+    it('THEN should drop the row with its notifyOn', async () => {
+      const thresholds: ThresholdInput[] = [
+        { code: 'warn', value: '10', recurring: false, notifyOn: TRIGGERED },
+        { code: 'hard', value: '20', recurring: false, notifyOn: TRIGGERED_AND_RESOLVED },
+      ]
+
+      await renderComponent(thresholds)
+
+      await act(async () => {
+        fireEvent.click(within(screen.getByTestId('row-1')).getByTestId('button'))
+      })
+
+      expect(defaultProps.setThresholds).toHaveBeenCalledWith([thresholds[0]])
+    })
+  })
+})
+
+describe('duplicate codes on recurring rows', () => {
+  it('labels all four columns in the recurring table', async () => {
+    await renderComponent(getMockThresholdsWithRecurring())
+
+    const table = screen.getAllByRole('table')[1]
+
+    expect(
+      within(table).getByRole('columnheader', { name: 'Notify when resolved' }),
+    ).toBeInTheDocument()
+    expect(within(table).getByRole('columnheader', { name: 'Recurring' })).toBeInTheDocument()
+  })
+
+  it('marks every duplicate code cell, including the recurring row', async () => {
+    await renderComponent(
+      [
+        {
+          code: 'same',
+          value: '10',
+          recurring: false,
+          notifyOn: [NotifyOnEnum.Triggered, NotifyOnEnum.Resolved],
+        },
+        { code: 'same', value: '5', recurring: true, notifyOn: [NotifyOnEnum.Triggered] },
+      ],
+      { codeErrors: { 0: 'text_17924397105421fihqq5j6ns', 1: 'text_17924397105421fihqq5j6ns' } },
+    )
+
+    expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(2)
+  })
+})
+
+it('renders a new validator rule on its indexed code cell', async () => {
+  await renderComponent(
+    [
+      { code: 'warn', value: '80', recurring: false },
+      { code: 'hard', value: '100', recurring: false },
+    ],
+    {
+      codeErrors: getThresholdCodeErrorsFromForm({
+        'thresholds[1].code': [{ message: 'fake-refine-rule', path: ['thresholds', 1, 'code'] }],
+      }),
+    },
+  )
+
+  expect(screen.getAllByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toHaveLength(1)
+  expect(screen.getByDisplayValue('warn')).toHaveAttribute('aria-invalid', 'false')
+  expect(screen.getByDisplayValue('hard')).toHaveAttribute('aria-invalid', 'true')
 })

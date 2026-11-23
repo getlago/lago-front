@@ -1,5 +1,4 @@
-import { Icon, tw } from 'lago-design-system'
-
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { PreviewEmailLayout } from '~/components/settings/PreviewEmailLayout'
@@ -14,6 +13,7 @@ import {
 } from '~/generated/graphql'
 import { useContextualLocale } from '~/hooks/core/useContextualLocale'
 import { useEmailPreviewTranslationsKey } from '~/hooks/useEmailPreviewTranslationsKey'
+import { tw } from '~/styles/utils'
 
 export enum DisplayEnum {
   desktop = 'desktop',

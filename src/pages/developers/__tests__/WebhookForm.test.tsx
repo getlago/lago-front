@@ -1,6 +1,7 @@
 import { act, render as rtlRender, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { WEBHOOK_ROUTE } from '~/components/developers/devtoolsRoutes'
 import { EventTypeEnum, WebhookEndpointSignatureAlgoEnum } from '~/generated/graphql'
 import { useWebhookEndpoint } from '~/hooks/useWebhookEndpoint'
 import { AllTheProviders } from '~/test-utils'
@@ -13,11 +14,36 @@ import WebhookForm, {
   WEBHOOK_FORM_URL_INPUT_TEST_ID,
 } from '../WebhookForm'
 
+jest.mock('@tanstack/react-virtual', () => ({
+  useVirtualizer: ({
+    count,
+    estimateSize,
+  }: {
+    count: number
+    estimateSize: (index: number) => number
+  }) => ({
+    getTotalSize: () => count * 100,
+    getVirtualItems: () =>
+      Array.from({ length: count }, (_, index) => ({
+        index,
+        key: index,
+        start: index * 100,
+        size: estimateSize(index),
+      })),
+    measureElement: jest.fn(),
+    measure: jest.fn(),
+  }),
+}))
+
+let mockUseRealEvents = false
+
 // Mock hooks
 const mockGoBack = jest.fn()
 const mockOpenPanel = jest.fn()
 const mockClosePanel = jest.fn()
+const mockSetUrl = jest.fn()
 let mockPanelOpen = false
+let mockOrganization: { id: string } | undefined = { id: 'org-123' }
 
 jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({
@@ -30,6 +56,13 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
     panelOpen: mockPanelOpen,
     openPanel: mockOpenPanel,
     closePanel: mockClosePanel,
+    setUrl: mockSetUrl,
+  }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    organization: mockOrganization,
   }),
 }))
 
@@ -52,7 +85,9 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
   useWebhookEventTypes: () => ({
     defaultEventFormValues: {
       customer_created: false,
+      customer_updated: false,
       invoice_created: false,
+      contract_rate_card_updated: false,
     },
     groups: [
       {
@@ -60,12 +95,24 @@ jest.mock('~/hooks/useWebhookEventTypes', () => ({
         label: 'Customers',
         items: [
           { id: 'customer_created', label: 'customer.created', sublabel: 'Customer created' },
+          { id: 'customer_updated', label: 'customer.updated', sublabel: 'Customer updated' },
         ],
       },
       {
         id: 'INVOICES',
         label: 'Invoices',
         items: [{ id: 'invoice_created', label: 'invoice.created', sublabel: 'Invoice created' }],
+      },
+      {
+        id: 'CONTRACTS',
+        label: 'Contracts',
+        items: [
+          {
+            id: 'contract_rate_card_updated',
+            label: 'contract_rate_card.updated',
+            sublabel: 'Contract rate card updated',
+          },
+        ],
       },
     ],
     loading: false,
@@ -89,6 +136,7 @@ jest.mock('~/generated/graphql', () => ({
   WebhookEndpointSignatureAlgoEnum: {
     Hmac: 'hmac',
     Jwt: 'jwt',
+    StandardWebhooks: 'standard_webhooks',
   },
   LagoApiError: {
     UnprocessableEntity: 'unprocessable_entity',
@@ -108,7 +156,19 @@ jest.mock('~/core/apolloClient', () => ({
 // Mock child component
 jest.mock('../webhookForm/WebhookEventsForm', () => ({
   __esModule: true,
-  default: () => <div data-test="webhook-events-form-mock">Events Form</div>,
+  default: (
+    props: React.ComponentProps<typeof import('../webhookForm/WebhookEventsForm').default>,
+  ) => {
+    const Actual = jest.requireActual<typeof import('../webhookForm/WebhookEventsForm')>(
+      '../webhookForm/WebhookEventsForm',
+    ).default
+
+    return mockUseRealEvents ? (
+      <Actual {...props} />
+    ) : (
+      <div data-test="webhook-events-form-mock">Events Form</div>
+    )
+  },
 }))
 
 // Custom render that passes useParams to AllTheProviders
@@ -121,7 +181,9 @@ const renderWithParams = (ui: React.ReactElement, params: { webhookId?: string }
 describe('WebhookForm', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseRealEvents = false
     mockPanelOpen = false
+    mockOrganization = { id: 'org-123' }
     mockHasDefinedGQLError.mockReturnValue(false)
   })
 
@@ -202,6 +264,82 @@ describe('WebhookForm', () => {
         loading: false,
         refetch: jest.fn(),
       })
+    })
+
+    it('searches the event catalog, updates the count, and saves the selection', async () => {
+      mockUseRealEvents = true
+      mockUpdateWebhook.mockResolvedValue({
+        data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+      })
+      const user = userEvent.setup()
+
+      renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+      expect(screen.getAllByText('0 / 1')).toHaveLength(2)
+      await user.type(
+        screen.getByPlaceholderText('text_1770822522308u2ptsqw79ns'),
+        'invoice.created',
+      )
+      expect(screen.getByText('Invoice created')).toBeInTheDocument()
+      expect(screen.queryByText('customer.created')).not.toBeInTheDocument()
+      const invoiceCheckbox = document.querySelector(
+        'input[aria-labelledby="webhookEvents.invoice_created"]',
+      )
+
+      expect(invoiceCheckbox).toBeInTheDocument()
+      if (!invoiceCheckbox) throw new Error('Missing invoice checkbox')
+      await user.click(invoiceCheckbox)
+      expect(screen.queryByText('0 / 1')).not.toBeInTheDocument()
+      await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+      await waitFor(() =>
+        expect(mockUpdateWebhook).toHaveBeenCalledWith({
+          variables: {
+            input: {
+              ...mockWebhookEndpointData,
+              eventTypes: [EventTypeEnum.CustomerCreated, EventTypeEnum.InvoiceCreated],
+            },
+          },
+        }),
+      )
+    })
+
+    it('keeps an existing contract event checked and saves its exact event type', async () => {
+      mockUseRealEvents = true
+      jest.mocked(useWebhookEndpoint).mockReturnValue({
+        webhook: {
+          ...mockWebhookEndpointData,
+          eventTypes: [EventTypeEnum.ContractRateCardUpdated],
+        },
+        loading: false,
+        refetch: jest.fn(),
+      })
+      mockUpdateWebhook.mockResolvedValue({
+        data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+        errors: undefined,
+      })
+      const user = userEvent.setup()
+
+      renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+
+      const contractEventCheckbox = document.querySelector(
+        'input[aria-labelledby="webhookEvents.contract_rate_card_updated"]',
+      ) as HTMLInputElement | null
+
+      expect(contractEventCheckbox).toBeInTheDocument()
+      if (!contractEventCheckbox) throw new Error('Missing contract rate card checkbox')
+      expect(contractEventCheckbox).toBeChecked()
+
+      await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+      await waitFor(() =>
+        expect(mockUpdateWebhook).toHaveBeenCalledWith({
+          variables: {
+            input: expect.objectContaining({
+              id: 'webhook-123',
+              eventTypes: [EventTypeEnum.ContractRateCardUpdated],
+            }),
+          },
+        }),
+      )
     })
 
     describe('WHEN the component renders', () => {
@@ -297,7 +435,7 @@ describe('WebhookForm', () => {
             variables: {
               input: expect.objectContaining({
                 webhookUrl: 'https://example.com/webhook',
-                signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
               }),
             },
           })
@@ -586,6 +724,307 @@ describe('WebhookForm', () => {
         const urlInput = urlInputContainer.querySelector('input') as HTMLInputElement
 
         expect(urlInput).toHaveValue('https://example.com/webhook')
+      })
+    })
+  })
+
+  describe('GIVEN the Standard Webhooks signature', () => {
+    const STANDARD_WEBHOOKS_LABEL = 'text_1794498394864itvpd4vd78q'
+    const getRadio = (value: string) =>
+      document.querySelector(`input[type="radio"][value="${value}"]`) as HTMLInputElement | null
+
+    const fillUrlAndSubmit = async (user: ReturnType<typeof userEvent.setup>) => {
+      const urlInput = screen
+        .getByTestId(WEBHOOK_FORM_URL_INPUT_TEST_ID)
+        .querySelector('input') as HTMLInputElement
+
+      await user.type(urlInput, 'https://example.com/webhook')
+      await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+    }
+
+    describe('WHEN creating an endpoint', () => {
+      beforeEach(() => {
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: undefined,
+          loading: false,
+          refetch: jest.fn(),
+        })
+        mockCreateWebhook.mockResolvedValue({
+          data: { createWebhookEndpoint: { id: 'new-webhook' } },
+          errors: undefined,
+        })
+      })
+
+      it('THEN shows the option, preselects it and lands on the new endpoint details', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />)
+        })
+
+        expect(screen.getByText(STANDARD_WEBHOOKS_LABEL)).toBeInTheDocument()
+        expect(getRadio('standard_webhooks')).toBeInTheDocument()
+
+        await fillUrlAndSubmit(user)
+
+        await waitFor(() => {
+          expect(mockCreateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+              }),
+            },
+          })
+        })
+        expect(mockSetUrl).toHaveBeenCalledWith(WEBHOOK_ROUTE.replace(':webhookId', 'new-webhook'))
+        expect(mockGoBack).toHaveBeenCalled()
+        expect(mockOpenPanel).toHaveBeenCalled()
+      })
+
+      it('THEN does not change the devtools route when the user picks HMAC', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />)
+        })
+
+        await user.click(getRadio('hmac') as HTMLInputElement)
+        await fillUrlAndSubmit(user)
+
+        await waitFor(() => {
+          expect(mockCreateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.Hmac,
+              }),
+            },
+          })
+        })
+        expect(mockSetUrl).not.toHaveBeenCalled()
+        expect(mockOpenPanel).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization is not loaded yet', () => {
+      beforeEach(() => {
+        mockOrganization = undefined
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: undefined,
+          loading: false,
+          refetch: jest.fn(),
+        })
+      })
+
+      it('THEN shows the loading skeleton instead of the signature choice', async () => {
+        await act(async () => {
+          renderWithParams(<WebhookForm />)
+        })
+
+        expect(screen.queryByTestId(WEBHOOK_FORM_URL_INPUT_TEST_ID)).not.toBeInTheDocument()
+        expect(getRadio('hmac')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization loads after the first render', () => {
+      beforeEach(() => {
+        mockOrganization = undefined
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: undefined,
+          loading: false,
+          refetch: jest.fn(),
+        })
+        mockCreateWebhook.mockResolvedValue({
+          data: { createWebhookEndpoint: { id: 'new-webhook' } },
+          errors: undefined,
+        })
+      })
+
+      it('THEN preselects Standard Webhooks', async () => {
+        const user = userEvent.setup()
+        let rerender: ReturnType<typeof renderWithParams>['rerender'] = () => undefined
+
+        await act(async () => {
+          rerender = renderWithParams(<WebhookForm />).rerender
+        })
+
+        mockOrganization = { id: 'org-123' }
+
+        await act(async () => {
+          rerender(<WebhookForm />)
+        })
+
+        await fillUrlAndSubmit(user)
+
+        await waitFor(() => {
+          expect(mockCreateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+              }),
+            },
+          })
+        })
+      })
+    })
+
+    describe('WHEN editing a Standard Webhooks endpoint', () => {
+      beforeEach(() => {
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: {
+            ...mockWebhookEndpointData,
+            signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+          },
+          loading: false,
+          refetch: jest.fn(),
+        })
+        mockUpdateWebhook.mockResolvedValue({
+          data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+          errors: undefined,
+        })
+      })
+
+      it('THEN shows the option and saves a name change with the same algorithm', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+        })
+
+        expect(screen.getByText(STANDARD_WEBHOOKS_LABEL)).toBeInTheDocument()
+
+        const nameInput = screen
+          .getByTestId(WEBHOOK_FORM_NAME_INPUT_TEST_ID)
+          .querySelector('input') as HTMLInputElement
+
+        await user.clear(nameInput)
+        await user.type(nameInput, 'Renamed webhook')
+        await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockUpdateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                id: 'webhook-123',
+                name: 'Renamed webhook',
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+              }),
+            },
+          })
+        })
+        expect(mockSetUrl).not.toHaveBeenCalled()
+        expect(mockGoBack).toHaveBeenCalled()
+      })
+
+      it('THEN lets the user switch to JWT', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+        })
+
+        await user.click(getRadio('jwt') as HTMLInputElement)
+        await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockUpdateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.Jwt,
+              }),
+            },
+          })
+        })
+        expect(mockSetUrl).not.toHaveBeenCalled()
+      })
+    })
+
+    describe.each([
+      ['HMAC', WebhookEndpointSignatureAlgoEnum.Hmac],
+      ['JWT', WebhookEndpointSignatureAlgoEnum.Jwt],
+    ])('WHEN editing a %s endpoint', (_label, signatureAlgo) => {
+      beforeEach(() => {
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: { ...mockWebhookEndpointData, signatureAlgo },
+          loading: false,
+          refetch: jest.fn(),
+        })
+        mockUpdateWebhook.mockResolvedValue({
+          data: { updateWebhookEndpoint: { id: 'webhook-123' } },
+          errors: undefined,
+        })
+      })
+
+      it('THEN shows the option and keeps the saved algorithm', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+        })
+
+        expect(screen.getByText(STANDARD_WEBHOOKS_LABEL)).toBeInTheDocument()
+        expect(getRadio('standard_webhooks')).toBeInTheDocument()
+
+        await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockUpdateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({ id: 'webhook-123', signatureAlgo }),
+            },
+          })
+        })
+        expect(mockSetUrl).not.toHaveBeenCalled()
+      })
+
+      it('THEN lands on the endpoint details after a switch to Standard Webhooks', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />, { webhookId: 'webhook-123' })
+        })
+
+        await user.click(getRadio('standard_webhooks') as HTMLInputElement)
+        await user.click(screen.getByTestId(WEBHOOK_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockUpdateWebhook).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                id: 'webhook-123',
+                signatureAlgo: WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+              }),
+            },
+          })
+        })
+        expect(mockSetUrl).toHaveBeenCalledWith(WEBHOOK_ROUTE.replace(':webhookId', 'webhook-123'))
+        expect(mockOpenPanel).toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the mutation fails on a switch to Standard Webhooks', () => {
+      beforeEach(() => {
+        jest.mocked(useWebhookEndpoint).mockReturnValue({
+          webhook: undefined,
+          loading: false,
+          refetch: jest.fn(),
+        })
+        mockCreateWebhook.mockResolvedValue({ data: null, errors: [{ message: 'Unknown error' }] })
+      })
+
+      it('THEN keeps the user on the form and does not change the devtools route', async () => {
+        const user = userEvent.setup()
+
+        await act(async () => {
+          renderWithParams(<WebhookForm />)
+        })
+
+        await fillUrlAndSubmit(user)
+
+        await waitFor(() => {
+          expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+        })
+        expect(mockSetUrl).not.toHaveBeenCalled()
+        expect(mockGoBack).not.toHaveBeenCalled()
       })
     })
   })

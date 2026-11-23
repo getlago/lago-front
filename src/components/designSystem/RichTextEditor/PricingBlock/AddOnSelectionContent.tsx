@@ -14,6 +14,8 @@ import { ComboboxItem } from '~/components/form'
 import { ComboBox } from '~/components/form/ComboBox/ComboBox'
 import { MUI_INPUT_BASE_ROOT_CLASSNAME } from '~/core/constants/form'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { deserializeAmount } from '~/core/serializers/serializeAmount'
+import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { addUnsupportedDateIssue } from '~/formValidation/zodCustoms'
 import {
   type AddOnForPricingSectionFragment,
@@ -60,7 +62,7 @@ gql`
 interface AddOnSelectionContentExtraProps {
   currency: CurrencyEnum
   onAddOnPayloadCapture?: (localId: string, addOn: AddOnForPricingSectionFragment) => void
-  netPaymentTerm?: number | null
+  paymentTerm?: ResolvablePaymentTerm | null
 }
 
 function TotalAmountCell({
@@ -313,7 +315,7 @@ const ConfirmedAddOnRow = withForm({
 const addOnSelectionContentDefaultProps: AddOnSelectionContentExtraProps = {
   currency: CurrencyEnum.Usd,
   onAddOnPayloadCapture: undefined,
-  netPaymentTerm: undefined,
+  paymentTerm: undefined,
 }
 
 const AddOnSelectionContent = withForm({
@@ -323,7 +325,7 @@ const AddOnSelectionContent = withForm({
     form,
     currency,
     onAddOnPayloadCapture,
-    netPaymentTerm,
+    paymentTerm,
   }) {
     const { translate } = useInternationalization()
     const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
@@ -394,7 +396,7 @@ const AddOnSelectionContent = withForm({
             {translate('text_17295436903260tlyb1gp1i7')}
           </Button>
         ),
-        children: <EditAddOnDrawer form={editForm} netPaymentTerm={netPaymentTerm} />,
+        children: <EditAddOnDrawer form={editForm} paymentTerm={paymentTerm} />,
       })
     }
 
@@ -427,9 +429,12 @@ const AddOnSelectionContent = withForm({
                         {addOn.name}
                       </Typography>
                       <Typography variant="caption" color="grey600" noWrap>
-                        {intlFormatNumber(addOn.amountCents / 100, {
-                          currency: addOn.amountCurrency,
-                        })}
+                        {intlFormatNumber(
+                          deserializeAmount(addOn.amountCents, addOn.amountCurrency),
+                          {
+                            currency: addOn.amountCurrency,
+                          },
+                        )}
                       </Typography>
                     </ComboboxItem>
                   ),
@@ -476,7 +481,9 @@ const AddOnSelectionContent = withForm({
                   )
                   form.setFieldValue(
                     `addOnItems[${index}].unitAmountCents`,
-                    addOn.amountCents ? String(Number.parseFloat(addOn.amountCents) / 100) : '',
+                    addOn.amountCents
+                      ? String(deserializeAmount(addOn.amountCents, addOn.amountCurrency))
+                      : '',
                   )
                   form.setFieldValue(`addOnItems[${index}].code`, addOn.code)
                   form.setFieldValue(`addOnItems[${index}].description`, addOn.description ?? '')

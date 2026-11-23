@@ -7,6 +7,9 @@ import { envGlobalVar } from '~/core/apolloClient'
 import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
+import { sentryEventHooks } from '~/core/utils/sentryEventHooks'
+import { scrubReplayEventUrlTokensIntegration } from '~/core/utils/sentryUrlTokens'
+import { getInitialReplayIntegrations } from '~/core/utils/sessionReplay'
 import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
 import './main.css'
@@ -18,11 +21,8 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     dsn: sentryDsn,
     integrations: [
       Sentry.browserTracingIntegration(),
-      Sentry.replayIntegration({
-        maskAllText: false,
-        blockAllMedia: false,
-        maskAllInputs: false,
-      }),
+      scrubReplayEventUrlTokensIntegration(),
+      ...getInitialReplayIntegrations(),
     ],
     environment: appEnv,
     // Increase depth for nested objects (default is 3) to capture full GraphQL error details
@@ -39,6 +39,7 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     release: appVersion,
     // Attach stack traces to all messages
     attachStacktrace: true,
+    ...sentryEventHooks,
     // Filter out common browser extension errors and noise
     ignoreErrors: [
       // Chrome extensions
@@ -71,22 +72,6 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     ],
   })
 }
-
-// Vite fires this when a dynamic import fails to preload, typically a chunk
-// removed by a deploy while the tab was open. Report only: calling
-// `event.preventDefault()` would swallow the rejection the router's `retry()`
-// and the error boundaries rely on to recover.
-window.addEventListener('vite:preloadError', (event) => {
-  Sentry.captureMessage('Chunk preload failed', {
-    level: 'warning',
-    tags: { chunkLoad: true, phase: 'preload' },
-    extra: {
-      reason: event.payload?.message,
-      href: window.location.href,
-      appVersion,
-    },
-  })
-})
 
 // A web worker (e.g. ace-builds' JSON linter) loads its script via
 // `importScripts` inside a blob URL. After a deploy re-hashes `/assets/*`, a

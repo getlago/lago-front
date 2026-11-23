@@ -64,6 +64,8 @@ type PaginatedListMetadata = {
   currentPage?: number
   totalPages?: number
   totalCount?: number
+  hasNextPage?: boolean
+  totalCountCapped?: boolean
 }
 
 const metadataAfterRemoval = (
@@ -83,6 +85,9 @@ const metadataAfterRemoval = (
   // `totalPages` strands the user on the page the deletion just emptied.
   if (remainingOnPage === 0 && currentPage > 1) {
     next.totalPages = currentPage - 1
+    // Either flag makes `PaginatedContent` skip that page-back; the refetch restores them.
+    if ('hasNextPage' in next) next.hasNextPage = false
+    if ('totalCountCapped' in next) next.totalCountCapped = false
   }
 
   return next

@@ -1,4 +1,5 @@
 import { revalidateLogic, useStore } from '@tanstack/react-form'
+import { useMemo } from 'react'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -20,8 +21,9 @@ import { useRoleCreateEdit } from './useRoleCreateEdit'
 import { teamAndSecurityGroupOptions } from '../../common/teamAndSecurityConst'
 import { mapFromFormToApi } from '../common/rolePermissionsForm/mappers/mapFromFormToApi'
 import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsForm'
-import { validationSchema } from '../common/rolePermissionsForm/validationSchema'
+import { buildValidationSchema } from '../common/rolePermissionsForm/validationSchema'
 import { useRoleDetails } from '../hooks/useRoleDetails'
+import { useRolePermissionsGroups } from '../hooks/useRolePermissionsGroups'
 
 export const SUBMIT_ROLE_DATA_TEST = 'submit-role-button'
 export const ROLE_CREATE_EDIT_FORM_ID = 'role-create-edit-form'
@@ -37,6 +39,17 @@ const RoleCreateEdit = () => {
 
   const { role, isLoadingRole } = useRoleDetails({ roleId })
 
+  const {
+    groups: permissionGroups,
+    displayedPermissions,
+    isLoading: isLoadingPermissionGroups,
+  } = useRolePermissionsGroups()
+
+  const validationSchema = useMemo(
+    () => buildValidationSchema(displayedPermissions),
+    [displayedPermissions],
+  )
+
   const getRoleToMapFrom = (): RoleItem | undefined => {
     if (!role) return undefined
 
@@ -50,7 +63,7 @@ const RoleCreateEdit = () => {
 
   const roleToMapFrom: RoleItem | undefined = getRoleToMapFrom()
 
-  const isFormReady = !isLoadingRole
+  const isFormReady = !isLoadingRole && !isLoadingPermissionGroups
 
   const submitButtonText = isEdition
     ? translate('text_1765528921745ibx4b56q1mt')
@@ -69,7 +82,7 @@ const RoleCreateEdit = () => {
       onDynamic: validationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
-      const formattedValues = mapFromFormToApi(value)
+      const formattedValues = mapFromFormToApi(value, displayedPermissions)
 
       const answer = await handleSave(formattedValues)
 
@@ -211,6 +224,7 @@ const RoleCreateEdit = () => {
             <RolePermissionsForm
               form={form}
               fields="permissions"
+              groups={permissionGroups}
               isEditable={true}
               isLoading={isLoadingRole}
               errors={permissionsErrors}

@@ -44,6 +44,24 @@ const PAGED_LIST_QUERY = parse(`
   }
 `)
 
+const CAPPED_PAGED_LIST_QUERY = parse(`
+  query getCappedPagedItems {
+    items {
+      collection {
+        id
+        name
+      }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+        totalCountCapped
+        hasNextPage
+      }
+    }
+  }
+`)
+
 const SECOND_LIST_QUERY = parse(`
   query getOtherItems {
     otherItems {
@@ -461,6 +479,78 @@ describe('evictFromCache', () => {
 
         expect(readMetadata(client)).toEqual(
           expect.objectContaining({ currentPage: 1, totalPages: 1, totalCount: 1 }),
+        )
+      })
+    })
+  })
+
+  describe('GIVEN a paginated list whose total is capped', () => {
+    const cappedMetadata = {
+      currentPage: 501,
+      totalPages: 500,
+      totalCount: 10000,
+      totalCountCapped: true,
+      hasNextPage: true,
+    }
+
+    const seedCappedPage = (client: ApolloClient<object>, collection: { id: string }[]) =>
+      client.cache.writeQuery({
+        query: CAPPED_PAGED_LIST_QUERY,
+        data: {
+          items: {
+            __typename: 'ItemCollection',
+            collection: collection.map((item) => ({ __typename: 'Item', name: 'Item', ...item })),
+            metadata: { __typename: 'Metadata', ...cappedMetadata },
+          },
+        },
+      })
+
+    const readCappedMetadata = (client: ApolloClient<object>) =>
+      (
+        client.cache.readQuery({ query: CAPPED_PAGED_LIST_QUERY }) as {
+          items: { metadata: typeof cappedMetadata }
+        }
+      ).items.metadata
+
+    describe('WHEN the removed row was the last one on a page past the first', () => {
+      it('THEN should clear both flags so the pager can move back', () => {
+        const client = createTestClient()
+
+        seedCappedPage(client, [{ id: 'item-10001' }])
+
+        evictFromCache(client, {
+          id: 'item-10001',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: CAPPED_PAGED_LIST_QUERY,
+        })
+
+        expect(readCappedMetadata(client)).toEqual(
+          expect.objectContaining({
+            currentPage: 501,
+            totalPages: 500,
+            totalCountCapped: false,
+            hasNextPage: false,
+          }),
+        )
+      })
+    })
+
+    describe('WHEN a row is removed from a page that keeps other rows', () => {
+      it('THEN should keep both flags', () => {
+        const client = createTestClient()
+
+        seedCappedPage(client, [{ id: 'item-10001' }, { id: 'item-10002' }])
+
+        evictFromCache(client, {
+          id: 'item-10002',
+          __typename: 'Item',
+          listFieldName: 'items',
+          listQueryDocument: CAPPED_PAGED_LIST_QUERY,
+        })
+
+        expect(readCappedMetadata(client)).toEqual(
+          expect.objectContaining({ totalCountCapped: true, hasNextPage: true }),
         )
       })
     })

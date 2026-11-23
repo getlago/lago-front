@@ -1,14 +1,19 @@
 import { screen, within } from '@testing-library/react'
 
 import {
+  ADD_ONS_ROUTE,
+  ANALYTIC_ROUTE,
   CATALOG_PLAN_DETAILS_ROUTE,
   CATALOG_PLAN_DETAILS_SECTION_ROUTE,
   CONTRACT_DETAILS_ROUTE,
   CONTRACT_DETAILS_SECTION_ROUTE,
   CONTRACT_DETAILS_TAB_ROUTE,
   CONTRACTS_ROUTE,
+  COUPONS_ROUTE,
   CUSTOMERS_LIST_ROUTE,
+  FEATURES_ROUTE,
   PLAN_PRICING_ROUTE,
+  PLANS_ROUTE,
   SUBSCRIPTIONS_ROUTE,
 } from '~/core/router'
 import { FeatureFlagEnum } from '~/generated/graphql'
@@ -163,6 +168,38 @@ describe('MainNavMenuSections', () => {
       expect(document.querySelector(`a[href="${SUBSCRIPTIONS_ROUTE}"]`)).not.toBeInTheDocument()
     })
 
+    it('shows Analytics when Product Catalog is enabled', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${ANALYTIC_ROUTE}"]`)).toBeInTheDocument()
+    })
+
+    it.each([
+      ['legacy Plans', PLANS_ROUTE],
+      ['Features', FEATURES_ROUTE],
+      ['Add-ons', ADD_ONS_ROUTE],
+      ['Coupons', COUPONS_ROUTE],
+    ])('hides %s when Product Catalog is enabled', (_, route) => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${route}"]`)).not.toBeInTheDocument()
+    })
+
+    it.each([
+      ['Analytics', ANALYTIC_ROUTE],
+      ['legacy Plans', PLANS_ROUTE],
+      ['Features', FEATURES_ROUTE],
+      ['Add-ons', ADD_ONS_ROUTE],
+      ['Coupons', COUPONS_ROUTE],
+    ])('shows %s when Product Catalog is disabled', (_, route) => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag !== FeatureFlagEnum.ProductCatalog)
+      render(<MainNavMenuSections {...defaultProps} />)
+
+      expect(document.querySelector(`a[href="${route}"]`)).toBeInTheDocument()
+    })
+
     it('shows Subscriptions when Product Catalog is disabled', () => {
       mockHasFeatureFlag.mockImplementation((flag) => flag !== FeatureFlagEnum.ProductCatalog)
       render(<MainNavMenuSections {...defaultProps} />)
@@ -200,6 +237,7 @@ describe('MainNavMenuSections', () => {
     })
 
     it('renders the reports section when user has analytics permission', () => {
+      mockHasFeatureFlag.mockImplementation((flag) => flag !== FeatureFlagEnum.ProductCatalog)
       mockHasPermissions.mockImplementation((permissions: string[]) =>
         permissions.includes('analyticsView'),
       )

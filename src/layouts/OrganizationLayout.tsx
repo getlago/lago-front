@@ -1,9 +1,11 @@
 import { useApolloClient, useReactiveVar } from '@apollo/client'
 import * as Sentry from '@sentry/react'
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, ReactElement, Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Spinner } from '~/components/designSystem/Spinner'
+import { Typography } from '~/components/designSystem/Typography'
 import { switchCurrentOrganization } from '~/core/apolloClient'
 import {
   currentOrganizationVar,
@@ -14,24 +16,69 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
-import { resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import { getAccessibleMemberships, resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useSandbox } from '~/hooks/useSandbox'
+import { PendingOrganizationShell } from '~/layouts/PendingOrganizationShell'
+import { useSandboxBannerHeightCssVar } from '~/layouts/sandboxBannerHeight'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
+const Forbidden = lazy(() => import('~/pages/Forbidden'))
 
 /**
- * Slug-migration Sentry events use a named `Error` subclass + `captureException`
+ * Sentry events from this layout use a named `Error` subclass + `captureException`
  * (instead of `captureMessage`) so Sentry's issue title generator picks up the
  * meaningful `{name}: {message}` pair instead of the topmost stack frame from
  * the synthetic stacktrace it attaches to messages (which renders as
  * `commitHookEffectListMount` because we capture from inside a `useEffect`).
  */
-class SlugMigrationEvent extends Error {
+class OrganizationLayoutEvent extends Error {
   constructor(name: string, message: string) {
     super(message)
     this.name = name
   }
+}
+
+export const SANDBOX_BANNER_TEST_ID = 'sandbox-banner'
+export const SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID = 'sandbox-banner-switch-button'
+
+const SandboxBanner = (): ReactElement | null => {
+  const { translate } = useInternationalization()
+  const navigate = useNavigate()
+  const { isSandbox, productionPath } = useSandbox()
+  const [banner, setBanner] = useState<HTMLDivElement | null>(null)
+
+  useSandboxBannerHeightCssVar(banner)
+
+  if (!isSandbox) return null
+
+  return (
+    <div ref={setBanner} className="shrink-0" data-test={SANDBOX_BANNER_TEST_ID}>
+      <Alert
+        type="info"
+        tone="dark"
+        fullWidth
+        className="px-7"
+        ButtonProps={
+          productionPath
+            ? {
+                label: translate('text_1794221187063tztk6kvdznf'),
+                onClick: () => navigate(productionPath, { skipSlugPrepend: true }),
+                'data-test': SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
+              }
+            : undefined
+        }
+      >
+        <Typography component="span" variant="bodyHl" color="inherit">
+          {translate('text_1794221187063c6xcfwvtt6l')}
+        </Typography>
+        {` • ${translate('text_1794995101466zj746a29m20')}`}
+      </Alert>
+    </div>
+  )
 }
 
 const OrganizationLayout = () => {
@@ -44,33 +91,37 @@ const OrganizationLayout = () => {
 
   const currentOrgId = useReactiveVar(currentOrganizationVar)
 
-  const org = currentUser?.memberships.find(
+  const membershipOrg = currentUser?.memberships.find(
     (m) => m.organization.slug === organizationSlug,
   )?.organization
+  // The API refuses every request to an organization the session can't open.
+  const org = membershipOrg?.accessibleByCurrentSession ? membershipOrg : undefined
+  // The API answers `organization_inactive` to every request for this organization: its id must never
+  // reach `currentOrganizationVar`, which every org-scoped query sends.
+  const isPendingOrg =
+    org?.activationStatus === OrganizationActivationStatusEnum.PendingPaymentMethod
 
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
 
-  // Single-membership recovery — UNCHANGED.
-  const soleMembershipSlug =
-    currentUser?.memberships.length === 1
-      ? currentUser.memberships[0]?.organization.slug
-      : undefined
+  const recoveredSlug = resolveOrgSlug(currentUser)
 
-  // Multi-membership recovery — applies when `soleMembershipSlug` is undefined
-  // (i.e., user has ≥2 memberships). Resolves via the in-memory org var
-  // (`null` here on a legacy slug-less path) → `memberships[0]` fallback.
-  const multiMembershipRecoverySlug = !soleMembershipSlug ? resolveOrgSlug(currentUser) : undefined
-
-  const recoveredSlug = soleMembershipSlug ?? multiMembershipRecoverySlug
-
-  const shouldAutoRecoverLegacyPath = !loading && !org && isLegacyPath && !!recoveredSlug
+  const shouldAutoRecoverLegacyPath = !loading && !membershipOrg && isLegacyPath && !!recoveredSlug
+  const hasNoAccessibleOrgForLegacyPath =
+    !loading &&
+    !membershipOrg &&
+    isLegacyPath &&
+    !recoveredSlug &&
+    !!currentUser?.memberships.length
+  const isInaccessibleOrg = !loading && !!membershipOrg && !org
+  const isRefusedBySession = isInaccessibleOrg || hasNoAccessibleOrgForLegacyPath
+  const reportedVisitKeyRef = useRef<string | null>(null)
 
   // If currentOrgId already exists and differs from org.id, the user switched org
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
   // to clear the Apollo cache — otherwise stale data from the previous org leaks.
   useEffect(() => {
-    if (org?.id) {
+    if (org?.id && !isPendingOrg) {
       if (currentOrgId && currentOrgId !== org.id) {
         switchCurrentOrganization(client, org.id)
       } else {
@@ -80,7 +131,7 @@ const OrganizationLayout = () => {
       // by `RootRedirect` at `/` to pick a landing slug when the URL has none.
       setPersistedOrganizationSlug(org.slug)
     }
-  }, [org?.id, org?.slug, currentOrgId, client])
+  }, [org?.id, org?.slug, isPendingOrg, currentOrgId, client])
 
   // Auto-recover legacy paths universally. Runs in an effect (not render) to
   // avoid React's "cannot update during render" warning when navigation
@@ -117,7 +168,7 @@ const OrganizationLayout = () => {
 
     if (isMissedMigration) {
       Sentry.captureException(
-        new SlugMigrationEvent('SlugMigrationMissedLink', 'slug_migration_missed_link'),
+        new OrganizationLayoutEvent('SlugMigrationMissedLink', 'slug_migration_missed_link'),
         {
           level: 'error',
           tags: {
@@ -136,14 +187,65 @@ const OrganizationLayout = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shouldAutoRecoverLegacyPath])
 
+  // `external` (bookmark, shared link) is expected. `in_app` means one of our own
+  // links or redirects sent the user to an organization the session cannot open.
+  useEffect(() => {
+    if (!isRefusedBySession) return
+    // A `currentUser` refetch toggles `loading`, which would report the same visit again.
+    if (reportedVisitKeyRef.current === location.key) return
+
+    reportedVisitKeyRef.current = location.key
+
+    const previousPath = locationHistoryVar()[0]?.pathname
+    // React Router's per-document history index: 0 is the entry the browser loaded the app on.
+    const historyIndex = (window.history.state as { idx?: number } | null)?.idx ?? 0
+    const event = isInaccessibleOrg
+      ? new OrganizationLayoutEvent('OrganizationInaccessible', 'org_inaccessible_for_session')
+      : new OrganizationLayoutEvent('NoOrganizationAccessible', 'no_org_accessible_for_session')
+
+    Sentry.captureException(event, {
+      level: 'warning',
+      tags: {
+        feature: 'org-access',
+        attemptedSlug: organizationSlug ?? '',
+        source: historyIndex > 0 ? 'in_app' : 'external',
+      },
+      extra: {
+        fullPath: location.pathname,
+        previousPath: previousPath || null,
+        accessibleMembershipsCount: getAccessibleMemberships(currentUser).length,
+      },
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRefusedBySession, location.key])
+
   if (!isAuthenticated) return null
 
   if (loading && !org) return <Spinner />
 
+  if ((membershipOrg && !org) || hasNoAccessibleOrgForLegacyPath) {
+    return (
+      <Suspense fallback={<Spinner />}>
+        <Forbidden />
+      </Suspense>
+    )
+  }
+
   if (org) {
+    if (isPendingOrg) {
+      return <PendingOrganizationShell organization={org} onAddPaymentMethod={() => undefined} />
+    }
+
     if (currentOrgId !== org.id) return <Spinner />
 
-    return <Outlet />
+    return (
+      <div className="flex h-full flex-col">
+        <SandboxBanner />
+        <div className="relative min-h-0 flex-1">
+          <Outlet />
+        </div>
+      </div>
+    )
   }
 
   // Render a spinner while the auto-recover effect navigates — prevents a

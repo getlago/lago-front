@@ -1,7 +1,14 @@
 import { ReactNode } from 'react'
-import { useParams } from 'react-router'
+import { generatePath, useParams } from 'react-router'
 
-import { CatalogPlanOverviewSectionsEnum } from '~/core/constants/tabsOptions'
+import { useAppliedRateCardDrawer } from '~/components/appliedRateCards/drawers/appliedRateCard/useAppliedRateCardDrawer'
+import {
+  CatalogPlanDetailsTabsOptionsEnum,
+  CatalogPlanOverviewSectionsEnum,
+} from '~/core/constants/tabsOptions'
+import { CATALOG_PLAN_DETAILS_ROUTE, useNavigate } from '~/core/router'
+import { CurrencyEnum } from '~/generated/graphql'
+import { usePermissions } from '~/hooks/usePermissions'
 
 import { CatalogPlanOverviewNav } from './CatalogPlanOverviewNav'
 import { CatalogPlanOverviewSection } from './CatalogPlanOverviewSection'
@@ -11,17 +18,24 @@ const isOverviewSection = (value?: string): value is CatalogPlanOverviewSections
   Object.values(CatalogPlanOverviewSectionsEnum).includes(value as CatalogPlanOverviewSectionsEnum)
 
 type CatalogPlanDetailsOverviewComponentProps = {
+  currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
-  isRateCardRemovalLocked: boolean
+  isRateCardsLocked: boolean
 }
 
 export const CatalogPlanDetailsOverview = ({
+  currency,
   rateCardsCount,
   loading = false,
-  isRateCardRemovalLocked,
+  isRateCardsLocked,
 }: CatalogPlanDetailsOverviewComponentProps): JSX.Element => {
   const { catalogPlanId = '', section } = useParams()
+  const navigate = useNavigate()
+  const { hasPermissions } = usePermissions()
+  // Owned here, not in CatalogPlanOverviewSection: navigating to rate-cards unmounts
+  // that component, which would unregister the drawer before it opens.
+  const { openDrawer: openAppliedRateCardDrawer } = useAppliedRateCardDrawer()
 
   // A bare `/overview` URL and an unrecognised segment both resolve to the first
   // section, so the pane is never blank.
@@ -29,17 +43,36 @@ export const CatalogPlanDetailsOverview = ({
     ? section
     : CatalogPlanOverviewSectionsEnum.planOverview
 
+  const canAssignRateCard = hasPermissions(['plansUpdate']) && !isRateCardsLocked && !!currency
+
+  const handleAssignRateCard = (): void => {
+    if (!canAssignRateCard || !currency) return
+
+    navigate(
+      `${generatePath(CATALOG_PLAN_DETAILS_ROUTE, {
+        catalogPlanId,
+        tab: CatalogPlanDetailsTabsOptionsEnum.overview,
+      })}/${CatalogPlanOverviewSectionsEnum.rateCards}`,
+    )
+    openAppliedRateCardDrawer({ context: 'plan', planId: catalogPlanId, currency })
+  }
+
   const renderSection = (): ReactNode => {
     if (activeSection === CatalogPlanOverviewSectionsEnum.rateCards) {
       return (
         <CatalogPlanRateCardsSection
           catalogPlanId={catalogPlanId}
-          isRemovalLocked={isRateCardRemovalLocked}
+          currency={currency}
+          isLocked={isRateCardsLocked}
         />
       )
     }
 
-    return <CatalogPlanOverviewSection />
+    return (
+      <CatalogPlanOverviewSection
+        onAssignRateCard={canAssignRateCard ? handleAssignRateCard : undefined}
+      />
+    )
   }
 
   return (

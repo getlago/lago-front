@@ -1,9 +1,10 @@
 import tailwindConfig from 'lago-configs/tailwind'
-import { Icon, tw } from 'lago-design-system'
 import resolveConfig from 'tailwindcss/resolveConfig'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 const fullConfig = resolveConfig(tailwindConfig)
 const themeColors = fullConfig.theme.colors

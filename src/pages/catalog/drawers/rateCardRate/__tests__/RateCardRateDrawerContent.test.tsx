@@ -15,14 +15,16 @@ import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { RATE_CARD_RATE_FORM_DEFAULTS, RateCardRateFormValues } from '../constants'
 import {
+  RATE_CARD_RATE_DRAWER_CODE_TEST_ID,
+  RateCardRateDrawerContent,
+} from '../RateCardRateDrawerContent'
+import {
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_COUNT_TEST_ID,
   RATE_CARD_RATE_DRAWER_BILLING_INTERVAL_UNIT_TEST_ID,
-  RATE_CARD_RATE_DRAWER_CODE_TEST_ID,
   RATE_CARD_RATE_DRAWER_CONVERSION_RATE_TEST_ID,
   RATE_CARD_RATE_DRAWER_SPENDING_MINIMUM_TEST_ID,
-  RateCardRateDrawerContent,
   RateCardRateDrawerRateCard,
-} from '../RateCardRateDrawerContent'
+} from '../RateCardRateFieldGroups'
 import { buildRateCardRateSchema } from '../schema'
 
 configure({ testIdAttribute: 'data-test' })
@@ -190,7 +192,7 @@ const Host = ({
       </button>
       <button
         data-test={CHANGE_MODEL_BUTTON_TEST_ID}
-        onClick={() => mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Package)}
+        onClick={() => mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Package)}
       >
         change model
       </button>
@@ -347,28 +349,10 @@ describe('RateCardRateDrawerContent', () => {
         render(<Host />)
 
         await userEvent.click(screen.getByTestId(CHANGE_MODEL_BUTTON_TEST_ID))
-        mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.GraduatedPercentage)
+        mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.GraduatedPercentage)
 
         expect(mockOpenPremiumWarningDialog).toHaveBeenCalledTimes(1)
         expect(mockRateWrapperSwitchProps.rateModel).toBe(RateCardRateModelEnum.Package)
-      })
-    })
-  })
-
-  describe('GIVEN the pricing inputs', () => {
-    describe('WHEN the parent product is a usage product', () => {
-      it('THEN drives them with the metered product type', () => {
-        render(<Host />)
-
-        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Metered)
-      })
-    })
-
-    describe('WHEN the parent product is a fixed product', () => {
-      it('THEN drives them in fixed mode', () => {
-        render(<Host rateCard={{ ...arrearsUsageCard, productType: ProductTypeEnum.Fixed }} />)
-
-        expect(mockRateWrapperSwitchProps.productType).toBe(ProductTypeEnum.Fixed)
       })
     })
   })
@@ -483,7 +467,7 @@ describe('RateCardRateDrawerContent', () => {
         render(<Host isEdit isActiveRate />)
 
         expect(screen.getByTestId(mockRateWrapperSwitchTestId)).toBeInTheDocument()
-        expect(mockRateWrapperSwitchProps).not.toHaveProperty('disabled')
+        expect(mockRateWrapperSwitchProps.disabled).toBe(false)
       })
     })
   })
@@ -586,7 +570,7 @@ describe('rate editor compatibility', () => {
     billingTiming: RateCardBillingTimingEnum.Advance,
   }
   const modelInput = (): HTMLInputElement =>
-    document.querySelector('input[name="chargeModel"]') as HTMLInputElement
+    document.querySelector('input[name="rateModel"]') as HTMLInputElement
 
   it('offers the same single model as a prorated advance card', async () => {
     render(<Host rateCard={{ ...advanceCard, recurring: true, proration: true }} />)
@@ -667,7 +651,7 @@ describe('rate editor compatibility', () => {
     render(<Host rateCard={advanceCard} initialValues={{ properties: { amount: '42' } }} />)
 
     await act(async () => {
-      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Volume)
+      mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Volume)
     })
 
     expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('standard')
@@ -706,7 +690,7 @@ describe('rate editor compatibility', () => {
     expect(mockChargeModelSelectorProps.alreadyUsedChargeAlertMessage).toBeUndefined()
 
     await act(async () => {
-      mockHandleChargeModelUpdate?.('chargeModel', RateCardRateModelEnum.Standard)
+      mockHandleChargeModelUpdate?.('rateModel', RateCardRateModelEnum.Standard)
     })
 
     expect(screen.getByTestId(RATE_MODEL_PROBE_TEST_ID)).toHaveTextContent('volume')
@@ -768,7 +752,7 @@ describe('correcting an incompatible rate', () => {
     await waitFor(() => expect(submitButton).toBeEnabled())
     expect(onSubmit).not.toHaveBeenCalled()
 
-    await userEvent.click(document.querySelector('input[name="chargeModel"]') as HTMLElement)
+    await userEvent.click(document.querySelector('input[name="rateModel"]') as HTMLElement)
     await userEvent.keyboard('{ArrowDown}')
     await userEvent.click(screen.getByRole('option', { name: /text_624aa732d6af4e0103d40e6f/ }))
     await waitFor(() =>

@@ -2,7 +2,7 @@ import { wait } from '@apollo/client/testing'
 import { act, renderHook } from '@testing-library/react'
 
 import { ERROR_404_ROUTE } from '~/core/router'
-import { GetInvoiceCreateCreditNoteDocument } from '~/generated/graphql'
+import { GetInvoiceCreateCreditNoteDocument, InvoiceTypeEnum } from '~/generated/graphql'
 import {
   fullOneOffInvoiceMockAndExpect,
   fullSubscriptionInvoiceGroupTrueUpMockAndExpect,
@@ -72,6 +72,31 @@ describe('useCreateCreditNote()', () => {
     expect(result.current.feeForAddOn).toStrictEqual(transformedObject)
   })
 
+  it('keeps contract product fees separate from ordinary one-off fees', async () => {
+    const { mock, transformedObject } = fullOneOffInvoiceMockAndExpect()
+    const productFee = {
+      id: 'contract-product-fee',
+      amountCurrency: 'EUR',
+      contractRateCard: { id: 'rate-card-1' },
+      itemName: 'Product',
+      creditableAmountCents: '1200',
+      offsettableAmountCents: '1200',
+      appliedTaxes: [],
+    }
+    const invoiceWithProductFee = {
+      invoice: { ...mock.invoice, fees: [...mock.invoice.fees, productFee] },
+    }
+
+    const { result } = await prepare({ mock: invoiceWithProductFee })
+
+    await act(() => wait(0))
+
+    expect(result.current.feeForAddOn).toStrictEqual(transformedObject)
+    expect(result.current.feeForProduct).toEqual([
+      expect.objectContaining({ id: productFee.id, value: 12 }),
+    ])
+  })
+
   it('should format feesPerInvoice correctly', async () => {
     const { mock, transformedObject } = fullSubscriptionInvoiceGroupTrueUpMockAndExpect()
 
@@ -81,6 +106,75 @@ describe('useCreateCreditNote()', () => {
     await act(() => wait(0))
 
     expect(result.current.feesPerInvoice).toStrictEqual(transformedObject)
+  })
+
+  it('includes ordinary product fees while excluding subscription and non-product invoice fees', async () => {
+    const { mock } = fullSubscriptionInvoiceMockAndExpect()
+    const invoice = mock.invoice
+    const productFee = {
+      id: 'ordinary-product-fee',
+      amountCurrency: 'EUR',
+      contractRateCard: { id: 'rate-card-1' },
+      itemName: 'Product',
+      invoiceName: 'Product fee',
+      creditableAmountCents: '1200',
+      offsettableAmountCents: '1200',
+      appliedTaxes: [],
+    }
+    const ordinaryFee = {
+      ...productFee,
+      id: 'ordinary-non-product-fee',
+      contractRateCard: null,
+    }
+    const subscriptionProductFee = { ...productFee, id: 'subscription-product-fee' }
+    const mixedMock = {
+      invoice: {
+        ...invoice,
+        fees: [...invoice.fees, productFee, ordinaryFee],
+        invoiceSubscriptions: invoice.invoiceSubscriptions.map((subscription) => ({
+          ...subscription,
+          fees: [...subscription.fees, subscriptionProductFee],
+        })),
+      },
+    }
+
+    const { result } = await prepare({ mock: mixedMock })
+
+    await act(() => wait(0))
+
+    expect(result.current.feeForProduct).toEqual([
+      expect.objectContaining({ id: productFee.id, name: 'Product fee', checked: true }),
+    ])
+    expect(result.current.feesPerInvoice).toHaveProperty('invoice-subscription-subscription-1-id')
+  })
+
+  it('creates a selectable fee list from product fees alone', async () => {
+    const { mock } = fullSubscriptionInvoiceMockAndExpect()
+    const productFee = {
+      id: 'ordinary-product-fee',
+      amountCurrency: 'EUR',
+      contractRateCard: { id: 'rate-card-1' },
+      itemName: 'Product',
+      invoiceName: 'Product fee',
+      creditableAmountCents: '1200',
+      offsettableAmountCents: '1200',
+      appliedTaxes: [],
+    }
+    const productOnlyMock = {
+      invoice: {
+        ...mock.invoice,
+        invoiceType: InvoiceTypeEnum.Contract,
+        invoiceSubscriptions: [],
+        fees: [productFee],
+      },
+    }
+    const { result } = await prepare({ mock: productOnlyMock })
+
+    await act(() => wait(0))
+
+    expect(result.current.feeForProduct).toEqual([
+      expect.objectContaining({ id: productFee.id, value: 12, maxAmount: 1200 }),
+    ])
   })
 
   describe('hasCreditableOrRefundableAmount', () => {

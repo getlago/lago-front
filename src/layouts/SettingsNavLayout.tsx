@@ -45,6 +45,7 @@ import {
   useLocation,
   useNavigate,
 } from '~/core/router'
+import { isUsageGovernanceEnabled } from '~/core/utils/usageGovernance'
 import { FeatureFlagEnum, useGetBillingEntitiesQuery } from '~/generated/graphql'
 import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
@@ -64,10 +65,12 @@ const generateTabs = ({
   translate,
   hasPermissions,
   hasFeatureFlag,
+  isUsageGovernanceAvailable,
 }: {
   translate: TranslateFunc
   hasPermissions: (permissionsToCheck: Array<keyof TMembershipPermissions>) => boolean
   hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
+  isUsageGovernanceAvailable: boolean
 }) => [
   {
     title: translate('text_1776867582729i8hvt0ot0wl'),
@@ -109,7 +112,8 @@ const generateTabs = ({
     title: translate('text_17285747264958mqbtws3em8'),
     link: DUNNINGS_SETTINGS_ROUTE,
     match: [DUNNINGS_SETTINGS_ROUTE],
-    hidden: !hasPermissions(['dunningCampaignsView']),
+    hidden:
+      hasFeatureFlag(FeatureFlagEnum.ProductCatalog) || !hasPermissions(['dunningCampaignsView']),
   },
   {
     title: translate('text_645bb193927b375079d28a8f'),
@@ -121,9 +125,7 @@ const generateTabs = ({
     title: translate('text_17902308125634licovl9sfs'),
     link: GOVERNANCE_SETTINGS_ROUTE,
     match: [GOVERNANCE_SETTINGS_ROUTE, GOVERNANCE_SETTINGS_TAB_ROUTE],
-    hidden:
-      !hasFeatureFlag(FeatureFlagEnum.AccountTree) ||
-      !hasPermissions(['usageAttributionTypesView']),
+    hidden: !isUsageGovernanceAvailable || !hasPermissions(['usageAttributionTypesView']),
   },
 ]
 
@@ -136,7 +138,8 @@ const SettingsNavLayout = () => {
   const { hasPermissions } = usePermissions()
   const { billingEntityCode } = useParams()
   const navigate = useNavigate()
-  const { organization: { canCreateBillingEntity } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const canCreateBillingEntity = organization?.canCreateBillingEntity
   const contentRef = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -148,6 +151,7 @@ const SettingsNavLayout = () => {
     translate,
     hasPermissions,
     hasFeatureFlag,
+    isUsageGovernanceAvailable: isUsageGovernanceEnabled({ organization, hasFeatureFlag }),
   })
 
   const { pathname, state } = location as Location & { state: { disableScrollTop?: boolean } }

@@ -45,6 +45,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useLocationHistory } from '~/hooks/core/useLocationHistory'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { usePermissionsInvoiceActions } from '~/hooks/usePermissionsInvoiceActions'
 import TopUpTypeSelector, {
   WalletTransactionType,
@@ -103,6 +104,9 @@ const CreateWalletTopUp = () => {
   const navigate = useNavigate()
   const { goBack } = useLocationHistory()
   const actions = usePermissionsInvoiceActions()
+  const { hasPermissions } = usePermissions()
+  // The API only accepts free credits and paid top-up limit overrides from users who can update the wallet
+  const canGrantCredits = hasPermissions(['walletsUpdate'])
 
   const { organization: { defaultCurrency } = {} } = useOrganizationInfos()
   const { customerId = '', walletId = '', voidedInvoiceId = '' } = useParams()
@@ -425,10 +429,12 @@ const CreateWalletTopUp = () => {
                   />
                 )}
               </form.AppField>
-              <TopUpTypeSelector
-                selectedType={transactionType}
-                setSelectedType={updateTransactionType}
-              />
+              {canGrantCredits && (
+                <TopUpTypeSelector
+                  selectedType={transactionType}
+                  setSelectedType={updateTransactionType}
+                />
+              )}
               {transactionType === WalletTransactionType.PrepaidCredits && (
                 <>
                   <form.AppField name="paidCredits">
@@ -470,7 +476,7 @@ const CreateWalletTopUp = () => {
                   </form.AppField>
                   {formValues.paidCredits && (
                     <>
-                      {hasMinMax && (
+                      {hasMinMax && canGrantCredits && (
                         <form.AppField name="ignorePaidTopUpLimits">
                           {(field) => (
                             <field.SwitchField

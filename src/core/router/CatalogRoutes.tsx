@@ -34,15 +34,19 @@ export const CATALOG_PLAN_DETAILS_ROUTE = '/plan-pricing/:catalogPlanId/:tab'
 export const CATALOG_PLAN_DETAILS_SECTION_ROUTE = '/plan-pricing/:catalogPlanId/overview/:section'
 export const CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId'
-const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
+export const CATALOG_PLAN_RATE_CARD_DETAILS_TAB_ROUTE =
+  '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/:tab'
+export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE =
   '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId'
+export const CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE =
+  '/plan-pricing/:catalogPlanId/rate-cards/:appliedRateCardId/phases/:phaseId/:tab'
 
 export const catalogRoutes: CustomRouteObject[] = [
   {
     path: [PRODUCT_CATEGORY_DETAILS_ROUTE],
     private: true,
     element: <ProductCategoryDetails />,
-    permissions: ['productCategoriesView'],
+    permissions: ['productsView'],
   },
   {
     path: [PRODUCT_DETAILS_ROUTE],
@@ -54,7 +58,7 @@ export const catalogRoutes: CustomRouteObject[] = [
     path: [PRODUCT_FILTER_DETAILS_ROUTE],
     private: true,
     element: <ProductFilterDetails />,
-    permissions: ['productFiltersView'],
+    permissions: ['productsView'],
   },
   {
     path: RATE_CARD_RATE_DETAILS_ROUTE,
@@ -72,17 +76,20 @@ export const catalogRoutes: CustomRouteObject[] = [
     path: [PRODUCT_CATALOG_ROUTE, PRODUCT_CATALOG_TAB_ROUTE],
     private: true,
     element: <ProductCatalog />,
-    permissionsOr: ['productCategoriesView', 'productsView', 'productFiltersView', 'rateCardsView'],
+    permissionsOr: ['productsView', 'rateCardsView'],
   },
   {
-    path: [CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE],
+    path: [
+      CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_ROUTE,
+      CATALOG_PLAN_RATE_CARD_PHASE_DETAILS_TAB_ROUTE,
+    ],
     private: true,
     element: <CatalogPlanRateCardPhaseDetails />,
     permissions: ['plansView'],
     featureFlag: FeatureFlagEnum.ProductCatalog,
   },
   {
-    path: [CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE],
+    path: [CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE, CATALOG_PLAN_RATE_CARD_DETAILS_TAB_ROUTE],
     private: true,
     element: <CatalogPlanRateCardDetails />,
     permissions: ['plansView'],

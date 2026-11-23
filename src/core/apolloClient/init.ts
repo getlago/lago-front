@@ -3,13 +3,10 @@ import { onError } from '@apollo/client/link/error'
 import { RetryLink } from '@apollo/client/link/retry'
 import { getMainDefinition } from '@apollo/client/utilities'
 import { captureException, captureMessage } from '@sentry/react'
-import ActionCable from 'actioncable'
 import ApolloLinkTimeout from 'apollo-link-timeout'
 import { createUploadLink } from 'apollo-upload-client'
-import ActionCableLink from 'graphql-ruby-client/subscriptions/ActionCableLink'
-// IMPORTANT: Keep reactiveVars import before cacheUtils
-import { matchPath } from 'react-router'
 
+// IMPORTANT: Keep reactiveVars import before cacheUtils
 import {
   addToast,
   AUTH_TOKEN_LS_KEY,
@@ -18,11 +15,12 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { CUSTOMER_PORTAL_ROUTE } from '~/core/router/paths/customerPortal'
+import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
 import { buildAuthHeaders } from './authHeaders'
+import { CableSubscriptionError, createCableLink, refreshCableConsumer } from './cableConsumer'
 import { cache } from './cache'
 import { setupCachePersistor } from './cachePersistor'
 import { omitDeep } from './cacheUtils'
@@ -41,11 +39,7 @@ const SLOW_QUERY_THRESHOLD_MS = 8000 // threshold for considering a query as "sl
 const { apiUrl, appVersion } = envGlobalVar()
 
 const { cableUrl } = buildWebSocketUrl(apiUrl)
-const subscriptionLink = new ActionCableLink({
-  cable: ActionCable.createConsumer(cableUrl),
-  channelName: 'GraphqlChannel',
-  actionName: 'execute',
-})
+const subscriptionLink = createCableLink(cableUrl)
 
 const hasSubscriptionOperation = ({ query }: Operation) => {
   const definition = getMainDefinition(query)
@@ -87,6 +81,7 @@ export const initializeApolloClient = async () => {
 
           if (newToken && newToken !== currentToken) {
             updateAuthTokenVar(newToken)
+            refreshCableConsumer()
           }
         }
       }
@@ -172,6 +167,9 @@ export const initializeApolloClient = async () => {
 
         if (isAbortError) return false
 
+        // The API refused the subscription, or the socket was closed on purpose (logout)
+        if (error instanceof CableSubscriptionError) return false
+
         // Retry network errors (connection failures, timeouts, DNS failures)
         // Don't retry GraphQL errors (which have a result)
         return isNetworkError
@@ -187,7 +185,7 @@ export const initializeApolloClient = async () => {
     } = operation.getContext()
 
     // Silent auth and permissions related errors by default
-    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden, LagoApiError.OrganizationInactive)
 
     // Get operation type (query/mutation/subscription) for better grouping in Sentry
     const definition = getMainDefinition(operation.query)
@@ -203,10 +201,7 @@ export const initializeApolloClient = async () => {
         if (isUnauthorized) {
           // Skip logout in customer portal context — the portal handles auth errors
           // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = !!matchPath(
-            `${CUSTOMER_PORTAL_ROUTE}/*`,
-            window.location.pathname,
-          )
+          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
 
           if (!isCustomerPortal && onAuthError) {
             onAuthError()
@@ -220,48 +215,55 @@ export const initializeApolloClient = async () => {
           !isUnauthorized &&
           message !== 'PersistedQueryNotFound'
         ) {
-          // Create proper Error object for better stack traces
-          const graphQLError = new Error(`GraphQL Error: ${message}`)
-
-          graphQLError.name = 'GraphQLError'
-
           const errorCode = getGraphQLErrorCode(extensions)
 
-          // Capture in Sentry with operation details
-          captureException(graphQLError, {
-            tags: {
-              errorType: 'GraphQLError',
-              operation: operationType,
-              operationName: operation.operationName || 'unknown',
-              errorCode,
-            },
-            fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
-            extra: {
-              path,
-              locations,
-              extensions,
-              // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
-              errorDetails: (() => {
-                if (!extensions?.details) return undefined
-                const MAX_LENGTH = 2000
+          if (errorCode === LagoApiError.SandboxManagedByProduction) {
+            addToast({
+              severity: 'danger',
+              translateKey: 'text_17942211870635zfjx3ojmyy',
+            })
+          } else {
+            // Create proper Error object for better stack traces
+            const graphQLError = new Error(`GraphQL Error: ${message}`)
 
-                const str =
-                  typeof extensions.details === 'object'
-                    ? JSON.stringify(extensions.details)
-                    : String(extensions.details)
+            graphQLError.name = 'GraphQLError'
 
-                return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
-              })(),
-              value,
-              variables: operation.variables,
-              operationQuery: operation.query?.loc?.source?.body || 'unknown',
-            },
-          })
+            // Capture in Sentry with operation details
+            captureException(graphQLError, {
+              tags: {
+                errorType: 'GraphQLError',
+                operation: operationType,
+                operationName: operation.operationName || 'unknown',
+                errorCode,
+              },
+              fingerprint: buildGraphQLErrorFingerprint(operation.operationName, errorCode),
+              extra: {
+                path,
+                locations,
+                extensions,
+                // Stringify and truncate to avoid Sentry size limits (default maxValueLength is 250)
+                errorDetails: (() => {
+                  if (!extensions?.details) return undefined
+                  const MAX_LENGTH = 2000
 
-          addToast({
-            severity: 'danger',
-            translateKey: 'text_622f7a3dc32ce100c46a5154',
-          })
+                  const str =
+                    typeof extensions.details === 'object'
+                      ? JSON.stringify(extensions.details)
+                      : String(extensions.details)
+
+                  return str.length > MAX_LENGTH ? `${str.slice(0, MAX_LENGTH)}...[truncated]` : str
+                })(),
+                value,
+                variables: operation.variables,
+                operationQuery: operation.query?.loc?.source?.body || 'unknown',
+              },
+            })
+
+            addToast({
+              severity: 'danger',
+              translateKey: 'text_622f7a3dc32ce100c46a5154',
+            })
+          }
         }
 
         // eslint-disable-next-line no-console

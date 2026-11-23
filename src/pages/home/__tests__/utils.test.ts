@@ -1,12 +1,36 @@
+import {
+  EventsStoreEnum,
+  FeatureFlagEnum,
+  OrganizationActivationStatusEnum,
+} from '~/generated/graphql'
+
 import { resolveRedirectTarget } from '../utils'
 
-jest.mock('~/core/router/utils/permissionRouteMap', () => ({
-  getRouteForPermission: (permission: string | null) => {
-    if (permission === 'plansView') return '/plans'
-    if (permission === 'auditLogsView') return null
+const mockGetRouteForPermission = jest.fn()
 
-    return null
-  },
+jest.mock('~/core/router/utils/permissionRouteMap', () => {
+  const { ProductCatalog } = jest.requireActual('~/generated/graphql').FeatureFlagEnum
+
+  return {
+    getRouteForPermission: (
+      permission: string | null,
+      hasFeatureFlag: (flag: string) => boolean,
+      organization?: { eventsStore?: string },
+    ): string | null => {
+      mockGetRouteForPermission(permission, hasFeatureFlag, organization)
+
+      const isProductCatalogEnabled = hasFeatureFlag(ProductCatalog)
+
+      if (permission === 'plansView') return isProductCatalogEnabled ? '/plan-pricing' : '/plans'
+      if (permission === 'couponsView') return isProductCatalogEnabled ? null : '/coupons'
+
+      return null
+    },
+  }
+})
+
+jest.mock('~/core/router/utils/routeRegistry', () => ({
+  isOrganizationPathAvailable: (): boolean => true,
 }))
 
 jest.mock('~/core/router/legacyPaths', () => ({
@@ -25,27 +49,43 @@ const SLUG = 'acme'
 const ORG_ID = 'org-acme'
 
 const mockHasPermissions = jest.fn()
-const mockFindFirstViewPermission = jest.fn()
+const mockFindViewPermissions = jest.fn()
 
-const buildUser = (memberships = [{ organization: { id: ORG_ID, slug: SLUG } }]) =>
-  ({ memberships }) as unknown as Parameters<typeof resolveRedirectTarget>[0]['currentUser']
+type TestMembership = {
+  organization: {
+    id: string
+    slug: string
+    accessibleByCurrentSession: boolean
+    activationStatus?: OrganizationActivationStatusEnum
+  }
+}
+
+const buildUser = (
+  memberships: TestMembership[] = [
+    { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+  ],
+) => ({ memberships }) as unknown as Parameters<typeof resolveRedirectTarget>[0]['currentUser']
 
 const baseInput = (overrides: Partial<Parameters<typeof resolveRedirectTarget>[0]> = {}) => ({
   currentUser: buildUser(),
   ssoRedirectPath: undefined,
   savedLocation: undefined,
   hasPermissions: mockHasPermissions,
-  findFirstViewPermission: mockFindFirstViewPermission,
+  findViewPermissions: mockFindViewPermissions,
   hasAccessToAnalyticsDashboardsFeature: false,
+  hasFeatureFlag: () => false,
   ...overrides,
 })
+
+const withProductCatalog = (flag: FeatureFlagEnum): boolean =>
+  flag === FeatureFlagEnum.ProductCatalog
 
 describe('resolveRedirectTarget()', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     getCurrentOrganizationId.mockReturnValue(ORG_ID)
     mockHasPermissions.mockReturnValue(false)
-    mockFindFirstViewPermission.mockReturnValue(null)
+    mockFindViewPermissions.mockReturnValue([])
   })
 
   describe('GIVEN the user has no resolvable slug', () => {
@@ -62,6 +102,19 @@ describe('resolveRedirectTarget()', () => {
 
       expect(result).toEqual({ to: `/${SLUG}/features`, consumesSsoLs: true })
     })
+
+    it.each([`/${SLUG}`, `/${SLUG}/`, `/${SLUG}?tab=1`, `/${SLUG}#top`])(
+      'THEN drains the org root path %s and falls through to the default route',
+      (ssoRedirectPath) => {
+        mockHasPermissions.mockImplementation((permissions: string[]) =>
+          permissions.includes('customersView'),
+        )
+
+        const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      },
+    )
 
     it('THEN prepends the slug for legacy slug-less paths', () => {
       const result = resolveRedirectTarget(baseInput({ ssoRedirectPath: '/features' }))
@@ -113,6 +166,18 @@ describe('resolveRedirectTarget()', () => {
 
       expect(result).toEqual({ to: savedLocation, consumesSsoLs: false })
     })
+
+    it('THEN does NOT use it when it is the org root, and falls through to the default route', () => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+
+      const result = resolveRedirectTarget(
+        baseInput({ savedLocation: { pathname: `/${SLUG}`, search: '?tab=1' } }),
+      )
+
+      expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
+    })
   })
 
   describe('GIVEN savedLocation has a slug NOT belonging to the user (multi-org leak)', () => {
@@ -146,8 +211,8 @@ describe('resolveRedirectTarget()', () => {
       const result = resolveRedirectTarget(
         baseInput({
           currentUser: buildUser([
-            { organization: { id: ORG_ID, slug: SLUG } },
-            { organization: { id: 'org-b', slug: 'beta' } },
+            { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+            { organization: { id: 'org-b', slug: 'beta', accessibleByCurrentSession: true } },
           ]),
           savedLocation: { pathname: '/customers/123' },
         }),
@@ -167,8 +232,8 @@ describe('resolveRedirectTarget()', () => {
   // (LAGO-1443) but for the post-LOGIN flow when session was expired.
   describe('GIVEN a multi-org user logs in with a savedLocation carrying iframe params', () => {
     const multiOrgUser = buildUser([
-      { organization: { id: ORG_ID, slug: SLUG } },
-      { organization: { id: 'org-b', slug: 'beta' } },
+      { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+      { organization: { id: 'org-b', slug: 'beta', accessibleByCurrentSession: true } },
     ])
 
     it('THEN prepends LS-based slug for `?sfdc=true` (Salesforce) and preserves the iframe param', () => {
@@ -241,6 +306,162 @@ describe('resolveRedirectTarget()', () => {
     })
   })
 
+  describe('GIVEN the stored SSO redirect path targets an organization the user is not a member of', () => {
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+    })
+
+    // Guards the `/acme/other-org/...` 404 after logging back in with another account.
+    it.each(['/other-org/customers', '/other-org', '/other-org?tab=1'])(
+      'THEN ignores %s, drains LS and falls back to the default route',
+      (ssoRedirectPath) => {
+        const result = resolveRedirectTarget(baseInput({ ssoRedirectPath }))
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      },
+    )
+  })
+
+  describe('GIVEN the user has an organization the current session cannot access', () => {
+    const LOCKED_SLUG = 'locked'
+    const userWithLockedOrg = () =>
+      buildUser([
+        { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+        {
+          organization: { id: 'org-locked', slug: LOCKED_SLUG, accessibleByCurrentSession: false },
+        },
+      ])
+
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+    })
+
+    describe('WHEN the stored SSO redirect path targets it', () => {
+      it('THEN falls back to the default route of the accessible org and still drains LS', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithLockedOrg(),
+            ssoRedirectPath: `/${LOCKED_SLUG}/customers`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      })
+    })
+
+    describe('WHEN the router-state saved location targets it', () => {
+      it('THEN falls back to the default route of the accessible org', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithLockedOrg(),
+            savedLocation: { pathname: `/${LOCKED_SLUG}/plans` },
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
+      })
+    })
+
+    describe('WHEN the stored SSO redirect path targets the accessible org', () => {
+      it('THEN keeps redirecting to it', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithLockedOrg(),
+            ssoRedirectPath: `/${SLUG}/plans`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/plans`, consumesSsoLs: true })
+      })
+    })
+
+    describe('WHEN no organization is accessible', () => {
+      it('THEN returns FORBIDDEN_ROUTE and drains the stored SSO redirect path', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: buildUser([
+              {
+                organization: {
+                  id: 'org-locked',
+                  slug: LOCKED_SLUG,
+                  accessibleByCurrentSession: false,
+                },
+              },
+            ]),
+            ssoRedirectPath: `/${LOCKED_SLUG}/customers`,
+          }),
+        )
+
+        expect(result).toEqual({ to: '/forbidden', consumesSsoLs: true })
+      })
+    })
+  })
+
+  describe('GIVEN the user has a production organization waiting for a payment method', () => {
+    const PENDING_SLUG = 'acme-production'
+    const userWithPendingOrg = () =>
+      buildUser([
+        {
+          organization: {
+            id: 'org-pending',
+            slug: PENDING_SLUG,
+            accessibleByCurrentSession: true,
+            activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+          },
+        },
+        { organization: { id: ORG_ID, slug: SLUG, accessibleByCurrentSession: true } },
+      ])
+
+    beforeEach(() => {
+      mockHasPermissions.mockImplementation((permissions: string[]) =>
+        permissions.includes('customersView'),
+      )
+    })
+
+    describe('WHEN the stored SSO redirect path targets it', () => {
+      it('THEN falls back to the default route of the open org and still drains LS', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            ssoRedirectPath: `/${PENDING_SLUG}/customers`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: true })
+      })
+    })
+
+    describe('WHEN the router-state saved location targets it', () => {
+      it('THEN falls back to the default route of the open org', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            savedLocation: { pathname: `/${PENDING_SLUG}/plans` },
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/customers`, consumesSsoLs: false })
+      })
+    })
+
+    describe('WHEN the stored SSO redirect path targets the open org', () => {
+      it('THEN keeps redirecting to it', () => {
+        const result = resolveRedirectTarget(
+          baseInput({
+            currentUser: userWithPendingOrg(),
+            ssoRedirectPath: `/${SLUG}/plans`,
+          }),
+        )
+
+        expect(result).toEqual({ to: `/${SLUG}/plans`, consumesSsoLs: true })
+      })
+    })
+  })
+
   describe('GIVEN no SSO and no savedLocation — default navigation', () => {
     it('THEN returns analytics when user has analytics perms and no dashboard feature', () => {
       mockHasPermissions.mockReturnValueOnce(true)
@@ -261,6 +482,13 @@ describe('resolveRedirectTarget()', () => {
       })
     })
 
+    it('THEN returns analytics when the product catalog is enabled', () => {
+      mockHasPermissions.mockReturnValue(true)
+      const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
+
+      expect(result).toEqual({ to: `/${SLUG}/analytics`, consumesSsoLs: false })
+    })
+
     it('THEN returns customers when user lacks analytics but has customersView', () => {
       mockHasPermissions
         .mockReturnValueOnce(false) // analytics check
@@ -272,7 +500,7 @@ describe('resolveRedirectTarget()', () => {
 
     it('THEN returns first-view-permission route when no analytics nor customers', () => {
       mockHasPermissions.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('plansView')
+      mockFindViewPermissions.mockReturnValue(['plansView'])
       const result = resolveRedirectTarget(baseInput())
 
       expect(result).toEqual({ to: `/${SLUG}/plans`, consumesSsoLs: false })
@@ -280,10 +508,45 @@ describe('resolveRedirectTarget()', () => {
 
     it('THEN returns FORBIDDEN_ROUTE when no permission resolves to a route', () => {
       mockHasPermissions.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('auditLogsView')
+      mockFindViewPermissions.mockReturnValue(['auditLogsView'])
       const result = resolveRedirectTarget(baseInput())
 
       expect(result).toEqual({ to: '/forbidden', consumesSsoLs: false })
+    })
+
+    describe('AND the product catalog is enabled for a role without customersView', () => {
+      // Guards the Home <-> hidden route redirect loop: the fallback used to land on `/coupons`.
+      it('THEN skips permissions whose routes are hidden and uses the next available one', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockFindViewPermissions.mockReturnValue(['couponsView', 'plansView'])
+        const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
+
+        expect(result).toEqual({ to: `/${SLUG}/plan-pricing`, consumesSsoLs: false })
+      })
+
+      it('THEN returns FORBIDDEN_ROUTE when every granted route is hidden', () => {
+        mockHasPermissions.mockReturnValue(false)
+        mockFindViewPermissions.mockReturnValue(['couponsView'])
+        const result = resolveRedirectTarget(baseInput({ hasFeatureFlag: withProductCatalog }))
+
+        expect(result).toEqual({ to: '/forbidden', consumesSsoLs: false })
+      })
+    })
+
+    // Guards the Home <-> governance redirect loop: the lookup can only skip a route gated on
+    // the events store when the organization reaches it.
+    it('THEN passes the organization to the permission route lookup', () => {
+      const organization = { eventsStore: EventsStoreEnum.Postgres }
+
+      mockHasPermissions.mockReturnValue(false)
+      mockFindViewPermissions.mockReturnValue(['plansView'])
+      resolveRedirectTarget(baseInput({ organization }))
+
+      expect(mockGetRouteForPermission).toHaveBeenCalledWith(
+        'plansView',
+        expect.any(Function),
+        organization,
+      )
     })
   })
 })

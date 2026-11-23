@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import { tw } from 'lago-design-system'
 import { memo } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -7,6 +6,7 @@ import { useViewFeeDetailsDrawer } from '~/components/invoices/details/ViewFeeDe
 import { FeeMetadata } from '~/core/formats/formatInvoiceItemsMap'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { CurrencyEnum, FeeForInvoiceDetailsTableBodyLineFragment } from '~/generated/graphql'
+import { tw } from '~/styles/utils'
 
 import { FeeActionsCell } from './FeeActionsCell'
 import { useGetRangeLabel } from './useGetRangeLabel'

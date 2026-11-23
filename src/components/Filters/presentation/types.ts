@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 // By convention, we use value then metadata (usually display value) on each side of the separator.
 export const filterDataInlineSeparator = '|-_-|'
 
@@ -151,6 +153,8 @@ export enum AvailableFiltersEnum {
   adminActions = 'adminActions',
   adminOrganizations = 'adminOrganizations',
   adminAuditDate = 'adminAuditDate',
+  realtimeDimensions = 'realtimeDimensions',
+  timeRange = 'timeRange',
 }
 
 export const CreditNoteAvailableFilters = [
@@ -185,6 +189,8 @@ export const InvoiceAvailableFilters = [
   AvailableFiltersEnum.purchaseOrderNumber,
 ]
 
+export const InvoiceFiltersHiddenForProductCatalog = [AvailableFiltersEnum.invoiceType]
+
 export const RevenueStreamsAvailablePopperFilters = [
   AvailableFiltersEnum.date,
   AvailableFiltersEnum.country,
@@ -210,6 +216,11 @@ export const CustomerAvailableFilters = [
   AvailableFiltersEnum.isCustomerTinEmpty,
   AvailableFiltersEnum.hasCustomerType,
   AvailableFiltersEnum.metadata,
+]
+
+export const CustomerFiltersHiddenForProductCatalog = [
+  AvailableFiltersEnum.customerAccountType,
+  AvailableFiltersEnum.activeSubscriptions,
 ]
 
 export const RevenueStreamsPlansAvailableFilters = [AvailableFiltersEnum.currency]
@@ -278,6 +289,17 @@ export const UsageBreakdownRecurringAvailableFilters = [
   AvailableFiltersEnum.customerExternalId,
   AvailableFiltersEnum.planCode,
   AvailableFiltersEnum.subscriptionExternalId,
+]
+
+export const RealtimeUsageAvailableFilters = [
+  AvailableFiltersEnum.customerExternalId,
+  AvailableFiltersEnum.subscriptionExternalId,
+  AvailableFiltersEnum.timeRange,
+]
+
+export const RealtimeUsageBillableMetricAvailableFilters = [
+  ...RealtimeUsageAvailableFilters,
+  AvailableFiltersEnum.realtimeDimensions,
 ]
 
 export const UsageBillableMetricAvailableFilters = [
@@ -350,6 +372,12 @@ export const RateCardAvailableFilters = [
 export const AppliedRateCardsAvailableFilters = [
   AvailableFiltersEnum.appliedRateCardHasOverrides,
   AvailableFiltersEnum.productProductCategory,
+  AvailableFiltersEnum.rateCardProduct,
+  AvailableFiltersEnum.appliedRateCardProductFilter,
+  AvailableFiltersEnum.appliedRateCardProductType,
+]
+
+export const ContractUsageAvailableFilters = [
   AvailableFiltersEnum.rateCardProduct,
   AvailableFiltersEnum.appliedRateCardProductFilter,
   AvailableFiltersEnum.appliedRateCardProductType,
@@ -506,14 +534,44 @@ const translationMap: Record<AvailableFiltersEnum, string> = {
   [AvailableFiltersEnum.adminActions]: 'text_1785749891671nskw23dl0z4',
   [AvailableFiltersEnum.adminOrganizations]: 'text_1785749891671s8vuun26gew',
   [AvailableFiltersEnum.adminAuditDate]: 'text_1785749891671rk4ofmy881a',
+  [AvailableFiltersEnum.realtimeDimensions]: 'text_17925005807270liw8mldaip',
+  [AvailableFiltersEnum.timeRange]: 'text_1792500580727rat9rs1dr3a',
 }
+
+export const DYNAMIC_FILTER_KEY_PREFIX = 'dynamic.'
+
+export type DynamicFilterKey = `${typeof DYNAMIC_FILTER_KEY_PREFIX}${string}`
+
+export type FilterKey = AvailableFiltersEnum | DynamicFilterKey
+
+export const isDynamicFilterKey = (key: string): key is DynamicFilterKey =>
+  key.startsWith(DYNAMIC_FILTER_KEY_PREFIX)
 
 export type FiltersFormValues = {
   filters: Array<{
-    filterType?: AvailableFiltersEnum
+    filterType?: FilterKey
     value?: string
     disabled?: boolean
   }>
+}
+
+export type FilterValueInputProps = {
+  value: FiltersFormValues['filters'][0]['value']
+  setFilterValue: (value: string) => void
+}
+
+export type ScopedFilterOption = {
+  id: string
+  label: string
+}
+
+export type DynamicFilter = {
+  key: DynamicFilterKey
+  label: string
+  renderValueInput: (props: FilterValueInputProps) => ReactNode
+  formatValue: (value: string) => string
+  isValueValid?: (value: string) => boolean
+  isRangeValue?: (value?: string) => boolean
 }
 
 // Inside the panel the list context already names the resource, so the category dimension

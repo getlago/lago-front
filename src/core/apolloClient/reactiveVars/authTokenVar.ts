@@ -8,6 +8,9 @@ export const TMP_AUTH_TOKEN_LS_KEY = 'tmpAuthToken'
 /** ----------------- VAR ----------------- */
 export const authTokenVar = makeVar<string>(getItemFromLS(AUTH_TOKEN_LS_KEY))
 
+export const getStoredAuthToken = (): string | undefined =>
+  getItemFromLS(AUTH_TOKEN_LS_KEY) || undefined
+
 export const updateAuthTokenVar = (token?: string) => {
   setItemFromLS(AUTH_TOKEN_LS_KEY, token)
   authTokenVar(token)

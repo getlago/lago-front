@@ -1,14 +1,16 @@
 import InputAdornment from '@mui/material/InputAdornment'
-import { Icon } from 'lago-design-system'
 import _omit from 'lodash/omit'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { tw } from '~/styles/utils'
 
 import { ComboBoxInputProps } from './types'
 
 import { TextInput } from '../TextInput'
+
+export const COMBOBOX_LOADING_TEST_ID = 'combobox-loading'
 
 export const ComboBoxInput = ({
   className,
@@ -80,7 +82,10 @@ export const ComboBoxInput = ({
               />
             )}
             {loading ? (
-              <span className="flex size-6 items-center justify-center">
+              <span
+                className="flex size-6 items-center justify-center"
+                data-test={COMBOBOX_LOADING_TEST_ID}
+              >
                 <Icon name="processing" animation="spin" size="small" />
               </span>
             ) : (

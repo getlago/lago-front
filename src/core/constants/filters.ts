@@ -37,6 +37,8 @@ export const RATE_CARD_LIST_FILTER_PREFIX = 'rc'
 
 export const APPLIED_RATE_CARD_LIST_FILTER_PREFIX = 'arc'
 
+export const CONTRACT_USAGE_LIST_FILTER_PREFIX = 'cus'
+
 export const SECURITY_LOGS_FILTER_PREFIX = 'secul'
 
 export const ADMIN_AUDIT_LOG_FILTER_PREFIX = 'aal'
@@ -54,3 +56,5 @@ export const CUSTOMER_INVOICES_FILTER_PREFIX = 'cin'
 export const CUSTOMER_PAYMENTS_FILTER_PREFIX = 'cpa'
 
 export const CUSTOMER_CREDIT_NOTES_FILTER_PREFIX = 'ccn'
+
+export const REALTIME_USAGE_FILTER_PREFIX = 'rtu'

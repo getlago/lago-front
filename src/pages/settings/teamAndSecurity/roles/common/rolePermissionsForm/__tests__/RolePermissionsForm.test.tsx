@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { render } from '~/test-utils'
 
+import { useRolePermissionsGroups } from '../../../hooks/useRolePermissionsGroups'
 import { rolePermissionsEmptyValues } from '../const'
 import RolePermissionsForm from '../RolePermissionsForm'
 
@@ -35,6 +36,7 @@ const RolePermissionsFormWrapper = ({
   defaultValues?: Record<string, boolean>
   errors?: Array<string>
 }) => {
+  const { groups } = useRolePermissionsGroups()
   const form = useAppForm({
     defaultValues: {
       name: '',
@@ -50,6 +52,7 @@ const RolePermissionsFormWrapper = ({
         <RolePermissionsForm
           form={form}
           fields="permissions"
+          groups={groups}
           isEditable={isEditable}
           isLoading={isLoading}
           errors={errors}

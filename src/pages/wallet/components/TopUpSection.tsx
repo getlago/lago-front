@@ -8,9 +8,13 @@ import { Button } from '~/components/designSystem/Button'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
-import { InvoicingSettingsSelector } from '~/components/invoicingSettings/InvoicingSettingsSelector'
+import {
+  InvoicingSettingsPaymentTermProps,
+  InvoicingSettingsSelector,
+} from '~/components/invoicingSettings/InvoicingSettingsSelector'
 import { ConnectionPaymentSettingsSelector } from '~/components/paymentSettings/connectionFirst/ConnectionPaymentSettingsSelector'
 import { PaymentSettingsSelector } from '~/components/paymentSettings/PaymentSettingsSelector'
+import { PaymentTermInheritedFrom } from '~/components/paymentTerms/types'
 import { ADD_RECURRING_RULE_BUTTON_DATA_TEST } from '~/components/wallets/utils/dataTestConstants'
 import {
   VIEW_TYPE_INTEGRATIONS_CAPTION_KEYS,
@@ -24,6 +28,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { useRecurringRuleDrawer } from '~/pages/wallet/components/RecurringRuleDrawer'
 import { emptyWalletFormDefaultValues } from '~/pages/wallet/mappers/mapFromApiToForm'
 
@@ -44,6 +49,7 @@ interface TopUpSectionExtraProps {
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
+  paymentTermInheritedFrom?: PaymentTermInheritedFrom
 }
 
 const topUpSectionDefaultProps: TopUpSectionExtraProps = {
@@ -55,6 +61,7 @@ const topUpSectionDefaultProps: TopUpSectionExtraProps = {
   autoOpenRuleDrawer: false,
   autoOpenPaymentConnectionDrawer: false,
   autoOpenAdditionalIntegrationDrawer: false,
+  paymentTermInheritedFrom: undefined,
 }
 
 export const TopUpSection = withForm({
@@ -69,8 +76,12 @@ export const TopUpSection = withForm({
     autoOpenRuleDrawer,
     autoOpenPaymentConnectionDrawer,
     autoOpenAdditionalIntegrationDrawer,
+    paymentTermInheritedFrom,
   }) {
     const { isPremium } = useCurrentUser()
+    const { hasPermissions } = usePermissions()
+    // Recurring rules can grant credits and override paid top-up limits, which the API restricts to walletsUpdate
+    const canManageRecurringRules = hasPermissions(['walletsUpdate'])
     const { translate } = useInternationalization()
     const { hasFeatureFlag } = useOrganizationInfos()
     const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
@@ -174,15 +185,23 @@ export const TopUpSection = withForm({
     const hasAutoOpenedRuleDrawer = useRef(false)
 
     useEffect(() => {
-      if (!autoOpenRuleDrawer || hasAutoOpenedRuleDrawer.current || !isPremium) return
+      if (
+        !autoOpenRuleDrawer ||
+        hasAutoOpenedRuleDrawer.current ||
+        !isPremium ||
+        !canManageRecurringRules
+      )
+        return
 
       hasAutoOpenedRuleDrawer.current = true
       openDrawer(recurringTransactionRules)
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [autoOpenRuleDrawer, isPremium])
+    }, [autoOpenRuleDrawer, isPremium, canManageRecurringRules])
 
-    return (
-      <>
+    const renderRecurringRuleSection = () => {
+      if (!canManageRecurringRules) return null
+
+      return (
         <section className="flex w-full flex-col gap-6 pb-12 shadow-b">
           <div className="flex flex-col gap-1">
             <Typography variant="subhead1">{translate('text_1741101674268ag60i0cc55m')}</Typography>
@@ -253,6 +272,18 @@ export const TopUpSection = withForm({
             </div>
           )}
         </section>
+      )
+    }
+
+    const invoicingSettingsPaymentTerm: InvoicingSettingsPaymentTermProps = {
+      value: walletValues.paymentTerm,
+      onChange: (value) => form.setFieldValue('paymentTerm', value),
+      inheritedFrom: paymentTermInheritedFrom,
+    }
+
+    return (
+      <>
+        {renderRecurringRuleSection()}
 
         {customerData?.customer?.id && (
           <section
@@ -275,6 +306,7 @@ export const TopUpSection = withForm({
               customerId={customerData.customer.id}
               value={walletValues.invoiceCustomSection}
               onChange={(value) => form.setFieldValue('invoiceCustomSection', value)}
+              paymentTerm={invoicingSettingsPaymentTerm}
             />
           </section>
         )}

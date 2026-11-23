@@ -1,5 +1,4 @@
 import { useFormik } from 'formik'
-import { Icon } from 'lago-design-system'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { generatePath, useParams } from 'react-router'
 import { array, object, Schema, string } from 'yup'
@@ -21,6 +20,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
 import { Card } from '~/components/designSystem/Card'
+import { Icon } from '~/components/designSystem/Icon'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -114,6 +114,7 @@ const CreateCreditNote = () => {
     invoice,
     feesPerInvoice,
     feeForAddOn,
+    feeForProduct,
     feeForCredit,
     hasCreditableOrRefundableAmount,
     isInvoiceFullyCovered,
@@ -126,6 +127,11 @@ const CreateCreditNote = () => {
   const addOnFeesValidation = useMemo(
     () => generateAddOnFeesSchema(feeForAddOn || [], currency),
     [feeForAddOn, currency],
+  )
+
+  const productFeesValidation = useMemo(
+    () => generateAddOnFeesSchema(feeForProduct || [], currency),
+    [feeForProduct, currency],
   )
 
   const feesValidation = useMemo(
@@ -148,6 +154,7 @@ const CreateCreditNote = () => {
       reason: undefined,
       fees: feesPerInvoice,
       addOnFee: feeForAddOn,
+      productFee: feeForProduct,
       creditFee: feeForCredit,
       payBack: initialPayBack,
       creditAmount: undefined,
@@ -158,6 +165,7 @@ const CreateCreditNote = () => {
       reason: string().required(''),
       fees: feesValidation,
       addOnFee: addOnFeesValidation,
+      productFee: productFeesValidation,
       creditFee: creditFeeValidation,
       payBack: payBackValidation,
       metadata: metadataSchema({
@@ -188,7 +196,8 @@ const CreateCreditNote = () => {
     },
   })
 
-  const hasError = !!formikProps.errors.fees || !!formikProps.errors.addOnFee
+  const hasError =
+    !!formikProps.errors.fees || !!formikProps.errors.addOnFee || !!formikProps.errors.productFee
 
   const { feeForEstimate } = useMemo(
     () =>
@@ -197,8 +206,15 @@ const CreateCreditNote = () => {
         hasError,
         fees: formikProps.values.fees,
         addonFees: formikProps.values.addOnFee,
+        productFees: formikProps.values.productFee,
       }),
-    [currency, formikProps.values.addOnFee, formikProps.values.fees, hasError],
+    [
+      currency,
+      formikProps.values.addOnFee,
+      formikProps.values.fees,
+      formikProps.values.productFee,
+      hasError,
+    ],
   )
 
   const creditNoteCalculation = useCreditNoteFormCalculation({
@@ -280,7 +296,7 @@ const CreateCreditNote = () => {
       resetPayBackAllocation()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formikProps.values.fees, formikProps.values.addOnFee])
+  }, [formikProps.values.fees, formikProps.values.addOnFee, formikProps.values.productFee])
 
   const formHasAtLeastOneFeeChecked: boolean = useMemo(() => {
     return creditNoteFormHasAtLeastOneFeeChecked(formikProps.values)
@@ -470,6 +486,7 @@ const CreateCreditNote = () => {
                     formikProps={formikProps}
                     feeForCredit={feeForCredit}
                     feeForAddOn={feeForAddOn}
+                    feeForProduct={feeForProduct}
                     feesPerInvoice={feesPerInvoice}
                     currency={currency}
                   />

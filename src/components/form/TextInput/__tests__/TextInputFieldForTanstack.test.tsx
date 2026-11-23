@@ -112,6 +112,17 @@ describe('TextInputFieldForTanstack', () => {
     })
   })
 
+  it('translates errors once using the contextual translator', () => {
+    mockedUseFieldContext.mockReturnValue(createMockField([{ message: 'error_1' }]))
+    const translateError = jest.fn(() => 'Erreur du client')
+    const { getByText } = render(<TextInputField translateError={translateError} />)
+
+    expect(getByText('Erreur du client')).toBeInTheDocument()
+    expect(translateError).toHaveBeenCalledWith('error_1')
+    expect(mockTranslate).not.toHaveBeenCalledWith('Erreur du client')
+    expect(mockTranslate).not.toHaveBeenCalledWith('error_1')
+  })
+
   describe('errorOverride', () => {
     it('replaces the field errors with the override string', () => {
       mockedUseFieldContext.mockReturnValue(createMockField([{ message: 'error_1' }]))
@@ -120,8 +131,7 @@ describe('TextInputFieldForTanstack', () => {
         <TextInputField errorOverride="Custom override error" />,
       )
 
-      // TextInput runs the error string through translate()
-      expect(getByText('translated_Custom override error')).toBeInTheDocument()
+      expect(getByText('Custom override error')).toBeInTheDocument()
       // the field meta error is not displayed
       expect(queryByText('translated_error_1')).not.toBeInTheDocument()
     })

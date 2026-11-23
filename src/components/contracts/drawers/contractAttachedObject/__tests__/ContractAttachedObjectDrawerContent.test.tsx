@@ -43,7 +43,6 @@ const defaultValues: ContractAttachedObjectFormValues = {
   externalCustomerId: 'customer-external-id',
   billingEntityId: 'billing-entity-1',
   planCode: 'enterprise',
-  isPlanRequired: true,
 }
 
 const Wrapper = ({ planLocked }: { planLocked: boolean }) => {

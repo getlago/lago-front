@@ -15,7 +15,7 @@ export const buildContractAttachedObjectInput = (
     !contract.billingEntityId && value.billingEntityId === seededValues.billingEntityId
 
   return {
-    externalId: contract.externalId,
+    id: contract.id,
     planCode: value.planCode || undefined,
     billingEntityId: keepsInheritedBillingEntity ? undefined : value.billingEntityId || null,
   }

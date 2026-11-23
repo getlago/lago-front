@@ -1,7 +1,15 @@
+import { gql } from '@apollo/client'
+import { useState } from 'react'
+
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
-import { GetWebhookEndpointQuery } from '~/generated/graphql'
+import { RevealableValue } from '~/components/developers/RevealableValue'
+import {
+  GetWebhookEndpointQuery,
+  useGetWebhookEndpointSigningKeysQuery,
+  WebhookEndpointSignatureAlgoEnum,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useWebhookEventTypes } from '~/hooks/useWebhookEventTypes'
 
@@ -12,6 +20,21 @@ export const WEBHOOK_OVERVIEW_NAME_VALUE_TEST_ID = 'webhook-overview-name-value'
 export const WEBHOOK_OVERVIEW_SIGNATURE_VALUE_TEST_ID = 'webhook-overview-signature-value'
 export const WEBHOOK_OVERVIEW_URL_VALUE_TEST_ID = 'webhook-overview-url-value'
 export const WEBHOOK_OVERVIEW_EVENTS_LIST_TEST_ID = 'webhook-overview-events-list'
+export const WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID = 'webhook-overview-signing-key-value'
+export const WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID =
+  'webhook-overview-signing-key-reveal-button'
+
+gql`
+  query getWebhookEndpointSigningKeys($id: ID!) {
+    webhookEndpoint(id: $id) {
+      id
+      signingKeys {
+        id
+        secretKey
+      }
+    }
+  }
+`
 
 type WebhookOverviewProps = {
   webhook: GetWebhookEndpointQuery['webhookEndpoint'] | undefined
@@ -22,8 +45,19 @@ type WebhookOverviewProps = {
 export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOverviewProps) => {
   const { translate } = useInternationalization()
   const { getEventDisplayInfo, loading: eventTypesLoading } = useWebhookEventTypes()
+  const [showSigningKey, setShowSigningKey] = useState(false)
 
   const { displayedEvents, eventCount } = getEventDisplayInfo(webhook?.eventTypes)
+  // `no-cache` keeps the plaintext key out of the normalized cache, which `cachePersistor`
+  // writes to IndexedDB. `nextFetchPolicy` too, as the client defaults it to `cache-first`.
+  const { data: signingKeysData } = useGetWebhookEndpointSigningKeysQuery({
+    variables: { id: webhook?.id ?? '' },
+    skip:
+      !webhook?.id || webhook.signatureAlgo !== WebhookEndpointSignatureAlgoEnum.StandardWebhooks,
+    fetchPolicy: 'no-cache',
+    nextFetchPolicy: 'no-cache',
+  })
+  const signingKey = signingKeysData?.webhookEndpoint?.signingKeys?.at(-1)?.secretKey
 
   if (loading || eventTypesLoading) {
     return (
@@ -87,6 +121,22 @@ export const WebhookOverview = ({ webhook, loading, signatureLabel }: WebhookOve
           </Typography>
         </div>
       </div>
+
+      {!!signingKey && (
+        <div className="flex flex-col gap-1">
+          <Typography variant="caption" color="grey600">
+            {translate('text_658567dffff71e31ea5f0d3e')}
+          </Typography>
+          <RevealableValue
+            variant="body"
+            value={signingKey}
+            isRevealed={showSigningKey}
+            onToggleReveal={() => setShowSigningKey((prev) => !prev)}
+            valueTestId={WEBHOOK_OVERVIEW_SIGNING_KEY_VALUE_TEST_ID}
+            revealButtonTestId={WEBHOOK_OVERVIEW_SIGNING_KEY_REVEAL_BUTTON_TEST_ID}
+          />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1">
         <Typography variant="caption" color="grey600">

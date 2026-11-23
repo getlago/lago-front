@@ -1,4 +1,4 @@
-import { IconName } from 'lago-design-system'
+import { IconName } from '~/components/designSystem/Icon'
 
 export interface NavTab {
   'data-test'?: string

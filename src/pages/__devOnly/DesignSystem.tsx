@@ -3,7 +3,6 @@ import Box from '@mui/material/Box'
 import InputAdornment from '@mui/material/InputAdornment'
 import Stack from '@mui/material/Stack'
 import { useFormik } from 'formik'
-import { Icon, IconName } from 'lago-design-system'
 import { generatePath } from 'react-router'
 import { boolean, number, object, string } from 'yup'
 
@@ -16,6 +15,7 @@ import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
 import { Drawer } from '~/components/designSystem/Drawer'
 import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
+import { Icon, IconName } from '~/components/designSystem/Icon'
 import { NavigationTab } from '~/components/designSystem/NavigationTab'
 import { Popper } from '~/components/designSystem/Popper'
 import { Selector, SelectorActions } from '~/components/designSystem/Selector'
@@ -60,12 +60,10 @@ import Stripe from '~/public/images/stripe.svg'
 import { MenuPopper, PageHeader } from '~/styles'
 import { tw } from '~/styles/utils'
 
-import { BorderTest } from './tabs/BorderTest'
-import { ColorTest } from './tabs/ColorTest'
+import { composableTableTab } from './tabs/ComposableTableTest'
 import DialogTest from './tabs/DialogTest'
 import DrawerTest from './tabs/DrawerTest'
 import EditorTest from './tabs/EditorTest'
-import { TypographyTest } from './tabs/TypographyTest'
 
 const FORM_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'form' })
 const LINK_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'links' })
@@ -80,14 +78,6 @@ const DRAWER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'dr
 const RICH_TEXT_EDITOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
   tab: 'rich-text-editor',
 })
-const SHADCN_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn' })
-const SHADCN_TYPOGRAPHY_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
-  tab: 'shadcn-typography',
-})
-const SHADCN_BORDER_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, {
-  tab: 'shadcn-border',
-})
-const SHADCN_COLOR_TAB_URL = generatePath(ONLY_DEV_DESIGN_SYSTEM_TAB_ROUTE, { tab: 'shadcn-color' })
 
 const Container = ({ children }: { children: React.ReactNode }) => (
   <div className="px-12 pb-20 pt-8">{children}</div>
@@ -1264,6 +1254,7 @@ const DesignSystem = () => {
               </Container>
             ),
           },
+          composableTableTab,
           {
             title: 'Avatar',
             link: AVATAR_TAB_URL,
@@ -2268,34 +2259,6 @@ const DesignSystem = () => {
             title: 'Rich Text Editor',
             link: RICH_TEXT_EDITOR_TAB_URL,
             component: <EditorTest />,
-          },
-          {
-            title: 'Shadcn-typography',
-            link: SHADCN_TYPOGRAPHY_TAB_URL,
-            match: [SHADCN_TYPOGRAPHY_TAB_URL, SHADCN_TAB_URL],
-            component: (
-              <Container>
-                <TypographyTest />
-              </Container>
-            ),
-          },
-          {
-            title: 'Shadcn-border',
-            link: SHADCN_BORDER_TAB_URL,
-            component: (
-              <Container>
-                <BorderTest />
-              </Container>
-            ),
-          },
-          {
-            title: 'Shadcn-color',
-            link: SHADCN_COLOR_TAB_URL,
-            component: (
-              <Container>
-                <ColorTest />
-              </Container>
-            ),
           },
           // disabled simple tab
           {

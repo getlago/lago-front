@@ -8,6 +8,9 @@ import {
 } from '~/generated/graphql'
 
 import {
+  COUPON_EXPIRATION_PAST_ERROR,
+  COUPON_EXPIRATION_REQUIRED_ERROR,
+  COUPON_LIMIT_REQUIRED_ERROR,
   CouponFormValues,
   couponValidationSchema,
   emptyCouponDefaultValues,
@@ -367,17 +370,19 @@ describe('couponValidationSchema', () => {
 
         expect(result.success).toBe(false)
         if (!result.success) {
-          const expirationError = result.error.issues.find((issue) =>
+          const expirationErrors = result.error.issues.filter((issue) =>
             issue.path.includes('expirationAt'),
           )
 
-          expect(expirationError).toBeDefined()
+          expect(expirationErrors.map((issue) => issue.message)).toEqual([
+            COUPON_EXPIRATION_REQUIRED_ERROR,
+          ])
         }
       })
     })
 
     describe('WHEN expirationAt is in the past (more than 1 day ago)', () => {
-      it('THEN should fail validation', () => {
+      it('THEN should fail validation with the past date error', () => {
         const pastDate = DateTime.now().minus({ days: 2 }).toISO()
         const data = createValidCouponData({
           expiration: CouponExpiration.TimeLimit,
@@ -387,6 +392,15 @@ describe('couponValidationSchema', () => {
         const result = couponValidationSchema.safeParse(data)
 
         expect(result.success).toBe(false)
+        if (!result.success) {
+          const expirationErrors = result.error.issues.filter((issue) =>
+            issue.path.includes('expirationAt'),
+          )
+
+          expect(expirationErrors.map((issue) => issue.message)).toEqual([
+            COUPON_EXPIRATION_PAST_ERROR,
+          ])
+        }
       })
     })
 
@@ -450,7 +464,7 @@ describe('couponValidationSchema', () => {
             issue.path.includes('limitPlansList'),
           )
 
-          expect(planError).toBeDefined()
+          expect(planError?.message).toBe(COUPON_LIMIT_REQUIRED_ERROR)
         }
       })
     })
@@ -500,7 +514,7 @@ describe('couponValidationSchema', () => {
             issue.path.includes('limitBillableMetricsList'),
           )
 
-          expect(metricError).toBeDefined()
+          expect(metricError?.message).toBe(COUPON_LIMIT_REQUIRED_ERROR)
         }
       })
     })

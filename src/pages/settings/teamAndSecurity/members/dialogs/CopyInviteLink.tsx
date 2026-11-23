@@ -57,6 +57,7 @@ const CopyInviteLink = ({ email, role, inviteToken }: CopyInviteLinkProps) => {
           variant="body"
           color="grey700"
           data-test={INVITE_URL_DATA_TEST}
+          data-sentry-mask
         >
           {invitationUrl}
         </Typography>

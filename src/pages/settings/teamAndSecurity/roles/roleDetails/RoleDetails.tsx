@@ -1,18 +1,20 @@
-import { Icon } from 'lago-design-system'
 import { generatePath, useParams } from 'react-router'
 
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
+import { Icon } from '~/components/designSystem/Icon'
 import { Typography } from '~/components/designSystem/Typography'
 import { usePremiumWarningDialog } from '~/components/dialogs/PremiumWarningDialog'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { SettingsListItemLoadingSkeleton } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { ManagedInProductionAlert } from '~/components/sandbox/ManagedInProductionAlert'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'
 import { TEAM_AND_SECURITY_GROUP_ROUTE, TEAM_AND_SECURITY_TAB_ROUTE } from '~/core/router'
 import { PremiumIntegrationTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import { useRoleDisplayInformation } from '~/hooks/useRoleDisplayInformation'
 import {
   teamAndSecurityGroupOptions,
@@ -25,6 +27,7 @@ import RolePermissionsForm from '../common/rolePermissionsForm/RolePermissionsFo
 import RoleTypeChip from '../common/RoleTypeChip'
 import { useRoleActions } from '../hooks/useRoleActions'
 import { useRoleDetails } from '../hooks/useRoleDetails'
+import { useRolePermissionsGroups } from '../hooks/useRolePermissionsGroups'
 
 export const ROLE_DETAILS_ACTIONS_DROPDOWN_TEST_ID = 'role-details-actions-dropdown'
 export const ROLE_DETAILS_DUPLICATE_ACTION_TEST_ID = 'role-details-duplicate-action'
@@ -39,6 +42,9 @@ const RoleDetails = () => {
   const { getDisplayName, getDisplayDescription } = useRoleDisplayInformation()
   const { navigateToDuplicate, navigateToEdit } = useRoleActions()
   const { hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { hasPermissions } = usePermissions()
+  const { groups: permissionGroups, isLoading: isLoadingPermissionGroups } =
+    useRolePermissionsGroups()
   const hasPremiumAddon = hasOrganizationPremiumAddon(PremiumIntegrationTypeEnum.CustomRoles)
 
   const premiumWarningDialog = usePremiumWarningDialog()
@@ -105,7 +111,7 @@ const RoleDetails = () => {
                     }
                     closePopper()
                   },
-                  disabled: hasPremiumAddon ? !canBeDuplicated : false,
+                  hidden: !canBeDuplicated,
                   endIcon: !hasPremiumAddon ? 'sparkles' : undefined,
                 },
                 {
@@ -115,8 +121,7 @@ const RoleDetails = () => {
                     navigateToEdit(roleId)
                     closePopper()
                   },
-                  disabled: !canBeEdited,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon || !canBeEdited,
                 },
                 {
                   label: translate('text_6261640f28a49700f1290df5'),
@@ -125,8 +130,9 @@ const RoleDetails = () => {
                     if (role) openDeleteRoleDialog(role)
                     closePopper()
                   },
+                  // Without the permission it is hidden; with it, a role still assigned to members stays disabled.
                   disabled: !canBeDeleted,
-                  hidden: isSystem || !hasPremiumAddon,
+                  hidden: isSystem || !hasPremiumAddon || !hasPermissions(['rolesDelete']),
                   danger: true,
                   tooltip: !canBeDeleted ? translate('text_1767002012431la8gv2iqucp') : undefined,
                 },
@@ -138,6 +144,7 @@ const RoleDetails = () => {
       />
       <DetailsPage.Container className="max-w-192">
         <div className="flex flex-col gap-8">
+          <ManagedInProductionAlert />
           {isLoadingRole && <SettingsListItemLoadingSkeleton count={2} />}
 
           {!isLoadingRole && (
@@ -182,8 +189,9 @@ const RoleDetails = () => {
               <RolePermissionsForm
                 form={form}
                 fields="permissions"
+                groups={permissionGroups}
                 isEditable={false}
-                isLoading={isLoadingRole}
+                isLoading={isLoadingPermissionGroups}
               />
             </>
           )}

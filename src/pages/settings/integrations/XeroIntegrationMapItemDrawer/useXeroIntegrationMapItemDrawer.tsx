@@ -12,10 +12,7 @@ import {
   DEFAULT_MAPPING_KEY,
   isItemMappingForKeyNotForCurrenciesMapping,
 } from '~/pages/settings/integrations/common'
-import {
-  IntegrationMapItemDrawerContent,
-  submitIntegrationMapItemMappings,
-} from '~/pages/settings/integrations/IntegrationMapItemDrawer'
+import { submitIntegrationMapItemMappings } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
 import { stringifyOptionValue } from './stringifyOptionValue'
 import { XeroIntegrationMapItemDrawerProps } from './types'
@@ -26,7 +23,7 @@ import {
   XeroMappingFormValues,
   xeroMappingValidationSchema,
 } from './validationSchema'
-import { XeroIntegrationMapItemFormWrapper } from './XeroIntegrationMapItemFormWrapper'
+import { XeroIntegrationMapItemDrawerContent } from './XeroIntegrationMapItemDrawerContent'
 
 const XERO_INTEGRATION_MAP_ITEM_FORM_ID = 'xero-integration-map-item-drawer-form'
 
@@ -75,7 +72,7 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
   )
 
   const { getTitleAndDescription } = useXeroIntegrationTitleAndDescriptionMapping()
-  const mappingFunctions = useXeroIntegrationMappingCRUD(localData?.type, localData?.integrationId)
+  const mappingFunctions = useXeroIntegrationMappingCRUD(localData?.type)
 
   const form = useAppForm({
     defaultValues: xeroMappingDefaultValues,
@@ -84,7 +81,7 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
       onDynamic: xeroMappingValidationSchema,
     },
     onSubmit: async ({ value }) => {
-      const isSuccess = await submitIntegrationMapItemMappings({
+      const { success, itemMappings } = await submitIntegrationMapItemMappings({
         values: Object.fromEntries(
           Object.entries(value).map(([billingEntityKey, { selectedElementValue }]) => [
             billingEntityKey,
@@ -96,7 +93,13 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
         provider: IntegrationTypeEnum.Xero,
       })
 
-      if (!isSuccess) return
+      if (!success) {
+        setLocalData((previous) =>
+          previous && previous === localData ? { ...previous, itemMappings } : previous,
+        )
+
+        return
+      }
 
       addToast({
         message: translate('text_6630e5923500e7015f190643'),
@@ -128,20 +131,14 @@ export const useXeroIntegrationMapItemDrawer = (): UseXeroIntegrationMapItemDraw
       onClose: () => form.reset(),
       onEntered: focusFirstInput,
       children: (
-        <IntegrationMapItemDrawerContent
+        <XeroIntegrationMapItemDrawerContent
           title={title}
           description={description}
           billingEntities={drawerProps.billingEntities}
           form={form}
           formId={XERO_INTEGRATION_MAP_ITEM_FORM_ID}
-          renderForm={(billingEntityKey) => (
-            <XeroIntegrationMapItemFormWrapper
-              form={form}
-              billingEntityKey={billingEntityKey}
-              formType={drawerProps.type}
-              integrationId={drawerProps.integrationId}
-            />
-          )}
+          formType={drawerProps.type}
+          integrationId={drawerProps.integrationId}
         />
       ),
       mainAction: (

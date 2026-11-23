@@ -3,9 +3,17 @@ import { useEffect, useRef } from 'react'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import {
+  getAccessibleMemberships,
+  getLandingMemberships,
+  isLandingOrgSlug,
+} from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
 
 /**
  * Root redirect hub (`/`), rendered OUTSIDE the `:organizationSlug` scope.
@@ -18,9 +26,9 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
  * has set the org context from the URL slug. Keeping the root org-data-free is
  * what makes the in-memory (non-LS-seeded) org var safe.
  *
- * Landing slug priority (each candidate validated against the user's accessible
+ * Landing slug priority (each candidate validated against the user's landing
  * memberships): slug of the saved `from` location → slug of the SSO redirect
- * path → persisted "last used" slug → first accessible membership.
+ * path → persisted "last used" slug → first one (`getLandingMemberships`).
  * `REDIRECT_AFTER_LOGIN_LS_KEY` is left untouched (the org-scoped `Home`
  * consumes it) and `location.state` is forwarded so the saved `from` survives
  * the bounce.
@@ -29,37 +37,59 @@ const RootRedirect = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { loading: isUserLoading, currentUser } = useCurrentUser()
+  const hasAccessibleMembership = !!currentUser && getAccessibleMemberships(currentUser).length > 0
+  const {
+    needsOrganization,
+    loading: isNeedsOrganizationLoading,
+    hasError: hasNeedsOrganizationError,
+  } = useNeedsOrganization({
+    // Only a user without an organization can need one, so the others never send the check
+    skip: isUserLoading || !currentUser || hasAccessibleMembership,
+  })
   const hasNavigatedRef = useRef(false)
 
   useEffect(() => {
     if (isUserLoading || !currentUser) return
     if (hasNavigatedRef.current) return
 
-    const accessibleMemberships = (currentUser.memberships || []).filter(
-      (membership) => membership.organization.accessibleByCurrentSession,
-    )
+    const accessibleMemberships = getAccessibleMemberships(currentUser)
 
     if (!accessibleMemberships.length) {
+      if (isNeedsOrganizationLoading) return
+
+      if (needsOrganization) {
+        hasNavigatedRef.current = true
+        navigate(CREATE_ORGANIZATION_ROUTE, { replace: true })
+        return
+      }
+
+      const mayNeedOrganization = hasNeedsOrganizationError && !currentUser.memberships?.length
+
       hasNavigatedRef.current = true
-      navigate(FORBIDDEN_ROUTE, { replace: true })
+      navigate(mayNeedOrganization ? CREATE_ORGANIZATION_ROUTE : FORBIDDEN_ROUTE, { replace: true })
       return
     }
 
-    const isAccessibleSlug = (slug?: string): slug is string =>
-      !!slug && accessibleMemberships.some((m) => m.organization.slug === slug)
-
     const routerState = location.state as { from?: { pathname?: string } } | null | undefined
-    const savedSlug = routerState?.from?.pathname?.split('/')[1]
-    const ssoSlug = (getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY) || undefined)?.split('/')[1]
+    const savedSlug = getFirstPathSegment(routerState?.from?.pathname ?? '')
+    const ssoSlug = getFirstPathSegment(getItemFromLS(REDIRECT_AFTER_LOGIN_LS_KEY) || '')
     const persistedSlug = getPersistedOrganizationSlug() || undefined
 
     const targetSlug =
-      [savedSlug, ssoSlug, persistedSlug].find(isAccessibleSlug) ??
-      accessibleMemberships[0].organization.slug
+      [savedSlug, ssoSlug, persistedSlug].find((slug) => isLandingOrgSlug(slug, currentUser)) ??
+      getLandingMemberships(currentUser)[0].organization.slug
 
     hasNavigatedRef.current = true
     navigate(`/${targetSlug}`, { replace: true, state: location.state, skipSlugPrepend: true })
-  }, [isUserLoading, currentUser, location.state, navigate])
+  }, [
+    isUserLoading,
+    isNeedsOrganizationLoading,
+    needsOrganization,
+    hasNeedsOrganizationError,
+    currentUser,
+    location.state,
+    navigate,
+  ])
 
   return <Spinner />
 }

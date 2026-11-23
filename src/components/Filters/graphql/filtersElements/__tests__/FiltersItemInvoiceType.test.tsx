@@ -5,6 +5,12 @@ import { InvoiceTypeEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 const mockSetFilterValue = jest.fn()
+const mockHasFeatureFlag = jest.fn(() => true)
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  ...jest.requireActual('~/hooks/useOrganizationInfos'),
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+}))
 
 const renderComponent = (value?: string) => {
   return render(<FiltersItemInvoiceType value={value} setFilterValue={mockSetFilterValue} />, {
@@ -31,6 +37,7 @@ describe('FiltersItemInvoiceType', () => {
     it.each([
       ['add_on', InvoiceTypeEnum.AddOn],
       ['advance_charges', InvoiceTypeEnum.AdvanceCharges],
+      ['contract', InvoiceTypeEnum.Contract],
       ['credit', InvoiceTypeEnum.Credit],
       ['one_off', InvoiceTypeEnum.OneOff],
       ['progressive_billing', InvoiceTypeEnum.ProgressiveBilling],

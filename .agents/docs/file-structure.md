@@ -1,7 +1,7 @@
 ## File Structure & Conventions
 
 - `src/components/` - Feature components organized by domain
-- `packages/design-system/` - Shared UI components, icons, and themes
+- `src/components/designSystem/` - Shared UI components and icons (`Icon/`)
 - `src/core/` - Core utilities, serializers, constants, Apollo setup
 - `src/pages/` - Route components
 - `src/hooks/` - Custom React hooks

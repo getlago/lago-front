@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v7.0.1
+        with:
+          # The merge commit and its base parent, so the comment check sees this PR's lines only.
+          fetch-depth: 2
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6.1.0
@@ -28,3 +31,6 @@ jobs:
       - name: Run code:style check
         run: |
           pnpm run code:style
+
+      - name: Check the comments this PR adds
+        run: bash scripts/diff-hygiene.sh HEAD^1

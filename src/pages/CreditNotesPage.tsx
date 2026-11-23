@@ -24,6 +24,7 @@ import {
   CreditNoteTableItemFragmentDoc,
   CurrencyEnum,
   type DataExportCreditNoteFiltersInput,
+  FeatureFlagEnum,
   PremiumIntegrationTypeEnum,
   useCreateCreditNotesDataExportMutation,
   useGetCreditNotesListLazyQuery,
@@ -112,7 +113,8 @@ const formatAmountCurrency = <T extends { amountFrom?: unknown; amountTo?: unkno
 const CreditNotesPage = () => {
   const { translate } = useInternationalization()
   const [searchParams] = useSearchParams()
-  const { organization, hasOrganizationPremiumAddon } = useOrganizationInfos()
+  const { organization, hasOrganizationPremiumAddon, hasFeatureFlag } = useOrganizationInfos()
+  const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
 
   const amountCurrency = organization?.defaultCurrency
   const hasAccessToRevenueShare = hasOrganizationPremiumAddon(
@@ -197,6 +199,7 @@ const CreditNotesPage = () => {
               type: 'action',
               label: translate('text_1773761094529kr57s3qq8j3'),
               variant: 'secondary',
+              hidden: isProductCatalogEnabled,
               disabled: !dataCreditNotes?.creditNotes?.metadata.totalCount,
               onClick: () => {
                 openExportDialog({

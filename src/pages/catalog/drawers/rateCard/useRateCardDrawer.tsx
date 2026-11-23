@@ -9,15 +9,18 @@ import { focusFirstInput } from '~/components/drawers/useFocusTrap'
 import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
 import { RateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
+import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { RATE_CARD_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import { prependOrgSlug } from '~/core/router/utils/prependOrgSlug'
 import { escapeDoubleQuotes } from '~/core/utils/escapeDoubleQuotes'
 import {
+  CurrencyEnum,
   LagoApiError,
   ProductForRateCardDrawerFragment,
   ProductForRateCardDrawerFragmentDoc,
   RateCardBillingTimingEnum,
   RateCardForDrawerFragment,
+  TaxForTaxesSelectorSectionFragmentDoc,
   useCreateRateCardMutation,
   useUpdateRateCardMutation,
 } from '~/generated/graphql'
@@ -71,6 +74,9 @@ gql`
       name
       code
     }
+    taxes {
+      ...TaxForTaxesSelectorSection
+    }
   }
 
   mutation createRateCard($input: CreateRateCardInput!) {
@@ -88,6 +94,7 @@ gql`
   }
 
   ${ProductForRateCardDrawerFragmentDoc}
+  ${TaxForTaxesSelectorSectionFragmentDoc}
 `
 
 // The create title doubles as the create submit label (identical copy).
@@ -112,6 +119,7 @@ const mapRateCardToFormValues = (rateCard: RateCardForDrawerFragment): RateCardF
     regroupPaidFees: rateCard.regroupPaidFees,
   }),
   proration: rateCard.proration,
+  taxes: rateCard.taxes,
 })
 
 type ProductAttachment = ProductForRateCardDrawerFragment
@@ -149,6 +157,9 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
     validators: {
       onDynamic: rateCardDrawerSchema,
     },
+    onSubmitInvalid: ({ formApi }) => {
+      scrollToFirstInputError(RATE_CARD_FORM_ID, formApi.state.errorMap.onDynamic || {})
+    },
     onSubmit: async ({ value, formApi }) => {
       const editedRateCard = editedRateCardRef.current
       const { currency } = value
@@ -166,11 +177,16 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
 
       let rateCard: RateCardForDrawerFragment | null | undefined
       let errors: FetchResult['errors']
+      const taxCodes = value.taxes.map((tax) => tax.code)
 
       // Update serializes cleared optional fields to null (undefined would be
       // stripped and the previous value would never clear); product item and
       // product item filter are create-only, so they are not sent on update.
       if (editedRateCard) {
+        const previousTaxCodes = editedRateCard.taxes.map((tax) => tax.code)
+        const taxesChanged =
+          taxCodes.length !== previousTaxCodes.length ||
+          taxCodes.some((taxCode) => !previousTaxCodes.includes(taxCode))
         const result = await updateRateCard({
           variables: {
             input: {
@@ -180,6 +196,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               description: value.description || null,
               billingTiming: value.billingTiming,
               proration: value.proration,
+              ...(taxesChanged ? { taxCodes } : {}),
               ...buildUpdatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -199,6 +216,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
               ...(value.description ? { description: value.description } : {}),
               billingTiming: value.billingTiming,
               proration: value.proration,
+              taxCodes,
               ...buildCreatePricingInput({ currency, pricingUnit: value.pricingUnit }),
               ...invoiceFields,
             },
@@ -229,11 +247,12 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
     },
   })
 
-  const resetForm = (
-    rateCard?: RateCardForDrawerFragment,
-    attachToProduct?: ProductAttachment,
-    attachToProductFilter?: ProductFilterAttachment,
-  ) => {
+  const resetForm = ({
+    rateCard,
+    attachToProduct,
+    attachToProductFilter,
+    currency,
+  }: Omit<OpenRateCardDrawerArgs, 'onCreated'>) => {
     editedRateCardRef.current = rateCard
 
     if (rateCard) {
@@ -249,6 +268,7 @@ const useRateCardForm = ({ onSuccess }: { onSuccess: (result: RateCardFormSucces
         ...RATE_CARD_FORM_DEFAULTS,
         productId: seededProductId,
         productFilterId: seededProductFilterId,
+        currency: currency ?? RATE_CARD_FORM_DEFAULTS.currency,
       },
       { keepDefaultValues: true },
     )
@@ -261,6 +281,9 @@ type OpenRateCardDrawerArgs = {
   rateCard?: RateCardForDrawerFragment
   attachToProduct?: ProductAttachment
   attachToProductFilter?: ProductFilterAttachment
+  // Seeds and locks the currency, for a caller that only accepts rate cards in it.
+  currency?: CurrencyEnum
+  onCreated?: (rateCard: { id: string; name: string; code: string }) => void
 }
 
 // Tri-mode drawer: `openDrawer()` creates a rate card, `openDrawer({ rateCard })`
@@ -281,6 +304,8 @@ export const useRateCardDrawer = () => {
   // instead of clearing the selection.
   const attachToProductRef = useRef<ProductAttachment | undefined>(undefined)
   const attachToProductFilterRef = useRef<ProductFilterAttachment | undefined>(undefined)
+  const currencyRef = useRef<CurrencyEnum | undefined>(undefined)
+  const onCreatedRef = useRef<OpenRateCardDrawerArgs['onCreated']>(undefined)
 
   const { form, resetForm } = useRateCardForm({
     onSuccess: ({ rateCard, wasEdit }) => {
@@ -293,6 +318,14 @@ export const useRateCardDrawer = () => {
         return
       }
 
+      // An `onCreated` caller owns the success path: always close, even with create-more left on
+      // from a previous open.
+      if (onCreatedRef.current) {
+        onCreatedRef.current(rateCard)
+        drawer.close()
+        return
+      }
+
       const rateCardDetailsPath = generatePath(RATE_CARD_DETAILS_ROUTE, {
         rateCardId: rateCard.id,
         tab: RateCardDetailsTabsOptionsEnum.overview,
@@ -301,7 +334,11 @@ export const useRateCardDrawer = () => {
       if (isCreateMoreEnabled()) {
         // Re-seed the attachment (if any) so the next rate card stays scoped to
         // the same product item / filter instead of resetting to none.
-        resetForm(undefined, attachToProductRef.current, attachToProductFilterRef.current)
+        resetForm({
+          attachToProduct: attachToProductRef.current,
+          attachToProductFilter: attachToProductFilterRef.current,
+          currency: currencyRef.current,
+        })
         notifyReset()
         // The drawer renders outside the matched-route context, so the router
         // Link in the toast cannot auto-prepend the org slug; bake it in here.
@@ -328,11 +365,15 @@ export const useRateCardDrawer = () => {
     rateCard,
     attachToProduct,
     attachToProductFilter,
+    currency,
+    onCreated,
   }: OpenRateCardDrawerArgs = {}) => {
     attachToProductRef.current = attachToProduct
     attachToProductFilterRef.current = attachToProductFilter
+    currencyRef.current = currency
+    onCreatedRef.current = onCreated
     resetCreateMore()
-    resetForm(rateCard, attachToProduct, attachToProductFilter)
+    resetForm({ rateCard, attachToProduct, attachToProductFilter, currency })
 
     const isEdit = !!rateCard
     // `RateCards::UpdateService`: `LOCKED_WITH_RATES` freezes the billing-semantic fields
@@ -380,6 +421,7 @@ export const useRateCardDrawer = () => {
           isEdit={isEdit}
           isAttached={isAttached}
           hasRates={hasRates}
+          isCurrencyLocked={!!currency}
           disableCodeInput={isAttached}
           productSeed={productSeed}
           productFilterSeed={productFilterSeed}

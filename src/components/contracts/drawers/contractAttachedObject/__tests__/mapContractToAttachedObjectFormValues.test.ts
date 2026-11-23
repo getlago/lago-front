@@ -8,7 +8,6 @@ describe('mapContractToAttachedObjectFormValues', () => {
       externalCustomerId: 'external-customer-1',
       billingEntityId: 'billing-entity-2',
       planCode: 'enterprise',
-      isPlanRequired: true,
     })
   })
 
@@ -23,7 +22,6 @@ describe('mapContractToAttachedObjectFormValues', () => {
       expect.objectContaining({
         billingEntityId: 'billing-entity-1',
         planCode: '',
-        isPlanRequired: false,
       }),
     )
   })

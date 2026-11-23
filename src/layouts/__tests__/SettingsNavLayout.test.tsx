@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { FeatureFlagEnum, GetBillingEntitiesDocument } from '~/generated/graphql'
+import { EventsStoreEnum, FeatureFlagEnum, GetBillingEntitiesDocument } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { render } from '~/test-utils'
 
@@ -17,10 +17,11 @@ jest.mock('~/hooks/usePermissions', () => ({
 }))
 
 const mockFeatureFlags = new Set<FeatureFlagEnum>()
+let mockEventsStore = EventsStoreEnum.Clickhouse
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
-    organization: { canCreateBillingEntity: false },
+    organization: { canCreateBillingEntity: false, eventsStore: mockEventsStore },
     hasFeatureFlag: (flag: FeatureFlagEnum) => mockFeatureFlags.has(flag),
   }),
 }))
@@ -129,11 +130,46 @@ describe('SettingsNavLayout', () => {
     expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
   })
 
+  it('hides Governance when the organization events are stored in Postgres', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
+    mockPermissions.add('usageAttributionTypesView')
+    mockEventsStore = EventsStoreEnum.Postgres
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
+
+    mockEventsStore = EventsStoreEnum.Clickhouse
+  })
+
   it('hides Governance when the view permission is missing', () => {
     mockFeatureFlags.add(FeatureFlagEnum.AccountTree)
     renderSettings()
 
     expect(screen.queryByRole('link', { name: 'Governance' })).not.toBeInTheDocument()
+  })
+
+  it('shows Dunning when the product catalog flag is off and the view permission is granted', () => {
+    mockPermissions.add('dunningCampaignsView')
+    renderSettings()
+
+    expect(screen.getByRole('link', { name: 'Dunning' })).toBeInTheDocument()
+  })
+
+  it('hides Dunning when the product catalog flag is on', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.ProductCatalog)
+    mockPermissions.add('dunningCampaignsView')
+    renderSettings()
+
+    expect(screen.queryByRole('link', { name: 'Dunning' })).not.toBeInTheDocument()
+  })
+
+  it('keeps the other sections visible when the product catalog flag is on', () => {
+    mockFeatureFlags.add(FeatureFlagEnum.ProductCatalog)
+    mockPermissions.add('dunningCampaignsView')
+    mockPermissions.add('organizationTaxesView')
+    renderSettings()
+
+    expect(screen.getByRole('link', { name: 'Taxes' })).toBeInTheDocument()
   })
 
   it('navigates to taxes in the organization from the URL', async () => {

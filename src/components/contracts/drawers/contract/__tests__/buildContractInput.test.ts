@@ -6,8 +6,8 @@ import { ContractFormValues } from '../constants'
 const values: ContractFormValues = {
   externalCustomerId: 'customer-external-id',
   externalId: 'customer-contract-id',
+  code: 'initial',
   planCode: 'enterprise',
-  isPlanRequired: true,
   name: 'Enterprise agreement',
   billingEntityId: 'billing-entity-1',
   consolidateInvoice: false,
@@ -37,6 +37,7 @@ describe('buildCreateContractInput', () => {
     expect(buildCreateContractInput(values)).toEqual({
       externalCustomerId: 'customer-external-id',
       externalId: 'customer-contract-id',
+      code: 'initial',
       planCode: 'enterprise',
       name: 'Enterprise agreement',
       billingEntityId: 'billing-entity-1',

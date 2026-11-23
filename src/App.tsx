@@ -28,6 +28,7 @@ import '~/core/overlays/registeredDialogs'
 import { initializeYup } from '~/formValidation/initializeYup'
 import '~/formValidation/initializeZod'
 import { AiAgentProvider } from '~/hooks/aiAgent/useAiAgent'
+import { useCrossTabSession } from '~/hooks/auth/useCrossTabSession'
 import { DeveloperToolProvider, DEVTOOL_AUTO_SAVE_ID } from '~/hooks/useDeveloperTool'
 import { QuotePdfProvider } from '~/pages/quotes/common/QuotePdfProvider'
 import Logo from '~/public/images/logo/lago-logo-grey.svg'
@@ -75,6 +76,8 @@ const App = () => {
 
     initializeServices()
   }, [])
+
+  useCrossTabSession(client)
 
   // Adds explicit apollo messages only in a dev environment
   if (appEnv === AppEnvEnum.development) {

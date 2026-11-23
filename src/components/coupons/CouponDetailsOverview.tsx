@@ -1,9 +1,9 @@
 import { gql } from '@apollo/client'
-import { Icon } from 'lago-design-system'
 import { useParams } from 'react-router'
 
 import { formatCouponValue } from '~/components/coupons/utils'
 import { Card } from '~/components/designSystem/Card'
+import { Icon } from '~/components/designSystem/Icon'
 import { Status } from '~/components/designSystem/Status'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'

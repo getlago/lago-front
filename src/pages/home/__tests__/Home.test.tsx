@@ -15,7 +15,7 @@ const mockGetItemFromLS = getItemFromLS as jest.Mock
 const mockRemoveItemFromLS = removeItemFromLS as jest.Mock
 const mockGetCurrentOrganizationId = jest.fn()
 const mockHasPermissions = jest.fn()
-const mockFindFirstViewPermission = jest.fn()
+const mockFindViewPermissions = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
 const mockGetRouteForPermission = jest.fn()
 const mockUseCurrentUser = jest.fn()
@@ -27,7 +27,12 @@ const TEST_ORG_ID = 'org-a'
 const defaultMemberships = [
   {
     id: 'membership-1',
-    organization: { id: TEST_ORG_ID, name: 'Test Org', slug: TEST_ORG_SLUG },
+    organization: {
+      id: TEST_ORG_ID,
+      name: 'Test Org',
+      slug: TEST_ORG_SLUG,
+      accessibleByCurrentSession: true,
+    },
   },
 ]
 
@@ -62,12 +67,16 @@ jest.mock('~/hooks/useOrganizationInfos', () => ({
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({
     hasPermissions: mockHasPermissions,
-    findFirstViewPermission: mockFindFirstViewPermission,
+    findViewPermissions: mockFindViewPermissions,
   }),
 }))
 
 jest.mock('~/core/router/utils/permissionRouteMap', () => ({
   getRouteForPermission: (permission: string | null) => mockGetRouteForPermission(permission),
+}))
+
+jest.mock('~/core/router/utils/routeRegistry', () => ({
+  isOrganizationPathAvailable: () => true,
 }))
 
 jest.mock('~/core/router/legacyPaths', () => ({
@@ -94,7 +103,8 @@ describe('Home', () => {
     mockRemoveItemFromLS.mockClear()
     mockGetCurrentOrganizationId.mockClear()
     mockHasPermissions.mockClear()
-    mockFindFirstViewPermission.mockClear()
+    mockFindViewPermissions.mockClear()
+    mockFindViewPermissions.mockReturnValue([])
     mockHasOrganizationPremiumAddon.mockClear()
     mockGetRouteForPermission.mockClear()
     mockUseCurrentUser.mockClear()
@@ -113,6 +123,7 @@ describe('Home', () => {
     mockUseOrganizationInfos.mockReturnValue({
       loading: false,
       hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+      hasFeatureFlag: () => false,
     })
   })
 
@@ -173,7 +184,12 @@ describe('Home', () => {
             ...defaultMemberships,
             {
               id: 'membership-2',
-              organization: { id: 'org-b', name: 'Other Org', slug: 'other-org' },
+              organization: {
+                id: 'org-b',
+                name: 'Other Org',
+                slug: 'other-org',
+                accessibleByCurrentSession: true,
+              },
             },
           ],
         },
@@ -296,6 +312,33 @@ describe('Home', () => {
           expect(mockNavigate).toHaveBeenCalledWith(pathWithSlug, { replace: true })
         })
       })
+    })
+
+    describe('WHEN the stored redirect path is the org root', () => {
+      it.each([`/${TEST_ORG_SLUG}`, `/${TEST_ORG_SLUG}?tab=1`])(
+        'THEN should leave the index route for the default route and drain %s',
+        async (orgRootPath) => {
+          mockGetItemFromLS.mockImplementation((key: string) => {
+            if (key === REDIRECT_AFTER_LOGIN_LS_KEY) return orgRootPath
+
+            return undefined
+          })
+          mockHasPermissions.mockImplementation((perms: string[]) =>
+            perms.includes('customersView'),
+          )
+          mockHasOrganizationPremiumAddon.mockReturnValue(false)
+
+          renderHook(() => Home())
+
+          await waitFor(() => {
+            expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/customers`, {
+              replace: true,
+            })
+          })
+          expect(mockNavigate).toHaveBeenCalledTimes(1)
+          expect(mockRemoveItemFromLS).toHaveBeenCalledWith(REDIRECT_AFTER_LOGIN_LS_KEY)
+        },
+      )
     })
 
     describe('WHEN there is also a saved location in router state', () => {
@@ -423,16 +466,16 @@ describe('Home', () => {
       })
     })
 
-    it('should use findFirstViewPermission when user has no customersView', async () => {
+    it('should use findViewPermissions when user has no customersView', async () => {
       mockHasPermissions.mockReturnValue(false)
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('plansView')
+      mockFindViewPermissions.mockReturnValue(['plansView'])
       mockGetRouteForPermission.mockReturnValue('plans')
 
       renderHook(() => Home())
 
       await waitFor(() => {
-        expect(mockFindFirstViewPermission).toHaveBeenCalled()
+        expect(mockFindViewPermissions).toHaveBeenCalled()
         expect(mockGetRouteForPermission).toHaveBeenCalledWith('plansView')
         expect(mockNavigate).toHaveBeenCalledWith(`/${TEST_ORG_SLUG}/plans`, { replace: true })
       })
@@ -441,7 +484,7 @@ describe('Home', () => {
     it('should redirect to forbidden route when no accessible routes exist', async () => {
       mockHasPermissions.mockReturnValue(false)
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue(null)
+      mockFindViewPermissions.mockReturnValue([])
       mockGetRouteForPermission.mockReturnValue(null)
 
       renderHook(() => Home())
@@ -454,7 +497,7 @@ describe('Home', () => {
     it('should redirect to forbidden when permission has no associated route', async () => {
       mockHasPermissions.mockReturnValue(false)
       mockHasOrganizationPremiumAddon.mockReturnValue(false)
-      mockFindFirstViewPermission.mockReturnValue('auditLogsView')
+      mockFindViewPermissions.mockReturnValue(['auditLogsView'])
       mockGetRouteForPermission.mockReturnValue(null)
 
       renderHook(() => Home())
@@ -485,6 +528,7 @@ describe('Home', () => {
       mockUseOrganizationInfos.mockReturnValue({
         loading: true,
         hasOrganizationPremiumAddon: mockHasOrganizationPremiumAddon,
+        hasFeatureFlag: () => false,
       })
 
       renderHook(() => Home())

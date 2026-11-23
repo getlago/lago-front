@@ -1,4 +1,7 @@
-import { validationSchema } from '../validationSchema'
+import { allPermissions } from '../../permissionsConst'
+import { buildValidationSchema } from '../validationSchema'
+
+const validationSchema = buildValidationSchema(allPermissions)
 
 describe('validationSchema', () => {
   describe('name field', () => {
@@ -260,6 +263,34 @@ describe('validationSchema', () => {
       })
 
       expect(result.success).toBe(false)
+    })
+
+    it('does NOT accept a role whose only granted permissions are not displayed', () => {
+      const result = buildValidationSchema(['PlansView']).safeParse({
+        name: 'Role Name',
+        code: 'role_name',
+        description: 'Description',
+        permissions: {
+          PlansView: false,
+          CouponsView: true,
+        },
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it('accepts a role with a displayed permission granted alongside hidden ones', () => {
+      const result = buildValidationSchema(['PlansView']).safeParse({
+        name: 'Role Name',
+        code: 'role_name',
+        description: 'Description',
+        permissions: {
+          PlansView: true,
+          CouponsView: true,
+        },
+      })
+
+      expect(result.success).toBe(true)
     })
   })
 

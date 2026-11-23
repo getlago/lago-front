@@ -1,10 +1,12 @@
 import { ApolloClient, ApolloError } from '@apollo/client'
 import { captureException } from '@sentry/react'
-import { ConditionalWrapper, Icon } from 'lago-design-system'
 import { useParams } from 'react-router'
 
+import { ConditionalWrapper } from '~/components/ConditionalWrapper'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { Button } from '~/components/designSystem/Button'
+import { Chip } from '~/components/designSystem/Chip'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Skeleton } from '~/components/designSystem/Skeleton'
 import { Tooltip } from '~/components/designSystem/Tooltip'
@@ -12,28 +14,85 @@ import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { addToast, logOut } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { HOME_ROUTE, useNavigate } from '~/core/router'
+import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { getCounterpartPath } from '~/core/router/utils/counterpartPath'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
   MainOrganizationInfosFragment,
+  OrganizationEnvironmentEnum,
   SideNavInfosQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { NavLayout } from '~/layouts/NavLayout'
+import { SANDBOX_BANNER_HEIGHT } from '~/layouts/sandboxBannerHeight'
 import { MenuPopper } from '~/styles/designSystem'
 
 // 280 + 2px for the border
 const POPPER_MIN_WIDTH = 282
 
+// The switcher sits at the top of the nav, right under the sandbox banner when
+// it is shown: subtract the banner so the menu never runs past the viewport.
+export const ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${SANDBOX_BANNER_HEIGHT})`
+// Room for the log out row (a small button and its padding, 48px) and the menu's two 1px borders, so on a
+// short window the list scrolls and log out stays in view.
+const ORGANIZATION_SWITCHER_FOOTER_HEIGHT = '50px'
+
+export const ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT = `calc(100vh - 64px - 16px - ${ORGANIZATION_SWITCHER_FOOTER_HEIGHT} - ${SANDBOX_BANNER_HEIGHT})`
+
 export const ORGANIZATION_SWITCHER_TEST_ID = 'organization-switcher'
 export const ORGANIZATION_SWITCHER_BUTTON_TEST_ID = 'side-nav-user-infos'
 export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
+export const ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID = 'side-nav-sandbox-tag'
+export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
+export const ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID = 'organization-switcher-org-list'
+export const ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID = 'organization-switcher-sandbox-tag'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
-const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
+
+const compareOrganizations = (
+  a: OrganizationFromMembership,
+  b: OrganizationFromMembership,
+): number => {
+  if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
+    return a.accessibleByCurrentSession ? -1 : 1
+  }
+
+  return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+}
+
+const getOrderedOrganizations = (
+  organizations: OrganizationFromMembership[],
+): OrganizationFromMembership[] => {
+  const organizationsById = new Map(organizations.map((org) => [org.id, org]))
+  const sandboxIdByProductionId = new Map<string, string>()
+
+  organizations.forEach((org) => {
+    const sandboxId = org.sandboxOrganization?.id
+    const productionId = org.productionOrganization?.id
+
+    if (sandboxId && organizationsById.has(sandboxId)) {
+      sandboxIdByProductionId.set(org.id, sandboxId)
+    }
+
+    if (productionId && organizationsById.has(productionId)) {
+      sandboxIdByProductionId.set(productionId, org.id)
+    }
+  })
+
+  const pairedSandboxIds = new Set(sandboxIdByProductionId.values())
+
+  return organizations
+    .filter((org) => !pairedSandboxIds.has(org.id))
+    .sort(compareOrganizations)
+    .flatMap((org) => {
+      const sandbox = organizationsById.get(sandboxIdByProductionId.get(org.id) ?? '')
+
+      return sandbox ? [org, sandbox] : [org]
+    })
+}
 
 interface OrganizationSwitcherProps {
   client: ApolloClient<object>
@@ -43,6 +102,13 @@ interface OrganizationSwitcherProps {
   isLoading: boolean
   isVersionLoading: boolean
 }
+
+// An SSO session only opens the organizations whose integration uses the identity provider
+// it logged in with, even when another organization also allows that method.
+const SSO_AUTHENTICATION_METHODS = [
+  AuthenticationMethodsEnum.Okta,
+  AuthenticationMethodsEnum.EntraId,
+]
 
 export const OrganizationSwitcher = ({
   client,
@@ -54,6 +120,7 @@ export const OrganizationSwitcher = ({
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { strippedPathname, search } = useLocation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
@@ -73,6 +140,35 @@ export const OrganizationSwitcher = ({
   const currentOrgFromSlug = currentUser?.memberships.find(
     (m) => m.organization.slug === organizationSlug,
   )?.organization
+
+  const getInaccessibleOrganizationTooltip = (): string => {
+    const authenticatedMethod = organization?.authenticatedMethod as
+      AuthenticationMethodsEnum | undefined
+
+    if (!authenticatedMethod) return translate('text_1752158380555tozrnmtmxc1')
+
+    const method = translate(authenticationMethodsMapping[authenticatedMethod])
+
+    if (SSO_AUTHENTICATION_METHODS.includes(authenticatedMethod)) {
+      return translate('text_17920584710724rtqabk4fe2', { method })
+    }
+
+    return translate('text_1752158380555tozrnmtmxcz', { method })
+  }
+
+  const inaccessibleOrganizationTooltip = getInaccessibleOrganizationTooltip()
+
+  const getSwitchTargetPath = (targetOrg: OrganizationFromMembership): string => {
+    const counterpartIds = [
+      currentOrgFromSlug?.sandboxOrganization?.id,
+      currentOrgFromSlug?.productionOrganization?.id,
+    ]
+    // Only the other organization of the pair has the same pages: any other one opens on its home.
+
+    if (!counterpartIds.includes(targetOrg.id)) return `/${targetOrg.slug}${HOME_ROUTE}`
+
+    return getCounterpartPath({ targetSlug: targetOrg.slug, strippedPathname, search })
+  }
 
   /**
    * Switches the current organization by navigating to its slug.
@@ -100,7 +196,7 @@ export const OrganizationSwitcher = ({
 
       // `skipSlugPrepend` — the target slug is the NEW org, different from the
       // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
-      navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
+      navigate(getSwitchTargetPath(targetOrg), { skipSlugPrepend: true })
     } catch (error) {
       // Apollo/GraphQL errors are automatically captured by the errorLink in apolloClient/init.ts
       // Only capture non-Apollo errors manually to avoid duplicates
@@ -125,7 +221,7 @@ export const OrganizationSwitcher = ({
       <Popper
         PopperProps={{ placement: 'bottom-start' }}
         minWidth={POPPER_MIN_WIDTH}
-        maxHeight={`calc(100vh - 64px - 16px)`}
+        maxHeight={ORGANIZATION_SWITCHER_POPPER_MAX_HEIGHT}
         enableFlip={false}
         opener={
           <Button
@@ -165,6 +261,14 @@ export const OrganizationSwitcher = ({
                 >
                   {currentOrgFromSlug?.name}
                 </Typography>
+                {currentOrgFromSlug?.environment === OrganizationEnvironmentEnum.Sandbox && (
+                  <Chip
+                    className="ml-2 shrink-0"
+                    size="small"
+                    data-test={ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID}
+                    label={translate('text_1794221187063c6xcfwvtt6l')}
+                  />
+                )}
               </>
             )}
           </Button>
@@ -175,40 +279,19 @@ export const OrganizationSwitcher = ({
             {!!organizationList?.length && (
               <div
                 className="flex flex-col gap-1 overflow-auto p-2"
-                style={{ maxHeight: 'calc(100vh - 80px)' }}
+                data-test={ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID}
+                style={{ maxHeight: ORGANIZATION_SWITCHER_LIST_MAX_HEIGHT }}
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />
 
-                {[...organizationList]
-                  .sort((a, b) => {
-                    // First sort by accessibleByCurrentSession (accessible first)
-                    if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
-                      return a.accessibleByCurrentSession ? -1 : 1
-                    }
-
-                    // Then sort alphabetically by name
-                    return a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0
-                  })
-                  ?.map(({ id, name, logoUrl, accessibleByCurrentSession }) => (
+                {getOrderedOrganizations(organizationList).map(
+                  ({ id, name, logoUrl, accessibleByCurrentSession, environment }) => (
                     <ConditionalWrapper
                       key={`organization-in-side-nav-${id}`}
                       condition={accessibleByCurrentSession}
                       validWrapper={(children) => <>{children}</>}
                       invalidWrapper={(children) => (
-                        <Tooltip
-                          placement="right"
-                          title={
-                            organization
-                              ? translate('text_1752158380555tozrnmtmxcz', {
-                                  method: translate(
-                                    authenticationMethodsMapping[
-                                      organization.authenticatedMethod as AuthenticationMethodsEnum
-                                    ],
-                                  ),
-                                })
-                              : translate('text_1752158380555tozrnmtmxc1')
-                          }
-                        >
+                        <Tooltip placement="right" title={inaccessibleOrganizationTooltip}>
                           {children}
                         </Tooltip>
                       )}
@@ -242,9 +325,18 @@ export const OrganizationSwitcher = ({
                         <Typography variant="caption" color="inherit" noWrap>
                           {name}
                         </Typography>
+                        {environment === OrganizationEnvironmentEnum.Sandbox && (
+                          <Chip
+                            data-test={ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID}
+                            className="ml-2 shrink-0"
+                            size="small"
+                            label={translate('text_1794221187063c6xcfwvtt6l')}
+                          />
+                        )}
                       </Button>
                     </ConditionalWrapper>
-                  ))}
+                  ),
+                )}
               </div>
             )}
 

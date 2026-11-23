@@ -8,13 +8,28 @@ import {
   FORBIDDEN_ROUTE,
 } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
+import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
+import { RouteGateOrganization } from '~/core/router/utils/isRouteAvailable'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
-import { ensureSlugPrefix, pathHasValidSlug, resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import {
+  ensureSlugPrefix,
+  isLandingOrgSlug,
+  pathHasValidSlug,
+  pathTargetsInaccessibleOrg,
+  resolveOrgSlug,
+} from '~/core/router/utils/orgSlug'
 import { getRouteForPermission } from '~/core/router/utils/permissionRouteMap'
-import { CurrentUserInfosFragment } from '~/generated/graphql'
+import { isOrganizationPathAvailable } from '~/core/router/utils/routeRegistry'
+import { CurrentUserInfosFragment, FeatureFlagEnum } from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 
 type CurrentUser = CurrentUserInfosFragment | undefined
+
+const ORGANIZATION_ROOT_PATH = /^\/[^/?#]+\/?(?:[?#].*)?$/
+
+// The org root renders `Home` itself: navigating there would leave it mounted on its spinner.
+const isOrganizationRootPath = (path: string, currentUser: CurrentUser): boolean =>
+  ORGANIZATION_ROOT_PATH.test(path) && pathHasValidSlug(path, currentUser)
 
 type SavedLocation = {
   pathname: string
@@ -27,8 +42,10 @@ export type ResolveRedirectInput = {
   ssoRedirectPath: string | undefined
   savedLocation: SavedLocation | undefined
   hasPermissions: (permissions: Array<keyof TMembershipPermissions>) => boolean
-  findFirstViewPermission: () => keyof TMembershipPermissions | null
+  findViewPermissions: () => Array<keyof TMembershipPermissions>
   hasAccessToAnalyticsDashboardsFeature: boolean
+  hasFeatureFlag: (flag: FeatureFlagEnum) => boolean
+  organization?: RouteGateOrganization
 }
 
 export type ResolveRedirectResult = {
@@ -51,13 +68,14 @@ export type ResolveRedirectResult = {
  * and is passed in via `ssoRedirectPath`).
  *
  * Resolution priority:
- *   1. `ssoRedirectPath` — drained by caller after success.
- *   2. `savedLocation` (router-state `from`) — validated against the user's
- *      memberships to avoid stale-org leaks; legacy slug-less paths get
+ *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
+ *      org the session cannot open, one the user is not a member of, or an org root.
+ *   2. `savedLocation` (router-state `from`): kept only for a non-root path in an
+ *      org `isLandingOrgSlug` accepts, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
- *   3. Permission-based default (analytics → customers → first view route).
+ *   3. Permission-based default (analytics → customers → first available view route).
  *   4. `FORBIDDEN_ROUTE` fallback.
  *
  * Returns `null` only when the user has no resolvable slug — caller should
@@ -71,8 +89,10 @@ export const resolveRedirectTarget = (
     ssoRedirectPath,
     savedLocation,
     hasPermissions,
-    findFirstViewPermission,
+    findViewPermissions,
     hasAccessToAnalyticsDashboardsFeature,
+    hasFeatureFlag,
+    organization,
   } = input
 
   const slug = resolveOrgSlug(currentUser)
@@ -81,10 +101,31 @@ export const resolveRedirectTarget = (
   // on every load. `isSafeInAppPath` is the guard; `ensureSlugPrefix` prefixes
   // and validates nothing.
   const hasUnsafeSsoPath = !!ssoRedirectPath && !isSafeInAppPath(ssoRedirectPath)
-  const safeSsoRedirectPath = hasUnsafeSsoPath ? undefined : ssoRedirectPath
+  const hasInaccessibleSsoPath =
+    !!ssoRedirectPath && pathTargetsInaccessibleOrg(ssoRedirectPath, currentUser)
+  const ssoFirstSegment = getFirstPathSegment(ssoRedirectPath ?? '')
+  // Stored before a logout, so it may name an org this account never belonged to.
+  const hasUnknownOrgSsoPath =
+    !!ssoRedirectPath &&
+    !!ssoFirstSegment &&
+    !LEGACY_APP_PATH_SEGMENTS.has(ssoFirstSegment) &&
+    !pathHasValidSlug(ssoRedirectPath, currentUser)
+  const hasOrganizationRootSsoPath =
+    !!ssoRedirectPath && isOrganizationRootPath(ssoRedirectPath, currentUser)
+  const hasPendingOrgSsoPath =
+    !!ssoRedirectPath &&
+    pathHasValidSlug(ssoRedirectPath, currentUser) &&
+    !isLandingOrgSlug(ssoFirstSegment, currentUser)
+  const discardsSsoPath =
+    hasUnsafeSsoPath ||
+    hasInaccessibleSsoPath ||
+    hasUnknownOrgSsoPath ||
+    hasOrganizationRootSsoPath ||
+    hasPendingOrgSsoPath
+  const safeSsoRedirectPath = discardsSsoPath ? undefined : ssoRedirectPath
 
   if (!slug) {
-    return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
+    return { to: FORBIDDEN_ROUTE, consumesSsoLs: discardsSsoPath }
   }
 
   // 1. SSO redirect from localStorage (set by auth guard or OAuth callback).
@@ -97,16 +138,15 @@ export const resolveRedirectTarget = (
 
   // 2. Router-state `from` — preserved across same-tab login flows.
   if (savedLocation && savedLocation.pathname !== '/') {
-    // Validate the slug in the saved path belongs to one of the user's orgs.
-    // Prevents stale path leaks: logout + login with a different org would
-    // otherwise carry the old org's path through router state.
-    const savedSlug = savedLocation.pathname.split('/')[1]
-    const belongsToCurrentUser = currentUser?.memberships?.some(
-      (m) => m.organization.slug === savedSlug,
-    )
+    // Logout + login with another org, or a login method that org refuses,
+    // would otherwise carry the old org's path through router state.
+    const savedSlug = getFirstPathSegment(savedLocation.pathname)
 
-    if (belongsToCurrentUser) {
-      return { to: savedLocation, consumesSsoLs: hasUnsafeSsoPath }
+    if (
+      isLandingOrgSlug(savedSlug, currentUser) &&
+      !isOrganizationRootPath(savedLocation.pathname, currentUser)
+    ) {
+      return { to: savedLocation, consumesSsoLs: discardsSsoPath }
     }
 
     const isLegacySegment = LEGACY_APP_PATH_SEGMENTS.has(savedSlug ?? '')
@@ -119,41 +159,41 @@ export const resolveRedirectTarget = (
 
       return {
         to: `/${slug}${savedLocation.pathname}${search}${hash}`,
-        consumesSsoLs: hasUnsafeSsoPath,
+        consumesSsoLs: discardsSsoPath,
       }
     }
   }
 
   // 3. Permission-based default.
-  const canSeeAnalytics = hasPermissions(['analyticsView', 'dataApiView'])
+  const analyticsPath = hasAccessToAnalyticsDashboardsFeature
+    ? generatePath(ANALYTIC_TABS_ROUTE, { tab: NewAnalyticsTabsOptionsEnum.revenueStreams })
+    : ANALYTIC_ROUTE
 
-  if (canSeeAnalytics && !hasAccessToAnalyticsDashboardsFeature) {
-    return { to: `/${slug}${ANALYTIC_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
+  if (
+    hasPermissions(['analyticsView', 'dataApiView']) &&
+    isOrganizationPathAvailable(analyticsPath, hasFeatureFlag, organization)
+  ) {
+    return { to: `/${slug}${analyticsPath}`, consumesSsoLs: discardsSsoPath }
   }
 
-  if (canSeeAnalytics && hasAccessToAnalyticsDashboardsFeature) {
-    return {
-      to: `/${slug}${generatePath(ANALYTIC_TABS_ROUTE, {
-        tab: NewAnalyticsTabsOptionsEnum.revenueStreams,
-      })}`,
-      consumesSsoLs: hasUnsafeSsoPath,
-    }
+  if (
+    hasPermissions(['customersView']) &&
+    isOrganizationPathAvailable(CUSTOMERS_LIST_ROUTE, hasFeatureFlag, organization)
+  ) {
+    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: discardsSsoPath }
   }
 
-  if (hasPermissions(['customersView'])) {
-    return { to: `/${slug}${CUSTOMERS_LIST_ROUTE}`, consumesSsoLs: hasUnsafeSsoPath }
-  }
-
-  const firstViewPermission = findFirstViewPermission()
-  const routeForPermission = getRouteForPermission(firstViewPermission)
+  const routeForPermission = findViewPermissions()
+    .map((permission) => getRouteForPermission(permission, hasFeatureFlag, organization))
+    .find((route): route is string => !!route)
 
   if (routeForPermission) {
     return {
       to: ensureSlugPrefix(routeForPermission, slug, currentUser),
-      consumesSsoLs: hasUnsafeSsoPath,
+      consumesSsoLs: discardsSsoPath,
     }
   }
 
   // 4. No accessible route.
-  return { to: FORBIDDEN_ROUTE, consumesSsoLs: hasUnsafeSsoPath }
+  return { to: FORBIDDEN_ROUTE, consumesSsoLs: discardsSsoPath }
 }

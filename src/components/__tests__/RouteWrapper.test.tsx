@@ -5,6 +5,7 @@ import { MemoryRouter } from 'react-router'
 import { ERROR_FALLBACK_TEST_ID } from '~/components/ErrorFallback'
 import { RouteWrapper } from '~/components/RouteWrapper'
 import type { CustomRouteObject } from '~/core/router'
+import { EventsStoreEnum, FeatureFlagEnum } from '~/generated/graphql'
 
 configure({ testIdAttribute: 'data-test' })
 
@@ -38,13 +39,38 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
   useDevtoolTabParam: () => mockUseDevtoolTabParam(),
 }))
 
+const mockHasFeatureFlag = jest.fn()
+let mockIsOrganizationLoading = false
+let mockOrganization: { eventsStore: EventsStoreEnum } | undefined = undefined
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+    loading: mockIsOrganizationLoading,
+    organization: mockOrganization,
+  }),
+}))
+
+const mockOnRouteEnter = jest.fn()
+
 jest.mock('~/hooks/core/useLocationHistory', () => ({
   useLocationHistory: () => ({
-    onRouteEnter: jest.fn(),
+    onRouteEnter: mockOnRouteEnter,
   }),
 }))
 
 const TEST_SLUG = 'test-slug'
+
+const mockLocation = {
+  // First segment of `pathname` is treated as the active org slug by
+  // RouteWrapper's MemoryRouter→BrowserRouter bridge.
+  pathname: `/${TEST_SLUG}/api-keys`,
+  strippedPathname: '/api-keys',
+  search: '',
+  hash: '',
+  state: null,
+  key: 'default',
+}
 
 let mockRoutes: CustomRouteObject[] = []
 
@@ -53,16 +79,7 @@ jest.mock('~/core/router', () => ({
     return mockRoutes
   },
   useNavigate: () => mockNavigate,
-  useLocation: () => ({
-    // First segment of `pathname` is treated as the active org slug by
-    // RouteWrapper's MemoryRouter→BrowserRouter bridge.
-    pathname: `/${TEST_SLUG}/api-keys`,
-    strippedPathname: '/api-keys',
-    search: '',
-    hash: '',
-    state: null,
-    key: 'default',
-  }),
+  useLocation: () => mockLocation,
 }))
 
 const PAGE_TEST_ID = 'route-page'
@@ -80,6 +97,9 @@ describe('RouteWrapper', () => {
     jest.clearAllMocks()
     mockMainRouterUrl = ''
     mockRoutes = []
+    mockHasFeatureFlag.mockReturnValue(false)
+    mockIsOrganizationLoading = false
+    mockOrganization = undefined
   })
 
   describe('mainRouterUrl navigation effect', () => {
@@ -243,6 +263,143 @@ describe('RouteWrapper', () => {
           expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
           expect(screen.queryByTestId(ERROR_FALLBACK_TEST_ID)).not.toBeInTheDocument()
         })
+      })
+    })
+  })
+
+  describe('routes hidden by a feature flag', () => {
+    const hiddenRoute = (): CustomRouteObject => ({
+      path: '*',
+      element: <div data-test={PAGE_TEST_ID}>v1 page</div>,
+      hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+    })
+
+    describe('GIVEN the hiding flag is active', () => {
+      it('THEN it should not mount the page', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the organization is still loading', () => {
+      it('THEN it should not mount the page', () => {
+        mockIsOrganizationLoading = true
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the organization finishes loading', () => {
+      // Guards the re-run on load: without it a hard reload on a hidden route stays on the spinner.
+      it('THEN it should run the route guard again', () => {
+        mockIsOrganizationLoading = true
+        mockRoutes = [hiddenRoute()]
+
+        const { rerender } = render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        const callsWhileLoading = mockOnRouteEnter.mock.calls.length
+
+        mockIsOrganizationLoading = false
+        mockHasFeatureFlag.mockReturnValue(true)
+
+        rerender(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(mockOnRouteEnter).toHaveBeenCalledTimes(callsWhileLoading + 1)
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the hiding flag is not active', () => {
+      it('THEN it should mount the page', () => {
+        mockRoutes = [hiddenRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('routes requiring usage governance', () => {
+    const governanceRoute = (): CustomRouteObject => ({
+      path: '*',
+      element: <div data-test={PAGE_TEST_ID}>governance page</div>,
+      featureFlag: FeatureFlagEnum.AccountTree,
+      requiresUsageGovernance: true,
+    })
+
+    describe('GIVEN the account tree flag is active', () => {
+      // The redirect runs from an effect, so without the pre-render guard the page
+      // mounts and fires governance queries the store cannot answer.
+      it('THEN it should not mount the page on a postgres events store', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockOrganization = { eventsStore: EventsStoreEnum.Postgres }
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
+      })
+
+      it('THEN it should mount the page on a clickhouse events store', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockOrganization = { eventsStore: EventsStoreEnum.Clickhouse }
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.getByTestId(PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('GIVEN the organization is still loading', () => {
+      it('THEN it should not mount the page', () => {
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockIsOrganizationLoading = true
+        mockRoutes = [governanceRoute()]
+
+        render(
+          <MemoryRouter>
+            <RouteWrapper />
+          </MemoryRouter>,
+        )
+
+        expect(screen.queryByTestId(PAGE_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

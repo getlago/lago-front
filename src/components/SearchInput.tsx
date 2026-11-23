@@ -1,6 +1,6 @@
-import { Icon } from 'lago-design-system'
 import { useState } from 'react'
 
+import { Icon } from '~/components/designSystem/Icon'
 import { tw } from '~/styles/utils'
 
 import { TextInput } from './form'

@@ -106,6 +106,7 @@ describe('useCustomerDetailsHeaderActions', () => {
           type: 'action',
           variant: 'inline',
           startIcon: 'outside',
+          hidden: false,
         })
       })
 
@@ -136,7 +137,7 @@ describe('useCustomerDetailsHeaderActions', () => {
         const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
 
         expect(result.current).toHaveLength(2)
-        expect(result.current[0]).toMatchObject({ type: 'action' })
+        expect(result.current[0]).toMatchObject({ type: 'action', hidden: true })
 
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
@@ -289,6 +290,20 @@ describe('useCustomerDetailsHeaderActions', () => {
       })
     })
 
+    describe('WHEN user can view but not update customers', () => {
+      it('THEN should hide the portal URL action', () => {
+        mockHasPermissions.mockImplementation(((perms: string[]) => {
+          if (perms.includes('customersUpdate')) return false
+
+          return true
+        }) as unknown as () => boolean)
+
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        expect(result.current[0]).toMatchObject({ type: 'action', hidden: true })
+      })
+    })
+
     describe('WHEN product catalog feature flag is active', () => {
       beforeEach(() => {
         mockHasFeatureFlag.mockReturnValue(true)
@@ -306,6 +321,24 @@ describe('useCustomerDetailsHeaderActions', () => {
         const dropdownAction = result.current[1] as MainHeaderDropdownAction
 
         expect(dropdownAction.items[0].hidden).toBe(true)
+      })
+
+      it('THEN should hide the customer portal action', () => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        expect(result.current[0]).toMatchObject({ type: 'action', hidden: true })
+      })
+
+      it.each([
+        ['create one-off invoice', 1],
+        ['apply coupon', 2],
+        ['add wallet', 3],
+      ])('THEN should hide the %s item', (_, index) => {
+        const { result } = renderHook(() => useCustomerDetailsHeaderActions(defaultParams))
+
+        const dropdownAction = result.current[1] as MainHeaderDropdownAction
+
+        expect(dropdownAction.items[index].hidden).toBe(true)
       })
 
       it('THEN should open the contract drawer with the customer when the first item is clicked', () => {

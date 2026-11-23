@@ -1,27 +1,46 @@
 import { ApolloClient } from '@apollo/client'
 
 import { logOut, onLogIn, switchCurrentOrganization } from '../cacheUtils'
+import { currentOrganizationVar } from '../reactiveVars/currentOrganizationVar'
 
 const mockSetCurrentOrganizationId = jest.fn()
 const mockUpdateAuthTokenVar = jest.fn()
+const mockAuthTokenVar = jest.fn()
+const mockGetStoredAuthToken = (): string | undefined =>
+  localStorage.getItem('auth_token') || undefined
 const mockAddToast = jest.fn()
-const mockResetPersistedCache = jest.fn().mockResolvedValue(undefined)
 const mockPurgePersistedCache = jest.fn().mockResolvedValue(undefined)
 
+const mockDisconnectCableConsumer = jest.fn()
+
+jest.mock('../cableConsumer', () => ({
+  disconnectCableConsumer: () => mockDisconnectCableConsumer(),
+}))
+
 jest.mock('../cachePersistor', () => ({
-  resetPersistedCache: (...args: unknown[]) => mockResetPersistedCache(...args),
+  pausePersistence: jest.fn(),
+  resumePersistence: jest.fn(),
   purgePersistedCache: (...args: unknown[]) => mockPurgePersistedCache(...args),
 }))
 
-jest.mock('../reactiveVars', () => ({
-  addToast: (...args: unknown[]) => mockAddToast(...args),
-  AUTH_TOKEN_LS_KEY: 'auth_token',
-  TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
-  setCurrentOrganizationId: (...args: unknown[]) => mockSetCurrentOrganizationId(...args),
-  resetLocationHistoryVar: jest.fn(),
-  updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
-  updateCustomerPortalTokenVar: jest.fn(),
-}))
+jest.mock('../reactiveVars', () => {
+  const { setCurrentOrganizationId } = jest.requireActual('../reactiveVars/currentOrganizationVar')
+
+  return {
+    addToast: (...args: unknown[]) => mockAddToast(...args),
+    AUTH_TOKEN_LS_KEY: 'auth_token',
+    authTokenVar: (...args: unknown[]) => mockAuthTokenVar(...args),
+    getStoredAuthToken: () => mockGetStoredAuthToken(),
+    TMP_AUTH_TOKEN_LS_KEY: 'tmp_auth_token',
+    setCurrentOrganizationId: (id: string | null) => {
+      mockSetCurrentOrganizationId(id)
+      setCurrentOrganizationId(id)
+    },
+    resetLocationHistoryVar: jest.fn(),
+    updateAuthTokenVar: (...args: unknown[]) => mockUpdateAuthTokenVar(...args),
+    updateCustomerPortalTokenVar: jest.fn(),
+  }
+})
 
 jest.mock('~/hooks/useDeveloperTool', () => ({
   DEVTOOL_AUTO_SAVE_KEY: 'devtool_auto_save',
@@ -151,32 +170,88 @@ describe('logOut', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     localStorage.clear()
+    mockAuthTokenVar.mockReturnValue('session-jwt')
+    localStorage.setItem('auth_token', 'session-jwt')
+    currentOrganizationVar('org-of-the-ending-session')
   })
 
-  describe('WHEN logging out', () => {
-    it('THEN should reset both the in-memory and the persisted cache, then clear the auth token', async () => {
-      const client = createMockClient()
-
-      await logOut(client)
-
-      expect(mockResetPersistedCache).toHaveBeenCalledWith(client)
-      expect(mockUpdateAuthTokenVar).toHaveBeenCalled()
-    })
-
-    it('THEN should stop the client BEFORE resetting the cache', async () => {
+  describe('WHEN this tab still owns the stored session', () => {
+    it('THEN should clear the in-memory cache, then remove the token and purge the persisted blob', async () => {
       const client = createMockClient()
       const callOrder: string[] = []
 
       ;(client.stop as jest.Mock).mockImplementation(() => {
         callOrder.push('stop')
       })
-      mockResetPersistedCache.mockImplementation(async () => {
-        callOrder.push('resetPersistedCache')
+      ;(client.clearStore as jest.Mock).mockImplementation(async () => {
+        callOrder.push('clearStore')
+      })
+      mockPurgePersistedCache.mockImplementation(async () => {
+        callOrder.push('purgePersistedCache')
       })
 
       await logOut(client)
 
-      expect(callOrder).toEqual(['stop', 'resetPersistedCache'])
+      expect(callOrder).toEqual(['stop', 'clearStore', 'purgePersistedCache'])
+      expect(localStorage.getItem('auth_token')).toBeNull()
+      expect(mockAuthTokenVar).toHaveBeenLastCalledWith(undefined)
+    })
+
+    it('THEN should close the websocket opened with the previous token', async () => {
+      await logOut(createMockClient())
+
+      expect(mockDisconnectCableConsumer).toHaveBeenCalledTimes(1)
+    })
+
+    it('THEN should forget the current organization', async () => {
+      await logOut(createMockClient())
+
+      expect(currentOrganizationVar()).toBeNull()
+    })
+
+    it('THEN should forget it only after the teardown, right before the token changes', async () => {
+      const client = createMockClient()
+
+      await logOut(client)
+
+      const tokenWrite = mockAuthTokenVar.mock.calls.findIndex((args) => args.length > 0)
+      const clearStoreAt = (client.clearStore as jest.Mock).mock.invocationCallOrder[0]
+      const purgeAt = mockPurgePersistedCache.mock.invocationCallOrder[0]
+      const forgetOrgAt = mockSetCurrentOrganizationId.mock.invocationCallOrder[0]
+      const setTokenAt = mockAuthTokenVar.mock.invocationCallOrder[tokenWrite]
+
+      expect(clearStoreAt).toBeLessThan(purgeAt)
+      expect(purgeAt).toBeLessThan(forgetOrgAt)
+      expect(forgetOrgAt).toBeLessThan(setTokenAt)
+    })
+  })
+
+  describe('WHEN another tab stored a newer session during the teardown', () => {
+    // An unconditional removal here let a stale 401 log every tab out of the newer session.
+    it('THEN should keep that session and adopt it', async () => {
+      const client = createMockClient()
+
+      ;(client.clearStore as jest.Mock).mockImplementation(async () => {
+        localStorage.setItem('auth_token', 'newer-session-jwt')
+      })
+
+      await logOut(client)
+
+      expect(localStorage.getItem('auth_token')).toBe('newer-session-jwt')
+      expect(mockPurgePersistedCache).not.toHaveBeenCalled()
+      expect(mockAuthTokenVar).toHaveBeenLastCalledWith('newer-session-jwt')
+    })
+
+    it('THEN should still forget the organization of the session that ended', async () => {
+      const client = createMockClient()
+
+      ;(client.clearStore as jest.Mock).mockImplementation(async () => {
+        localStorage.setItem('auth_token', 'newer-session-jwt')
+      })
+
+      await logOut(client)
+
+      expect(currentOrganizationVar()).toBeNull()
     })
   })
 })

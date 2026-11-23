@@ -24,31 +24,28 @@ export const PASSWORD_HINTS_TEST_IDS = {
   SUCCESS: 'password-validation--success',
 } as const
 
-export type PasswordValidationHintsProps = {
+type PasswordValidationHintsBaseProps = {
   password: string
   errors: string[]
-  isValid: boolean
-  successMessage?: string
   className?: string
 }
 
-export const PasswordValidationHints = ({
-  password,
-  errors,
-  isValid,
-  successMessage = 'text_620bc4d4269a55014d493fbe',
-  className,
-}: PasswordValidationHintsProps) => {
-  const { translate } = useInternationalization()
+export type PasswordValidationHintsProps = PasswordValidationHintsBaseProps &
+  ({ variant?: 'default'; isValid: boolean; successMessage?: string } | { variant: 'checklist' })
 
-  if (isValid) {
+export const PasswordValidationHints = (props: PasswordValidationHintsProps): JSX.Element => {
+  const { password, errors, className } = props
+  const { translate } = useInternationalization()
+  const isChecklist = props.variant === 'checklist'
+
+  if (props.variant !== 'checklist' && props.isValid) {
     return (
       <Alert
         className={tw('mt-4', className)}
         type="success"
         data-test={PASSWORD_HINTS_TEST_IDS.SUCCESS}
       >
-        {translate(successMessage)}
+        {translate(props.successMessage ?? 'text_620bc4d4269a55014d493fbe')}
       </Alert>
     )
   }
@@ -64,6 +61,7 @@ export const PasswordValidationHints = ({
     >
       {PASSWORD_VALIDATION_KEYS.map((err) => {
         const isErrored = errors.includes(err)
+        const isHighlighted = isChecklist ? !isErrored : isErrored
 
         return (
           <div
@@ -76,7 +74,7 @@ export const PasswordValidationHints = ({
                 cx="4"
                 cy="4"
                 r="4"
-                fill={isErrored ? theme.palette.primary.main : theme.palette.grey[500]}
+                fill={isHighlighted ? theme.palette.primary.main : theme.palette.grey[500]}
               />
             </svg>
             <Typography variant="caption" color={isErrored ? 'textSecondary' : 'textPrimary'}>

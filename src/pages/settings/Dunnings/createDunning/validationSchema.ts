@@ -68,5 +68,3 @@ export const dunningCampaignFormSchema = z
   })
 
 export type DunningCampaignFormValues = z.infer<typeof dunningCampaignFormSchema>
-
-export type DunningCampaignThresholdFormValues = DunningCampaignFormValues['thresholds'][number]

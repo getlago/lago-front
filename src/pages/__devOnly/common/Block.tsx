@@ -1,4 +1,4 @@
-import { tw } from 'lago-design-system'
+import { tw } from '~/styles/utils'
 
 const Block = ({ children, className }: { children: React.ReactNode; className?: string }) => (
   <div className={tw('mb-6 flex flex-col flex-wrap gap-4', className)}>{children}</div>

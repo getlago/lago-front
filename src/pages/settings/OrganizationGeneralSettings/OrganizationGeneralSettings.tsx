@@ -1,29 +1,144 @@
+import { gql } from '@apollo/client'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
+import { GenericPlaceholder } from '~/components/designSystem/GenericPlaceholder'
 import { Typography } from '~/components/designSystem/Typography'
 import {
+  SettingsListItem,
   SettingsListItemHeader,
   SettingsListItemLoadingSkeleton,
   SettingsListWrapper,
   SettingsPaddedContainer,
 } from '~/components/layouts/Settings'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  CUSTOMER_PORTAL_FORM_FIELDS,
+  getCustomerPortalEditableFields,
+} from '~/core/constants/customerPortalEditableFields'
+import { useGetOrganizationCustomerPortalSettingsQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import ErrorImage from '~/public/images/maneki/error.svg'
 
+import { useEditCustomerPortalFieldsDialog } from './dialogs/useEditCustomerPortalFieldsDialog'
 import { useEditOrganizationSlugDialog } from './dialogs/useEditOrganizationSlugDialog'
+
+export const CUSTOMER_PORTAL_FIELDS_TEST_ID = 'customer-portal-editable-fields'
+export const CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID = 'customer-portal-no-editable-fields'
+export const CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID = 'customer-portal-settings-error'
+export const EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID = 'edit-customer-portal-fields-button'
+
+gql`
+  query getOrganizationCustomerPortalSettings {
+    organization {
+      id
+      customerPortalLockedFields
+    }
+  }
+`
 
 const OrganizationGeneralSettings = () => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openEditOrganizationSlugDialog } = useEditOrganizationSlugDialog()
+  const { openEditCustomerPortalFieldsDialog } = useEditCustomerPortalFieldsDialog()
+  const {
+    data: customerPortalSettingsData,
+    loading: customerPortalSettingsLoading,
+    error: customerPortalSettingsError,
+  } = useGetOrganizationCustomerPortalSettingsQuery()
 
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const canUpdate = hasPermissions(['organizationUpdate'])
   const currentSlug = organizationSlug || ''
   const loading = !currentSlug
+
+  // Editing these fields decides who sets the tax inputs, so the taxes permission is needed on top of the organization one
+  const canUpdateCustomerPortalFields = hasPermissions([
+    'organizationUpdate',
+    'organizationTaxesUpdate',
+  ])
+  const customerPortalOrganization = customerPortalSettingsData?.organization
+  // Without the loaded list, the section must not look like "nothing is editable" nor let an empty list be saved
+  const hasCustomerPortalSettingsError =
+    !customerPortalSettingsLoading && (!!customerPortalSettingsError || !customerPortalOrganization)
+  const customerPortalEditableFields = getCustomerPortalEditableFields(
+    customerPortalOrganization?.customerPortalLockedFields,
+  )
+  const customerPortalEditableFieldLabels = CUSTOMER_PORTAL_FORM_FIELDS.filter(({ field }) =>
+    customerPortalEditableFields.includes(field),
+  ).map(({ labelKey }) => translate(labelKey))
+
+  const renderCustomerPortalEditButton = (): JSX.Element | undefined => {
+    if (!canUpdateCustomerPortalFields || !customerPortalOrganization) return undefined
+
+    return (
+      <Button
+        variant="inline"
+        onClick={() =>
+          openEditCustomerPortalFieldsDialog({
+            lockedFields: customerPortalOrganization.customerPortalLockedFields,
+          })
+        }
+        data-test={EDIT_CUSTOMER_PORTAL_FIELDS_BUTTON_TEST_ID}
+      >
+        {translate('text_1776867582730ouvncumhk7p')}
+      </Button>
+    )
+  }
+
+  const renderCustomerPortalEditableFields = (): JSX.Element => {
+    if (!customerPortalEditableFieldLabels.length) {
+      return (
+        <Typography
+          variant="body"
+          color="grey700"
+          data-test={CUSTOMER_PORTAL_NO_EDITABLE_FIELDS_TEST_ID}
+        >
+          {translate('text_17927135765776z05d5xcetc')}
+        </Typography>
+      )
+    }
+
+    return (
+      <Typography variant="body" color="grey700" data-test={CUSTOMER_PORTAL_FIELDS_TEST_ID}>
+        {customerPortalEditableFieldLabels.join(', ')}
+      </Typography>
+    )
+  }
+
+  const renderCustomerPortalSection = (): JSX.Element => {
+    if (customerPortalSettingsLoading) return <SettingsListItemLoadingSkeleton count={1} />
+
+    if (hasCustomerPortalSettingsError) {
+      return (
+        <div data-test={CUSTOMER_PORTAL_SETTINGS_ERROR_TEST_ID}>
+          <GenericPlaceholder
+            title={translate('text_629728388c4d2300e2d380d5')}
+            subtitle={translate('text_629728388c4d2300e2d380eb')}
+            buttonTitle={translate('text_629728388c4d2300e2d38110')}
+            buttonVariant="primary"
+            buttonAction={() => location.reload()}
+            image={<ErrorImage width="136" height="104" />}
+          />
+        </div>
+      )
+    }
+
+    return (
+      <SettingsListItem>
+        <SettingsListItemHeader
+          label={translate('text_17927135765711akh2267o9f')}
+          sublabel={translate('text_1792713576572546stva6wu6')}
+          action={renderCustomerPortalEditButton()}
+        />
+
+        {renderCustomerPortalEditableFields()}
+      </SettingsListItem>
+    )
+  }
 
   return (
     <>
@@ -71,6 +186,8 @@ const OrganizationGeneralSettings = () => {
               </Typography>
             </div>
           )}
+
+          {renderCustomerPortalSection()}
         </SettingsListWrapper>
       </SettingsPaddedContainer>
     </>

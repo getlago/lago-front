@@ -126,7 +126,7 @@ Per-developer, outside the repo, in `$LOOP_STATE_DIR/<ISSUE-ID>/`:
 |---|---|---|
 | `spec.md` | loop-spec | the operational spec the whole run is judged against, ticket included verbatim, every premise verified or marked |
 | `plan.md` | loop-build | the declared minimal diff: files, new files, new exports, comments kept (with category), deviations |
-| `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one |
+| `state.md` | loop-build | layout, worktree path, branch, dev port, workspace + container when there is one; before a standalone `/loop-review` the operator may add `## Excluded gate failures`, the only exclusion form it honours |
 | `review.md` | loop-review | current PASS/FAIL verdict, every issue tagged with the check that produced it |
 | `adversarial.md` | adversarial pass | verdict of the smallest-diff comparison, when the pass was triggered |
 | `review-history.md` | loop-run | every previous FAIL verdict — fuel for the escalating retry |
@@ -142,4 +142,4 @@ Plus two files shared across runs: `_journal.md` (one row per run, written by `l
 
 Every run that struggles writes down why. `_flywheel.md` collects proposed edits to the skills, evidence attached; the loop never edits its own instructions. `/loop-flywheel` is the harvest: it admits a proposal only if it would have prevented the failure **and** a second, different occurrence is plausible, writes it as a script or lint rule when it can be one, and takes a check slot only by freeing one. It also prunes: a check with no `fail-check:` entry across the last 15 journal rows is deleted or converted. `_journal.md` is how you tell whether any of it helped — average iterations per run should fall, and `fail-check:` should name the checks that actually earn their place.
 
-Scripts live in the front checkout's `scripts/` (`front/scripts/` from the monorepo root), each documented in its header: `iter-budget.sh` (retry budget), `skill-budget.sh` (instruction caps, pre-push), `diff-hygiene.sh` (comment gate: every added comment declared in plan.md with a category, prop docs and import banners refused), `loop-plan-check.sh` (adversarial trigger), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM).
+Scripts live in the front checkout's `scripts/` (`front/scripts/` from the monorepo root), each documented in its header: `iter-budget.sh` (retry budget), `skill-budget.sh` (instruction caps, pre-push), `diff-hygiene.sh` (comment gate: every added comment declared in plan.md with a category, prop docs and import banners refused), `loop-plan-check.sh` (adversarial trigger), `pattern-preflight.sh` (the documented patterns a diff touches, with their reference), `loop-restart.sh` (container reload), `loop-ci-log.sh` (CI failure capture), `loop-journal.sh` (journal row), `loop-notify.sh` (exit DM).

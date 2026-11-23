@@ -45,7 +45,13 @@ gql`
   ${CatalogPlanForCatalogPlanDrawerFragmentDoc}
 `
 
-export const CatalogPlanOverviewSection = (): JSX.Element => {
+type CatalogPlanOverviewSectionProps = {
+  onAssignRateCard?: () => void
+}
+
+export const CatalogPlanOverviewSection = ({
+  onAssignRateCard,
+}: CatalogPlanOverviewSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { hasPermissions } = usePermissions()
   const { openDrawer: openEditCatalogPlanDrawer } = useCatalogPlanDrawer()
@@ -137,7 +143,9 @@ export const CatalogPlanOverviewSection = (): JSX.Element => {
             icon="book"
             title={translate('text_1789030049530umr4s4zqygs')}
             data-test={CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID}
-            endContent={<Button icon="plus" variant="quaternary" />}
+            disabled={!onAssignRateCard}
+            onClick={onAssignRateCard}
+            endContent={<Button icon="plus" variant="quaternary" tabIndex={-1} />}
           />
         </section>
       )}

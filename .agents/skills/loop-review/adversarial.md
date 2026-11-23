@@ -6,11 +6,11 @@ Dispatched by loop-run in a fresh subagent ONLY when `scripts/loop-plan-check.sh
 
 ## Steps
 
-1. **Derive the minimal diff.** On the base the branch started from (`git -C <worktree> show origin/main:<path>` — never the working tree), locate the code the criteria touch and write, in your working notes: the files you would change, whether any new file or new export is unavoidable and why, and an estimated line count. Search first for what already exists: a global handler, a shared component, a hook one directory up. The default answer to "does this need a new module?" is no.
+1. **Derive the minimal diff.** On the base the branch started from (`git -C <worktree> show <base>:<path>`, `base:` from state.md, `origin/main` when absent — never the working tree), locate the code the criteria touch and write, in your working notes: the files you would change, whether any new file or new export is unavoidable and why, and an estimated line count. Search first for what already exists: a global handler, a shared component, a hook one directory up. The default answer to "does this need a new module?" is no.
 
 2. **Name the premise.** If a criterion only makes sense under a claim spec.md marks `premise: unverified`, say which criterion and what the code shows instead.
 
-3. **Now read the actual diff** (`git -C <worktree> add -N . && git -C <worktree> diff origin/main`) and `plan.md`. Compare against step 1:
+3. **Now read the actual diff** (`git -C <worktree> add -N . && git -C <worktree> diff <base>`) and `plan.md`. Compare against step 1:
    - For every new file or new export the diff adds: write the diff without it (inline it at its call sites). If the inline version is smaller or equal in lines, the abstraction is not earning its place → finding.
    - For every mechanism the diff adds that your minimal version did not need (a per-call-site silence + re-raise where a global handler already fires, a fallback mirroring a backend default, a flag with one consumer): → finding, naming the existing thing that already does the job.
    - A diff smaller than yours is not a finding. Say so and stop.

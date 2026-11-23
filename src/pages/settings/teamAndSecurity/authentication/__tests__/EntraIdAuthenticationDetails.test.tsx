@@ -31,6 +31,12 @@ jest.mock('react-router', () => ({
   useParams: () => mockUseParams(),
 }))
 
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: () => true,
+  }),
+}))
+
 jest.mock('~/hooks/useOrganizationInfos', () => ({
   useOrganizationInfos: () => ({
     organization: {

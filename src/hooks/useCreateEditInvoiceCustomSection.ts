@@ -59,6 +59,7 @@ export const useCreateEditInvoiceCustomSection = (): UseCreateEditInvoiceCustomS
   const { sectionId } = useParams<string>()
 
   const { data, loading, error } = useGetSingleInvoiceCustomSectionQuery({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
     variables: {
       id: sectionId as string,
     },

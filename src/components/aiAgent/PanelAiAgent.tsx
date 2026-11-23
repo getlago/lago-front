@@ -1,5 +1,4 @@
-import { tw } from 'lago-design-system'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { ChatConversation } from '~/components/aiAgent/ChatConversation'
 import { ChatMessages } from '~/components/aiAgent/ChatMessages'
@@ -13,6 +12,7 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { CreateAiConversationInput } from '~/generated/graphql'
 import { AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/useAiAgent'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { tw } from '~/styles/utils'
 
 export const PANEL_AI_AGENT_WELCOME_TEST_ID = 'panel-ai-agent-welcome'
 export const PANEL_AI_AGENT_PREMIUM_BLOCK_TEST_ID = 'panel-ai-agent-premium-block'
@@ -26,64 +26,81 @@ type PanelAiAgentProps = {
 }
 
 export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentProps) => {
-  const { addNewMessage, agentType, conversationId, startNewConversation, state } = useAiAgent()
+  const {
+    addNewMessage,
+    agentType,
+    conversationId,
+    getConversationVersion,
+    lastAssistantMessage,
+    setChatDone,
+    startNewConversation,
+    state,
+    streamChunk,
+  } = useAiAgent()
   const { createAiConversation, loading, error } = useCreateAiConversation()
   const { submitFinanceQuestion } = useAskFinanceAssistant()
+  const isSubmittingRef = useRef(false)
   const [initialPrompt, setInitialPrompt] = useState<string>('')
   const { translate } = useInternationalization()
   const isFinanceAssistant = agentType === AiAgentTypeEnum.finance
 
-  // Late async completions must check the agent selected *now*, not the one
-  // captured when the request started
-  const agentTypeRef = useRef(agentType)
-
-  agentTypeRef.current = agentType
-
   const subscription = useOnConversation({
     conversationId: isFinanceAssistant ? undefined : conversationId,
+    onChunk: (chunk) => {
+      if (lastAssistantMessage) streamChunk({ messageId: lastAssistantMessage.id, chunk })
+    },
+    onDone: () => {
+      if (lastAssistantMessage) setChatDone(lastAssistantMessage.id)
+    },
   })
 
-  useEffect(() => {
-    setInitialPrompt('')
-  }, [agentType])
+  const handleSubmit = async (values: CreateAiConversationInput): Promise<void> => {
+    if (isSubmittingRef.current) return
 
-  const handleSubmit = async (values: CreateAiConversationInput) => {
     if (isFinanceAssistant) {
       return submitFinanceQuestion(values.message)
     }
 
+    isSubmittingRef.current = true
     setInitialPrompt(values.message)
 
-    await createAiConversation({
-      variables: {
-        input: {
-          message: values.message,
-          conversationId: conversationId || undefined,
+    const versionAtSubmit = getConversationVersion()
+
+    try {
+      await createAiConversation({
+        variables: {
+          input: {
+            message: values.message,
+            conversationId: conversationId || undefined,
+          },
         },
-      },
 
-      onCompleted: (data) => {
-        // The user switched agents while the request was in flight
-        if (agentTypeRef.current !== AiAgentTypeEnum.billing) {
-          return
-        }
+        onCompleted: (data) => {
+          // The conversation was dropped or replaced while the request was in
+          // flight: organization switch, agent switch, restored history
+          if (getConversationVersion() !== versionAtSubmit) {
+            return
+          }
 
-        if (conversationId) {
-          addNewMessage(values.message)
+          if (conversationId) {
+            addNewMessage(values.message)
 
-          return subscription.restart()
-        }
+            return subscription.restart()
+          }
 
-        if (!data.createAiConversation?.id) {
-          return
-        }
+          if (!data.createAiConversation?.id) {
+            return
+          }
 
-        return startNewConversation({
-          convId: data.createAiConversation.id,
-          message: values.message,
-        })
-      },
-    })
+          return startNewConversation({
+            convId: data.createAiConversation.id,
+            message: values.message,
+          })
+        },
+      })
+    } finally {
+      isSubmittingRef.current = false
+    }
   }
 
   const shouldDisplayWelcomeMessage = !state.messages.length && !loading && !error
@@ -146,7 +163,7 @@ export const PanelAiAgent = ({ hasAccessToAiAgent, isFullscreen }: PanelAiAgentP
 
       {!!state.messages.length && <ChatConversation subscription={subscription} />}
 
-      <ChatPromptEditor disabled={!hasAccessToAiAgent} onSubmit={handleSubmit} />
+      <ChatPromptEditor disabled={!hasAccessToAiAgent || loading} onSubmit={handleSubmit} />
     </div>
   )
 }

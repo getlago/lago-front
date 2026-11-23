@@ -18,6 +18,7 @@ export const toUtcCalendarDay = (value: string): string | undefined =>
 export const buildCreateContractInput = (value: ContractFormValues): CreateContractInput => ({
   externalCustomerId: value.externalCustomerId,
   externalId: value.externalId || undefined,
+  code: value.code,
   planCode: value.planCode,
   name: value.name || undefined,
   billingEntityId: value.billingEntityId || undefined,

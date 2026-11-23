@@ -15,6 +15,7 @@ import {
   AppliedRateCardsAvailableFilters,
   AvailableFiltersEnum,
   ContractAvailableFilters,
+  ContractUsageAvailableFilters,
   CreditNoteAvailableFilters,
   CustomerAnalyticsAvailableFilters,
   CustomerAvailableFilters,
@@ -48,6 +49,7 @@ import {
   PeriodScopeTranslationLookup,
   TPeriodScopeTranslationLookupValue,
 } from '~/components/graphs/MonthSelectorDropdown'
+import { TIME_RANGE_TRANSLATIONS, TimeRangeEnum } from '~/components/realtimeUsage/constants'
 import {
   ACTIVITY_LOG_FILTER_PREFIX,
   ADMIN_AUDIT_LOG_FILTER_PREFIX,
@@ -57,6 +59,7 @@ import {
   API_LOGS_FILTER_PREFIX,
   APPLIED_RATE_CARD_LIST_FILTER_PREFIX,
   CONTRACT_LIST_FILTER_PREFIX,
+  CONTRACT_USAGE_LIST_FILTER_PREFIX,
   CREDIT_NOTE_LIST_FILTER_PREFIX,
   CUSTOMER_ANALYTICS_FILTER_PREFIX,
   CUSTOMER_CREDIT_NOTES_FILTER_PREFIX,
@@ -199,6 +202,12 @@ export const formatMetadataFilter = (metadata: { key: string; value: string }[])
     .map((item) => (item.value ? `${item.key}=${item.value}` : `${item.key}=`))
     .join(METADATA_SPLITTER)
 }
+
+// Dimension keys are JSON, whose commas would split the comma-separated filter value.
+export const encodeRealtimeDimensionKey = (key: string): string => encodeURIComponent(key)
+
+export const decodeRealtimeDimensionKey = (value: string): string =>
+  decodeURIComponent(value.split(filterDataInlineSeparator)[0])
 
 /**
  * Multiple-value filters join selections with a comma; the display label embedded after
@@ -463,6 +472,9 @@ export const FILTER_VALUE_MAP: Record<AvailableFiltersEnum, Function> = {
   [AvailableFiltersEnum.adminActions]: (value: string) => (value as string).split(','),
   [AvailableFiltersEnum.adminOrganizations]: (value: string) =>
     (value as string).split(',').map((v) => v.split(filterDataInlineSeparator)[0]),
+  [AvailableFiltersEnum.realtimeDimensions]: (value: string) =>
+    value.split(',').filter(Boolean).map(decodeRealtimeDimensionKey),
+  [AvailableFiltersEnum.timeRange]: (value: string) => value,
   [AvailableFiltersEnum.adminAuditDate]: (value: string) => {
     // The date-range element stores full ISO datetimes; the query args are ISO8601Date (day only)
     const [from, to] = (value as string).split(',')
@@ -693,6 +705,31 @@ export const formatFiltersForAppliedRateCardsQuery = (
   })
 }
 
+export type ContractUsagesQueryFilters = {
+  productIds?: string[]
+  productFilterIds?: string[]
+  withoutProductFilter?: boolean
+  productType?: ProductTypeEnum
+}
+
+// appliedRateCardProductFilter is intentionally absent from the keyMap: its FILTER_VALUE_MAP entry
+// (mapAppliedRateCardProductFilterValue) already returns an object keyed productFilterIds/withoutProductFilter.
+export const formatFiltersForContractUsagesQuery = (
+  searchParams: URLSearchParams,
+): ContractUsagesQueryFilters => {
+  const keyMap: Partial<Record<AvailableFiltersEnum, keyof ContractUsagesQueryFilters & string>> = {
+    [AvailableFiltersEnum.rateCardProduct]: 'productIds',
+    [AvailableFiltersEnum.appliedRateCardProductType]: 'productType',
+  }
+
+  return formatFiltersForQuery<ContractUsagesQueryFilters>({
+    searchParams,
+    keyMap,
+    availableFilters: ContractUsageAvailableFilters,
+    filtersNamePrefix: CONTRACT_USAGE_LIST_FILTER_PREFIX,
+  })
+}
+
 type InvoiceQueryFilters = Partial<
   Pick<
     GetInvoicesListQueryVariables,
@@ -717,6 +754,7 @@ type InvoiceQueryFilters = Partial<
 
 export const formatFiltersForInvoiceQuery = (
   searchParams: URLSearchParams,
+  hiddenFilters: AvailableFiltersEnum[] = [],
 ): InvoiceQueryFilters => {
   const keyMap: Partial<Record<AvailableFiltersEnum, keyof InvoiceQueryFilters & string>> = {
     [AvailableFiltersEnum.settlementType]: 'settlements',
@@ -725,7 +763,7 @@ export const formatFiltersForInvoiceQuery = (
   return formatFiltersForQuery<InvoiceQueryFilters>({
     searchParams,
     keyMap,
-    availableFilters: InvoiceAvailableFilters,
+    availableFilters: InvoiceAvailableFilters.filter((filter) => !hiddenFilters.includes(filter)),
     filtersNamePrefix: INVOICE_LIST_FILTER_PREFIX,
   })
 }
@@ -750,6 +788,7 @@ type CustomerQueryFilters = Partial<
 
 export const formatFiltersForCustomerQuery = (
   searchParams: URLSearchParams,
+  hiddenFilters: AvailableFiltersEnum[] = [],
 ): CustomerQueryFilters => {
   const formatted = formatFiltersForQuery<
     CustomerQueryFilters & {
@@ -759,7 +798,7 @@ export const formatFiltersForCustomerQuery = (
     }
   >({
     searchParams,
-    availableFilters: CustomerAvailableFilters,
+    availableFilters: CustomerAvailableFilters.filter((filter) => !hiddenFilters.includes(filter)),
     filtersNamePrefix: CUSTOMER_LIST_FILTER_PREFIX,
   })
 
@@ -1289,6 +1328,18 @@ export const formatActiveFilterValueDisplay = (
           }).date
         })
         .join(' - ')
+    case AvailableFiltersEnum.timeRange:
+      if (value in TIME_RANGE_TRANSLATIONS) {
+        return translate?.(TIME_RANGE_TRANSLATIONS[value as TimeRangeEnum]) || value
+      }
+
+      return value
+        .split(',')
+        .map(
+          (bound) =>
+            intlFormatDateTime(bound, { formatDate: DateFormat.DATE_MED, setZone: true }).date,
+        )
+        .join(' - ')
     case AvailableFiltersEnum.period:
       return (
         translate?.(PeriodScopeTranslationLookup[value as TPeriodScopeTranslationLookupValue]) || ''
@@ -1301,6 +1352,8 @@ export const formatActiveFilterValueDisplay = (
     case AvailableFiltersEnum.adminOrganizations:
     case AvailableFiltersEnum.rateCardProduct:
     case AvailableFiltersEnum.rateCardProductFilter:
+    case AvailableFiltersEnum.realtimeDimensions:
+    case AvailableFiltersEnum.subscriptionExternalId:
       return value
         .split(',')
         .map((v) =>

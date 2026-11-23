@@ -8,6 +8,7 @@ import {
   LOGIN_ROUTE,
   useNavigate,
 } from '~/core/router'
+import { isRouteGated, isRouteUnlocked } from '~/core/router/utils/isRouteAvailable'
 import { stripOrgSlug } from '~/core/router/utils/stripOrgSlug'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { hasIframeParams } from '~/hooks/useIframeConfig'
@@ -96,7 +97,8 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   const organizationSlug = params?.organizationSlug
   const { loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
+  const isWaitingForOrganization = isOrganizationLoading && !organization
   const goBack: GoBack = (fallback, options) => {
     const { previous, remainingHistory } = getPreviousLocation({
       ...(options || {}),
@@ -125,17 +127,26 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
        * Redirect to forbidden page
        */
       navigate(FORBIDDEN_ROUTE)
-    } else if (routeConfig.featureFlag && !hasFeatureFlag(routeConfig.featureFlag)) {
+      return
+    }
+
+    if (isRouteGated(routeConfig) && isWaitingForOrganization) return
+
+    if (!isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization })) {
       /**
-       * In case of navigation to a route gated by a feature flag that is not active
+       * In case of navigation to a route its feature flags or capabilities make unavailable
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })
-    } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
+      return
+    }
+
+    if (!routeConfig?.children && !routeConfig.onlyPublic && !routeConfig.skipLocationHistory) {
       /**
        * We add the current location to the history only if :
        * - Current route has no children (to avoid adding Layout route which will result in duplicates)
        * - Current route is not an only public route
+       * - Current route is not kept out of the history
        */
       addLocationToHistory(location)
     }
@@ -176,16 +187,16 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
         })
       } else if (isAuthenticated && !isCurrentUserLoading) {
         handleAuthenticatedRouteEnter(routeConfig, location)
-      } else if (!routeConfig?.children && !routeConfig.onlyPublic) {
-        // In the invitation for page, once users are logged in, we redirect them to the home page
-        if (routeConfig.invitation && isAuthenticated) {
-          // We can then safely redirect to the home page.
-          navigate(HOME_ROUTE)
-        }
+      } else if (
+        !routeConfig?.children &&
+        !routeConfig.onlyPublic &&
+        !routeConfig.skipLocationHistory
+      ) {
         /**
          * We add the current location to the history only if :
          * - Current route has no children (to avoid adding Layout route which will result in duplicates)
          * - Current route is not an only public route
+         * - Current route is not kept out of the history
          */
         addLocationToHistory(location)
       }

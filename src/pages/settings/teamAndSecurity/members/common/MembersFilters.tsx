@@ -1,8 +1,8 @@
-import { Icon } from 'lago-design-system'
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { TextInput } from '~/components/form/TextInput/TextInput'
 import { MEMBERS_PAGE_ROLE_FILTER_KEY } from '~/core/constants/roles'

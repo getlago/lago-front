@@ -1,6 +1,7 @@
 import { formatConnections } from '~/components/connectionSelection/formatConnections'
 import { InvoiceCustomSectionInput } from '~/components/invoceCustomFooter/types'
 import { toInvoiceCustomSectionReference } from '~/components/invoceCustomFooter/utils'
+import { paymentTermInputFromFormValues } from '~/components/paymentTerms/utils'
 import { normalizePurchaseOrderNumber } from '~/components/purchaseOrder/PO'
 import { FORM_TYPE_ENUM } from '~/core/constants/form'
 import { serializeAmount } from '~/core/serializers/serializeAmount'
@@ -27,9 +28,8 @@ import { TWalletDataForm } from '~/pages/wallet/types'
  * - `paidTopUpMin/MaxAmountCents` asymmetry: create OMITS the keys when
  *   falsy, update sends an explicit `null` (clears the stored value).
  * - `rateAmount` is `String()`-converted only — NO serializeAmount.
- * - create-only fields (`currency`, `rateAmount`, `grantedCredits`,
- *   `paidCredits`, `transactionName`, `ignorePaidTopUpLimitsOnCreation`)
- *   never reach the update input.
+ * - create-only fields (`currency`, `rateAmount`) never reach the update input.
+ * - the initial-transaction fields are never sent: the API deprecated them.
  */
 
 const formatRecurringTransactionRules = (
@@ -120,9 +120,12 @@ export const mapFormToCreateInput = (
   customerId: string,
   isMultiConnectionEnabled: boolean,
 ): CreateCustomerWalletInput => {
+  /* eslint-disable @typescript-eslint/no-unused-vars -- object-rest omit: the initial-transaction fields are no longer sent */
   const {
     grantedCredits,
     paidCredits,
+    transactionName,
+    ignorePaidTopUpLimitsOnCreation,
     rateAmount,
     currency,
     recurringTransactionRules,
@@ -133,10 +136,12 @@ export const mapFormToCreateInput = (
     accountingConnection,
     crmConnection,
     taxConnection,
+    paymentTerm,
     invoiceCustomSection,
     billingEntityId,
     ...values
   } = formValues
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   return {
     ...values,
@@ -147,8 +152,6 @@ export const mapFormToCreateInput = (
     billingEntityId: billingEntityId || null,
     currency,
     rateAmount: String(rateAmount),
-    grantedCredits: grantedCredits === '' ? '0' : String(grantedCredits),
-    paidCredits: paidCredits === '' ? '0' : String(paidCredits),
     recurringTransactionRules: formatRecurringTransactionRules(
       recurringTransactionRules,
       FORM_TYPE_ENUM.creation,
@@ -156,6 +159,7 @@ export const mapFormToCreateInput = (
     ),
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
+    paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     ...(values.paidTopUpMinAmountCents
       ? { paidTopUpMinAmountCents: serializeAmount(values.paidTopUpMinAmountCents, currency) }
@@ -190,6 +194,7 @@ export const mapFormToUpdateInput = (
     accountingConnection,
     crmConnection,
     taxConnection,
+    paymentTerm,
     invoiceCustomSection,
     billingEntityId,
     transactionName,
@@ -213,6 +218,7 @@ export const mapFormToUpdateInput = (
     billingEntityId: billingEntityId || null,
     appliesTo: formatAppliesTo(appliesTo),
     paymentMethod,
+    paymentTerm: paymentTermInputFromFormValues(paymentTerm),
     invoiceCustomSection: toInvoiceCustomSectionReference(invoiceCustomSection),
     // Unlike creation, clearing min/max on update must send an explicit
     // `null` so the BE erases the stored value (omitting would keep it).

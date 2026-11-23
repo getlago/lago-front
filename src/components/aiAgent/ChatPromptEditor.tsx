@@ -1,8 +1,8 @@
 import { useStore } from '@tanstack/react-form'
-import { Icon, tw } from 'lago-design-system'
 import { FC, useEffect, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
+import { Icon } from '~/components/designSystem/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Typography } from '~/components/designSystem/Typography'
 import { CreateAiConversationInput } from '~/generated/graphql'
@@ -10,6 +10,7 @@ import { AGENT_TYPE_LABELS, AiAgentTypeEnum, useAiAgent } from '~/hooks/aiAgent/
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { MenuPopper } from '~/styles'
+import { tw } from '~/styles/utils'
 
 const CHAT_PROMPT_EDITOR_TEST_ID = 'chat-prompt-editor'
 

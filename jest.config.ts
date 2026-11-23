@@ -10,18 +10,21 @@ export default {
   // Jest transformations -- using babel-jest for both TS and JS files
   transform: {
     '^.+\\.(ts|tsx|js|jsx)$': 'babel-jest',
+    'designSystem[\\\\/]Icon[\\\\/]icons[\\\\/].+\\.svg$': [
+      '<rootDir>/__mocks__/svgMock.cjs',
+      { filenameProp: 'data-filename' },
+    ],
     '\\.svg$': '<rootDir>/__mocks__/svgMock.cjs',
   },
 
   transformIgnorePatterns: [
     // Ignore node_modules except:
-    // - lago-design-system (internal dependency)
     // - the htmlparser2 chain: sanitize-html >= 2.17.6 is CJS but depends on the ESM-only
     //   htmlparser2 v12 (hence its node >= 22.12 engine requirement, where require(ESM)
     //   works). Jest's CJS registry has no require(ESM), so these must go through babel.
     // The optional `.pnpm/` branch covers pnpm's virtual store layout
     // (node_modules/.pnpm/<pkg>@<version>/node_modules/<pkg>).
-    '/node_modules[\\\\/](?!(\\.pnpm[\\\\/])?(lago-design-system|htmlparser2|domelementtype|domhandler|domutils|dom-serializer|entities)[@\\\\/])',
+    '/node_modules[\\\\/](?!(\\.pnpm[\\\\/])?(htmlparser2|domelementtype|domhandler|domutils|dom-serializer|entities|@tanstack(\\+|[\\\\/])(react-table|table-core|react-store|store))[@\\\\/])',
     '^.+\\.module\\.(css|sass|scss)$',
   ],
 
@@ -70,7 +73,6 @@ export default {
     '^~/(.*)$': '<rootDir>/src/$1',
     'ace-builds': '<rootDir>/node_modules/ace-builds',
     '\\.(css|less|sass|scss)$': '<rootDir>/__mocks__/styleMock.cjs',
-    '^lago-design-system$': '<rootDir>/packages/design-system/dist/index.js',
   },
 
   // Module file extensions for importing
@@ -84,6 +86,10 @@ export default {
     IS_REACT_ACT_ENVIRONMENT: true,
     LAGO_OAUTH_PROXY_URL: 'https://proxy.lago.dev',
     LAGO_DISABLE_SIGNUP: 'false',
+    LAGO_SELF_SERVE_ENABLED: 'false',
+    LAGO_US_FRONT_URL: '',
+    LAGO_EU_FRONT_URL: '',
+    LAGO_RECAPTCHA_SITE_KEY: '',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',

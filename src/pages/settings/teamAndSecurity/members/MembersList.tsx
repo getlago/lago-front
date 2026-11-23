@@ -154,8 +154,10 @@ const MemberList = () => {
     emptyState: {
       title: translate('text_176771435162557p8hyixafi'),
       subtitle: translate('text_1767714241102xpwokcuhvki'),
-      buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
-      buttonAction: openCreateInviteDialog,
+      ...(hasPermissions(['organizationMembersCreate']) && {
+        buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
+        buttonAction: openCreateInviteDialog,
+      }),
     },
     errorState: {
       title: translate('text_6321a076b94bd1b32494e9ee'),

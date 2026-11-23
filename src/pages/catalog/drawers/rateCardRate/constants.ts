@@ -45,7 +45,7 @@ export interface RateCardRateFormValues {
   billingIntervalUnit: RateCardRateBillingIntervalUnitEnum
   conversionRate: string
   rateModel: RateCardRateModelEnum
-  properties?: RatePropertiesInput
+  properties: RatePropertiesInput
   minAmountCents: string
 }
 

@@ -27,6 +27,9 @@ import { useGetMembersInvitationList } from './hooks/useGetMembersInvitationsLis
 
 type Invitation = GetInvitesQuery['invites']['collection'][0]
 
+export const MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID = 'members-invitation-list-edit-action'
+export const MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID = 'members-invitation-list-delete-action'
+
 const EmailColumn = ({ email }: { email: string | null }) => (
   <div className="flex flex-1 items-center gap-3">
     <Avatar variant="user" identifier={(email || '').charAt(0)} size="big" />
@@ -111,7 +114,9 @@ const MembersInvitationList = () => {
       return undefined
     }
 
-    const editAction = hasPermissions(['organizationMembersUpdate'])
+    const editAction: ActionItem<InviteItemForMembersSettingsFragment>[] = hasPermissions([
+      'organizationMembersUpdate',
+    ])
       ? [
           {
             startIcon: 'pen',
@@ -119,7 +124,8 @@ const MembersInvitationList = () => {
             onAction: () => {
               openEditInviteRoleDialog(invite)
             },
-          } as ActionItem<InviteItemForMembersSettingsFragment>,
+            dataTest: MEMBERS_INVITATION_LIST_EDIT_ACTION_TEST_ID,
+          },
         ]
       : []
 
@@ -147,7 +153,9 @@ const MembersInvitationList = () => {
         ]
       : []
 
-    const deleteAction = hasPermissions(['organizationMembersDelete'])
+    const deleteAction: ActionItem<InviteItemForMembersSettingsFragment>[] = hasPermissions([
+      'organizationMembersDelete',
+    ])
       ? [
           {
             startIcon: 'trash',
@@ -159,7 +167,8 @@ const MembersInvitationList = () => {
                 organizationName: invite.organization.name,
               })
             },
-          } as ActionItem<InviteItemForMembersSettingsFragment>,
+            dataTest: MEMBERS_INVITATION_LIST_DELETE_ACTION_TEST_ID,
+          },
         ]
       : []
 
@@ -178,10 +187,12 @@ const MembersInvitationList = () => {
       },
     }
 
-    const sharedEmptyState = {
-      buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
-      buttonAction: openCreateInviteDialog,
-    }
+    const sharedEmptyState = hasPermissions(['organizationMembersCreate'])
+      ? {
+          buttonTitle: translate('text_63208b630aaf8df6bbfb265b'),
+          buttonAction: openCreateInviteDialog,
+        }
+      : {}
 
     if (searchQuery || selectedRole) {
       return {
