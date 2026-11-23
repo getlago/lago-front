@@ -37,6 +37,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 | Field        | `lago-ui/field`         | [field.md](src/components/field.md)                 |
 | IconButton   | `lago-ui/icon-button`   | [icon-button.md](src/components/icon-button.md)     |
 | Input        | `lago-ui/input`         | [input.md](src/components/input.md)                 |
+| InputGroup   | `lago-ui/input-group`   | [input-group.md](src/components/input-group.md)     |
 | NumericBadge | `lago-ui/numeric-badge` | [numeric-badge.md](src/components/numeric-badge.md) |
 | OverflowTabs | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
 | Separator    | `lago-ui/separator`     | [separator.md](src/components/separator.md)         |

@@ -185,7 +185,7 @@ export const initializeApolloClient = async () => {
     } = operation.getContext()
 
     // Silent auth and permissions related errors by default
-    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden)
+    silentErrorCodes.push(...AUTH_ERRORS, LagoApiError.Forbidden, LagoApiError.OrganizationInactive)
 
     // Get operation type (query/mutation/subscription) for better grouping in Sentry
     const definition = getMainDefinition(operation.query)

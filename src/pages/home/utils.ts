@@ -13,7 +13,7 @@ import { RouteGateOrganization } from '~/core/router/utils/isRouteAvailable'
 import { isSafeInAppPath } from '~/core/router/utils/isSafeInAppPath'
 import {
   ensureSlugPrefix,
-  isAccessibleOrgSlug,
+  isLandingOrgSlug,
   pathHasValidSlug,
   pathTargetsInaccessibleOrg,
   resolveOrgSlug,
@@ -71,7 +71,7 @@ export type ResolveRedirectResult = {
  *   1. `ssoRedirectPath`: drained by caller, even when ignored for targeting an
  *      org the session cannot open, one the user is not a member of, or an org root.
  *   2. `savedLocation` (router-state `from`): kept only for a non-root path in an
- *      org the session can open, to avoid stale-org leaks; legacy slug-less paths get
+ *      org `isLandingOrgSlug` accepts, to avoid stale-org leaks; legacy slug-less paths get
  *      prepended with the resolved slug for ALL users (single-org and
  *      multi-org), matching the universal auto-recovery in
  *      `OrganizationLayout`.
@@ -112,8 +112,16 @@ export const resolveRedirectTarget = (
     !pathHasValidSlug(ssoRedirectPath, currentUser)
   const hasOrganizationRootSsoPath =
     !!ssoRedirectPath && isOrganizationRootPath(ssoRedirectPath, currentUser)
+  const hasPendingOrgSsoPath =
+    !!ssoRedirectPath &&
+    pathHasValidSlug(ssoRedirectPath, currentUser) &&
+    !isLandingOrgSlug(ssoFirstSegment, currentUser)
   const discardsSsoPath =
-    hasUnsafeSsoPath || hasInaccessibleSsoPath || hasUnknownOrgSsoPath || hasOrganizationRootSsoPath
+    hasUnsafeSsoPath ||
+    hasInaccessibleSsoPath ||
+    hasUnknownOrgSsoPath ||
+    hasOrganizationRootSsoPath ||
+    hasPendingOrgSsoPath
   const safeSsoRedirectPath = discardsSsoPath ? undefined : ssoRedirectPath
 
   if (!slug) {
@@ -135,7 +143,7 @@ export const resolveRedirectTarget = (
     const savedSlug = getFirstPathSegment(savedLocation.pathname)
 
     if (
-      isAccessibleOrgSlug(savedSlug, currentUser) &&
+      isLandingOrgSlug(savedSlug, currentUser) &&
       !isOrganizationRootPath(savedLocation.pathname, currentUser)
     ) {
       return { to: savedLocation, consumesSsoLs: discardsSsoPath }
