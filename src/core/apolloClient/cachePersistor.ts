@@ -2,7 +2,7 @@ import { NormalizedCacheObject } from '@apollo/client'
 import { CachePersistor, LocalForageWrapper } from 'apollo3-cache-persist'
 import localForage from 'localforage'
 
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
+import { isPublicTokenPath } from '~/core/router/utils/isPublicTokenPath'
 
 import { cache } from './cache'
 
@@ -32,12 +32,10 @@ const purgeStaleVersionedCaches = async (currentKey: string) => {
   }
 }
 
-// Called once at client init. In customer-portal context we skip persistence
-// entirely: the portal is public, token-scoped and single-customer, and must
-// never restore the shared admin blob into memory nor write into it. The
-// in-memory cache still works normally for the portal session.
+// Called once at client init. Public token pages (customer portal, agent claim)
+// skip persistence: they must never restore the shared admin blob nor write into it.
 export const setupCachePersistor = async (appVersion: string) => {
-  if (isCustomerPortalPath(window.location.pathname)) {
+  if (isPublicTokenPath(window.location.pathname)) {
     return null
   }
 
@@ -72,8 +70,7 @@ export const pausePersistence = (): void => {
 }
 
 export const resumePersistence = (): void => {
-  if (!persistencePaused || !persistenceKey || isCustomerPortalPath(window.location.pathname))
-    return
+  if (!persistencePaused || !persistenceKey || isPublicTokenPath(window.location.pathname)) return
 
   persistor = createPersistor(persistenceKey)
   persistencePaused = false

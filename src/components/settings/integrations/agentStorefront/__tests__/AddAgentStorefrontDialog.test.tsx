@@ -24,6 +24,7 @@ const mockCreate = jest.fn()
 const mockCreateMutationOptions = jest.fn()
 const mockStripeProvidersQuery = jest.fn()
 const mockHasOrganizationPremiumAddon = jest.fn()
+const mockWalletRefreshQuery = jest.fn()
 const mockFormDialogOpeningDialogOpen = jest.fn()
 const mockUpdate = jest.fn()
 const mockUpdateMutationOptions = jest.fn()
@@ -78,6 +79,7 @@ jest.mock('~/generated/graphql', () => ({
   },
   useGetStripeProvidersForAgentStorefrontQuery: (options: unknown) =>
     mockStripeProvidersQuery(options),
+  useGetWalletRefreshForAgentStorefrontQuery: (options: unknown) => mockWalletRefreshQuery(options),
   useUpdateAgentStorefrontIntegrationMutation: (options: unknown) => {
     mockUpdateMutationOptions(options)
 
@@ -96,6 +98,9 @@ const STRIPE_PROVIDERS_DATA = {
     ],
   },
 }
+
+const EVENTS_TARGETING_WALLETS_REFUSAL_KEY = 'text_1795083825205hnjrsshuj3f'
+const WALLET_REFRESH_REFUSAL_KEY = 'text_1795177414435gn7pn5ytu3s'
 
 const DELETE_DIALOG_PROPS: CentralizedDialogProps = {
   title: 'Delete',
@@ -184,6 +189,9 @@ describe('useAddAgentStorefrontDialog', () => {
     jest.clearAllMocks()
     mockFormDialogOpen.mockResolvedValue({ reason: 'close' })
     mockHasOrganizationPremiumAddon.mockReturnValue(true)
+    mockWalletRefreshQuery.mockReturnValue({
+      data: { organization: { id: 'org_1', walletRefreshEnabled: true } },
+    })
     mockStripeProvidersQuery.mockReturnValue({ data: STRIPE_PROVIDERS_DATA, loading: false })
     mockFormDialogOpeningDialogOpen.mockResolvedValue({ reason: 'close' })
     mockHasPermissions.mockReturnValue(true)
@@ -211,6 +219,7 @@ describe('useAddAgentStorefrontDialog', () => {
               LagoApiError.ValueAlreadyExist,
               LagoApiError.UrlIsInvalid,
               LagoApiError.EventsTargetingWalletsDisabled,
+              LagoApiError.WalletRefreshUnavailable,
               LagoApiError.PaymentProviderNotFound,
               LagoApiError.AgentStorefrontHasEnrolledAgents,
             ],
@@ -348,6 +357,32 @@ describe('useAddAgentStorefrontDialog', () => {
       })
     })
 
+    describe('WHEN the API refuses because wallet refresh is unavailable', () => {
+      it('THEN should show the wallet refresh refusal and disable submit', async () => {
+        mockCreate.mockResolvedValue({
+          data: { createAgentStorefrontIntegration: null },
+          errors: buildErrors({ base: [LagoApiError.WalletRefreshUnavailable] }),
+        })
+
+        const payload = openDialog()
+        const form = renderDialog(payload)
+
+        fillRequiredFields(form)
+
+        const outcome = await submit(payload)
+
+        expect(outcome.status).toBe('rejected')
+
+        await waitFor(() => {
+          expect(screen.getByTestId('alert-type-danger')).toHaveTextContent(
+            WALLET_REFRESH_REFUSAL_KEY,
+          )
+        })
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeDisabled()
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
     describe('WHEN the API refuses because wallet-targeted events are disabled', () => {
       it('THEN should show the refusal alert and keep submit disabled after an edit', async () => {
         mockCreate.mockResolvedValue({
@@ -387,10 +422,16 @@ describe('useAddAgentStorefrontDialog', () => {
     })
 
     describe('WHEN the dialog opens', () => {
-      it('THEN should show the refusal alert right away', () => {
+      it('THEN should show the wallet-targeted events refusal right away', () => {
+        mockWalletRefreshQuery.mockReturnValue({
+          data: { organization: { id: 'org_1', walletRefreshEnabled: false } },
+        })
+
         renderDialog(openDialog())
 
-        expect(screen.getByTestId('alert-type-danger')).toBeInTheDocument()
+        expect(screen.getByTestId('alert-type-danger')).toHaveTextContent(
+          EVENTS_TARGETING_WALLETS_REFUSAL_KEY,
+        )
       })
     })
 
@@ -407,6 +448,104 @@ describe('useAddAgentStorefrontDialog', () => {
 
         expect(outcome.status).toBe('rejected')
         expect(mockCreate).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the deployment does not refresh wallets in real time', () => {
+    beforeEach(() => {
+      mockWalletRefreshQuery.mockReturnValue({
+        data: { organization: { id: 'org_1', walletRefreshEnabled: false } },
+      })
+    })
+
+    describe('WHEN the dialog opens', () => {
+      it('THEN should show the wallet refresh refusal right away', () => {
+        renderDialog(openDialog())
+
+        expect(screen.getByTestId('alert-type-danger')).toHaveTextContent(
+          WALLET_REFRESH_REFUSAL_KEY,
+        )
+      })
+    })
+
+    describe('WHEN every field is filled', () => {
+      it('THEN should keep submit disabled and never call the mutation', async () => {
+        const payload = openDialog()
+        const form = renderDialog(payload)
+
+        fillRequiredFields(form)
+
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeDisabled()
+
+        const outcome = await submit(payload)
+
+        expect(outcome.status).toBe('rejected')
+        expect(mockCreate).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN an existing connection is edited', () => {
+      it('THEN should not refuse the edit', () => {
+        renderDialog(openEditDialog())
+
+        expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeEnabled()
+      })
+    })
+  })
+
+  describe('GIVEN the wallet refresh capability is not loaded or not exposed by the API', () => {
+    describe('WHEN the dialog opens', () => {
+      it('THEN should not refuse on wallet refresh', () => {
+        mockWalletRefreshQuery.mockReturnValue({ data: undefined })
+
+        renderDialog(openDialog())
+
+        expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN it resolves to disabled after the dialog has opened', () => {
+      it('THEN should refuse without waiting for a submit', () => {
+        let isWalletRefreshLoaded = false
+
+        mockWalletRefreshQuery.mockImplementation(() =>
+          isWalletRefreshLoaded
+            ? { data: { organization: { id: 'org_1', walletRefreshEnabled: false } } }
+            : { data: undefined },
+        )
+
+        const payload = openDialog()
+
+        isWalletRefreshLoaded = true
+
+        const form = renderDialog(payload)
+
+        expect(screen.getByTestId('alert-type-danger')).toHaveTextContent(
+          WALLET_REFRESH_REFUSAL_KEY,
+        )
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeDisabled()
+        expect(form.state.values.refusalReason).toBe('walletRefresh')
+      })
+
+      it('THEN should not refuse an edit', () => {
+        let isWalletRefreshLoaded = false
+
+        mockWalletRefreshQuery.mockImplementation(() =>
+          isWalletRefreshLoaded
+            ? { data: { organization: { id: 'org_1', walletRefreshEnabled: false } } }
+            : { data: undefined },
+        )
+
+        const payload = openEditDialog()
+
+        isWalletRefreshLoaded = true
+
+        renderDialog(payload)
+
+        expect(screen.queryByTestId('alert-type-danger')).not.toBeInTheDocument()
+        expect(screen.getByTestId(ADD_AGENT_STOREFRONT_SUBMIT_TEST_ID)).toBeEnabled()
       })
     })
   })
@@ -440,7 +579,7 @@ describe('useAddAgentStorefrontDialog', () => {
           resourceEndpoint: 'https://api.acme.example/count',
           resourceInstructions: '',
           paymentProviderCode: 'stripe_1',
-          isRefused: false,
+          refusalReason: null,
         })
       })
 

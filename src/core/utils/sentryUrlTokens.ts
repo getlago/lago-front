@@ -5,8 +5,9 @@ type Integration = Parameters<typeof addIntegration>[0]
 
 const FILTERED = '[Filtered]'
 
-// Prefixes of `RESET_PASSWORD_ROUTE`, `INVITATION_ROUTE` and `CUSTOMER_PORTAL_ROUTE`
-const TOKEN_PATH_SEGMENT = /(\/(?:reset-password|invitation|customer-portal)\/)[^/?#\s]+/g
+// Prefixes of `RESET_PASSWORD_ROUTE`, `INVITATION_ROUTE`, `CUSTOMER_PORTAL_ROUTE` and `AGENT_CLAIM_ROUTE`
+const TOKEN_PATH_SEGMENT =
+  /(\/(?:reset-password|invitation|customer-portal|agent-claim)\/)[^/?#\s]+/g
 
 // OAuth `state` embeds the invitation token; `okta*`/`entraId*` are the SSO callback's copies of it
 const TOKEN_QUERY_PARAM =
@@ -14,7 +15,7 @@ const TOKEN_QUERY_PARAM =
 
 // GraphQL error and slow-query reports attach `operation.variables`, e.g. `resetPassword`'s
 // `{ token, newPassword }`
-const SECRET_KEY = /token$|password/i
+const SECRET_KEY = /token$|password|^claimCode$|^verificationCode$/i
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
   if (typeof value !== 'object' || value === null) return false
