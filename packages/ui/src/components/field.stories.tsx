@@ -3,7 +3,6 @@ import { Mail } from 'lucide-react'
 import { type ReactElement, useId } from 'react'
 
 import { Badge } from './badge'
-import { ComboboxFieldStates } from './combobox/field-examples'
 import {
   Field,
   FieldContent,
@@ -18,6 +17,8 @@ import { Input, PasswordInput, SearchInput } from './input'
 import { InputGroup, InputGroupAddon, InputGroupInput } from './input-group'
 import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
+
+import { ComboboxFieldStates } from '../stories/combobox-field-examples'
 
 const meta = {
   title: 'Components/Field',

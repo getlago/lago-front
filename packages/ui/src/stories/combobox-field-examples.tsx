@@ -1,6 +1,6 @@
 import * as React from 'react'
 
-import { Button } from '../button'
+import { Button } from '../components/button'
 import {
   Combobox,
   ComboboxAdd,
@@ -17,8 +17,15 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
   ComboboxValue,
-} from '../combobox'
-import { Field, FieldContent, FieldDescription, FieldError, FieldHelp, FieldLabel } from '../field'
+} from '../components/combobox'
+import {
+  Field,
+  FieldContent,
+  FieldDescription,
+  FieldError,
+  FieldHelp,
+  FieldLabel,
+} from '../components/field'
 
 export type ComboboxFieldKind =
   'single' | 'inside' | 'above' | 'free-inside' | 'free-above' | 'popup'
