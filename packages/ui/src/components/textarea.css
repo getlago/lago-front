@@ -1,0 +1,44 @@
+.v2-textarea {
+  background-color: var(--color-surface);
+  border-color: var(--color-border-control);
+  resize: vertical;
+}
+.v2-textarea:read-only,
+.v2-textarea:not(:disabled):not(:read-only):not(:focus):hover {
+  background-color: var(--color-surface-subtle);
+}
+.v2-textarea:focus {
+  outline: none;
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-textarea:not(:read-only):focus {
+  background-color: var(--color-surface);
+}
+.v2-textarea[aria-invalid='true'] {
+  background-color: var(--color-surface);
+  border-color: var(--color-danger-border);
+}
+.v2-textarea[aria-invalid='true']:not(:disabled):not(:read-only):not(:focus):hover {
+  background-color: var(--color-surface-subtle);
+}
+.v2-textarea:disabled {
+  cursor: not-allowed;
+  background-color: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-foreground);
+}
+.v2-textarea:disabled::placeholder {
+  color: var(--color-disabled-foreground);
+}
+@supports (field-sizing: content) {
+  .v2-textarea {
+    field-sizing: content;
+    resize: none;
+  }
+}
+@media (forced-colors: active) {
+  .v2-textarea:focus {
+    outline: 2px solid Highlight;
+  }
+}

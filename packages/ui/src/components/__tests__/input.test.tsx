@@ -1,7 +1,7 @@
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { Input } from '../input'
+import { Input, PasswordInput } from '../input'
 
 describe('Input', () => {
   afterEach(cleanup)
@@ -38,7 +38,7 @@ describe('Input', () => {
     const input = screen.getByPlaceholderText('Invalid')
 
     expect(input).toHaveAttribute('aria-invalid', 'true')
-    expect(input).toHaveClass('aria-invalid:border-destructive')
+    expect(input).toHaveAttribute('data-slot', 'input')
   })
 
   it('merges a custom className without losing the base classes', async () => {
@@ -47,7 +47,7 @@ describe('Input', () => {
     const input = screen.getByPlaceholderText('Custom')
 
     expect(input).toHaveClass('pl-9')
-    expect(input).toHaveClass('rounded-md')
+    expect(input).toHaveClass('rounded-lg')
   })
 
   it('calls onChange as the user types', async () => {
@@ -68,7 +68,7 @@ describe('Input', () => {
 
     expect(input).toHaveClass('v2-text-number')
     expect(input).not.toHaveClass('v2-text-body')
-    expect(input).toHaveClass('rounded-md')
+    expect(input).toHaveClass('rounded-lg')
   })
 
   it('forwards the ref to the underlying input element', async () => {
@@ -78,5 +78,45 @@ describe('Input', () => {
 
     expect(ref.current).toBeInstanceOf(HTMLInputElement)
     expect(ref.current).toBe(screen.getByPlaceholderText('Ref target'))
+  })
+})
+
+describe('PasswordInput', () => {
+  afterEach(cleanup)
+
+  it('reveals without changing the value or submitting the form', async () => {
+    const user = userEvent.setup()
+    const submit = jest.fn((event) => event.preventDefault())
+
+    render(
+      <form onSubmit={submit}>
+        <PasswordInput
+          aria-label="Password"
+          defaultValue="secret"
+          showPasswordLabel="Show password"
+          hidePasswordLabel="Hide password"
+        />
+      </form>,
+    )
+    const input = screen.getByLabelText('Password')
+
+    await user.click(screen.getByRole('button', { name: 'Show password' }))
+    expect(input).toHaveAttribute('type', 'text')
+    expect(input).toHaveValue('secret')
+    await user.click(screen.getByRole('button', { name: 'Hide password' }))
+    expect(input).toHaveAttribute('type', 'password')
+    expect(submit).not.toHaveBeenCalled()
+  })
+
+  it('does not allow revealing a disabled password', async () => {
+    render(
+      <PasswordInput
+        aria-label="Password"
+        disabled
+        showPasswordLabel="Show password"
+        hidePasswordLabel="Hide password"
+      />,
+    )
+    expect(screen.getByRole('button')).toBeDisabled()
   })
 })

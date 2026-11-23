@@ -67,7 +67,7 @@ const ALREADY_PRICED_ERRORS = [
 
 export type AppliedRateCardDrawerProps =
   | { context: 'plan'; planId: string; currency: CurrencyEnum }
-  | { context: 'contract'; contractId: string; contractExternalId: string; currency: CurrencyEnum }
+  | { context: 'contract'; contractId: string; currency: CurrencyEnum }
 
 const toParent = (props: AppliedRateCardDrawerProps): AppliedRateCardParent =>
   props.context === 'plan'
@@ -129,7 +129,7 @@ export const useAppliedRateCardDrawer = (): {
         errors = result.errors
       } else {
         const result = await createContractAppliedRateCard({
-          variables: { input: { externalId: props.contractExternalId, ...input } },
+          variables: { input: { contractId: props.contractId, ...input } },
         })
 
         created = result.data?.createContractAppliedRateCard

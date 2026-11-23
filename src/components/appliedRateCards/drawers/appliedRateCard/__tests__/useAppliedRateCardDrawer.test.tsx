@@ -197,7 +197,6 @@ describe('useAppliedRateCardDrawer', () => {
       props: {
         context: 'contract' as const,
         contractId: 'contract-1',
-        contractExternalId: 'contract-ext-1',
         currency: CurrencyEnum.Usd,
       },
     },
@@ -259,9 +258,7 @@ describe('useAppliedRateCardDrawer', () => {
     expect(capturedInput).not.toHaveProperty('ratePhases')
   })
 
-  // Regression: the route's internal contract id was sent, and the backend looks contracts up
-  // by external id.
-  it('GIVEN context contract THEN submitting sends the contract external id and leaves the billing anchor to the backend', async () => {
+  it('GIVEN context contract THEN submitting sends the contract id and leaves the billing anchor to the backend', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([
       createContractAppliedRateCardMock((input) => (capturedInput = input)),
@@ -271,7 +268,6 @@ describe('useAppliedRateCardDrawer', () => {
       result.current.openDrawer({
         context: 'contract',
         contractId: 'contract-1',
-        contractExternalId: 'contract-ext-1',
         currency: CurrencyEnum.Usd,
       }),
     )
@@ -283,10 +279,11 @@ describe('useAppliedRateCardDrawer', () => {
     await waitFor(() => expect(mockClose).toHaveBeenCalledTimes(1))
 
     expect(capturedInput).toMatchObject({
-      externalId: 'contract-ext-1',
+      contractId: 'contract-1',
       rateCardCode: 'standard-card',
     })
     expect(capturedInput).not.toHaveProperty('billingAnchorDate')
+    expect(capturedInput).not.toHaveProperty('externalId')
   })
 
   it('GIVEN context contract THEN no effective date field renders anywhere in the drawer', async () => {
@@ -296,7 +293,6 @@ describe('useAppliedRateCardDrawer', () => {
       result.current.openDrawer({
         context: 'contract',
         contractId: 'contract-1',
-        contractExternalId: 'contract-ext-1',
         currency: CurrencyEnum.Usd,
       }),
     )
