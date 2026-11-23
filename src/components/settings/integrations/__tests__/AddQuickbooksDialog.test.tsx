@@ -96,19 +96,11 @@ describe('useAddQuickbooksDialog', () => {
     mockCreate.mockResolvedValue({ data: { createQuickbooksIntegration: { id: 'new-id' } } })
   })
 
-  describeDuplicateRejectionRouting(
-    'update',
-    async (detailsKey) => {
-      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
+  describeDuplicateRejectionRouting('update', async (detailsKey) => {
+    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-      return openDialog(quickbooksProvider)
-    },
-    () => {
-      expect(addToast).toHaveBeenCalledWith(
-        expect.objectContaining({ translateKey: 'text_62b31e1f6a5b8b1b745ece48' }),
-      )
-    },
-  )
+    return openDialog(quickbooksProvider)
+  })
 
   describe('GIVEN a new connection', () => {
     describe('WHEN the sandbox switch is on', () => {
@@ -253,6 +245,24 @@ describe('useAddQuickbooksDialog', () => {
           translateKey: 'text_62b31e1f6a5b8b1b745ece48',
         }),
       )
+    })
+  })
+
+  describe('GIVEN the create fails with an error the error link already reports', () => {
+    it('THEN adds no second toast', async () => {
+      mockCreate.mockResolvedValueOnce({
+        errors: [{ message: 'not found', extensions: { code: LagoApiError.NotFound } }],
+      })
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(addToast).not.toHaveBeenCalled()
     })
   })
 
