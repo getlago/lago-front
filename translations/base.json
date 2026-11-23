@@ -5535,7 +5535,7 @@
   "text_17950964499739gsd7e8oh7y": "New agents will no longer be able to enroll in this plan. Agents already enrolled keep their subscription and credits. Do you want to continue?",
   "text_1795096449973mbkfov6tzw0": "Seller profile",
   "text_1795096449973kpxr8rjzq1b": "Required for Agentic Storefront payments. Agents' shared payment tokens are linked to this profile. Find it in Stripe under Settings → Agentic commerce.",
-  "text_17950964499736yn37b9ictq": "This Stripe connection is used by the Agentic Storefront connection `{{connectionName}}`. Change its payment connection or delete it first.",
+  "text_17950964499736yn37b9ictq": "This Stripe connection is used by the Agentic Storefront connection {{connectionName}}. Change its payment connection or delete it first.",
   "text_1795096449973hbn8o7srlh5": "Plan successfully sold to agents",
   "text_1795096449973qg9fyttndtl": "Plan no longer sold to agents",
   "text_1795096449974nxoidu1m3z7": "This plan is sold to agents through an Agentic Storefront connection. Stop selling it before deleting it.",
