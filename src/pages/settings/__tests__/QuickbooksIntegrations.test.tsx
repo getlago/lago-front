@@ -20,6 +20,11 @@ jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
   default: jest.fn(),
 }))
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
 const mockOpenAdd = jest.fn()
 const mockOpenDelete = jest.fn()
 
@@ -33,6 +38,7 @@ jest.mock('~/components/settings/integrations/DeleteQuickbooksIntegrationDialog'
 }))
 
 describe('QuickbooksIntegrations', () => {
+  beforeEach(() => mockHasPermissions.mockReturnValue(true))
   afterEach(cleanup)
 
   describe('GIVEN the page is rendered with data', () => {
@@ -85,6 +91,24 @@ describe('QuickbooksIntegrations', () => {
       expect(getMock()).toHaveBeenCalledWith(
         expect.objectContaining({ provider: expect.objectContaining({ id: 'test-id-1' }) }),
       )
+    })
+  })
+
+  describe('GIVEN a member without integration permissions', () => {
+    it('THEN hides the connect action and the row menu', async () => {
+      mockHasPermissions.mockReturnValue(false)
+
+      await renderIntegrationPage(QuickbooksIntegrations, {
+        mocks: createIntegrationListMock(
+          GetQuickbooksIntegrationsListDocument,
+          IntegrationTypeEnum.Quickbooks,
+          'QuickbooksIntegration',
+        ),
+      })
+
+      expect(await screen.findByText('Test Connection')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: 'Add a connection' })).not.toBeInTheDocument()
+      expect(screen.queryByTestId('plan-item-options')).not.toBeInTheDocument()
     })
   })
 })

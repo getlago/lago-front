@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { QuickbooksForCreateDialogFragment } from '~/generated/graphql'
+import { LagoApiError, QuickbooksForCreateDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
 import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
@@ -96,11 +96,19 @@ describe('useAddQuickbooksDialog', () => {
     mockCreate.mockResolvedValue({ data: { createQuickbooksIntegration: { id: 'new-id' } } })
   })
 
-  describeDuplicateRejectionRouting('update', async (detailsKey) => {
-    mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
+  describeDuplicateRejectionRouting(
+    'update',
+    async (detailsKey) => {
+      mockUpdate.mockResolvedValue(rejectedUnder(detailsKey))
 
-    return openDialog(quickbooksProvider)
-  })
+      return openDialog(quickbooksProvider)
+    },
+    () => {
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({ translateKey: 'text_62b31e1f6a5b8b1b745ece48' }),
+      )
+    },
+  )
 
   describe('GIVEN a new connection', () => {
     describe('WHEN the sandbox switch is on', () => {
@@ -124,6 +132,7 @@ describe('useAddQuickbooksDialog', () => {
               connectionId: mockNangoAuth.mock.calls[0][1],
             }),
           },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
       })
     })
@@ -141,6 +150,7 @@ describe('useAddQuickbooksDialog', () => {
         expect(mockNangoAuth).toHaveBeenCalledWith('quickbooks', expect.any(String))
         expect(mockCreate).toHaveBeenCalledWith({
           variables: { input: expect.objectContaining({ sandbox: false }) },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
       })
     })
@@ -210,6 +220,7 @@ describe('useAddQuickbooksDialog', () => {
           translateKey: 'text_1795442089878h1a9gppfypr',
         }),
       )
+      expect(addToast).toHaveBeenCalledTimes(1)
 
       await act(async () => {
         await submit().catch(() => undefined)
@@ -218,6 +229,29 @@ describe('useAddQuickbooksDialog', () => {
       expect(mockNangoAuth).toHaveBeenCalledTimes(2)
       expect(mockCreate.mock.calls[1][0].variables.input.connectionId).not.toBe(
         mockCreate.mock.calls[0][0].variables.input.connectionId,
+      )
+    })
+  })
+
+  describe('GIVEN the create is refused for another reason', () => {
+    it('THEN shows the generic error toast', async () => {
+      mockCreate.mockResolvedValueOnce({
+        errors: [{ message: 'forbidden', extensions: { code: LagoApiError.Forbidden } }],
+      })
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'danger',
+          translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+        }),
       )
     })
   })
@@ -299,6 +333,7 @@ describe('useAddQuickbooksDialog', () => {
               syncPayments: true,
             },
           },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
       })
     })
