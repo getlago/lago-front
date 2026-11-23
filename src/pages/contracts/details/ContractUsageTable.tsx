@@ -1,7 +1,8 @@
 import { gql } from '@apollo/client'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useSearchParams } from 'react-router'
 
+import { Chip } from '~/components/designSystem/Chip'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
@@ -12,9 +13,9 @@ import {
   Filters,
   formatFiltersForContractUsagesQuery,
 } from '~/components/Filters'
+import { AvailableFiltersEnum } from '~/components/Filters/presentation/types'
 import { SearchInput } from '~/components/SearchInput'
 import { CONTRACT_USAGE_LIST_FILTER_PREFIX } from '~/core/constants/filters'
-import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
 import { deserializeAmount } from '~/core/serializers/serializeAmount'
 import { intlFormatDateTime } from '~/core/timezone'
@@ -27,6 +28,9 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useRefetchOnTokenChange } from '~/hooks/useRefetchOnTokenChange'
+import { PRODUCT_ITEM_TYPE_TRANSLATION_KEY } from '~/pages/catalog/useProductTableColumns'
+
+import { ContractUsageFilterOptions } from './useContractUsageCategories'
 
 gql`
   query getContractUsages(
@@ -61,6 +65,7 @@ gql`
         productCode
         productName
         productFilterCode
+        productType
         fromDatetime
         toDatetime
       }
@@ -79,25 +84,31 @@ export const CONTRACT_USAGE_ROW_NAME_TEST_ID = 'contract-usage-row-name'
 
 type ContractUsageTableProps = {
   contractId: string
+  categoryId: string | null
   currency: CurrencyEnum
   customerTimezone: TimezoneEnum
   refreshToken?: number
+  pageSize: number
+  onPageSizeChange: (pageSize: number) => void
+  filterOptions?: ContractUsageFilterOptions
 }
 
 export const ContractUsageTable = ({
   contractId,
+  categoryId,
   currency,
   customerTimezone,
   refreshToken,
+  pageSize,
+  onPageSizeChange,
+  filterOptions,
 }: ContractUsageTableProps): JSX.Element => {
   const { translate } = useInternationalization()
   // Bare key: must match the rail's own link-building, which drops the bare `page` key on every
   // category switch - a prefixed key here would silently stop matching that.
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
-  const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
 
-  const categoryId = searchParams.get('categoryId')
   const filtersForQuery = useMemo(
     () => formatFiltersForContractUsagesQuery(searchParams),
     [searchParams],
@@ -129,6 +140,14 @@ export const ContractUsageTable = ({
   }
 
   const rows = data?.contractUsages?.collection ?? []
+  const optionsByFilter = useMemo(
+    () =>
+      filterOptions && {
+        [AvailableFiltersEnum.rateCardProduct]: filterOptions.products,
+        [AvailableFiltersEnum.appliedRateCardProductFilter]: filterOptions.productFilters,
+      },
+    [filterOptions],
+  )
 
   const placeholder = buildSearchAwareTablePlaceholder({
     translate,
@@ -163,6 +182,15 @@ export const ContractUsageTable = ({
       ),
     },
     {
+      key: 'productType',
+      title: translate('text_6560809c38fb9de88d8a52fb'),
+      textAlign: 'right',
+      minWidth: 112,
+      content: (row) => (
+        <Chip label={translate(PRODUCT_ITEM_TYPE_TRANSLATION_KEY[row.productType])} />
+      ),
+    },
+    {
       key: 'units',
       title: translate('text_17939704148386zuqpffeq6b'),
       textAlign: 'right',
@@ -187,6 +215,7 @@ export const ContractUsageTable = ({
       <Filters.Provider
         filtersNamePrefix={CONTRACT_USAGE_LIST_FILTER_PREFIX}
         availableFilters={ContractUsageAvailableFilters}
+        optionsByFilter={optionsByFilter}
       >
         <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <SearchInput
@@ -203,7 +232,7 @@ export const ContractUsageTable = ({
         onPageChange={goToPage}
         pageSize={pageSize}
         onPageSizeChange={(size) => {
-          setPageSize(size)
+          onPageSizeChange(size)
           goToPage(1)
         }}
       >
