@@ -25,6 +25,17 @@ jest.mock('~/components/settings/integrations/QuickbooksIntegrationSettings', ()
   __esModule: true,
   default: () => null,
 }))
+const mockItemsListProps = jest.fn()
+
+jest.mock('~/components/settings/integrations/QuickbooksIntegrationItemsList', () => ({
+  __esModule: true,
+  default: (props: { integrationId: string }) => {
+    mockItemsListProps(props)
+
+    return null
+  },
+}))
+
 const mockQueryResult = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
@@ -73,6 +84,25 @@ describe('QuickbooksIntegrationDetails', () => {
 
       expect(screen.queryByText('Test Integration')).not.toBeInTheDocument()
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the items tab is opened before the details query resolves', () => {
+    it('THEN passes the route integration id to the items list', async () => {
+      window.history.pushState({}, '', '/settings/integrations/lago/quickbooks/test-id/items')
+      mockQueryResult.mockReturnValue({ data: undefined, loading: true })
+
+      await renderIntegrationPage(QuickbooksIntegrationDetails, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      await waitFor(() => {
+        expect(mockItemsListProps).toHaveBeenCalledWith(
+          expect.objectContaining({ integrationId: 'test-id' }),
+        )
+      })
+
+      window.history.pushState({}, '', '/')
     })
   })
 

@@ -19,9 +19,11 @@ import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetQuickbooksIntegrationsListDocument,
+  MappingTypeEnum,
   QuickbooksForCreateDialogFragment,
   useCreateQuickbooksIntegrationMutation,
   useDestroyNangoIntegrationMutation,
+  useGetQuickbooksFallbackItemMappingLazyQuery,
   useUpdateQuickbooksIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -45,6 +47,15 @@ gql`
   mutation createQuickbooksIntegration($input: CreateQuickbooksIntegrationInput!) {
     createQuickbooksIntegration(input: $input) {
       ...QuickbooksForCreateDialog
+    }
+  }
+
+  query getQuickbooksFallbackItemMapping($integrationId: ID!) {
+    integrationCollectionMappings(integrationId: $integrationId) {
+      collection {
+        id
+        mappingType
+      }
     }
   }
 
@@ -100,6 +111,7 @@ export const useAddQuickbooksDialog = () => {
 
   const dataRef = useRef<OpenAddQuickbooksDialogData | null>(null)
   const successRef = useRef(false)
+  const isOpeningRef = useRef(false)
 
   const [createIntegration] = useCreateQuickbooksIntegrationMutation({
     onCompleted({ createQuickbooksIntegration }) {
@@ -135,6 +147,11 @@ export const useAddQuickbooksDialog = () => {
   })
 
   const [deleteQuickbooks] = useDestroyNangoIntegrationMutation()
+  const [getCollectionMappings] = useGetQuickbooksFallbackItemMappingLazyQuery({
+    fetchPolicy: 'network-only',
+    // A failed check only keeps invoice sync locked, it needs no toast
+    context: { silentError: true },
+  })
 
   const form = useAppForm({
     defaultValues: defaultFormValues,
@@ -215,7 +232,35 @@ export const useAddQuickbooksDialog = () => {
     return { reason: 'success' }
   }
 
-  const openAddQuickbooksDialog = (data?: OpenAddQuickbooksDialogData) => {
+  // Invoices sync to a fallback item: syncing them stays off until one is mapped.
+  const fetchHasFallbackItem = async (integrationId?: string): Promise<boolean> => {
+    if (!integrationId) return false
+
+    try {
+      const { data } = await getCollectionMappings({ variables: { integrationId } })
+
+      return !!data?.integrationCollectionMappings?.collection.some(
+        (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
+      )
+    } catch {
+      return false
+    }
+  }
+
+  const openAddQuickbooksDialog = (data?: OpenAddQuickbooksDialogData): void => {
+    // A second click while the fallback item check runs would open the dialog twice
+    if (isOpeningRef.current) return
+
+    isOpeningRef.current = true
+
+    void fetchHasFallbackItem(data?.provider?.id)
+      .then((hasFallbackItem) => openDialog(data, hasFallbackItem))
+      .finally(() => {
+        isOpeningRef.current = false
+      })
+  }
+
+  const openDialog = (data: OpenAddQuickbooksDialogData | undefined, hasFallbackItem: boolean) => {
     dataRef.current = data ?? null
     const quickbooksProvider = data?.provider
     const isEdition = !!quickbooksProvider
@@ -327,6 +372,10 @@ export const useAddQuickbooksDialog = () => {
                 <form.AppField name="syncInvoices">
                   {(field) => (
                     <field.CheckboxField
+                      disabled={!hasFallbackItem && !field.state.value}
+                      sublabel={
+                        hasFallbackItem ? undefined : translate('text_17954348915435pekp1r6fsh')
+                      }
                       label={
                         <QuickbooksSyncLabel
                           firstPart={translate('text_17954342416897g8is3qrydn')}

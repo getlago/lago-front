@@ -4,6 +4,10 @@ import { renderIntegrationPage } from '~/pages/settings/__tests__/integrationTes
 
 import QuickbooksIntegrationSettings from '../QuickbooksIntegrationSettings'
 
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
+}))
 jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
   default: jest.fn(),
@@ -27,7 +31,9 @@ jest.mock('~/generated/graphql', () => ({
 const SANDBOX_LABEL = 'text_1794221187063c6xcfwvtt6l'
 const PRODUCTION_LABEL = 'text_17954342416893m90kxj9h0j'
 
-const integration = (sandbox: boolean) => ({
+const MAPPINGS_MISSING_ALERT = 'text_17954348915439shx44q9w6e'
+
+const integration = (sandbox: boolean, hasMappingsConfigured = true) => ({
   data: {
     integration: {
       __typename: 'QuickbooksIntegration',
@@ -35,6 +41,7 @@ const integration = (sandbox: boolean) => ({
       name: 'Test Integration',
       code: 'test_integration',
       connectionId: 'quickbooks-conn-123',
+      hasMappingsConfigured,
       realmId: '9341455839042337',
       sandbox,
       syncCreditNotes: false,
@@ -60,6 +67,30 @@ describe('QuickbooksIntegrationSettings', () => {
       expect(screen.getByText(SANDBOX_LABEL)).toBeInTheDocument()
       expect(screen.queryByText(PRODUCTION_LABEL)).not.toBeInTheDocument()
       expect(screen.getByText('9341455839042337')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN no mapping is configured yet', () => {
+    it('THEN asks to map items', async () => {
+      mockQueryResult.mockReturnValue(integration(false, false))
+
+      await renderIntegrationPage(QuickbooksIntegrationSettings, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      expect(screen.getByText(MAPPINGS_MISSING_ALERT)).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN mappings are configured', () => {
+    it('THEN shows no mapping alert', async () => {
+      mockQueryResult.mockReturnValue(integration(false, true))
+
+      await renderIntegrationPage(QuickbooksIntegrationSettings, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      expect(screen.queryByText(MAPPINGS_MISSING_ALERT)).not.toBeInTheDocument()
     })
   })
 

@@ -179,6 +179,29 @@ export const getParametersFromProvider = <FormValues>(
       }
     }
 
+    case IntegrationTypeEnum.Quickbooks: {
+      if (
+        !('selectedElementValue' in inputValues) ||
+        typeof inputValues.selectedElementValue !== 'string'
+      ) {
+        return {
+          success: false,
+          parameters: undefined,
+        }
+      }
+
+      // QuickBooks items and accounts carry no account code
+      const { externalId, externalName } = extractOptionValue(inputValues.selectedElementValue)
+
+      return {
+        success: true,
+        parameters: {
+          externalId,
+          externalName,
+        },
+      }
+    }
+
     // Shouldn't work if it's an unknown provider
     default:
       return {
