@@ -18,9 +18,10 @@ type BundleFile = { fileName: string; content: string | Uint8Array }
 export const computeBuildId = (files: BundleFile[]): string => {
   const hash = createHash('sha256')
 
-  for (const file of files.toSorted((a, b) =>
-    a.fileName < b.fileName ? -1 : a.fileName > b.fileName ? 1 : 0,
-  )) {
+  // Code-point order: localeCompare would follow the build machine's locale.
+  const sorted = files.toSorted((a, b) => (a.fileName < b.fileName ? -1 : 1))
+
+  for (const file of sorted) {
     hash.update(file.fileName)
     hash.update('\0')
     hash.update(file.content)
