@@ -15,7 +15,24 @@ import {
   useQuickbooksCustomerItems,
 } from '../useQuickbooksCustomerItems'
 
+const mockHasPermissions = jest.fn()
+const mockAddToast = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (args: unknown) => mockAddToast(args),
+}))
+
 const INTEGRATION_ID = 'qbo-integration-1'
+
+const grantPermissions = (granted: string[]) =>
+  mockHasPermissions.mockImplementation((permissions: string[]) =>
+    permissions.every((permission) => granted.includes(permission)),
+  )
 
 const buildItem = (externalId: string, externalName: string | null) => ({
   __typename: 'IntegrationItem' as const,
@@ -57,13 +74,19 @@ const buildItemsMock = (
   },
 })
 
-const buildFetchMock = (onCall: jest.Mock) => ({
+const buildFetchMock = (onCall: jest.Mock, { failed = false } = {}) => ({
   request: {
     query: FetchQuickbooksCustomerItemsDocument,
     variables: { input: { integrationId: INTEGRATION_ID } },
   },
   result: () => {
     onCall()
+
+    if (failed) {
+      return {
+        errors: [{ message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity' } }],
+      }
+    }
 
     return {
       data: {
@@ -97,6 +120,11 @@ describe('toQuickbooksCustomerOption', () => {
 })
 
 describe('useQuickbooksCustomerItems', () => {
+  beforeEach(() => {
+    grantPermissions(['organizationIntegrationsView', 'organizationIntegrationsUpdate'])
+    mockAddToast.mockClear()
+  })
+
   describe('GIVEN no integration', () => {
     describe('WHEN the hook renders and refreshes', () => {
       it('THEN should neither query nor sync', async () => {
@@ -208,6 +236,80 @@ describe('useQuickbooksCustomerItems', () => {
         await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
         await waitFor(() => expect(result.current.isRefreshing).toBe(false))
         expect(onFetch).toHaveBeenCalledTimes(1)
+      })
+    })
+  })
+
+  describe('GIVEN a member who can view integrations but not update them', () => {
+    describe('WHEN the hook syncs', () => {
+      it('THEN should not call the sync, and should not offer a refresh', async () => {
+        grantPermissions(['organizationIntegrationsView'])
+        const onFetch = jest.fn()
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([buildCountMock(2), buildFetchMock(onFetch)]),
+        })
+
+        act(() => {
+          result.current.refreshOnce()
+          result.current.refresh()
+        })
+
+        await waitFor(() => expect(result.current.hasStoredCustomers).toBe(true))
+        expect(result.current.canRefresh).toBe(false)
+        expect(onFetch).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN a member who cannot view integrations', () => {
+    describe('WHEN the hook renders', () => {
+      it('THEN should not query the stored customers, leaving the plain id input', async () => {
+        grantPermissions([])
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([]),
+        })
+
+        expect(result.current.isLoading).toBe(false)
+        expect(result.current.hasStoredCustomers).toBe(false)
+      })
+    })
+  })
+
+  describe('GIVEN the sync fails with an unprocessable entity error', () => {
+    describe('WHEN it was the automatic sync', () => {
+      it('THEN should stay quiet', async () => {
+        const onFetch = jest.fn()
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([buildCountMock(0), buildFetchMock(onFetch, { failed: true })]),
+        })
+
+        act(() => {
+          result.current.refreshOnce()
+        })
+
+        await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
+        await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the user clicked refresh', () => {
+      it('THEN should show an error toast', async () => {
+        const onFetch = jest.fn()
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([buildCountMock(0), buildFetchMock(onFetch, { failed: true })]),
+        })
+
+        act(() => {
+          result.current.refresh()
+        })
+
+        await waitFor(() =>
+          expect(mockAddToast).toHaveBeenCalledWith({
+            severity: 'danger',
+            translateKey: 'text_62b31e1f6a5b8b1b745ece48',
+          }),
+        )
       })
     })
   })

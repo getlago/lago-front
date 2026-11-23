@@ -32,8 +32,16 @@ export const QuickbooksCustomerIdField = ({
   connectionName,
 }: QuickbooksCustomerIdFieldProps) => {
   const { translate } = useInternationalization()
-  const { options, hasStoredCustomers, isLoading, isRefreshing, search, refresh, refreshOnce } =
-    useQuickbooksCustomerItems(integrationId)
+  const {
+    options,
+    hasStoredCustomers,
+    isLoading,
+    isRefreshing,
+    canRefresh,
+    search,
+    refresh,
+    refreshOnce,
+  } = useQuickbooksCustomerItems(integrationId)
 
   const selectedValue = useStore(form.store, (state) => state.values.externalCustomerId)
 
@@ -69,13 +77,15 @@ export const QuickbooksCustomerIdField = ({
           }
         </form.AppField>
       </div>
-      <Button
-        icon="reload"
-        variant="quaternary"
-        disabled={isRefreshing}
-        loading={isRefreshing}
-        onClick={refresh}
-      />
+      {canRefresh && (
+        <Button
+          icon="reload"
+          variant="quaternary"
+          disabled={isRefreshing}
+          loading={isRefreshing}
+          onClick={refresh}
+        />
+      )}
     </div>
   )
 }

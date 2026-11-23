@@ -12,6 +12,12 @@ import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { QuickbooksCustomerIdField } from '../QuickbooksCustomerIdField'
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 const INTEGRATION_ID = 'qbo-integration-1'
 
 const buildCountMock = (totalCount: number) => ({
@@ -70,6 +76,10 @@ const externalIdInput = (container: HTMLElement) =>
   container.querySelector('input[name="externalCustomerId"]')
 
 describe('QuickbooksCustomerIdField', () => {
+  beforeEach(() => {
+    mockHasPermissions.mockReturnValue(true)
+  })
+
   describe('GIVEN the drawer opens in StrictMode', () => {
     describe('WHEN the field mounts, runs its effects twice and lists nothing yet', () => {
       it('THEN should sync the customers once and keep the id typeable', async () => {
@@ -109,7 +119,7 @@ describe('QuickbooksCustomerIdField', () => {
       it('THEN should sync the customers again', async () => {
         const onFetch = jest.fn()
 
-        renderField([
+        const { container } = renderField([
           buildCountMock(0),
           buildFetchMock(onFetch),
           buildCountMock(0),
@@ -118,12 +128,28 @@ describe('QuickbooksCustomerIdField', () => {
         ])
 
         await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
+        expect(container.querySelector('[data-test^="reload"]')).toBeInTheDocument()
         await waitFor(() => expect(screen.getByRole('button')).not.toBeDisabled())
 
         fireEvent.click(screen.getByRole('button'))
 
         await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(2))
         expect(await screen.findByRole('combobox')).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a member who cannot update integrations', () => {
+    describe('WHEN the field renders', () => {
+      it('THEN should hide the refresh button', async () => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) => !permissions.includes('organizationIntegrationsUpdate'),
+        )
+
+        const { container } = renderField([buildCountMock(2)])
+
+        expect(await screen.findByRole('combobox')).toBeInTheDocument()
+        expect(container.querySelector('[data-test^="reload"]')).not.toBeInTheDocument()
       })
     })
   })

@@ -2,13 +2,16 @@ import { ApolloClient, gql, useApolloClient } from '@apollo/client'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
+import { addToast } from '~/core/apolloClient'
 import {
   IntegrationItemTypeEnum,
+  LagoApiError,
   QuickbooksCustomerItemFragment,
   useFetchQuickbooksCustomerItemsMutation,
   useGetQuickbooksCustomerItemsCountQuery,
   useGetQuickbooksCustomerItemsLazyQuery,
 } from '~/generated/graphql'
+import { usePermissions } from '~/hooks/usePermissions'
 
 gql`
   fragment QuickbooksCustomerItem on IntegrationItem {
@@ -74,6 +77,7 @@ type UseQuickbooksCustomerItemsReturn = {
   hasStoredCustomers: boolean
   isLoading: boolean
   isRefreshing: boolean
+  canRefresh: boolean
   search: ComboBoxProps['searchQuery']
   refresh: () => void
   refreshOnce: () => void
@@ -85,13 +89,17 @@ export const useQuickbooksCustomerItems = (
   integrationId: string | undefined,
 ): UseQuickbooksCustomerItemsReturn => {
   const client = useApolloClient()
+  const { hasPermissions } = usePermissions()
+  // The stored list needs the integrations view permission, a sync the update one
+  const canListCustomers = hasPermissions(['organizationIntegrationsView'])
+  const canRefresh = hasPermissions(['organizationIntegrationsUpdate'])
 
   const { data: countData, loading: countLoading } = useGetQuickbooksCustomerItemsCountQuery({
     variables: {
       integrationId: integrationId as string,
       itemType: IntegrationItemTypeEnum.Customer,
     },
-    skip: !integrationId,
+    skip: !integrationId || !canListCustomers,
   })
 
   const [getItems, { data, loading: itemsLoading }] = useGetQuickbooksCustomerItemsLazyQuery({
@@ -99,6 +107,8 @@ export const useQuickbooksCustomerItems = (
   })
 
   const [fetchCustomers, { loading: isRefreshing }] = useFetchQuickbooksCustomerItemsMutation({
+    context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
+    errorPolicy: 'all',
     refetchQueries: REFETCH_QUERIES,
   })
 
@@ -128,26 +138,42 @@ export const useQuickbooksCustomerItems = (
   // The API replaces the whole list on each fetch, so two at once collide on its unique index.
   const isRefreshingRef = useRef(false)
 
-  const refresh = useCallback((): void => {
-    if (!integrationId || isRefreshingRef.current) return
+  const sync = useCallback(
+    (notifyOnError: boolean): void => {
+      if (!integrationId || !canRefresh || isRefreshingRef.current) return
 
-    isRefreshingRef.current = true
+      isRefreshingRef.current = true
 
-    void fetchCustomers({ variables: { input: { integrationId } } }).finally(() => {
-      isRefreshingRef.current = false
-    })
-  }, [fetchCustomers, integrationId])
+      void fetchCustomers({ variables: { input: { integrationId } } })
+        .then(
+          ({ errors }) => !!errors,
+          () => true,
+        )
+        .then((hasFailed) => {
+          // The automatic sync stays quiet: the plain id input remains usable without the list
+          if (hasFailed && notifyOnError) {
+            addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+          }
+        })
+        .finally(() => {
+          isRefreshingRef.current = false
+        })
+    },
+    [canRefresh, fetchCustomers, integrationId],
+  )
+
+  const refresh = useCallback((): void => sync(true), [sync])
 
   // Nango syncs asynchronously: sync each integration once per session, so StrictMode's double
   // effect and every reopened drawer leave later syncs to the reload button.
   const refreshOnce = useCallback((): void => {
     const synced = syncedIntegrations.get(client) ?? new Set<string>()
 
-    if (!integrationId || synced.has(integrationId)) return
+    if (!integrationId || !canRefresh || synced.has(integrationId)) return
 
     syncedIntegrations.set(client, synced.add(integrationId))
-    refresh()
-  }, [client, integrationId, refresh])
+    sync(false)
+  }, [canRefresh, client, integrationId, sync])
 
   const options = useMemo(
     () => (data?.integrationItems?.collection || []).map(toQuickbooksCustomerOption),
@@ -159,6 +185,7 @@ export const useQuickbooksCustomerItems = (
     hasStoredCustomers: (countData?.integrationItems?.metadata.totalCount ?? 0) > 0,
     isLoading: (countLoading && !countData) || itemsLoading,
     isRefreshing,
+    canRefresh,
     search: search as unknown as ComboBoxProps['searchQuery'],
     refresh,
     refreshOnce,
