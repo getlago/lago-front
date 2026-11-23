@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 
+import * as textMeasurement from '../../lib/text-measurement'
 import { ComboboxText } from '../combobox/text'
 import { TooltipProvider } from '../tooltip'
 
@@ -63,6 +64,23 @@ it('remeasures when the selected label changes', () => {
     </TooltipProvider>,
   )
 
+  rerender(
+    <TooltipProvider>
+      <ComboboxText>Sam</ComboboxText>
+    </TooltipProvider>,
+  )
+  expect(screen.getByLabelText('Sam').lastElementChild).toHaveTextContent(/^Sam$/)
+})
+
+it('updates the visible label when canvas measurement is unavailable', () => {
+  jest.spyOn(textMeasurement, 'getTextMeasurementContext').mockReturnValue(null)
+  const { rerender } = render(
+    <TooltipProvider>
+      <ComboboxText>Alex</ComboboxText>
+    </TooltipProvider>,
+  )
+
+  expect(screen.getByLabelText('Alex').lastElementChild).toHaveTextContent(/^Alex$/)
   rerender(
     <TooltipProvider>
       <ComboboxText>Sam</ComboboxText>

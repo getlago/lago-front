@@ -21,7 +21,10 @@ export const ComboboxText = ({
     if (!element) return
     const context = getTextMeasurementContext(element.ownerDocument)
 
-    if (!context) return
+    if (!context) {
+      setText(children)
+      return
+    }
     const measure = (): void => {
       const style = getComputedStyle(element)
 

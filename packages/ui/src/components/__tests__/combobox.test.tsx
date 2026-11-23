@@ -438,3 +438,75 @@ it.each([false, true])(
     if (override) expect(comparator).toHaveBeenCalled()
   },
 )
+
+it.each([false, true])(
+  'keeps a single selection visible and lets closed-popup Escape reach its parent (controlled=%s)',
+  async (controlled) => {
+    const user = userEvent.setup()
+    const onEscape = jest.fn()
+    const onValueChange = jest.fn()
+    const onQueryChange = jest.fn()
+
+    function SingleSelection(): React.ReactElement {
+      const [value, setValue] = React.useState<string | null>('Alex')
+      const [query, setQuery] = React.useState('Alex')
+
+      React.useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent): void => {
+          if (event.key === 'Escape') onEscape()
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+        return () => document.removeEventListener('keydown', handleKeyDown)
+      }, [])
+
+      return (
+        <form aria-label="Assignment">
+          <Combobox
+            items={['Alex', 'Sam']}
+            name="owner"
+            {...(controlled ? { value, inputValue: query } : { defaultValue: 'Alex' })}
+            onValueChange={(next) => {
+              onValueChange(next)
+              if (controlled) setValue(next)
+            }}
+            onInputValueChange={(next) => {
+              onQueryChange(next)
+              if (controlled) setQuery(next)
+            }}
+          >
+            <ComboboxControl>
+              <ComboboxInput aria-label="Owner" />
+            </ComboboxControl>
+            <ComboboxContent>
+              <ComboboxList getItemKey={(name: string) => name}>
+                {(name) => <ComboboxItem value={name}>{name}</ComboboxItem>}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          <button type="button">Next</button>
+        </form>
+      )
+    }
+
+    render(<SingleSelection />)
+    const input = screen.getByRole('combobox', { name: 'Owner' })
+
+    await user.click(input)
+    await user.keyboard('{Escape}')
+    await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument())
+    onEscape.mockClear()
+    onQueryChange.mockClear()
+    onValueChange.mockClear()
+    await user.keyboard('{Escape}')
+    expect(input).toHaveValue('Alex')
+    expect(onEscape).toHaveBeenCalledTimes(1)
+    expect(onQueryChange).not.toHaveBeenCalled()
+    expect(onValueChange).not.toHaveBeenCalled()
+    await user.tab()
+    expect(input).toHaveValue('Alex')
+    expect(new FormData(screen.getByRole('form') as HTMLFormElement).get('owner')).toBe('Alex')
+    await user.click(input)
+    expect(input).toHaveValue('Alex')
+  },
+)

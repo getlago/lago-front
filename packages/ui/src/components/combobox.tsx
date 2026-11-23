@@ -40,9 +40,18 @@ export function Combobox<Value, Multiple extends boolean | undefined = false>(
       <Primitive.Root
         {...props}
         open={props.multiple ? (props.open ?? internalOpen) : props.open}
+        onInputValueChange={(value, details) => {
+          if (!props.multiple && details.reason === 'escape-key') {
+            details.cancel()
+            details.allowPropagation()
+            return
+          }
+          props.onInputValueChange?.(value, details)
+        }}
         onValueChange={(value, details) => {
           if (details.reason === 'escape-key') {
             details.cancel()
+            details.allowPropagation()
             return
           }
           props.onValueChange?.(value, details)
