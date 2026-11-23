@@ -5,6 +5,7 @@ export const typeDefs = gql`
     internal_error
     unauthorized
     forbidden
+    organization_inactive
     feature_unavailable
     production_is_a_sandbox
     production_already_has_sandbox

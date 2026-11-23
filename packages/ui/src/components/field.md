@@ -41,7 +41,7 @@ Keep wrappers only for meaningful internal layout, such as a group of choices. F
 
 ## Accessibility
 
-Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation.
+Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering a FieldLabel does not highlight its control; clicking the label still focuses the control.
 
 For Select or Combobox, connect labels and error references to the appropriate interactive control. Radio and checkbox groups need group semantics such as fieldset/legend; individual checkboxes still need their own labels. Field does not replace those semantics.
 
@@ -53,7 +53,10 @@ Field CSS owns sibling spacing: 8px by default and 4px before a direct FieldErro
 
 ## References
 
+Storybook includes With Input, With Input Group and With Textarea galleries. Each shows empty, filled, disabled, read-only and invalid fields; hover and focus are exercised on the editable controls.
+
 - [Input](./input.md)
+- [Input Group](./input-group.md)
 - [Tooltip](./tooltip.md)
 - Storybook: Components / Field
 - Tests: `__tests__/field.test.tsx`

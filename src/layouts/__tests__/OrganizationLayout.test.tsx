@@ -2,6 +2,8 @@ import * as Sentry from '@sentry/react'
 import { fireEvent, render, renderHook, waitFor } from '@testing-library/react'
 import { useEffect } from 'react'
 
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
+
 // Import after mocks
 import OrganizationLayout, {
   SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
@@ -23,6 +25,7 @@ const mockSetPersistedOrganizationSlug = jest.fn()
 const mockLocationHistoryVar = jest.fn()
 const mockUseSandbox = jest.fn()
 const mockOutletMount = jest.fn()
+const mockPendingOrganizationShell = jest.fn()
 
 const MockOutlet = () => {
   useEffect(() => {
@@ -99,6 +102,14 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 
 jest.mock('~/components/designSystem/Spinner', () => ({
   Spinner: () => <div data-test="spinner" />,
+}))
+
+jest.mock('~/layouts/PendingOrganizationShell', () => ({
+  PendingOrganizationShell: (props: unknown) => {
+    mockPendingOrganizationShell(props)
+
+    return <div data-test="pending-organization-shell" />
+  },
 }))
 
 jest.mock('~/pages/Error404', () => ({
@@ -386,6 +397,128 @@ describe('OrganizationLayout', () => {
         // During transition it renders spinner (since currentOrgId !== org.id)
         expect(result.current).toBeTruthy()
       })
+    })
+  })
+
+  describe('GIVEN the slug matches a production organization waiting for a payment method', () => {
+    const pendingOrganization = {
+      ...defaultMemberships[0].organization,
+      activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+    }
+    const currentUserWithPendingOrg = {
+      memberships: [
+        { ...defaultMemberships[0], organization: pendingOrganization },
+        defaultMemberships[1],
+      ],
+    }
+
+    beforeEach(() => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(undefined)
+      mockUseCurrentUser.mockReturnValue({ currentUser: currentUserWithPendingOrg, loading: false })
+    })
+
+    it('THEN should render the pending organization shell instead of the Outlet', () => {
+      const { container } = render(<OrganizationLayout />)
+
+      expect(
+        container.querySelector('[data-test="pending-organization-shell"]'),
+      ).toBeInTheDocument()
+      expect(container.querySelector('[data-test="outlet"]')).not.toBeInTheDocument()
+      expect(container.querySelector('[data-test="spinner"]')).not.toBeInTheDocument()
+      expect(mockOutletMount).not.toHaveBeenCalled()
+    })
+
+    it('THEN should not render the sandbox banner', () => {
+      mockUseSandbox.mockReturnValue({ isSandbox: true, productionPath: null })
+
+      const { container } = render(<OrganizationLayout />)
+
+      expect(
+        container.querySelector(`[data-test="${SANDBOX_BANNER_TEST_ID}"]`),
+      ).not.toBeInTheDocument()
+      expect(mockUseSandbox).not.toHaveBeenCalled()
+    })
+
+    it('THEN should pass the organization and an add payment method callback to the shell', () => {
+      render(<OrganizationLayout />)
+
+      expect(mockPendingOrganizationShell).toHaveBeenCalledWith({
+        organization: pendingOrganization,
+        onAddPaymentMethod: expect.any(Function),
+      })
+    })
+
+    describe.each([
+      ['no organization is set yet', undefined],
+      ['another organization is set', OTHER_ORG_ID],
+    ])('WHEN %s', (_, currentOrgId) => {
+      it('THEN should neither set, switch to nor persist the pending organization', () => {
+        mockCurrentOrganizationVar.mockReturnValue(currentOrgId)
+
+        renderHook(() => OrganizationLayout())
+
+        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+        expect(mockSwitchCurrentOrganization).not.toHaveBeenCalled()
+        expect(mockSetPersistedOrganizationSlug).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization becomes active', () => {
+      it('THEN should set it as the current organization and persist it', () => {
+        const { rerender } = render(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).not.toHaveBeenCalled()
+
+        mockUseCurrentUser.mockReturnValue({
+          currentUser: {
+            memberships: [
+              {
+                ...defaultMemberships[0],
+                organization: {
+                  ...pendingOrganization,
+                  activationStatus: OrganizationActivationStatusEnum.Active,
+                },
+              },
+              defaultMemberships[1],
+            ],
+          },
+          loading: false,
+        })
+        rerender(<OrganizationLayout />)
+
+        expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(TEST_ORG_ID)
+        expect(mockSetPersistedOrganizationSlug).toHaveBeenCalledWith(TEST_ORG_SLUG)
+      })
+    })
+  })
+
+  describe.each([
+    ['active', OrganizationActivationStatusEnum.Active],
+    ['null (not reported)', null],
+  ])('GIVEN the slug matches an organization whose activation status is %s', (_, status) => {
+    it('THEN should open it as today', () => {
+      mockUseParams.mockReturnValue({ organizationSlug: TEST_ORG_SLUG })
+      mockCurrentOrganizationVar.mockReturnValue(TEST_ORG_ID)
+      mockUseCurrentUser.mockReturnValue({
+        currentUser: {
+          memberships: [
+            {
+              ...defaultMemberships[0],
+              organization: { ...defaultMemberships[0].organization, activationStatus: status },
+            },
+          ],
+        },
+        loading: false,
+      })
+
+      const { container } = render(<OrganizationLayout />)
+
+      expect(container.querySelector('[data-test="outlet"]')).toBeInTheDocument()
+      expect(
+        container.querySelector('[data-test="pending-organization-shell"]'),
+      ).not.toBeInTheDocument()
+      expect(mockSetCurrentOrganizationId).toHaveBeenCalledWith(TEST_ORG_ID)
     })
   })
 

@@ -188,6 +188,20 @@ describe('initializeApolloClient error link', () => {
     })
   })
 
+  describe.each([
+    ['forbidden', LagoApiError.Forbidden],
+    ['organization inactive', LagoApiError.OrganizationInactive],
+  ])('GIVEN a GraphQL error with the %s code', (_, code) => {
+    describe('WHEN the operation does not silence it', () => {
+      it('THEN should neither toast nor report the error', () => {
+        triggerGraphQLError(code)
+
+        expect(addToast).not.toHaveBeenCalled()
+        expect(captureException).not.toHaveBeenCalled()
+      })
+    })
+  })
+
   describe('GIVEN a GraphQL error with another code', () => {
     describe('WHEN the operation does not silence it', () => {
       it('THEN should report the error to Sentry and show the generic danger toast', () => {
