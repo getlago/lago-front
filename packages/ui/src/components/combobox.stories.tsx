@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { X } from 'lucide-react'
 import * as React from 'react'
 
 import { Button } from './button'
@@ -17,6 +16,7 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxSearch,
   ComboboxSeparator,
   ComboboxStatus,
   ComboboxText,
@@ -24,7 +24,6 @@ import {
   ComboboxValue,
 } from './combobox'
 import docs from './combobox.md?raw'
-import { IconButton } from './icon-button'
 import { TooltipProvider } from './tooltip'
 
 interface Owner {
@@ -316,19 +315,13 @@ function PopupExample(): React.ReactElement {
         <ComboboxValue>{(owner: Owner | null) => owner?.label || 'Assign owner'}</ComboboxValue>
       </ComboboxTrigger>
       <ComboboxContent>
-        <ComboboxControl>
-          <ComboboxInput aria-label="Search owners" placeholder="Search owners" />
-          {query && (
-            <IconButton
-              label="Clear search"
-              size="icon-xs"
-              onMouseDown={(event) => event.preventDefault()}
-              onClick={() => setQuery('')}
-            >
-              <X aria-hidden="true" />
-            </IconButton>
-          )}
-        </ComboboxControl>
+        <ComboboxSearch
+          aria-label="Search owners"
+          placeholder="Search owners"
+          clearLabel="Clear search"
+          showClear={!!query}
+          onClear={() => setQuery('')}
+        />
         <ComboboxSeparator />
         <ComboboxEmpty>No owners found</ComboboxEmpty>
         <ComboboxList getItemKey={itemKey}>{renderOwner}</ComboboxList>

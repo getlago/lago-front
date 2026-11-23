@@ -1,0 +1,87 @@
+import {
+  Combobox,
+  ComboboxContent,
+  ComboboxEmpty,
+  ComboboxItem,
+  ComboboxList,
+  ComboboxSearch,
+  ComboboxSeparator,
+  ComboboxTrigger,
+} from 'lago-ui/combobox'
+import { RefObject, useState } from 'react'
+
+import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
+
+export interface CurrencyOption {
+  value: CurrencyEnum
+  label: string
+}
+interface CurrencyPickerProps {
+  currency: CurrencyEnum
+  options: readonly CurrencyOption[]
+  onChange: (currency: CurrencyEnum) => void
+  disabled?: boolean
+  anchor: RefObject<HTMLDivElement>
+}
+
+export const CurrencyPicker = ({
+  currency,
+  options,
+  onChange,
+  disabled,
+  anchor,
+}: CurrencyPickerProps): JSX.Element => {
+  const { translate } = useInternationalization()
+  const [query, setQuery] = useState('')
+
+  return (
+    <Combobox<CurrencyEnum>
+      items={options.map((option) => option.value)}
+      value={currency}
+      onValueChange={(value) => {
+        if (value !== null) onChange(value)
+      }}
+      disabled={disabled}
+      inputValue={query}
+      onInputValueChange={setQuery}
+      onOpenChange={(open) => {
+        if (!open) setQuery('')
+      }}
+      filter={(value, search) =>
+        `${value} ${options.find((option) => option.value === value)?.label || ''}`
+          .toLocaleLowerCase()
+          .includes(search.toLocaleLowerCase())
+      }
+    >
+      <ComboboxTrigger
+        variant="input"
+        className="v2-amount-currency"
+        aria-label={translate('text_1795458691058ndiz7xihicb', { currency })}
+      >
+        {currency}
+      </ComboboxTrigger>
+      <ComboboxContent anchor={anchor}>
+        <ComboboxSearch
+          aria-label={translate('text_1795458691058dmcgdfghi2t')}
+          placeholder={translate('text_1795458691058dmcgdfghi2t')}
+          showClear={!!query}
+          clearLabel={translate('text_1795458691058olq3knc6zqw')}
+          onClear={() => setQuery('')}
+        />
+        <ComboboxSeparator />
+        <ComboboxEmpty>{translate('text_1795458691058gq6sghbx4i2')}</ComboboxEmpty>
+        <ComboboxList getItemKey={(value: CurrencyEnum) => value}>
+          {(value) => (
+            <ComboboxItem value={value}>
+              <div>{value}</div>
+              <div className="v2-text-caption text-text-muted">
+                {options.find((option) => option.value === value)?.label}
+              </div>
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}

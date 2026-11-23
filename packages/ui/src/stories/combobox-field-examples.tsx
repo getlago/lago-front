@@ -26,6 +26,7 @@ import {
   FieldHelp,
   FieldLabel,
 } from '../components/field'
+import { SearchInput } from '../components/input'
 
 export type ComboboxFieldKind =
   'single' | 'inside' | 'above' | 'free-inside' | 'free-above' | 'popup'
@@ -157,9 +158,11 @@ function ComboboxFieldExample({
   const content = (
     <ComboboxContent>
       {kind === 'popup' && (
-        <ComboboxControl>
-          <ComboboxInput aria-label="Search owners" placeholder="Search owners" />
-        </ComboboxControl>
+        <ComboboxInput
+          render={<SearchInput />}
+          aria-label="Search owners"
+          placeholder="Search owners"
+        />
       )}
       {kind === 'popup' && <ComboboxSeparator />}
       <ComboboxEmpty>No owners found</ComboboxEmpty>

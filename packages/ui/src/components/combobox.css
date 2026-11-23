@@ -93,3 +93,33 @@
 .v2-combobox-trigger[aria-invalid='true']:not(:disabled) {
   border-color: var(--color-danger-border);
 }
+
+.v2-combobox-trigger[data-variant='input'] {
+  height: 36px;
+  gap: 8px;
+  padding: 0 12px;
+  justify-content: space-between;
+  border: 1px solid var(--color-border-control);
+  border-radius: 8px;
+  color: var(--color-text-default);
+  background: var(--color-surface);
+}
+.v2-combobox-trigger[data-variant='input']:hover:not(:disabled) {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox-trigger[data-variant='input']:focus-visible {
+  outline: none;
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-combobox-trigger[data-variant='input']:disabled {
+  color: var(--color-disabled-foreground);
+  background: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  cursor: not-allowed;
+}
+@media (forced-colors: active) {
+  .v2-combobox-trigger[data-variant='input']:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

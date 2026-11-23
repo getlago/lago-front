@@ -5505,5 +5505,9 @@
   "text_1791907940203tazkwmcw016": "Shared payment token",
   "text_1795454086814mzvn73ebgux": "Contract wallet created",
   "text_1795454086814j2ad501cmlx": "Contract wallet deleted",
-  "text_1795454086814egs32zmws65": "Contract wallet updated"
+  "text_1795454086814egs32zmws65": "Contract wallet updated",
+  "text_1795458691058ndiz7xihicb": "Currency, {{currency}}",
+  "text_1795458691058dmcgdfghi2t": "Search currencies…",
+  "text_1795458691058gq6sghbx4i2": "No currencies found.",
+  "text_1795458691058olq3knc6zqw": "Clear currency search"
 }

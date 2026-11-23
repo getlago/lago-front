@@ -1,0 +1,37 @@
+.v2-amount-input {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+}
+.v2-amount-input > .v2-amount-currency.v2-combobox-trigger,
+.v2-amount-input > .v2-amount-currency-readonly {
+  width: 88px;
+  flex: 0 0 88px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.v2-amount-input > .v2-amount-control {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-left-width: 0;
+  flex: 1;
+}
+.v2-amount-currency-readonly {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border-control);
+  border-radius: 8px 0 0 8px;
+  background: var(--color-surface-subtle);
+}
+.v2-amount-currency-readonly[data-disabled],
+fieldset:disabled .v2-amount-currency-readonly {
+  background: var(--color-disabled);
+  color: var(--color-disabled-foreground);
+  border-color: var(--color-disabled-border);
+}
+.v2-field:has([data-slot='field-label']:hover, [data-slot='field-description']:hover)
+  .v2-amount-control:has(> input:not(:disabled):not(:read-only):not(:focus)) {
+  --v2-input-group-background: var(--color-surface-subtle);
+}
