@@ -1,12 +1,17 @@
-import { BUILD_ID_META_NAME, fetchDeployedBuildId, getRunningBuildId } from '../buildId'
+import {
+  BUILD_ID_META_NAME,
+  BUILT_AT_META_NAME,
+  fetchDeployedBuild,
+  getRunningBuild,
+} from '../buildId'
 
-const RUNNING_ID = '0123456789abcdef'
-const DEPLOYED_ID = 'fedcba9876543210'
+const RUNNING_BUILD = { id: '0123456789abcdef', builtAt: 1_000 }
+const DEPLOYED_BUILD = { id: 'fedcba9876543210', builtAt: 2_000 }
 
-const setMeta = (content: string) => {
+const setMeta = (name: string, content: string) => {
   const meta = document.createElement('meta')
 
-  meta.setAttribute('name', BUILD_ID_META_NAME)
+  meta.setAttribute('name', name)
   meta.setAttribute('content', content)
   document.head.appendChild(meta)
 }
@@ -22,45 +27,55 @@ const mockFetch = (response: Partial<Response> | Error) => {
   return fetchMock
 }
 
-describe('getRunningBuildId', () => {
+const serveBody = (body: unknown) => mockFetch({ json: () => Promise.resolve(body) })
+
+describe('getRunningBuild', () => {
   afterEach(() => {
     document.head.replaceChildren()
   })
 
-  it('reads the build id from the meta tag', () => {
-    setMeta(RUNNING_ID)
+  it('reads the build from the meta tags', () => {
+    setMeta(BUILD_ID_META_NAME, RUNNING_BUILD.id)
+    setMeta(BUILT_AT_META_NAME, String(RUNNING_BUILD.builtAt))
 
-    expect(getRunningBuildId()).toBe(RUNNING_ID)
+    expect(getRunningBuild()).toEqual(RUNNING_BUILD)
   })
 
-  it('returns null without the meta tag, as on the dev server', () => {
-    expect(getRunningBuildId()).toBeNull()
+  it('returns null without the meta tags, as on the dev server', () => {
+    expect(getRunningBuild()).toBeNull()
   })
 
   it('returns null for a malformed id', () => {
-    setMeta('not-a-build-id')
+    setMeta(BUILD_ID_META_NAME, 'not-a-build-id')
+    setMeta(BUILT_AT_META_NAME, String(RUNNING_BUILD.builtAt))
 
-    expect(getRunningBuildId()).toBeNull()
+    expect(getRunningBuild()).toBeNull()
+  })
+
+  it('returns null without a build time', () => {
+    setMeta(BUILD_ID_META_NAME, RUNNING_BUILD.id)
+
+    expect(getRunningBuild()).toBeNull()
   })
 })
 
-describe('fetchDeployedBuildId', () => {
+describe('fetchDeployedBuild', () => {
   const originalFetch = global.fetch
 
   afterEach(() => {
     global.fetch = originalFetch
   })
 
-  it('returns the deployed build id', async () => {
-    mockFetch({ json: () => Promise.resolve({ buildId: DEPLOYED_ID }) })
+  it('returns the deployed build', async () => {
+    serveBody({ buildId: DEPLOYED_BUILD.id, builtAt: DEPLOYED_BUILD.builtAt })
 
-    expect(await fetchDeployedBuildId()).toBe(DEPLOYED_ID)
+    expect(await fetchDeployedBuild()).toEqual(DEPLOYED_BUILD)
   })
 
   it('bypasses every cache', async () => {
-    const fetchMock = mockFetch({ json: () => Promise.resolve({ buildId: DEPLOYED_ID }) })
+    const fetchMock = serveBody({ buildId: DEPLOYED_BUILD.id, builtAt: DEPLOYED_BUILD.builtAt })
 
-    await fetchDeployedBuildId()
+    await fetchDeployedBuild()
 
     const [url, init] = fetchMock.mock.calls[0]
 
@@ -72,24 +87,30 @@ describe('fetchDeployedBuildId', () => {
   it('returns null when the file is missing', async () => {
     mockFetch({ ok: false, json: () => Promise.resolve({}) })
 
-    expect(await fetchDeployedBuildId()).toBeNull()
+    expect(await fetchDeployedBuild()).toBeNull()
   })
 
   it('returns null when the SPA fallback answers with index.html', async () => {
     mockFetch({ json: () => Promise.reject(new SyntaxError('Unexpected token <')) })
 
-    expect(await fetchDeployedBuildId()).toBeNull()
+    expect(await fetchDeployedBuild()).toBeNull()
   })
 
-  it('returns null for a malformed body', async () => {
-    mockFetch({ json: () => Promise.resolve({ buildId: 42 }) })
+  it('returns null for a malformed id', async () => {
+    serveBody({ buildId: 42, builtAt: DEPLOYED_BUILD.builtAt })
 
-    expect(await fetchDeployedBuildId()).toBeNull()
+    expect(await fetchDeployedBuild()).toBeNull()
+  })
+
+  it('returns null without a build time', async () => {
+    serveBody({ buildId: DEPLOYED_BUILD.id })
+
+    expect(await fetchDeployedBuild()).toBeNull()
   })
 
   it('returns null on a network error', async () => {
     mockFetch(new TypeError('Failed to fetch'))
 
-    expect(await fetchDeployedBuildId()).toBeNull()
+    expect(await fetchDeployedBuild()).toBeNull()
   })
 })

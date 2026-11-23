@@ -1,7 +1,13 @@
 import { createHash } from 'node:crypto'
 import { type Plugin } from 'vite'
 
-import { BUILD_ID_FILE_NAME, BUILD_ID_LENGTH, BUILD_ID_META_NAME } from './buildId'
+import {
+  type Build,
+  BUILD_ID_FILE_NAME,
+  BUILD_ID_LENGTH,
+  BUILD_ID_META_NAME,
+  BUILT_AT_META_NAME,
+} from './buildId'
 
 const INDEX_HTML = 'index.html'
 
@@ -24,18 +30,19 @@ export const computeBuildId = (files: BundleFile[]): string => {
   return hash.digest('hex').slice(0, BUILD_ID_LENGTH)
 }
 
-export const injectBuildIdMeta = (html: string, buildId: string): string => {
+export const injectBuildMeta = (html: string, build: Build): string => {
   if (!html.includes('</head>')) {
-    throw new Error(`[lago-version-stamp] ${INDEX_HTML} has no </head> to inject the build id into`)
+    throw new Error(`[lago-version-stamp] ${INDEX_HTML} has no </head> to inject the build into`)
   }
 
   return html.replace(
     '</head>',
-    `<meta name="${BUILD_ID_META_NAME}" content="${buildId}" /></head>`,
+    `<meta name="${BUILD_ID_META_NAME}" content="${build.id}" />` +
+      `<meta name="${BUILT_AT_META_NAME}" content="${build.builtAt}" /></head>`,
   )
 }
 
-// Writes the same id into index.html (the build a tab runs) and version.json (the build
+// Writes the same build into index.html (the build a tab runs) and version.json (the build
 // being served now). One build produces both, so they never disagree for the same build.
 export const versionStampPlugin = (): Plugin => ({
   name: 'lago-version-stamp',
@@ -57,14 +64,15 @@ export const versionStampPlugin = (): Plugin => ({
         content: file.type === 'chunk' ? file.code : file.source,
       }))
 
-    const buildId = computeBuildId(files)
+    // builtAt stays out of the hash, so the amd64 and arm64 images keep the same id.
+    const build: Build = { id: computeBuildId(files), builtAt: Date.now() }
 
-    indexHtml.source = injectBuildIdMeta(indexHtml.source.toString(), buildId)
+    indexHtml.source = injectBuildMeta(indexHtml.source.toString(), build)
 
     this.emitFile({
       type: 'asset',
       fileName: BUILD_ID_FILE_NAME,
-      source: JSON.stringify({ buildId }),
+      source: JSON.stringify({ buildId: build.id, builtAt: build.builtAt }),
     })
   },
 })

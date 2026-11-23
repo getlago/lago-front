@@ -1,8 +1,8 @@
 import { act, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
-import { BUILD_ID_META_NAME } from '~/core/appVersion/buildId'
-import { MIN_CHECK_GAP_MS } from '~/core/appVersion/useNewVersionCheck'
+import { type Build, BUILD_ID_META_NAME, BUILT_AT_META_NAME } from '~/core/appVersion/buildId'
+import { MIN_CHECK_GAP_MS, ROLLBACK_CONFIRM_MS } from '~/core/appVersion/useNewVersionCheck'
 import { reloadWithCacheBust } from '~/core/utils/reloadWithCacheBust'
 import { render } from '~/test-utils'
 
@@ -17,29 +17,35 @@ jest.mock('~/core/utils/reloadWithCacheBust', () => ({
   reloadWithCacheBust: jest.fn(),
 }))
 
-const RUNNING_ID = '0123456789abcdef'
-const NEW_ID = 'fedcba9876543210'
-const NEWER_ID = 'aaaaaaaaaaaaaaaa'
+const OLDER: Build = { id: '1111111111111111', builtAt: 1_000 }
+const RUNNING: Build = { id: '0123456789abcdef', builtAt: 2_000 }
+const NEW: Build = { id: 'fedcba9876543210', builtAt: 3_000 }
+const NEWER: Build = { id: 'aaaaaaaaaaaaaaaa', builtAt: 4_000 }
 
-const setRunningBuildId = (buildId: string) => {
-  const meta = document.createElement('meta')
+const setRunningBuild = (build: Build) => {
+  for (const [name, content] of [
+    [BUILD_ID_META_NAME, build.id],
+    [BUILT_AT_META_NAME, String(build.builtAt)],
+  ]) {
+    const meta = document.createElement('meta')
 
-  meta.setAttribute('name', BUILD_ID_META_NAME)
-  meta.setAttribute('content', buildId)
-  document.head.appendChild(meta)
+    meta.setAttribute('name', name)
+    meta.setAttribute('content', content)
+    document.head.appendChild(meta)
+  }
 }
 
-const serveBuildId = (buildId: string) => {
+const serveBuild = (build: Build) => {
   global.fetch = jest.fn().mockResolvedValue({
     ok: true,
-    json: () => Promise.resolve({ buildId }),
+    json: () => Promise.resolve({ buildId: build.id, builtAt: build.builtAt }),
   })
 }
 
 // Moves past the throttle, then refocuses the window, which triggers a check.
-const focusLater = async () => {
+const focusAfter = async (ms = MIN_CHECK_GAP_MS + 1) => {
   await act(async () => {
-    jest.advanceTimersByTime(MIN_CHECK_GAP_MS + 1)
+    jest.advanceTimersByTime(ms)
     window.dispatchEvent(new Event('focus'))
   })
 }
@@ -61,29 +67,29 @@ describe('NewVersionToast', () => {
   })
 
   it('stays hidden while the deployed build is the running one', async () => {
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(RUNNING_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(RUNNING)
     render(<NewVersionToast />)
 
-    await focusLater()
+    await focusAfter()
 
     expect(global.fetch).toHaveBeenCalledTimes(1)
     expect(queryToast()).not.toBeInTheDocument()
   })
 
   it('shows once a new build is deployed', async () => {
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
 
-    await focusLater()
+    await focusAfter()
 
     expect(queryToast()).toBeInTheDocument()
   })
 
   it('does not check right after the page loads', async () => {
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
 
     await act(async () => {
@@ -93,34 +99,60 @@ describe('NewVersionToast', () => {
     expect(global.fetch).not.toHaveBeenCalled()
   })
 
-  it('never checks without a build id, as on the dev server', async () => {
-    serveBuildId(NEW_ID)
+  it('ignores an older build answered by an old pod during a rollout', async () => {
+    setRunningBuild(RUNNING)
+    serveBuild(OLDER)
     render(<NewVersionToast />)
 
-    await focusLater()
+    await focusAfter()
+    serveBuild(RUNNING)
+    await focusAfter(ROLLBACK_CONFIRM_MS)
+    serveBuild(OLDER)
+    await focusAfter()
+
+    expect(queryToast()).not.toBeInTheDocument()
+  })
+
+  it('shows a rollback once the older build is still served after the confirm delay', async () => {
+    setRunningBuild(RUNNING)
+    serveBuild(OLDER)
+    render(<NewVersionToast />)
+
+    await focusAfter()
+    expect(queryToast()).not.toBeInTheDocument()
+
+    await focusAfter(ROLLBACK_CONFIRM_MS)
+    expect(queryToast()).toBeInTheDocument()
+  })
+
+  it('never checks without a running build, as on the dev server', async () => {
+    serveBuild(NEW)
+    render(<NewVersionToast />)
+
+    await focusAfter()
 
     expect(global.fetch).not.toHaveBeenCalled()
     expect(queryToast()).not.toBeInTheDocument()
   })
 
   it('does not hide again when a request reaches a pod still on the old build', async () => {
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
 
-    await focusLater()
-    serveBuildId(RUNNING_ID)
-    await focusLater()
+    await focusAfter()
+    serveBuild(RUNNING)
+    await focusAfter()
 
     expect(queryToast()).toBeInTheDocument()
   })
 
   it('ignores an unreadable answer', async () => {
-    setRunningBuildId(RUNNING_ID)
+    setRunningBuild(RUNNING)
     global.fetch = jest.fn().mockResolvedValue({ ok: false, json: () => Promise.resolve({}) })
     render(<NewVersionToast />)
 
-    await focusLater()
+    await focusAfter()
 
     expect(queryToast()).not.toBeInTheDocument()
   })
@@ -128,10 +160,10 @@ describe('NewVersionToast', () => {
   it('reloads the page from the CTA', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
 
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
-    await focusLater()
+    await focusAfter()
 
     await user.click(screen.getByTestId(NEW_VERSION_TOAST_RELOAD_TEST_ID))
 
@@ -141,44 +173,44 @@ describe('NewVersionToast', () => {
   it('stays closed for the dismissed build and shows again for a later one', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
 
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
-    await focusLater()
+    await focusAfter()
 
     await user.click(screen.getByTestId(NEW_VERSION_TOAST_CLOSE_TEST_ID))
     expect(queryToast()).not.toBeInTheDocument()
 
-    await focusLater()
+    await focusAfter()
     expect(queryToast()).not.toBeInTheDocument()
 
-    serveBuildId(NEWER_ID)
-    await focusLater()
+    serveBuild(NEWER)
+    await focusAfter()
     expect(queryToast()).toBeInTheDocument()
   })
 
   it('keeps every dismissed build quiet while a rollout alternates between two of them', async () => {
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
 
-    setRunningBuildId(RUNNING_ID)
-    serveBuildId(NEW_ID)
+    setRunningBuild(RUNNING)
+    serveBuild(NEW)
     render(<NewVersionToast />)
-    await focusLater()
+    await focusAfter()
     await user.click(screen.getByTestId(NEW_VERSION_TOAST_CLOSE_TEST_ID))
 
-    serveBuildId(NEWER_ID)
-    await focusLater()
-    serveBuildId(NEW_ID)
-    await focusLater()
+    serveBuild(NEWER)
+    await focusAfter()
+    serveBuild(NEW)
+    await focusAfter()
     expect(queryToast()).toBeInTheDocument()
 
     await user.click(screen.getByTestId(NEW_VERSION_TOAST_CLOSE_TEST_ID))
-    serveBuildId(NEW_ID)
-    await focusLater()
+    serveBuild(NEW)
+    await focusAfter()
     expect(queryToast()).not.toBeInTheDocument()
 
-    serveBuildId(NEWER_ID)
-    await focusLater()
+    serveBuild(NEWER)
+    await focusAfter()
     expect(queryToast()).not.toBeInTheDocument()
   })
 })

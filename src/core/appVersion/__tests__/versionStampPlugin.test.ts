@@ -1,7 +1,7 @@
 import type { Rollup } from 'vite'
 
 import { BUILD_ID_FILE_NAME, isBuildId } from '../buildId'
-import { computeBuildId, injectBuildIdMeta, versionStampPlugin } from '../versionStampPlugin'
+import { computeBuildId, injectBuildMeta, versionStampPlugin } from '../versionStampPlugin'
 
 const HTML = '<!doctype html><html><head><title>Lago</title></head><body></body></html>'
 
@@ -45,15 +45,18 @@ describe('computeBuildId', () => {
   })
 })
 
-describe('injectBuildIdMeta', () => {
-  it('adds the meta tag to the head', () => {
-    expect(injectBuildIdMeta(HTML, '0123456789abcdef')).toContain(
-      '<meta name="lago-build-id" content="0123456789abcdef" /></head>',
+describe('injectBuildMeta', () => {
+  const build = { id: '0123456789abcdef', builtAt: 1_000 }
+
+  it('adds the meta tags to the head', () => {
+    expect(injectBuildMeta(HTML, build)).toContain(
+      '<meta name="lago-build-id" content="0123456789abcdef" />' +
+        '<meta name="lago-built-at" content="1000" /></head>',
     )
   })
 
   it('fails the build when the html has no head', () => {
-    expect(() => injectBuildIdMeta('<html></html>', '0123456789abcdef')).toThrow('</head>')
+    expect(() => injectBuildMeta('<html></html>', build)).toThrow('</head>')
   })
 })
 
@@ -83,17 +86,34 @@ describe('versionStampPlugin', () => {
       },
     }) as unknown as Rollup.OutputBundle
 
-  it('writes the same id into index.html and version.json', () => {
+  it('writes the same build into index.html and version.json', () => {
     const bundle = createBundle('console.log("a")')
     const emitFile = runGenerateBundle(bundle)
 
     const { fileName, source } = emitFile.mock.calls[0][0]
-    const { buildId } = JSON.parse(source)
+    const { buildId, builtAt } = JSON.parse(source)
     const html = (bundle['index.html'] as { source: string }).source
 
     expect(fileName).toBe(BUILD_ID_FILE_NAME)
     expect(isBuildId(buildId)).toBe(true)
-    expect(html).toContain(`content="${buildId}"`)
+    expect(html).toContain(`<meta name="lago-build-id" content="${buildId}" />`)
+    expect(html).toContain(`<meta name="lago-built-at" content="${builtAt}" />`)
+  })
+
+  it('keeps the build time out of the id, so two builds of the same code share it', () => {
+    const buildAt = (now: number) => {
+      jest.spyOn(Date, 'now').mockReturnValue(now)
+
+      return JSON.parse(runGenerateBundle(createBundle('console.log("a")')).mock.calls[0][0].source)
+    }
+
+    const first = buildAt(1_000)
+    const second = buildAt(2_000)
+
+    jest.restoreAllMocks()
+
+    expect(first.builtAt).not.toBe(second.builtAt)
+    expect(first.buildId).toBe(second.buildId)
   })
 
   it('ignores source maps', () => {
