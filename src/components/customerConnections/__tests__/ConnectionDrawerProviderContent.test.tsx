@@ -30,6 +30,7 @@ jest.mock('~/components/customerConnections/usePaymentProviders', () => ({
 const ACCOUNTING_PROVIDER_BY_CODE: Record<string, string> = {
   'netsuite-conn': 'netsuite',
   'xero-conn': 'xero',
+  'quickbooks-conn': 'quickbooks',
 }
 
 jest.mock('~/components/customerConnections/useAccountingProviders', () => ({
@@ -55,6 +56,11 @@ jest.mock('~/components/customerConnections/useCrmProviders', () => ({
     isLoadingCrmProviders: false,
     getCrmProviderFromCode: (code?: string) => (code === 'hubspot-conn' ? 'hubspot' : null),
   }),
+}))
+
+// The picker queries the stored QuickBooks customers: covered by its own tests
+jest.mock('~/components/customerConnections/QuickbooksCustomerIdField', () => ({
+  QuickbooksCustomerIdField: () => <div data-test="quickbooks-customer-id-field" />,
 }))
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
@@ -371,6 +377,63 @@ describe('ConnectionDrawerProviderContent — stripe payment methods', () => {
         expect(
           moneyhashContainer.querySelector('[data-test="checkbox-providerPaymentMethods.card"]'),
         ).not.toBeInTheDocument()
+      })
+    })
+  })
+})
+
+describe('ConnectionDrawerProviderContent — QuickBooks customer picker', () => {
+  const quickbooksValues = (overrides: Partial<Values> = {}): Values => ({
+    ...EMPTY_DEFAULTS,
+    providerCode: 'quickbooks-conn',
+    providerType: 'quickbooks',
+    ...overrides,
+  })
+  const picker = (container: HTMLElement) =>
+    container.querySelector('[data-test="quickbooks-customer-id-field"]')
+
+  describe('GIVEN a new QuickBooks connection that does not create the customer', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should show the customer picker instead of the id input', () => {
+        const { container } = render(
+          <Harness category={ConnectionCategory.Accounting} openedValues={quickbooksValues()} />,
+        )
+
+        expect(picker(container)).toBeInTheDocument()
+        expect(externalIdInput(container)).not.toBeInTheDocument()
+        expect(syncCheckbox(container)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the user ticks "create automatically"', () => {
+      it('THEN should swap the picker for the disabled id input and show the notice', () => {
+        const { container } = render(
+          <Harness category={ConnectionCategory.Accounting} openedValues={quickbooksValues()} />,
+        )
+
+        fireEvent.click(syncCheckbox(container) as HTMLInputElement)
+
+        expect(picker(container)).not.toBeInTheDocument()
+        expect(externalIdInput(container)).toBeDisabled()
+        expect(infoAlert(container)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a QuickBooks connection persisted at load', () => {
+    describe('WHEN the content is rendered', () => {
+      it('THEN should show the stored id in the locked input, without the picker', () => {
+        const { container } = render(
+          <Harness
+            category={ConnectionCategory.Accounting}
+            openedValues={quickbooksValues({ externalCustomerId: '58' })}
+            hadInitialConnection
+          />,
+        )
+
+        expect(picker(container)).not.toBeInTheDocument()
+        expect(externalIdInput(container)).toHaveValue('58')
+        expect(externalIdInput(container)).toBeDisabled()
       })
     })
   })

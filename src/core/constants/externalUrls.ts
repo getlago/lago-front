@@ -62,6 +62,14 @@ export const buildAvalaraCustomerUrl = (externalCustomerId?: string | null) => {
 export const buildXeroCustomerUrl = (xeroCustomerId?: string | null) => {
   return `https://go.xero.com/app/contacts/contact/${xeroCustomerId}`
 }
+export const buildQuickbooksCustomerUrl = (
+  quickbooksCustomerId?: string | null,
+  sandbox?: boolean | null,
+) => {
+  const host = sandbox ? 'app.sandbox.qbo.intuit.com' : 'app.qbo.intuit.com'
+
+  return `https://${host}/app/customerdetail?nameId=${quickbooksCustomerId}`
+}
 export const buildXeroInvoiceUrl = (xeroInvoiceId?: string | null) => {
   return `https://go.xero.com/app/invoicing/view/${xeroInvoiceId}`
 }

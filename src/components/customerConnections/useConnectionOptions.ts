@@ -17,6 +17,7 @@ import {
   NetsuiteIntegration,
   PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery,
   ProviderTypeEnum,
+  QuickbooksIntegration,
   SalesforceIntegration,
   XeroIntegration,
 } from '~/generated/graphql'
@@ -25,7 +26,7 @@ type UseConnectionOptionsReturn = {
   connectionOptions: Partial<Record<ConnectionCategory, ConnectionComboBoxDataItem[]>>
   paymentProviders: PaymentProvidersListForCustomerCreateEditExternalAppsAccordionQuery | undefined
   getPaymentProvider: (code: string | undefined) => ProviderTypeEnum | null
-  allAccountingIntegrations: (NetsuiteIntegration | XeroIntegration)[]
+  allAccountingIntegrations: (NetsuiteIntegration | XeroIntegration | QuickbooksIntegration)[]
   allTaxIntegrations: (AnrokIntegration | AvalaraIntegration)[]
   allCrmIntegrations: (HubspotIntegration | SalesforceIntegration)[]
   isLoading: boolean
@@ -51,6 +52,10 @@ export const useConnectionOptions = (): UseConnectionOptionsReturn => {
       }) || []),
       ...(getAllIntegrationForAnIntegrationType<XeroIntegration>({
         integrationType: IntegrationTypeEnum.Xero,
+        allIntegrationsData: accountingProviders,
+      }) || []),
+      ...(getAllIntegrationForAnIntegrationType<QuickbooksIntegration>({
+        integrationType: IntegrationTypeEnum.Quickbooks,
         allIntegrationsData: accountingProviders,
       }) || []),
     ],

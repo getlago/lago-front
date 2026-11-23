@@ -22,6 +22,13 @@ gql`
           code
           name
         }
+        ... on QuickbooksIntegration {
+          __typename
+          id
+          code
+          name
+          sandbox
+        }
       }
     }
   }
