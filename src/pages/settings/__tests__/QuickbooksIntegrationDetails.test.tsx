@@ -36,6 +36,11 @@ jest.mock('~/components/settings/integrations/QuickbooksIntegrationItemsList', (
   },
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
 const mockQueryResult = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
@@ -44,6 +49,7 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 describe('QuickbooksIntegrationDetails', () => {
+  beforeEach(() => mockHasPermissions.mockReturnValue(true))
   afterEach(cleanup)
 
   describe('GIVEN the page is rendered with data', () => {
@@ -135,6 +141,32 @@ describe('QuickbooksIntegrationDetails', () => {
           expect(mockNangoAuth).toHaveBeenCalledWith('quickbooks-sandbox', 'quickbooks-conn-123')
         })
       })
+    })
+  })
+
+  describe('GIVEN a member without integration permissions', () => {
+    it('THEN hides the actions menu', async () => {
+      mockHasPermissions.mockReturnValue(false)
+      mockQueryResult.mockReturnValue({
+        data: {
+          integration: {
+            __typename: 'QuickbooksIntegration',
+            id: 'test-id',
+            name: 'Test Integration',
+            connectionId: 'quickbooks-conn-123',
+            sandbox: true,
+          },
+          integrations: { __typename: 'IntegrationCollection', collection: [] },
+        },
+        loading: false,
+      })
+
+      await renderIntegrationPage(QuickbooksIntegrationDetails, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      expect(await screen.findByText('Test Integration')).toBeInTheDocument()
+      expect(screen.queryByRole('button', { name: /Actions/ })).not.toBeInTheDocument()
     })
   })
 })
