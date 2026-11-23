@@ -74,7 +74,6 @@ export const useNewVersionCheck = (): NewVersionCheck => {
     void check()
   }, [pathname, check])
 
-  // A dismissed build stays quiet. A later deploy shows the toast again.
   const dismiss = useCallback(() => {
     if (availableBuildId) dismissedBuildIdsRef.current.add(availableBuildId)
     setAvailableBuildId(null)

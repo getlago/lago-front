@@ -10,8 +10,8 @@ export const NEW_VERSION_TOAST_TEST_ID = 'new-version-toast'
 export const NEW_VERSION_TOAST_RELOAD_TEST_ID = 'new-version-toast-reload'
 export const NEW_VERSION_TOAST_CLOSE_TEST_ID = 'new-version-toast-close'
 
-// Lives outside toastsVar on purpose: regular toasts auto-dismiss and only the newest three
-// show, while this one stays until the user reloads or closes it.
+// Not in toastsVar: Toast has no slot for an action button, and only the newest three toasts
+// show, so a burst of others could push this one out.
 export const NewVersionToast = () => {
   const { translate } = useInternationalization()
   const { isNewVersionAvailable, dismiss } = useNewVersionCheck()
