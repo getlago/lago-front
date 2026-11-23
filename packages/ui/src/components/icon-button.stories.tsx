@@ -5,11 +5,12 @@ import { IconButton } from './icon-button'
 import docs from './icon-button.md?raw'
 import { TooltipProvider } from './tooltip'
 
-const actions = [
-  { label: 'Add customer', icon: Plus },
-  { label: 'Copy invoice number', icon: Copy },
-  { label: 'Download invoice', icon: Download },
-]
+const sizes = [
+  { size: 'icon-xs', label: 'Extra small · 20px' },
+  { size: 'icon-sm', label: 'Small · 32px' },
+  { size: 'icon', label: 'Default · 36px' },
+  { size: 'icon-lg', label: 'Large · 40px' },
+] as const
 
 const meta = {
   title: 'Components/IconButton',
@@ -19,7 +20,14 @@ const meta = {
   args: {
     label: 'Copy invoice number',
     variant: 'secondary',
+    size: 'icon',
     children: <Copy aria-hidden="true" />,
+  },
+  argTypes: {
+    size: {
+      control: 'select',
+      options: sizes.map(({ size }) => size),
+    },
   },
   decorators: [
     (Story) => (
@@ -38,22 +46,15 @@ export const Default: Story = {}
 
 export const Sizes: Story = {
   render: () => (
-    <div className="space-y-4">
-      <div className="flex gap-4" role="group" aria-label="Icon actions">
-        {actions.map(({ label, icon: Icon }, index) => (
-          <IconButton
-            key={label}
-            label={label}
-            variant="secondary"
-            size={(['icon-sm', 'icon', 'icon-lg'] as const)[index]}
-          >
-            <Icon aria-hidden="true" />
+    <div className="flex flex-wrap items-start gap-6" role="group" aria-label="Icon button sizes">
+      {sizes.map(({ size, label }) => (
+        <div key={size} className="flex flex-col items-start gap-2">
+          <IconButton label={`Copy invoice number (${label})`} variant="secondary" size={size}>
+            <Copy aria-hidden="true" />
           </IconButton>
-        ))}
-      </div>
-      <p className="v2-text-caption">
-        IconButton: small 32px, default 36px, large 40px. Icons remain 14px.
-      </p>
+          <span className="v2-text-caption text-text-muted">{label}</span>
+        </div>
+      ))}
     </div>
   ),
 }
