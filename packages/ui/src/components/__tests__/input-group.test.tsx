@@ -45,6 +45,42 @@ it('edits and submits only the input value while preserving native events and se
   expect(new FormData(screen.getByRole('form') as HTMLFormElement).get('domain')).toBe('aXe')
 })
 
+it('preserves native caret placement when clicking inside the input', async () => {
+  const user = userEvent.setup()
+
+  render(
+    <InputGroup>
+      <InputGroupInput aria-label="Domain" defaultValue="acme" />
+    </InputGroup>,
+  )
+  const input = screen.getByRole<HTMLInputElement>('textbox', { name: 'Domain' })
+
+  await user.pointer({ target: input, offset: 2, keys: '[MouseLeft]' })
+
+  expect(input).toHaveFocus()
+  expect(input.selectionStart).toBe(2)
+  expect(input.selectionEnd).toBe(2)
+})
+
+it('does not focus the input when right-clicking an addon', async () => {
+  const user = userEvent.setup()
+
+  render(
+    <InputGroup>
+      <InputGroupInput aria-label="Domain" defaultValue="acme" />
+      <InputGroupAddon>
+        <InputGroupText>https://</InputGroupText>
+      </InputGroupAddon>
+    </InputGroup>,
+  )
+  const input = screen.getByRole('textbox', { name: 'Domain' })
+
+  await user.pointer({ target: screen.getByText('https://'), keys: '[MouseRight]' })
+
+  expect(input).not.toHaveFocus()
+  expect(input).toHaveValue('acme')
+})
+
 it('supports controlled changes and native uncontrolled reset', async () => {
   const user = userEvent.setup()
   const change = jest.fn()
