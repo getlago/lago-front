@@ -25,7 +25,7 @@ export const NewVersionToast = () => {
       className="fixed bottom-4 right-4 z-toast box-border flex w-[360px] max-w-[calc(100vw-32px)] animate-fade-in-right cursor-default items-start gap-3 rounded-xl bg-grey-700 p-4 text-white shadow-lg"
       data-test={NEW_VERSION_TOAST_TEST_ID}
     >
-      <Icon name="info-circle" color="light" className="mt-0.5" />
+      <Icon name="info-circle" color="light" className="mt-1" />
       <div className="flex flex-1 flex-col items-start gap-1">
         <Typography variant="bodyHl" color="white">
           {translate('text_1795447103881sn8hk9lt6p3')}
