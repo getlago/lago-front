@@ -4,7 +4,7 @@ import {
   getCurrentOrganizationId,
   getPersistedOrganizationSlug,
 } from '~/core/apolloClient/reactiveVars'
-import { OrgSlugResolverDataFragment } from '~/generated/graphql'
+import { OrganizationActivationStatusEnum, OrgSlugResolverDataFragment } from '~/generated/graphql'
 
 import { getFirstPathSegment } from './getFirstPathSegment'
 
@@ -16,6 +16,7 @@ gql`
         id
         slug
         accessibleByCurrentSession
+        activationStatus
       }
     }
   }
@@ -28,8 +29,20 @@ type Membership = OrgSlugResolverDataFragment['memberships'][number]
 export const getAccessibleMemberships = (currentUser: CurrentUser): Membership[] =>
   currentUser?.memberships?.filter((m) => m.organization.accessibleByCurrentSession) ?? []
 
-export const isAccessibleOrgSlug = (slug: string | undefined, currentUser: CurrentUser): boolean =>
-  !!slug && getAccessibleMemberships(currentUser).some((m) => m.organization.slug === slug)
+// A production organization waiting for a payment method only opens on `PendingOrganizationShell`,
+// so it is never landed on while the session can open another organization.
+export const getLandingMemberships = (currentUser: CurrentUser): Membership[] => {
+  const accessibleMemberships = getAccessibleMemberships(currentUser)
+  const openMemberships = accessibleMemberships.filter(
+    (m) =>
+      m.organization.activationStatus !== OrganizationActivationStatusEnum.PendingPaymentMethod,
+  )
+
+  return openMemberships.length ? openMemberships : accessibleMemberships
+}
+
+export const isLandingOrgSlug = (slug: string | undefined, currentUser: CurrentUser): boolean =>
+  !!slug && getLandingMemberships(currentUser).some((m) => m.organization.slug === slug)
 
 export const findRefusedOrganization = <User extends OrgSlugResolverDataFragment>(
   slug: string | undefined,
@@ -46,19 +59,19 @@ export const findRefusedOrganization = <User extends OrgSlugResolverDataFragment
  * Resolves the org slug to land on when the URL has no (valid) slug — e.g. a
  * legacy slug-less path or the user deleting the slug from the URL bar.
  *
- * Priority (each validated against the memberships the session can open):
+ * Priority (each validated against `getLandingMemberships`):
  *   1. The in-memory current org (`getCurrentOrganizationId()`) — set per-tab
  *      while navigating inside an org. Correct mid-session and multi-tab safe,
  *      but `null` after a hard reload (the var is not persisted).
  *   2. The persisted "last used" slug (`getPersistedOrganizationSlug()`) — the
  *      only signal that survives a hard reload, so a cold load of a slug-less
  *      path recovers to the org the user was last on instead of `memberships[0]`.
- *   3. Fallback to the first accessible membership's org slug.
+ *   3. Fallback to the first landing membership's org slug.
  *
  * Returns `undefined` when the session cannot open any of the user's organizations.
  */
 export const resolveOrgSlug = (currentUser: CurrentUser): string | undefined => {
-  const memberships = getAccessibleMemberships(currentUser)
+  const memberships = getLandingMemberships(currentUser)
 
   const currentOrgId = getCurrentOrganizationId()
   const fromCurrentOrg = memberships.find((m) => m.organization.id === currentOrgId)?.organization
