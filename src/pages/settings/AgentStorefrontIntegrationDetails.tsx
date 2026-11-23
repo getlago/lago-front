@@ -242,6 +242,7 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
                 title: translate('text_1795087403334v09qxm7w3ze'),
                 maxSpace: true,
                 truncateOverflow: true,
+                tdCellClassName: '[&_.lago-table-inner-cell]:!max-w-none',
                 content: ({ labelKey, url }) => (
                   <div className="flex min-w-0 max-w-full flex-col items-start">
                     <Typography variant="body" color="grey700">
