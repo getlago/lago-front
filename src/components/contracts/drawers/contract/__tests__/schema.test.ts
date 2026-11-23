@@ -3,6 +3,7 @@ import { contractSchema } from '../schema'
 const validValues = {
   externalCustomerId: 'customer-external-id',
   planCode: 'enterprise',
+  code: 'initial',
   name: '',
   consolidateInvoice: true,
   startedAt: '2099-01-01T00:00:00.000Z',
@@ -15,11 +16,12 @@ describe('contractSchema', () => {
     expect(contractSchema.safeParse(validValues).success).toBe(true)
   })
 
-  it('requires a customer, plan and start date', () => {
+  it('requires a customer, plan, code and start date', () => {
     const result = contractSchema.safeParse({
       ...validValues,
       externalCustomerId: '',
       planCode: '',
+      code: '',
       startedAt: '',
     })
 
@@ -29,6 +31,7 @@ describe('contractSchema', () => {
     expect(result.error.issues.map(({ path }) => path[0])).toEqual([
       'externalCustomerId',
       'planCode',
+      'code',
       'startedAt',
     ])
   })
@@ -70,6 +73,15 @@ describe('contractSchema', () => {
 
   it('always requires a plan', () => {
     expect(contractSchema.safeParse({ ...validValues, planCode: '' }).success).toBe(false)
+  })
+
+  it.each(['', '   ', undefined])('rejects an empty code: %s', (code) => {
+    const result = contractSchema.safeParse({ ...validValues, code })
+
+    expect(result.success).toBe(false)
+    if (result.success) return
+
+    expect(result.error.issues.map(({ path }) => path)).toEqual([['code']])
   })
 
   // `Contracts::UpdateService` accepts the stored end date resent unchanged, even once it has passed.

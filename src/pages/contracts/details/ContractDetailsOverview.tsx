@@ -12,7 +12,6 @@ const isOverviewSection = (value?: string): value is ContractOverviewSectionsEnu
   Object.values(ContractOverviewSectionsEnum).includes(value as ContractOverviewSectionsEnum)
 
 type ContractDetailsOverviewProps = {
-  contractExternalId?: string
   currency: CurrencyEnum | undefined
   rateCardsCount?: number
   loading?: boolean
@@ -20,7 +19,6 @@ type ContractDetailsOverviewProps = {
 }
 
 export const ContractDetailsOverview = ({
-  contractExternalId,
   currency,
   rateCardsCount,
   loading = false,
@@ -36,7 +34,6 @@ export const ContractDetailsOverview = ({
       return (
         <ContractRateCardsSection
           contractId={id}
-          contractExternalId={contractExternalId}
           currency={currency}
           isLocked={isRateCardsLocked}
         />

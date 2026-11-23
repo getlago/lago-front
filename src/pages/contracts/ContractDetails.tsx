@@ -159,7 +159,6 @@ const ContractDetails = (): JSX.Element => {
             content: (
               <DetailsPage.Container className="pb-0 pt-6">
                 <ContractDetailsOverview
-                  contractExternalId={contract?.externalId}
                   currency={contract?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
                   isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
