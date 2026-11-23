@@ -1,6 +1,7 @@
 import {
   BUILD_ID_META_NAME,
   BUILT_AT_META_NAME,
+  FETCH_TIMEOUT_MS,
   fetchDeployedBuild,
   getRunningBuild,
 } from '../buildId'
@@ -106,6 +107,23 @@ describe('fetchDeployedBuild', () => {
     serveBody({ buildId: DEPLOYED_BUILD.id })
 
     expect(await fetchDeployedBuild()).toBeNull()
+  })
+
+  it('gives up on a request that never settles', async () => {
+    jest.useFakeTimers()
+    global.fetch = jest.fn(
+      (_url: string, init: RequestInit) =>
+        new Promise((_resolve, reject) => {
+          init.signal?.addEventListener('abort', () => reject(init.signal?.reason))
+        }),
+    ) as unknown as typeof fetch
+
+    const result = fetchDeployedBuild()
+
+    jest.advanceTimersByTime(FETCH_TIMEOUT_MS)
+
+    expect(await result).toBeNull()
+    jest.useRealTimers()
   })
 
   it('returns null on a network error', async () => {

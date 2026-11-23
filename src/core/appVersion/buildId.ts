@@ -6,6 +6,8 @@ export const BUILT_AT_META_NAME = 'lago-built-at'
 export const BUILD_ID_FILE_NAME = 'version.json'
 
 export const BUILD_ID_LENGTH = 16
+// A request that never settles would block every later check.
+export const FETCH_TIMEOUT_MS = 10 * 1000
 
 const BUILD_ID_PATTERN = new RegExp(`^[0-9a-f]{${BUILD_ID_LENGTH}}$`)
 
@@ -40,7 +42,11 @@ export const fetchDeployedBuild = async (): Promise<Build | null> => {
     // The query string gets past proxies that would cache the file despite its headers.
     url.searchParams.set('t', Date.now().toString())
 
-    const response = await fetch(url.toString(), { cache: 'no-store', credentials: 'same-origin' })
+    const response = await fetch(url.toString(), {
+      cache: 'no-store',
+      credentials: 'same-origin',
+      signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+    })
 
     if (!response.ok) return null
 
