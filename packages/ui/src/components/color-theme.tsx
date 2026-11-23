@@ -1,5 +1,5 @@
 import { Slot } from '@radix-ui/react-slot'
-import { createContext, HTMLAttributes, useContext } from 'react'
+import { createContext, forwardRef, HTMLAttributes, useContext } from 'react'
 
 export type ColorMode = 'light' | 'dark'
 
@@ -17,9 +17,12 @@ export const ColorTheme = ({ mode, asChild = false, ...props }: ColorThemeProps)
   )
 }
 
-export const ColorThemePortal = ({ asChild = false, ...props }: ThemeElementProps): JSX.Element => {
-  const mode = useContext(ColorThemeContext)
-  const Comp = asChild ? Slot : 'div'
+export const ColorThemePortal = forwardRef<HTMLDivElement, ThemeElementProps>(
+  ({ asChild = false, ...props }, ref): JSX.Element => {
+    const mode = useContext(ColorThemeContext)
+    const Comp = asChild ? Slot : 'div'
 
-  return <Comp {...props} data-color-theme={mode} />
-}
+    return <Comp {...props} ref={ref} data-color-theme={mode} />
+  },
+)
+ColorThemePortal.displayName = 'ColorThemePortal'

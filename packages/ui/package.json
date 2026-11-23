@@ -28,6 +28,7 @@
     "test:docs": "node --test scripts/docs.test.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@radix-ui/react-dropdown-menu": "catalog:",
     "@radix-ui/react-separator": "catalog:",
     "@radix-ui/react-slot": "catalog:",

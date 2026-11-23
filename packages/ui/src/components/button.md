@@ -16,14 +16,14 @@ import { Button } from 'lago-ui/button'
 
 ## API
 
-| Prop | Values | Default |
-| --- | --- | --- |
-| `variant` | `default` (primary), `secondary`, `outline`, `ghost`, `link`, `destructive` | `default` |
-| `size` | text: `sm` (32px), `default` (36px), `lg` (40px); icon-only: `icon-sm` (32px), `icon` (36px), `icon-lg` (40px) | `default` |
-| `loading` | `boolean`: shows a spinner, keeps label and width, blocks activation | `false` |
-| `disabled` | `boolean`: disabled tokens, blocks activation | `false` |
-| `asChild` | `boolean`: renders its single child (e.g. a router `Link`) with button styles | `false` |
-| `type` | native button type | `button` |
+| Prop       | Values                                                                                                                           | Default   |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| `variant`  | `default` (primary), `secondary`, `outline`, `ghost`, `link`, `destructive`                                                      | `default` |
+| `size`     | text: `sm` (32px), `default` (36px), `lg` (40px); icon-only: `icon-xs` (20px), `icon-sm` (32px), `icon` (36px), `icon-lg` (40px) | `default` |
+| `loading`  | `boolean`: shows a spinner, keeps label and width, blocks activation                                                             | `false`   |
+| `disabled` | `boolean`: disabled tokens, blocks activation                                                                                    | `false`   |
+| `asChild`  | `boolean`: renders its single child (e.g. a router `Link`) with button styles                                                    | `false`   |
+| `type`     | native button type                                                                                                               | `button`  |
 
 Forwards its ref and every native button attribute.
 

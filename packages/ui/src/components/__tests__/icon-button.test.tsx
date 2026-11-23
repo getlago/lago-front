@@ -21,7 +21,7 @@ describe('IconButton', () => {
 
     render(
       <TooltipProvider>
-        <IconButton label="Copy invoice number" ref={ref} onClick={onClick}>
+        <IconButton label="Copy invoice number" size="icon-xs" ref={ref} onClick={onClick}>
           <Copy aria-hidden="true" />
         </IconButton>
       </TooltipProvider>,
@@ -70,7 +70,7 @@ describe('IconButton', () => {
 
       render(
         <TooltipProvider>
-          <IconButton label="Copy" {...{ [state]: true }} onClick={onClick}>
+          <IconButton label="Copy" size="icon-xs" {...{ [state]: true }} onClick={onClick}>
             <Copy aria-hidden="true" />
           </IconButton>
         </TooltipProvider>,

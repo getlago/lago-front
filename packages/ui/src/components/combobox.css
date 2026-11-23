@@ -1,0 +1,187 @@
+.v2-combobox {
+  width: 100%;
+  min-width: min(240px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.v2-combobox-control {
+  position: relative;
+  min-height: 36px;
+  border: 1px solid var(--color-border-control);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+.v2-combobox-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: inherit;
+  outline: none;
+}
+.v2-combobox-control:has(> .v2-combobox-chips) {
+  padding: 4px 32px 4px 4px;
+}
+.v2-combobox-trigger-overlay {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+}
+.v2-combobox-chips,
+.v2-combobox-readonly {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.v2-combobox-chip {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  max-width: 100%;
+  min-width: 0;
+  flex-shrink: 1;
+  height: 24px;
+  padding-left: 8px;
+}
+.v2-combobox-control > .v2-combobox-chips {
+  position: relative;
+  z-index: 1;
+  pointer-events: none;
+  gap: 4px;
+}
+.v2-combobox-chip button {
+  pointer-events: auto;
+}
+.v2-combobox-chip:focus-visible {
+  outline: 1px solid var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-combobox:not([data-disabled]):not([data-readonly]):not(fieldset:disabled *)
+  .v2-combobox-control:hover,
+.v2-field:has([data-slot='field-label']:hover, [data-slot='field-description']:hover)
+  .v2-combobox:not([data-disabled]):not([data-readonly]):not(fieldset:disabled *)
+  .v2-combobox-control {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox-control:has(.v2-combobox-trigger:focus-visible),
+.v2-combobox-control[data-open] {
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-combobox-control[data-invalid='true'] {
+  border-color: var(--color-danger-border);
+}
+.v2-combobox[data-readonly] .v2-combobox-control {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox[data-disabled] .v2-combobox-control,
+fieldset:disabled .v2-combobox-control {
+  background: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-foreground);
+  cursor: not-allowed;
+}
+.v2-combobox-positioner {
+  z-index: 2100;
+  outline: none;
+}
+.v2-combobox-popup {
+  display: flex;
+  flex-direction: column;
+  width: var(--anchor-width);
+  max-width: var(--available-width);
+  max-height: var(--available-height);
+  overflow: hidden;
+  border: 1px solid var(--color-border-divider);
+  border-radius: 12px;
+  padding: 4px;
+  background: var(--color-surface-floating);
+  color: var(--color-text-default);
+  box-shadow: var(--v2-shadow-floating);
+  outline: none;
+}
+.v2-combobox-search {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 4px;
+}
+.v2-combobox-list {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 4px 0;
+}
+.v2-combobox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: default;
+  outline: none;
+}
+.v2-combobox-item[data-highlighted] {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox-item[data-disabled] {
+  color: var(--color-disabled-foreground);
+}
+.v2-combobox-group-label {
+  padding: 8px;
+  color: var(--color-text-muted);
+}
+.v2-combobox-status {
+  padding: 12px 8px;
+  color: var(--color-text-muted);
+}
+.v2-combobox-separator {
+  width: calc(100% + 8px);
+  height: 1px;
+  flex-shrink: 0;
+  margin: 0 -4px;
+  background: var(--color-border-divider);
+}
+.v2-combobox-footer {
+  flex-shrink: 0;
+  background: var(--color-surface-floating);
+}
+.v2-combobox-footer > button {
+  margin-top: 4px;
+}
+.v2-combobox-text {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  flex: 1;
+}
+@media (forced-colors: active) {
+  .v2-combobox-control:focus-within {
+    outline: 2px solid Highlight;
+  }
+  .v2-combobox-item[data-highlighted] {
+    outline: 1px solid Highlight;
+  }
+}
+
+.v2-combobox[data-disabled] .v2-combobox-trigger > svg,
+fieldset:disabled .v2-combobox-trigger > svg {
+  color: inherit;
+}
+fieldset:disabled .v2-combobox-chip button {
+  display: none;
+}
+fieldset:disabled .v2-combobox-chip {
+  padding-right: 8px;
+  color: var(--color-disabled-foreground);
+}
+
+.v2-combobox-list:empty {
+  padding: 0;
+}

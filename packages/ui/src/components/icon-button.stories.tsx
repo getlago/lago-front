@@ -40,6 +40,9 @@ export const Sizes: Story = {
   render: () => (
     <div className="space-y-4">
       <div className="flex gap-4" role="group" aria-label="Icon actions">
+        <IconButton label="Extra-small copy" size="icon-xs" variant="secondary">
+          <Copy aria-hidden="true" />
+        </IconButton>
         {actions.map(({ label, icon: Icon }, index) => (
           <IconButton
             key={label}
@@ -52,7 +55,7 @@ export const Sizes: Story = {
         ))}
       </div>
       <p className="v2-text-caption">
-        IconButton: small 32px, default 36px, large 40px. Icons remain 14px.
+        IconButton: extra-small 20px, small 32px, default 36px, large 40px. Icons remain 14px.
       </p>
     </div>
   ),
@@ -67,6 +70,34 @@ export const BlockedStates: Story = {
       <IconButton label="Downloading invoice" variant="secondary" loading>
         <Download aria-hidden="true" />
       </IconButton>
+    </div>
+  ),
+}
+
+export const ExtraSmall: Story = {
+  render: () => (
+    <div className="space-y-6">
+      {(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const).map(
+        (variant) => (
+          <div key={variant} className="flex items-center gap-6">
+            <span className="v2-text-caption w-24">{variant}</span>
+            <IconButton label={`Copy (${variant})`} variant={variant} size="icon-xs">
+              <Copy aria-hidden="true" />
+            </IconButton>
+            <IconButton
+              label={`Copy unavailable (${variant})`}
+              variant={variant}
+              size="icon-xs"
+              disabled
+            >
+              <Copy aria-hidden="true" />
+            </IconButton>
+            <IconButton label={`Copying (${variant})`} variant={variant} size="icon-xs" loading>
+              <Copy aria-hidden="true" />
+            </IconButton>
+          </div>
+        ),
+      )}
     </div>
   ),
 }
