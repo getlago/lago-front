@@ -74,6 +74,7 @@ export const addContractDateAndPurchaseOrderIssues = (
 export const contractSchema = z.custom<ContractFormValues>().superRefine((data, ctx) => {
   requireField(ctx, data.externalCustomerId, ['externalCustomerId'])
   requireField(ctx, data.planCode, ['planCode'])
+  requireField(ctx, data.code?.trim(), ['code'])
 
   addContractDateAndPurchaseOrderIssues(ctx, data)
 })

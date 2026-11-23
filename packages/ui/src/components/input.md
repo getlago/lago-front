@@ -1,41 +1,39 @@
 # Input
 
-Single-line native text input. **Provisional**: not yet aligned with the v2 design.
+Native single-line inputs aligned with the v2 design.
 
 ## When to use
 
-- Do not adopt it in new UI yet. Its border, focus ring, placeholder and invalid colors come from the shadcn scaffold (`border-input`, `ring-ring`, `text-muted-foreground`, `border-destructive`) and none of them is a v2 token. The app still defines them, so it renders with the scaffold greys there; the `lago-ui` preset deliberately does not, so Storybook shows it without them until it is aligned.
-- Until it is aligned, keep using the legacy form fields for production forms.
-- The target appearance is already defined in [component surfaces](../styles/component-surfaces.md): `surface-subtle` background, `border-control` border, `danger-border` when invalid.
+Use Input for text entry, SearchInput for search, and PasswordInput for a password with a visibility toggle. Formatting and form state belong in the app. AmountInput, multiline fields, and arbitrary adornments are separate work. Existing legacy fields are not migrated automatically.
 
 ## Import
 
 ```tsx
-import { Input } from 'lago-ui/input'
+import { Input, PasswordInput, SearchInput } from 'lago-ui/input'
 ```
 
 ## API
 
-Every native `input` attribute (`type`, `value`, `onChange`, `disabled`, `aria-invalid`, …) plus `className`. Forwards its ref.
+Input accepts native input props, an HTMLInputElement ref, className, and `variant="default" | "search" | "borderless"`. It uses native onChange events and supports both value/onChange and defaultValue. SearchInput fixes type and variant to search. PasswordInput requires translated showPasswordLabel and hidePasswordLabel strings and owns only visibility state. Both forward refs to the input. No radius option or clear action.
 
 ## Examples
 
 ```tsx
-<Input type="text" placeholder="Customer name" />
-<Input type="number" inputMode="decimal" />
-<Input type="file" />
+<Input id="name" name="name" autoComplete="organization" />
+<Input variant="borderless" aria-label="Usage threshold" inputMode="decimal" />
+<PasswordInput aria-label="Password" showPasswordLabel="Show password" hidePasswordLabel="Hide password" />
 ```
 
 ## Accessibility
 
-- Always associate a visible label (`<label htmlFor>` or `aria-labelledby`); a placeholder is not a label.
-- Mark errors with `aria-invalid` and link the message with `aria-describedby`.
+Associate a label through htmlFor/id or provide an accessible name. Link description/error IDs using aria-describedby; mark errors with aria-invalid. Disabled prevents editing/focus; readOnly allows focus and selection. Password reveal is a button that never submits the form. Search has no clear button. Table containers must not clip focus rings. Native autocomplete and inputMode remain caller-controlled.
 
 ## Design
 
-36px high, `v2-text-body` typography, 6px radius, 12px horizontal padding. Disabled lowers opacity and shows a not-allowed cursor. Color tokens are pending the alignment described above.
+36px high, 8px rounded corners, 12px horizontal padding, regular 14/20 typography. Placeholders use text-subtle; entered values use text-default. Plain defaults to surface; hover/read-only and search use surface-subtle. Password focus also uses surface-subtle. Invalid inputs use surface at rest and surface-subtle on hover, retaining danger-border. Autofill follows the same semantic backgrounds, text colors and focus ring in both themes. Borderless uses surface at rest and is transparent when read-only. Focus uses focus-border and a 4px focus-ring with no gap; invalid keeps danger-border during focus. Disabled uses semantic disabled colors, not opacity. Search and password icons use icon-muted, with an 8px gap to the text. Place Input and FieldError directly inside Field for the 8px content-to-control and 4px control-to-error gaps. Input retains its invalid styling when used without Field.
 
 ## References
 
+- [Field](./field.md)
 - Storybook: Components / Input
 - Tests: `__tests__/input.test.tsx`

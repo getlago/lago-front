@@ -77,7 +77,7 @@ describe('useContractAttachedObjectDrawer', () => {
     expect(lastDrawerArgs?.shouldPromptOnClose?.()).toBe(false)
   })
 
-  it('submits the attached object fields keyed on the contract external id, then closes', async () => {
+  it('submits the attached object fields keyed on the contract id, then closes', async () => {
     let capturedInput: Record<string, unknown> = {}
     const { result } = renderDrawerHook([
       updateContractMock((input) => {
@@ -89,7 +89,7 @@ describe('useContractAttachedObjectDrawer', () => {
     await submit()
 
     expect(capturedInput).toEqual({
-      externalId: 'external-contract-1',
+      id: 'contract-1',
       planCode: 'enterprise',
       billingEntityId: 'billing-entity-2',
     })
