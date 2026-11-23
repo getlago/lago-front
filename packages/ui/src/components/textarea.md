@@ -49,6 +49,8 @@ Minimum height 78px; 12px horizontal padding (px-3), 8px vertical padding (py-2)
 
 ## References
 
+The States story shows standalone controls. For labels, descriptions and errors across each state, see Components / Field.
+
 - [Field](./field.md)
 - [Input](./input.md)
 - [shadcn Textarea](https://ui.shadcn.com/docs/components/base/textarea)

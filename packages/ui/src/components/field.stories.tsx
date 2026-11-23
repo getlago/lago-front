@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { useId } from 'react'
+import { Mail } from 'lucide-react'
+import { type ReactElement, useId } from 'react'
 
 import { Badge } from './badge'
 import {
@@ -13,6 +14,8 @@ import {
 } from './field'
 import docs from './field.md?raw'
 import { Input, PasswordInput, SearchInput } from './input'
+import { InputGroup, InputGroupAddon, InputGroupInput } from './input-group'
+import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
 
 const meta = {
@@ -122,3 +125,86 @@ export const Disabled: Story = {
     </Field>
   ),
 }
+
+const FieldStates = ({
+  control,
+}: {
+  control: 'input' | 'input-group' | 'textarea'
+}): ReactElement => {
+  const id = useId()
+  const { label, description, value } = {
+    input: {
+      label: 'Customer name',
+      description: 'Shown on customer invoices.',
+      value: 'Acme Corporation',
+    },
+    'input-group': {
+      label: 'Email address',
+      description: 'Where we send billing notifications.',
+      value: 'billing@acme.com',
+    },
+    textarea: {
+      label: 'Description',
+      description: 'Shown on customer invoices.',
+      value: 'Monthly subscription.',
+    },
+  }[control]
+
+  return (
+    <div className="flex max-w-md flex-col gap-6">
+      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid'].map((state) => {
+        const controlId = `${id}-${state}`
+        const invalid = state === 'Invalid'
+        const controlProps = {
+          id: controlId,
+          placeholder: `Enter ${label.toLowerCase()}`,
+          defaultValue: state === 'Empty' ? undefined : value,
+          disabled: state === 'Disabled',
+          readOnly: state === 'Read-only',
+          'aria-invalid': invalid || undefined,
+          'aria-describedby': `${controlId}-description${invalid ? ` ${controlId}-error` : ''}`,
+        } as const
+
+        const renderControl = (): ReactElement => {
+          if (control === 'input') return <Input {...controlProps} />
+          if (control === 'textarea') return <Textarea {...controlProps} />
+
+          return (
+            <InputGroup>
+              <InputGroupInput {...controlProps} type="email" autoComplete="email" />
+              <InputGroupAddon>
+                <Mail aria-hidden="true" />
+              </InputGroupAddon>
+            </InputGroup>
+          )
+        }
+
+        return (
+          <div key={state} className="flex flex-col gap-2">
+            <p className="v2-text-caption text-text-muted">{state}</p>
+            <Field data-disabled={controlProps.disabled || undefined}>
+              <FieldContent>
+                <FieldLabel htmlFor={controlId}>{label}</FieldLabel>
+                <FieldDescription id={`${controlId}-description`}>{description}</FieldDescription>
+              </FieldContent>
+              {renderControl()}
+              {invalid && (
+                <FieldError id={`${controlId}-error`}>
+                  Please enter a valid {label.toLowerCase()}.
+                </FieldError>
+              )}
+            </Field>
+          </div>
+        )
+      })}
+      <p className="v2-text-caption text-text-muted">
+        Hover and focus the editable controls to review hover, focus, invalid + hover and invalid +
+        focus. Use the toolbar to switch themes.
+      </p>
+    </div>
+  )
+}
+
+export const WithInput: Story = { render: () => <FieldStates control="input" /> }
+export const WithInputGroup: Story = { render: () => <FieldStates control="input-group" /> }
+export const WithTextarea: Story = { render: () => <FieldStates control="textarea" /> }

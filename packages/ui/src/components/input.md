@@ -4,7 +4,7 @@ Native single-line inputs aligned with the v2 design.
 
 ## When to use
 
-Use Input for text entry, SearchInput for search, and PasswordInput for a password with a visibility toggle. Formatting and form state belong in the app. AmountInput, multiline fields, and arbitrary adornments are separate work. Existing legacy fields are not migrated automatically.
+Use Input for text entry, SearchInput for search, and PasswordInput for a password with a visibility toggle. For prefixes, suffixes or additional content such as a search result count, use [Input Group](./input-group.md). SearchInput remains the default for a standard search field; Input Group uses the standard bordered style. Formatting and form state belong in the app. AmountInput and multiline fields are separate work. Existing legacy fields are not migrated automatically.
 
 ## Import
 
@@ -33,6 +33,8 @@ Associate a label through htmlFor/id or provide an accessible name. Link descrip
 36px high, 8px rounded corners, 12px horizontal padding, regular 14/20 typography. Placeholders use text-subtle; entered values use text-default. Plain defaults to surface; hover/read-only and search use surface-subtle. Password focus also uses surface-subtle. Invalid inputs use surface at rest and surface-subtle on hover, retaining danger-border. Autofill follows the same semantic backgrounds, text colors and focus ring in both themes. Borderless uses surface at rest and is transparent when read-only. Focus uses focus-border and a 4px focus-ring with no gap; invalid keeps danger-border during focus. Disabled uses semantic disabled colors, not opacity. Search and password icons use icon-muted, with an 8px gap to the text. Place Input and FieldError directly inside Field for the 8px content-to-control and 4px control-to-error gaps. Input retains its invalid styling when used without Field.
 
 ## References
+
+The States story shows standalone controls. For labels, descriptions and errors across each state, see Components / Field.
 
 - [Field](./field.md)
 - Storybook: Components / Input

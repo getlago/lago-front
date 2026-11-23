@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
-import { Field, FieldContent, FieldError, FieldLabel } from './field'
 import { Input, PasswordInput, SearchInput } from './input'
 import docs from './input.md?raw'
 
@@ -27,30 +26,28 @@ export const Default: Story = {
 
 export const States: Story = {
   render: () => (
-    <div className="flex flex-col gap-4">
-      <Input aria-label="Empty" placeholder="Enter a name" />
-      <Input aria-label="Filled" defaultValue="Acme Corporation" />
-      <Input aria-label="Disabled" defaultValue="Acme Corporation" disabled />
-      <Input aria-label="Read-only" defaultValue="Acme Corporation" readOnly />
-      <Field>
-        <FieldContent>
-          <FieldLabel htmlFor="invalid-name">Customer name</FieldLabel>
-        </FieldContent>
-        <Input
-          id="invalid-name"
-          aria-invalid
-          aria-describedby="invalid-name-error"
-          defaultValue="Acme Corporation"
-        />
-        <FieldError id="invalid-name-error">Please enter a valid value.</FieldError>
-      </Field>
+    <div className="flex flex-col gap-6">
+      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid'].map((state) => (
+        <div key={state} className="flex flex-col gap-2">
+          <p className="v2-text-caption text-text-muted">{state}</p>
+          <Input
+            aria-label={state}
+            placeholder="Enter a name"
+            defaultValue={state === 'Empty' ? undefined : 'Acme Corporation'}
+            disabled={state === 'Disabled'}
+            readOnly={state === 'Read-only'}
+            aria-invalid={state === 'Invalid' || undefined}
+          />
+        </div>
+      ))}
       <p className="v2-text-caption text-text-muted">
-        Hover or focus any editable input to review its interactive states, including invalid +
-        focus.
+        Hover and focus the editable controls to review hover, focus, invalid + hover and invalid +
+        focus. Use the toolbar to switch themes.
       </p>
     </div>
   ),
 }
+
 export const Search: Story = {
   render: () => <SearchInput aria-label="Search customers" placeholder="Search customers" />,
 }
