@@ -35,7 +35,9 @@
     "@radix-ui/react-tooltip": "catalog:",
     "class-variance-authority": "catalog:",
     "lucide-react": "catalog:",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:",
+    "@base-ui/react": "catalog:",
+    "@tanstack/react-virtual": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",

@@ -70,3 +70,17 @@ export const BlockedStates: Story = {
     </div>
   ),
 }
+
+export const ExtraSmall: Story = {
+  render: () => (
+    <div className="flex gap-4">
+      {(['default', 'secondary', 'outline', 'ghost', 'link', 'destructive'] as const).map(
+        (variant) => (
+          <IconButton key={variant} variant={variant} size="icon-xs" label={`Add (${variant})`}>
+            <Plus aria-hidden="true" />
+          </IconButton>
+        ),
+      )}
+    </div>
+  ),
+}

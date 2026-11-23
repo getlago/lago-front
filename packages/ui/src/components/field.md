@@ -26,6 +26,8 @@ Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel 
 
 ## Examples
 
+Combobox uses the same structure: place its root around Field so the label, description, control and error remain siblings. Set the input id, `aria-describedby` and `aria-invalid`; the Field spacing remains 8px/4px. Multiple and free-text chips may sit inside the control or in a row 8px above it. See [Combobox](./combobox.md) for these compositions.
+
 ```tsx
 <Field>
   <FieldContent>
