@@ -9,6 +9,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 
 import {
+  CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_EXTERNAL_ID_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_REMOVE_NAME_TEST_ID,
   CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID,
@@ -85,6 +86,16 @@ export const ContractSettingsDrawerContent = withForm({
                 dataTest={CONTRACT_SETTINGS_DRAWER_SHOW_NAME_TEST_ID}
               />
             )}
+
+            <form.AppField name="code">
+              {(field) => (
+                <field.TextInputField
+                  disabled
+                  data-test={CONTRACT_SETTINGS_DRAWER_CODE_TEST_ID}
+                  label={translate('text_629728388c4d2300e2d380b7')}
+                />
+              )}
+            </form.AppField>
 
             <ContractDatesAndPurchaseOrderFields
               form={form}

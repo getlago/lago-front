@@ -73,14 +73,12 @@ gql`
 
 type ContractRateCardsSectionProps = {
   contractId: string
-  contractExternalId: string | undefined
   currency: CurrencyEnum | undefined
   isLocked: boolean
 }
 
 export const ContractRateCardsSection = ({
   contractId,
-  contractExternalId,
   currency,
   isLocked,
 }: ContractRateCardsSectionProps): JSX.Element => {
@@ -135,14 +133,13 @@ export const ContractRateCardsSection = ({
     ? {
         label: translate('text_1789030049529b0zmy1slfxl'),
         dataTest: CONTRACT_RATE_CARD_ADD_RATE_CARD_TEST_ID,
-        disabled: isLocked || !contractExternalId || !currency,
+        disabled: isLocked || !currency,
         onClick: () => {
-          if (isLocked || !contractExternalId || !currency) return
+          if (isLocked || !currency) return
 
           openAppliedRateCardDrawer({
             context: 'contract',
             contractId,
-            contractExternalId,
             currency,
           })
         },

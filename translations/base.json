@@ -5544,5 +5544,9 @@
   "text_1795093921133a8yyd8l1i37": "Plan wallet deleted",
   "text_1795093921133stwkpx4uv8x": "Plan wallet updated",
   "text_1795155393899c6tjow98zc6": "This Stripe connection is used by an Agentic Storefront connection. Change its payment connection or delete it first.",
-  "text_1795155393899z7dii6si7le": "A plan sold through this connection no longer exists. Stop selling it before making other changes."
+  "text_1795155393899z7dii6si7le": "A plan sold through this connection no longer exists. Stop selling it before making other changes.",
+  "text_17950335898705jctc4i4twe": "Type a contract code",
+  "text_17950335898708mg94k6t8ej": "Contract code",
+  "text_1795033589870p2xxngsuzlk": "This code is already used by another contract with the same external ID.",
+  "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id"
 }
