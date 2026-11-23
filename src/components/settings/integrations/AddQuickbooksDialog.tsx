@@ -56,6 +56,8 @@ gql`
   }
 `
 
+const SILENCED_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.Forbidden]
+
 const ADD_QUICKBOOKS_FORM_ID = 'form-add-quickbooks-integration'
 
 // Accounts, customers and items always sync; the rest is the user's choice.
@@ -179,7 +181,14 @@ export const useAddQuickbooksDialog = () => {
           return
         }
 
-        if (!hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) return
+
+        // Other codes already get the global error toast from the error link.
+        const isSilenced = errors.some((error) =>
+          SILENCED_ERROR_CODES.includes(error.extensions?.code as LagoApiError),
+        )
+
+        if (isSilenced) {
           addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
         }
       }
