@@ -105,7 +105,7 @@ const FeatureDetails = () => {
               dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
               hidden: !canMoveToLive,
               onClick: (closePopper) => {
-                moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Feature, id: feature.id })
+                void moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Feature, id: feature.id })
                 closePopper()
               },
             },

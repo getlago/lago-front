@@ -197,7 +197,7 @@ export const useMoveToLive: UseMoveToLive = () => {
     const copiedAlong = preview.copiedItems.filter((item) => item.id !== target.id)
     const hasItems = !!copiedAlong.length || !!preview.reusedItems.length
 
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_1795431906433rcppnbh5k88', { code: movedItem?.code ?? '' }),
       description: translate('text_1795431906433hmboas9jg4e'),
       headerContent: hasItems ? (

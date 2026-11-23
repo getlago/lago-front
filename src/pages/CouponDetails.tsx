@@ -131,7 +131,10 @@ const CouponDetails = () => {
           dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
           hidden: !canMoveToLive,
           onClick: (closePopper) => {
-            moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Coupon, id: couponId as string })
+            void moveToLive({
+              itemType: MoveToLiveMovableItemTypeEnum.Coupon,
+              id: couponId as string,
+            })
             closePopper()
           },
         },
