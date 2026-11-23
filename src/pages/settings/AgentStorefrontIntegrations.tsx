@@ -69,6 +69,7 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
 
   const isFirstLoad = loading && !data
   const connections = (data?.integrations?.collection ?? []).filter(isAgentStorefrontConnection)
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
   const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
   const hasConnections = connections.length > 0
@@ -91,8 +92,10 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
           title={translate('text_1785248821375zwy6pnlk3q7')}
           subtitle={translate('text_1795083825204o2xktr1k5bf')}
           image={<EmptyImage width="136" height="104" />}
-          buttonTitle={translate('text_65846763e6140b469140e235')}
-          buttonAction={openAddAgentStorefrontDialog}
+          buttonTitle={
+            canCreateIntegration ? translate('text_65846763e6140b469140e235') : undefined
+          }
+          buttonAction={canCreateIntegration ? openAddAgentStorefrontDialog : undefined}
         />
       )
     }
@@ -200,6 +203,7 @@ const AgentStorefrontIntegrations = (): JSX.Element => {
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
               dataTest: AGENT_STOREFRONT_ADD_CONNECTION_TEST_ID,
+              hidden: !canCreateIntegration,
               onClick: () => openAddAgentStorefrontDialog(),
             },
           ],

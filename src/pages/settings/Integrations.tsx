@@ -63,6 +63,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
 import AgentStorefront from '~/public/images/agentic-storefront.svg'
 import Airbyte from '~/public/images/airbyte.svg'
@@ -154,6 +155,8 @@ const Integrations = () => {
   const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const isAgentStorefrontEnabled = hasFeatureFlag(FeatureFlagEnum.AgentStorefront)
+  const { hasPermissions } = usePermissions()
+  const canCreateAgentStorefront = hasPermissions(['organizationIntegrationsCreate'])
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -547,7 +550,7 @@ const Integrations = () => {
                                 mailtoSubject: translate('text_1795083825205440vn60teym'),
                                 mailtoBody: translate('text_1795083825206u05enrn2opg'),
                               })
-                            } else if (hasAgentStorefrontIntegration) {
+                            } else if (hasAgentStorefrontIntegration || !canCreateAgentStorefront) {
                               navigate(
                                 generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
                                   integrationGroup: IntegrationsTabsOptionsEnum.Lago,

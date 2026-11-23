@@ -86,7 +86,11 @@ const allowOnly = (allowed: string[]): void => {
 describe('AgentStorefrontIntegrations', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-    allowOnly(['organizationIntegrationsUpdate', 'organizationIntegrationsDelete'])
+    allowOnly([
+      'organizationIntegrationsCreate',
+      'organizationIntegrationsUpdate',
+      'organizationIntegrationsDelete',
+    ])
   })
 
   afterEach(cleanup)
@@ -226,6 +230,18 @@ describe('AgentStorefrontIntegrations', () => {
         expect(mockOpenAddAgentStorefrontDialog).toHaveBeenCalledTimes(1)
       })
     })
+
+    describe('WHEN the user cannot create integrations', () => {
+      it('THEN should not offer the add connection action', async () => {
+        allowOnly(['organizationIntegrationsUpdate', 'organizationIntegrationsDelete'])
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        expect(
+          screen.queryByTestId(AGENT_STOREFRONT_ADD_CONNECTION_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
   })
 
   describe('GIVEN no Storefront connection exists', () => {
@@ -253,6 +269,17 @@ describe('AgentStorefrontIntegrations', () => {
         await user.click(screen.getByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID))
 
         expect(mockOpenAddAgentStorefrontDialog).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe('WHEN the user cannot create integrations', () => {
+      it('THEN should show the empty state without the add button', async () => {
+        allowOnly(['organizationIntegrationsUpdate', 'organizationIntegrationsDelete'])
+
+        await renderIntegrationPage(AgentStorefrontIntegrations)
+
+        expect(screen.getByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(GENERIC_PLACEHOLDER_BUTTON_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })

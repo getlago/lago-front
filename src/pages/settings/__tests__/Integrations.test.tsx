@@ -82,6 +82,15 @@ jest.mock('~/components/settings/integrations/agentStorefront/AddAgentStorefront
   }),
 }))
 
+let mockCanCreateIntegration = true
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({
+    hasPermissions: (permissions: string[]) =>
+      mockCanCreateIntegration || !permissions.includes('organizationIntegrationsCreate'),
+  }),
+}))
+
 const mockOpenPremiumWarningDialog = jest.fn()
 
 jest.mock('~/components/dialogs/PremiumWarningDialog', () => ({
@@ -630,6 +639,32 @@ describe('Integrations', () => {
         expect(mockOpenAddAgentStorefrontDialog).toHaveBeenCalledTimes(1)
         expect(mockOpenPremiumWarningDialog).not.toHaveBeenCalled()
         expect(testMockNavigateFn).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the organization has the premium add-on, no connection and the user cannot create integrations', () => {
+      afterEach(() => {
+        mockCanCreateIntegration = true
+      })
+
+      it('THEN should navigate to the storefront connections route instead of opening the connect dialog', async () => {
+        mockCanCreateIntegration = false
+        enableFlags(FeatureFlagEnum.AgentStorefront)
+        mockOrganizationData = {
+          premiumIntegrations: [PremiumIntegrationTypeEnum.AgentStorefront],
+        }
+
+        await prepare()
+        await waitFor(() => {
+          expect(screen.getByTestId(INTEGRATIONS_AGENT_STOREFRONT_TEST_ID)).toBeInTheDocument()
+        })
+
+        await clickAgentStorefrontCard()
+
+        expect(testMockNavigateFn).toHaveBeenCalledWith(
+          '/settings/integrations/lago/agent-storefront',
+        )
+        expect(mockOpenAddAgentStorefrontDialog).not.toHaveBeenCalled()
       })
     })
 
