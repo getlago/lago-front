@@ -1,9 +1,9 @@
-import { act, cleanup, renderHook, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, renderHook, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
-import { MappingTypeEnum, QuickbooksForCreateDialogFragment } from '~/generated/graphql'
+import { QuickbooksForCreateDialogFragment } from '~/generated/graphql'
 import { AllTheProviders, render } from '~/test-utils'
 
 import { describeDuplicateRejectionRouting, rejectedUnder } from './duplicateRejectionHelpers'
@@ -15,7 +15,6 @@ const mockCreate = jest.fn()
 const mockUpdate = jest.fn()
 const mockDestroyNango = jest.fn()
 const mockNangoAuth = jest.fn()
-const mockGetCollectionMappings = jest.fn()
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
@@ -49,7 +48,6 @@ jest.mock('~/generated/graphql', () => ({
   useCreateQuickbooksIntegrationMutation: () => [mockCreate],
   useUpdateQuickbooksIntegrationMutation: () => [mockUpdate],
   useDestroyNangoIntegrationMutation: () => [mockDestroyNango],
-  useGetQuickbooksFallbackItemMappingLazyQuery: () => [mockGetCollectionMappings],
 }))
 
 const NAME_PLACEHOLDER = 'text_6584550dc4cec7adf861504f'
@@ -70,24 +68,6 @@ const quickbooksProvider: QuickbooksForCreateDialogFragment = {
   syncPayments: true,
 }
 
-const collectionMappings = (
-  mappingTypes: MappingTypeEnum[],
-  billingEntityId: string | null = null,
-) => ({
-  data: {
-    integrationCollectionMappings: {
-      collection: mappingTypes.map((mappingType, index) => ({
-        id: `mapping-${index}`,
-        mappingType,
-        billingEntityId,
-      })),
-    },
-  },
-})
-
-const syncInvoicesCheckbox = (): HTMLInputElement | null =>
-  document.querySelector('input[aria-labelledby="syncInvoices"]')
-
 const openDialog = async (
   provider?: QuickbooksForCreateDialogFragment,
 ): Promise<() => Promise<unknown>> => {
@@ -96,8 +76,6 @@ const openDialog = async (
   act(() => {
     result.current.openAddQuickbooksDialog(provider ? { provider } : undefined)
   })
-
-  await waitFor(() => expect(mockDialogOpen).toHaveBeenCalled())
 
   const dialogProps = mockDialogOpen.mock.calls[0][0]
 
@@ -115,7 +93,6 @@ describe('useAddQuickbooksDialog', () => {
     // Keep the dialog pending so the `.then` cleanup does not reset the form mid-test
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
     mockNangoAuth.mockResolvedValue({ connectionId: 'connection-id' })
-    mockGetCollectionMappings.mockResolvedValue(collectionMappings([]))
     mockCreate.mockResolvedValue({ data: { createQuickbooksIntegration: { id: 'new-id' } } })
   })
 
@@ -239,8 +216,6 @@ describe('useAddQuickbooksDialog', () => {
         result.current.openAddQuickbooksDialog({ provider: quickbooksProvider })
       })
 
-      await waitFor(() => expect(mockDialogOpen).toHaveBeenCalled())
-
       const { otherDialogProps } = mockDialogOpen.mock.calls[0][0]
 
       await expect(otherDialogProps.onAction()).rejects.toThrow()
@@ -248,14 +223,12 @@ describe('useAddQuickbooksDialog', () => {
   })
 
   describe('GIVEN the delete from the edit dialog fails on the network', () => {
-    it('THEN keeps the confirm dialog open and shows an error toast', async () => {
+    it('THEN keeps the confirm dialog open and shows an error toast', () => {
       const { result } = renderHook(() => useAddQuickbooksDialog(), { wrapper })
 
       act(() => {
         result.current.openAddQuickbooksDialog({ provider: quickbooksProvider })
       })
-
-      await waitFor(() => expect(mockDialogOpen).toHaveBeenCalled())
 
       const { otherDialogProps } = mockDialogOpen.mock.calls[0][0]
 
@@ -298,52 +271,6 @@ describe('useAddQuickbooksDialog', () => {
           },
         })
       })
-    })
-  })
-
-  describe('GIVEN the invoices sync', () => {
-    it('THEN cannot be turned on for a new connection', async () => {
-      await openDialog()
-
-      expect(mockGetCollectionMappings).not.toHaveBeenCalled()
-      expect(syncInvoicesCheckbox()).toBeDisabled()
-    })
-
-    it('THEN cannot be turned on while no fallback item is mapped', async () => {
-      mockGetCollectionMappings.mockResolvedValue(collectionMappings([MappingTypeEnum.Coupon]))
-
-      await openDialog({ ...quickbooksProvider, syncInvoices: false })
-
-      expect(mockGetCollectionMappings).toHaveBeenCalledWith({
-        variables: { integrationId: 'quickbooks-integration-id' },
-      })
-      expect(syncInvoicesCheckbox()).toBeDisabled()
-    })
-
-    it('THEN stays locked when only a billing entity has a fallback item', async () => {
-      mockGetCollectionMappings.mockResolvedValue(
-        collectionMappings([MappingTypeEnum.FallbackItem], 'billing-entity-1'),
-      )
-
-      await openDialog({ ...quickbooksProvider, syncInvoices: false })
-
-      expect(syncInvoicesCheckbox()).toBeDisabled()
-    })
-
-    it('THEN can be turned on once a fallback item is mapped', async () => {
-      mockGetCollectionMappings.mockResolvedValue(
-        collectionMappings([MappingTypeEnum.FallbackItem]),
-      )
-
-      await openDialog({ ...quickbooksProvider, syncInvoices: false })
-
-      expect(syncInvoicesCheckbox()).toBeEnabled()
-    })
-
-    it('THEN can still be turned off when already on without a fallback item', async () => {
-      await openDialog(quickbooksProvider)
-
-      expect(syncInvoicesCheckbox()).toBeEnabled()
     })
   })
 })

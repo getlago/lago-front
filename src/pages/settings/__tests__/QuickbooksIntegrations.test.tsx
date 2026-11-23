@@ -1,4 +1,5 @@
 import { cleanup, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 
 import { GetQuickbooksIntegrationsListDocument, IntegrationTypeEnum } from '~/generated/graphql'
 
@@ -19,12 +20,15 @@ jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
   default: jest.fn(),
 }))
+const mockOpenAdd = jest.fn()
+const mockOpenDelete = jest.fn()
+
 jest.mock('~/components/settings/integrations/AddQuickbooksDialog', () => ({
-  useAddQuickbooksDialog: () => ({ openAddQuickbooksDialog: jest.fn() }),
+  useAddQuickbooksDialog: () => ({ openAddQuickbooksDialog: mockOpenAdd }),
 }))
 jest.mock('~/components/settings/integrations/DeleteQuickbooksIntegrationDialog', () => ({
   useDeleteQuickbooksIntegrationDialog: () => ({
-    openDeleteQuickbooksIntegrationDialog: jest.fn(),
+    openDeleteQuickbooksIntegrationDialog: mockOpenDelete,
   }),
 }))
 
@@ -59,6 +63,28 @@ describe('QuickbooksIntegrations', () => {
 
       expect(screen.queryByText('Test Connection')).not.toBeInTheDocument()
       expect(container.querySelector('.animate-pulse')).toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN a connection row menu', () => {
+    it.each([
+      ['Edit connection', () => mockOpenAdd],
+      ['Delete connection', () => mockOpenDelete],
+    ])('THEN %s opens its dialog for that connection', async (label, getMock) => {
+      await renderIntegrationPage(QuickbooksIntegrations, {
+        mocks: createIntegrationListMock(
+          GetQuickbooksIntegrationsListDocument,
+          IntegrationTypeEnum.Quickbooks,
+          'QuickbooksIntegration',
+        ),
+      })
+
+      await userEvent.click(await screen.findByTestId('plan-item-options'))
+      await userEvent.click(await screen.findByRole('button', { name: label }))
+
+      expect(getMock()).toHaveBeenCalledWith(
+        expect.objectContaining({ provider: expect.objectContaining({ id: 'test-id-1' }) }),
+      )
     })
   })
 })

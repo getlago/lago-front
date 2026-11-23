@@ -5487,6 +5487,8 @@
   "text_1795108407959zrzrubt3hlc": "Activate your production account",
   "text_1795108407959msxzgohga8h": "Add a payment card to complete your account setup.",
   "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized.",
+  "text_17951819535853oq0ffmmynt": "Total current usage • {{category}}",
+  "text_1795187036698g1pnr18vrtb": "Active contract",
   "text_179543424168937zditnx1d9": "QuickBooks",
   "text_1795434241689stydxtzzm1w": "QuickBooks • Accounting",
   "text_1795434241689x8rpnkscqwf": "Connect to QuickBooks",
@@ -5503,6 +5505,5 @@
   "text_17954342416893m90kxj9h0j": "Production",
   "text_1795434241690xc2o8p8hgf7": "Company ID",
   "text_17954348915427eym1cdesug": "QuickBooks item",
-  "text_17954348915439shx44q9w6e": "Please map Lago items to QuickBooks to finalize the connection.",
-  "text_17954348915435pekp1r6fsh": "Map a fallback item in the Items tab before syncing invoices."
+  "text_17954348915439shx44q9w6e": "Please map Lago items to QuickBooks to finalize the connection."
 }

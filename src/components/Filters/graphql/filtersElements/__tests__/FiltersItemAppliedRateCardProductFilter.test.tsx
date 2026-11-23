@@ -1,19 +1,42 @@
 import { render, screen, waitFor } from '@testing-library/react'
+import { ComponentProps } from 'react'
 
 import {
+  AvailableFiltersEnum,
   filterDataInlineSeparator,
   filterWithoutProductFilterValue,
+  ScopedFilterOption,
 } from '~/components/Filters/presentation/types'
 import { GetProductFiltersForFilterItemAppliedRateCardProductFilterDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { FiltersItemAppliedRateCardProductFilter } from '../FiltersItemAppliedRateCardProductFilter'
 
+type MockedFilters = {
+  displayInDialog: boolean
+  optionsByFilter?: Partial<Record<AvailableFiltersEnum, ScopedFilterOption[]>>
+}
+
+const mockUseFilters = jest.fn<MockedFilters, []>(() => ({ displayInDialog: false }))
+
 jest.mock('~/components/Filters/graphql/useFilters', () => ({
-  useFilters: () => ({
-    displayInDialog: false,
-  }),
+  useFilters: () => mockUseFilters(),
 }))
+
+const mockComboBoxData = jest.fn<void, [unknown]>()
+
+jest.mock('~/components/form', () => {
+  const actual = jest.requireActual<typeof import('~/components/form')>('~/components/form')
+
+  return {
+    ...actual,
+    MultipleComboBox: (props: ComponentProps<typeof actual.MultipleComboBox>) => {
+      mockComboBoxData(props.data)
+
+      return <actual.MultipleComboBox {...props} />
+    },
+  }
+})
 
 const mockSetFilterValue = jest.fn()
 
@@ -46,6 +69,7 @@ const renderComponent = (value?: string, mocks: TestMocksType = productFiltersMo
 describe('FiltersItemAppliedRateCardProductFilter', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockUseFilters.mockImplementation(() => ({ displayInDialog: false }))
   })
 
   describe('GIVEN no initial value', () => {
@@ -97,6 +121,29 @@ describe('FiltersItemAppliedRateCardProductFilter', () => {
           expect(screen.getByText('Not defined')).toBeInTheDocument()
           expect(screen.getByText('EU')).toBeInTheDocument()
         })
+      })
+    })
+  })
+  describe('GIVEN options scoped by the surrounding list', () => {
+    describe('WHEN the component renders', () => {
+      it('THEN offers those options instead of the organization-wide ones', async () => {
+        mockUseFilters.mockImplementation(() => ({
+          displayInDialog: false,
+          optionsByFilter: {
+            [AvailableFiltersEnum.appliedRateCardProductFilter]: [
+              { id: 'scoped-1', label: 'Europe' },
+            ],
+          },
+        }))
+
+        renderComponent()
+
+        await waitFor(() => expect(screen.getByRole('combobox')).toBeInTheDocument())
+
+        expect(mockComboBoxData).toHaveBeenLastCalledWith([
+          expect.objectContaining({ value: filterWithoutProductFilterValue }),
+          expect.objectContaining({ label: 'Europe' }),
+        ])
       })
     })
   })
