@@ -111,6 +111,8 @@ export enum ActivityTypeEnum {
   ContractCanceled = 'contract_canceled',
   /** contract.created */
   ContractCreated = 'contract_created',
+  /** contract.published */
+  ContractPublished = 'contract_published',
   /** contract_rate_card.created */
   ContractRateCardCreated = 'contract_rate_card_created',
   /** contract_rate_card.deleted */
@@ -4838,6 +4840,7 @@ export enum EventTypeEnum {
   BillableMetricUpdated = 'billable_metric_updated',
   ContractCanceled = 'contract_canceled',
   ContractCreated = 'contract_created',
+  ContractPublished = 'contract_published',
   ContractRateCardCreated = 'contract_rate_card_created',
   ContractRateCardDeleted = 'contract_rate_card_deleted',
   ContractRateCardUpdated = 'contract_rate_card_updated',

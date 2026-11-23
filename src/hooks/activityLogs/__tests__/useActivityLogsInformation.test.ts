@@ -70,6 +70,7 @@ describe('useActivityLogsInformation', () => {
 
   describe('getActivityDescription', () => {
     it.each([
+      [ActivityTypeEnum.ContractPublished, 'text_1795463201390brdh9tn75s0'],
       [ActivityTypeEnum.ContractStarted, 'text_1791921974802xc0m2b09axm'],
       [ActivityTypeEnum.ContractRateCardUpdated, 'text_1791921974802geeg4bwwkvk'],
       [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],

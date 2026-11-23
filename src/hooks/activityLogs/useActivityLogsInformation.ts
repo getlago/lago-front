@@ -19,6 +19,7 @@ const exhaustiveCheck = (value: never): never => {
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractCreated]: 'text_1791921842761by5ureagbe9',
   [ActivityTypeEnum.ContractUpdated]: 'text_1791921974802th7lzdwh96w',
+  [ActivityTypeEnum.ContractPublished]: 'text_1795463201390brdh9tn75s0',
   [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
   [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
   [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
@@ -197,6 +198,7 @@ export const useActivityLogsInformation = () => {
         break
       case ActivityTypeEnum.ContractCreated:
       case ActivityTypeEnum.ContractUpdated:
+      case ActivityTypeEnum.ContractPublished:
       case ActivityTypeEnum.ContractStarted:
       case ActivityTypeEnum.ContractTerminated:
       case ActivityTypeEnum.ContractCanceled:
