@@ -64,6 +64,9 @@ const syncedIntegrations = new WeakMap<ApolloClient, Set<string>>()
 
 const REFETCH_QUERIES = ['getQuickbooksCustomerItems', 'getQuickbooksCustomerItemsCount']
 
+// The codes the error link leaves without a toast: the ones passed below, plus forbidden
+const SILENCED_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.Forbidden]
+
 export const toQuickbooksCustomerOption = ({
   externalId,
   externalName,
@@ -145,16 +148,18 @@ export const useQuickbooksCustomerItems = (
       isRefreshingRef.current = true
 
       void fetchCustomers({ variables: { input: { integrationId } } })
-        .then(
-          ({ errors }) => !!errors,
-          () => true,
-        )
-        .then((hasFailed) => {
-          // The automatic sync stays quiet: the plain id input remains usable without the list
-          if (hasFailed && notifyOnError) {
+        .then(({ errors }) => {
+          // Other codes already get the global error toast from the error link. The automatic
+          // sync stays quiet: the plain id input remains usable without the list.
+          const isSilenced = !!errors?.some((error) =>
+            SILENCED_ERROR_CODES.includes(error.extensions?.code as LagoApiError),
+          )
+
+          if (isSilenced && notifyOnError) {
             addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
           }
         })
+        .catch(() => undefined)
         .finally(() => {
           isRefreshingRef.current = false
         })

@@ -6,6 +6,7 @@ import {
   GetQuickbooksCustomerItemsCountDocument,
   GetQuickbooksCustomerItemsDocument,
   IntegrationItemTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
@@ -74,7 +75,7 @@ const buildItemsMock = (
   },
 })
 
-const buildFetchMock = (onCall: jest.Mock, { failed = false } = {}) => ({
+const buildFetchMock = (onCall: jest.Mock, { failedWith }: { failedWith?: LagoApiError } = {}) => ({
   request: {
     query: FetchQuickbooksCustomerItemsDocument,
     variables: { input: { integrationId: INTEGRATION_ID } },
@@ -82,9 +83,9 @@ const buildFetchMock = (onCall: jest.Mock, { failed = false } = {}) => ({
   result: () => {
     onCall()
 
-    if (failed) {
+    if (failedWith) {
       return {
-        errors: [{ message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity' } }],
+        errors: [{ message: failedWith, extensions: { code: failedWith } }],
       }
     }
 
@@ -280,7 +281,10 @@ describe('useQuickbooksCustomerItems', () => {
       it('THEN should stay quiet', async () => {
         const onFetch = jest.fn()
         const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
-          wrapper: createWrapper([buildCountMock(0), buildFetchMock(onFetch, { failed: true })]),
+          wrapper: createWrapper([
+            buildCountMock(0),
+            buildFetchMock(onFetch, { failedWith: LagoApiError.UnprocessableEntity }),
+          ]),
         })
 
         act(() => {
@@ -292,12 +296,18 @@ describe('useQuickbooksCustomerItems', () => {
         expect(mockAddToast).not.toHaveBeenCalled()
       })
     })
+  })
 
-    describe('WHEN the user clicked refresh', () => {
-      it('THEN should show an error toast', async () => {
+  describe.each([LagoApiError.UnprocessableEntity, LagoApiError.Forbidden])(
+    'GIVEN a clicked refresh fails with %s, which the error link silences',
+    (code) => {
+      it('THEN should show the fallback error toast', async () => {
         const onFetch = jest.fn()
         const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
-          wrapper: createWrapper([buildCountMock(0), buildFetchMock(onFetch, { failed: true })]),
+          wrapper: createWrapper([
+            buildCountMock(0),
+            buildFetchMock(onFetch, { failedWith: code }),
+          ]),
         })
 
         act(() => {
@@ -311,6 +321,26 @@ describe('useQuickbooksCustomerItems', () => {
           }),
         )
       })
+    },
+  )
+
+  describe('GIVEN a clicked refresh fails with an error the error link already reports', () => {
+    it('THEN should add no second toast', async () => {
+      const onFetch = jest.fn()
+      const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+        wrapper: createWrapper([
+          buildCountMock(0),
+          buildFetchMock(onFetch, { failedWith: LagoApiError.NotFound }),
+        ]),
+      })
+
+      act(() => {
+        result.current.refresh()
+      })
+
+      await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
+      await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+      expect(mockAddToast).not.toHaveBeenCalled()
     })
   })
 })
