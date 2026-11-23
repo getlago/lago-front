@@ -258,7 +258,9 @@ const CustomerInvoiceRegenerate = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
-  const [getOriginalFee] = useGetOriginalFeeLazyQuery()
+  const [getOriginalFee] = useGetOriginalFeeLazyQuery({
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
+  })
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -317,8 +319,10 @@ const CustomerInvoiceRegenerate = () => {
     // Every fee is re-wrapped as adjusted on each void/regenerate round, so the root fee
     // (fetched lazily by originalFeeId) is what reset must restore, not `original` itself.
     if (original.originalFeeId) {
-      const { data } = await getOriginalFee({ variables: { id: original.originalFeeId } })
-      const originalFee = data?.fee
+      // `.catch` also covers a network error, which rejects instead of resolving with `errors`.
+      const originalFee = await getOriginalFee({ variables: { id: original.originalFeeId } })
+        .then(({ data }) => data?.fee)
+        .catch(() => undefined)
 
       if (!originalFee) {
         // Leave the fee as-is on a failed lookup so the user can retry, rather than

@@ -835,6 +835,45 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
       expect(stillThere).toMatchObject({ id: 'fee-1', adjustedFee: true, units: 20 })
     })
 
+    it('THEN a network error on the original-fee fetch leaves the fee untouched instead of deleting it', async () => {
+      mockRegenerateInvoice.mockResolvedValue({})
+      mockVoidInvoice.mockResolvedValue({})
+      mockGetOriginalFee.mockRejectedValue(new Error('network error'))
+
+      const fee = {
+        id: 'fee-1',
+        invoiceDisplayName: null,
+        description: '',
+        units: 20,
+        preciseUnitAmount: 200,
+        amountCents: 4000,
+        amountDetails: { freeUnits: '0' },
+        adjustedFee: true,
+        adjustedFeeType: 'adjusted_amount',
+        subscription: { id: 'subscription-123' },
+        originalFeeId: 'root-fee-1',
+      }
+
+      mockUseInvoiceBuildRegenerationPreview.mockReturnValue({
+        invoiceBuildRegenerationPreview: { ...mockInvoice, fees: [fee] },
+        loading: false,
+      })
+
+      render(<CustomerInvoiceRegenerate />, {
+        useParams: { invoiceId: 'invoice-123', customerId: 'customer-123' },
+      })
+
+      const { onDelete } = MockInvoiceDetailsTable.mock.calls.at(-1)[0]
+
+      await act(() => onDelete('fee-1'))
+
+      const stillThere = MockInvoiceDetailsTable.mock.calls
+        .at(-1)[0]
+        .fees.find((f: { id: string }) => f.id === 'fee-1')
+
+      expect(stillThere).toMatchObject({ id: 'fee-1', adjustedFee: true, units: 20 })
+    })
+
     it('THEN resetting a fee with no originalFeeId to restore falls back to deleting it', async () => {
       mockRegenerateInvoice.mockResolvedValue({})
       mockVoidInvoice.mockResolvedValue({})
