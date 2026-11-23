@@ -5486,5 +5486,20 @@
   "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id",
   "text_1795108407959zrzrubt3hlc": "Activate your production account",
   "text_1795108407959msxzgohga8h": "Add a payment card to complete your account setup.",
-  "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized."
+  "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized.",
+  "text_179543424168937zditnx1d9": "QuickBooks",
+  "text_1795434241689stydxtzzm1w": "QuickBooks • Accounting",
+  "text_1795434241689x8rpnkscqwf": "Connect to QuickBooks",
+  "text_17954342416896zjyvneqtih": "To connect to QuickBooks, please enter the following information",
+  "text_1795434241689erqzal40vl2": "Select the QuickBooks object for data synchronization",
+  "text_17954342416897g8is3qrydn": "Sync data to QuickBooks",
+  "text_1795434241689i332rrnawy2": "QuickBooks integration successfully connected",
+  "text_179543424168985ec3qr2vtt": "QuickBooks integration successfully edited",
+  "text_1795434241689zt7omfc8e2q": "Edit information linked to this QuickBooks connection.",
+  "text_1795434241689o9cv2tkoxb2": "By deleting the connection, it will no longer be utilized, and upcoming data will not be synchronized to the connected QuickBooks company. Additionally, please note that deleting this connection will also result in the removal of all connections with Lago customers. Are you sure you want to proceed?",
+  "text_1795434241689f1hpeds18j4": "Sandbox company",
+  "text_1795434241689jpvife1j8z1": "Connect a QuickBooks sandbox company. You can’t change this after connecting.",
+  "text_1795434241689u9e37d7nlyt": "Environment",
+  "text_17954342416893m90kxj9h0j": "Production",
+  "text_1795434241690xc2o8p8hgf7": "Company ID"
 }
