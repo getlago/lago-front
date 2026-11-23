@@ -5489,5 +5489,8 @@
   "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized.",
   "text_17951819535853oq0ffmmynt": "Total current usage • {{category}}",
   "text_1795187036698g1pnr18vrtb": "Active contract",
-  "text_1791907940203tazkwmcw016": "Shared payment token"
+  "text_1791907940203tazkwmcw016": "Shared payment token",
+  "text_1795454086814mzvn73ebgux": "Contract wallet created",
+  "text_1795454086814j2ad501cmlx": "Contract wallet deleted",
+  "text_1795454086814egs32zmws65": "Contract wallet updated"
 }

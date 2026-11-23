@@ -123,6 +123,12 @@ export enum ActivityTypeEnum {
   ContractTerminated = 'contract_terminated',
   /** contract.updated */
   ContractUpdated = 'contract_updated',
+  /** contract_wallet.created */
+  ContractWalletCreated = 'contract_wallet_created',
+  /** contract_wallet.deleted */
+  ContractWalletDeleted = 'contract_wallet_deleted',
+  /** contract_wallet.updated */
+  ContractWalletUpdated = 'contract_wallet_updated',
   /** coupon.created */
   CouponCreated = 'coupon_created',
   /** coupon.deleted */
@@ -11441,6 +11447,8 @@ export enum ResourceTypeEnum {
   Contract = 'contract',
   /** ContractRateCard */
   ContractRateCard = 'contract_rate_card',
+  /** CatalogWallet */
+  ContractWallet = 'contract_wallet',
   /** Coupon */
   Coupon = 'coupon',
   /** CreditNote */
