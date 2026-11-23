@@ -320,14 +320,12 @@ describe('CouponsList', () => {
       appliedCouponsCount: 0,
     }
 
-    const getMoveAction = () => {
+    const getMoveAction = (row: typeof MOVE_ROW = MOVE_ROW) => {
       const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
         item: typeof MOVE_ROW,
       ) => ActionItem<typeof MOVE_ROW>[]
 
-      return actionColumn(MOVE_ROW).find(
-        (action) => action.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID,
-      )
+      return actionColumn(row).find((action) => action.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID)
     }
 
     afterEach(() => {
@@ -349,6 +347,14 @@ describe('CouponsList', () => {
         itemType: MoveToLiveMovableItemTypeEnum.Coupon,
         id: MOVE_ROW.id,
       })
+    })
+
+    it('WHEN the coupon is terminated THEN there is no move to live row action', () => {
+      mockCanMoveToLive = true
+
+      render(<CouponsList />)
+
+      expect(getMoveAction({ ...MOVE_ROW, status: CouponStatusEnum.Terminated })).toBeUndefined()
     })
 
     it('WHEN the member cannot move items THEN there is no move to live row action', () => {

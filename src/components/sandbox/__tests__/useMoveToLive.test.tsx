@@ -59,6 +59,8 @@ const PARENT_MISSING_KEY = 'text_1795431906433wbhymkx79qb'
 const ADMIN_ONLY_KEY = 'text_1795431906433pfg3dttjin2'
 const ORGANIZATION_INACTIVE_KEY = 'text_1795431906433mautyr4e7ta'
 const UNSUPPORTED_KEY = 'text_1795431906433m4kipo8c27k'
+const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
+const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
 const SUCCESS_KEY = 'text_1795431906433hn8hins2pus'
 const ERROR_KEY = 'text_17954319064335ads00pkxh8'
 const BILLABLE_METRIC_LABEL_KEY = 'text_1795431906433n4atjiccd3h'
@@ -257,6 +259,86 @@ describe('useMoveToLive', () => {
       )
     })
 
+    describe('GIVEN the API answers values this build does not know', () => {
+      const CATALOG_PLAN = buildItem({
+        id: 'plan-1',
+        itemType: 'catalog_plan' as MoveToLiveItemTypeEnum,
+        code: 'starter',
+        name: 'Starter',
+      })
+
+      it('WHEN the blocking reason is unknown THEN the toast uses the generic message', async () => {
+        mockGetPreview.mockResolvedValue(
+          buildPreview({ blockingReason: 'plan_locked' as MoveToLiveBlockingReasonEnum }),
+        )
+
+        await moveToLive()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          message: `${UNKNOWN_BLOCKING_REASON_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        })
+      })
+
+      it('WHEN the blocking item type is unknown THEN the toast uses the generic item label', async () => {
+        mockGetPreview.mockResolvedValue(
+          buildPreview({
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveParentMissing,
+            missingParent: CATALOG_PLAN,
+          }),
+        )
+
+        await moveToLive()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          message: `${PARENT_MISSING_KEY}|${UNKNOWN_ITEM_TYPE_KEY}|starter`,
+        })
+      })
+
+      it('WHEN a listed item type is unknown THEN the dialog uses the generic item label', async () => {
+        mockGetPreview.mockResolvedValue(buildPreview({ reusedItems: [CATALOG_PLAN] }))
+
+        await moveToLive()
+
+        render(openedDialog().headerContent as ReactElement)
+
+        expect(screen.getByTestId(MOVE_TO_LIVE_REUSED_ITEMS_TEST_ID)).toHaveTextContent(
+          `Starter${UNKNOWN_ITEM_TYPE_KEY} · starter`,
+        )
+      })
+    })
+
+    describe('GIVEN a double click on the action', () => {
+      it('THEN it previews once until the first preview answers', async () => {
+        let resolvePreview: (value: ReturnType<typeof buildPreview>) => void = () => undefined
+
+        mockGetPreview.mockReturnValueOnce(
+          new Promise((resolve) => {
+            resolvePreview = resolve
+          }),
+        )
+        mockGetPreview.mockResolvedValue(buildPreview())
+
+        const result = renderUseMoveToLive()
+
+        await act(async () => {
+          const first = result.current.moveToLive(TARGET)
+          const second = result.current.moveToLive(TARGET)
+
+          resolvePreview(buildPreview())
+          await Promise.all([first, second])
+        })
+
+        expect(mockGetPreview).toHaveBeenCalledTimes(1)
+        expect(mockDialogOpen).toHaveBeenCalledTimes(1)
+
+        await act(() => result.current.moveToLive(TARGET))
+
+        expect(mockGetPreview).toHaveBeenCalledTimes(2)
+      })
+    })
+
     describe('GIVEN the preview fails', () => {
       it.each([
         ['with a GraphQL error', () => mockGetPreview.mockResolvedValue({ error: new Error('x') })],
@@ -329,6 +411,19 @@ describe('useMoveToLive', () => {
         expect(addToast).toHaveBeenCalledWith({ severity: 'danger', translateKey: ERROR_KEY })
       })
 
+      it('GIVEN a double click on confirm THEN it moves once', async () => {
+        mockGetPreview.mockResolvedValue(buildPreview())
+        mockMoveToLiveMode.mockResolvedValue({ data: { moveToLiveMode: buildItem() } })
+
+        await moveToLive()
+
+        await act(async () => {
+          await Promise.all([openedDialog().onAction(), openedDialog().onAction()])
+        })
+
+        expect(mockMoveToLiveMode).toHaveBeenCalledTimes(1)
+      })
+
       it('GIVEN a network failure THEN the dialog error handler shows the error toast', async () => {
         mockGetPreview.mockResolvedValue(buildPreview())
         mockMoveToLiveMode.mockRejectedValue(new Error('offline'))
@@ -340,6 +435,14 @@ describe('useMoveToLive', () => {
         openedDialog().onError?.(new Error('offline'))
 
         expect(addToast).toHaveBeenCalledWith({ severity: 'danger', translateKey: ERROR_KEY })
+
+        mockMoveToLiveMode.mockResolvedValue({ data: { moveToLiveMode: buildItem() } })
+
+        await act(async () => {
+          await openedDialog().onAction()
+        })
+
+        expect(mockMoveToLiveMode).toHaveBeenCalledTimes(2)
       })
     })
   })

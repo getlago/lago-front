@@ -330,6 +330,19 @@ describe('CouponDetails', () => {
       expect(closePopper).toHaveBeenCalled()
     })
 
+    it('WHEN the coupon is terminated THEN the action is hidden', () => {
+      mockCanMoveToLive = true
+      mockHasPermissions.mockReturnValue(true)
+      mockUseGetCouponForDetailsQuery.mockReturnValue({
+        data: { coupon: { ...mockActiveCoupon, status: CouponStatusEnum.Terminated } },
+        loading: false,
+      })
+
+      render(<CouponDetails />)
+
+      expect(getMoveItem()?.hidden).toBe(true)
+    })
+
     it('WHEN the member cannot move items THEN the action is hidden', () => {
       mockHasPermissions.mockReturnValue(true)
 

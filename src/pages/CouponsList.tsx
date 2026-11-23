@@ -30,6 +30,7 @@ import {
 import {
   CouponCaptionFragmentDoc,
   CouponsQuery,
+  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   MoveToLiveMovableItemTypeEnum,
   TerminateCouponFragmentDoc,
@@ -163,7 +164,7 @@ const CouponsList = () => {
       })
     }
 
-    if (canMoveToLive) {
+    if (canMoveToLive && coupon.status !== CouponStatusEnum.Terminated) {
       result.push({
         startIcon: 'outside',
         title: translate('text_1795431906432py065218gdv'),

@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { ReactNode } from 'react'
+import { ReactNode, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
@@ -80,6 +80,22 @@ const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, str
   [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: 'text_1795431906433m4kipo8c27k',
 }
 
+const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
+const UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY = 'text_1795441447536k9lkdhz1ect'
+
+// The API can answer item types and blocking reasons added after this build was deployed.
+const getItemTypeKey = (itemType: MoveToLiveItemTypeEnum): string => {
+  const key: string | undefined = ITEM_TYPE_TRANSLATION_KEYS[itemType]
+
+  return key ?? UNKNOWN_ITEM_TYPE_TRANSLATION_KEY
+}
+
+const getBlockingReasonKey = (reason: MoveToLiveBlockingReasonEnum): string => {
+  const key: string | undefined = BLOCKING_REASON_TRANSLATION_KEYS[reason]
+
+  return key ?? UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY
+}
+
 type MoveToLivePreview = MoveToLivePreviewQuery['moveToLivePreview']
 
 type MoveToLiveTarget = {
@@ -97,6 +113,7 @@ export const useMoveToLive: UseMoveToLive = () => {
   const { isSandbox } = useSandbox()
   const { hasPermissions } = usePermissions()
   const centralizedDialog = useCentralizedDialog()
+  const isPendingRef = useRef(false)
 
   const [getPreview] = useMoveToLivePreviewLazyQuery({
     fetchPolicy: 'network-only',
@@ -106,7 +123,7 @@ export const useMoveToLive: UseMoveToLive = () => {
 
   const translateItem = (key: string, item?: MoveToLiveItemFragment | null): string =>
     translate(key, {
-      itemType: item ? translate(ITEM_TYPE_TRANSLATION_KEYS[item.itemType]) : '',
+      itemType: item ? translate(getItemTypeKey(item.itemType)) : '',
       code: item?.code ?? '',
     })
 
@@ -134,7 +151,7 @@ export const useMoveToLive: UseMoveToLive = () => {
     addToast({
       severity: 'info',
       message: translateItem(
-        BLOCKING_REASON_TRANSLATION_KEYS[preview.blockingReason],
+        getBlockingReasonKey(preview.blockingReason),
         preview.refusedItem ?? preview.missingParent ?? movedItem,
       ),
     })
@@ -160,7 +177,7 @@ export const useMoveToLive: UseMoveToLive = () => {
               {item.name || item.code}
             </Typography>
             <Typography variant="caption" color="grey600">
-              {`${translate(ITEM_TYPE_TRANSLATION_KEYS[item.itemType])} · ${item.code ?? ''}`}
+              {`${translate(getItemTypeKey(item.itemType))} · ${item.code ?? ''}`}
             </Typography>
           </div>
         ))}
@@ -168,7 +185,7 @@ export const useMoveToLive: UseMoveToLive = () => {
     )
   }
 
-  const move = async (target: MoveToLiveTarget): Promise<void> => {
+  const runMove = async (target: MoveToLiveTarget): Promise<void> => {
     const { data, errors } = await moveToLiveMode({ variables: { input: target } })
     const movedItem = data?.moveToLiveMode
 
@@ -187,7 +204,7 @@ export const useMoveToLive: UseMoveToLive = () => {
     if (!preview || !showBlockingReason(preview, target)) showError()
   }
 
-  const moveToLive = async (target: MoveToLiveTarget): Promise<void> => {
+  const previewAndConfirm = async (target: MoveToLiveTarget): Promise<void> => {
     const preview = await fetchPreview(target)
 
     if (!preview) return showError()
@@ -219,9 +236,24 @@ export const useMoveToLive: UseMoveToLive = () => {
       cancelOrCloseText: 'cancel',
       closeOnError: false,
       onError: showError,
-      onAction: () => move(target),
+      onAction: () => withPendingGuard(() => runMove(target)),
     })
   }
+
+  const withPendingGuard = async (run: () => Promise<void>): Promise<void> => {
+    if (isPendingRef.current) return
+
+    isPendingRef.current = true
+
+    try {
+      await run()
+    } finally {
+      isPendingRef.current = false
+    }
+  }
+
+  const moveToLive = (target: MoveToLiveTarget): Promise<void> =>
+    withPendingGuard(() => previewAndConfirm(target))
 
   return {
     canMoveToLive: isSandbox && hasPermissions(['moveToLiveCreate']),

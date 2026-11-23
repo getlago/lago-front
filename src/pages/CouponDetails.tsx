@@ -20,6 +20,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   LagoApiError,
   MoveToLiveMovableItemTypeEnum,
@@ -129,7 +130,7 @@ const CouponDetails = () => {
         {
           label: translate('text_1795431906432py065218gdv'),
           dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-          hidden: !canMoveToLive,
+          hidden: !canMoveToLive || !coupon || coupon.status === CouponStatusEnum.Terminated,
           onClick: (closePopper) => {
             void moveToLive({
               itemType: MoveToLiveMovableItemTypeEnum.Coupon,
