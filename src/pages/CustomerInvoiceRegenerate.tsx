@@ -71,51 +71,52 @@ gql`
     }
   }
 
-  query getOriginalFee($id: ID!) {
-    fee(id: $id) {
-      id
-      amountCents
-      invoiceDisplayName
-      preciseUnitAmount
+  fragment OriginalFeeForReset on Fee {
+    id
+    amountCents
+    invoiceDisplayName
+    preciseUnitAmount
+    units
+    invoiceWasRegenerated
+    amountDetails {
+      fixedFeeTotalAmount
+      fixedFeeUnitAmount
+      flatUnitAmount
+      freeEvents
+      freeUnits
+      minMaxAdjustmentTotalAmount
+      paidEvents
+      paidUnits
+      perPackageSize
+      perPackageUnitAmount
+      perUnitAmount
+      perUnitTotalAmount
+      rate
       units
-      invoice {
-        id
-        voidedInvoiceId
-      }
-      amountDetails {
-        fixedFeeTotalAmount
-        fixedFeeUnitAmount
+      graduatedRanges {
         flatUnitAmount
-        freeEvents
-        freeUnits
-        minMaxAdjustmentTotalAmount
-        paidEvents
-        paidUnits
-        perPackageSize
-        perPackageUnitAmount
+        fromValue
         perUnitAmount
         perUnitTotalAmount
-        rate
+        toValue
+        totalWithFlatAmount
         units
-        graduatedRanges {
-          flatUnitAmount
-          fromValue
-          perUnitAmount
-          perUnitTotalAmount
-          toValue
-          totalWithFlatAmount
-          units
-        }
-        graduatedPercentageRanges {
-          flatUnitAmount
-          fromValue
-          perUnitTotalAmount
-          rate
-          toValue
-          totalWithFlatAmount
-          units
-        }
       }
+      graduatedPercentageRanges {
+        flatUnitAmount
+        fromValue
+        perUnitTotalAmount
+        rate
+        toValue
+        totalWithFlatAmount
+        units
+      }
+    }
+  }
+
+  query getOriginalFee($id: ID!) {
+    fee(id: $id) {
+      ...OriginalFeeForReset
     }
   }
 
@@ -328,9 +329,9 @@ const CustomerInvoiceRegenerate = () => {
         })
       }
 
-      // A hand-added fee's root only ever lives on a regenerated invoice (voidedInvoiceId
-      // set); a genuinely billed fee's root lives on the true original one, even if edited.
-      if (originalFee.invoice?.voidedInvoiceId) {
+      // A hand-added fee's root only ever lives on a regenerated invoice; a genuinely
+      // billed fee's root lives on the true original one, even if edited.
+      if (originalFee.invoiceWasRegenerated) {
         return setFees((f) => f.filter((fee) => fee.id !== id))
       }
 

@@ -627,7 +627,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'root-fee-1',
-            invoice: { id: 'original-invoice-1', voidedInvoiceId: null },
+            invoiceWasRegenerated: false,
             invoiceDisplayName: null,
             units: 10,
             preciseUnitAmount: 100,
@@ -701,7 +701,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'root-fee-2',
-            invoice: { id: 'original-invoice-2', voidedInvoiceId: null },
+            invoiceWasRegenerated: false,
             invoiceDisplayName: 'Renamed before finalization',
             units: 10,
             preciseUnitAmount: 100,
@@ -752,7 +752,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         data: {
           fee: {
             id: 'hand-added-fee-1',
-            invoice: { id: 'regenerated-invoice-1', voidedInvoiceId: 'original-invoice-1' },
+            invoiceWasRegenerated: true,
             invoiceDisplayName: 'Hand-added fee',
             units: 1,
             preciseUnitAmount: 500,
