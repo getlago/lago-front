@@ -17,13 +17,13 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxSeparator,
   ComboboxStatus,
   ComboboxText,
   ComboboxTrigger,
   ComboboxValue,
 } from './combobox'
 import docs from './combobox.md?raw'
-import { Field, FieldContent, FieldDescription, FieldError, FieldHelp, FieldLabel } from './field'
 import { IconButton } from './icon-button'
 import { TooltipProvider } from './tooltip'
 
@@ -142,15 +142,17 @@ export const States: Story = {
 }
 
 function MultipleExample({
+  empty = false,
   above = false,
   disabled = false,
   readOnly = false,
 }: {
+  empty?: boolean
   above?: boolean
   disabled?: boolean
   readOnly?: boolean
 }): React.ReactElement {
-  const [value, setValue] = React.useState<Owner[]>(owners.slice(0, 2))
+  const [value, setValue] = React.useState<Owner[]>(empty ? [] : owners.slice(0, 2))
   const chips = (
     <ComboboxChips>
       {value.map((owner) => (
@@ -202,99 +204,65 @@ export const MultipleStates: Story = {
   ),
 }
 
-function FreeTextExample({ above = false }: { above?: boolean }): React.ReactElement {
-  const [value, setValue] = React.useState(['alex@acme.com'])
+function FreeTextExample({
+  above = false,
+  empty = false,
+}: {
+  above?: boolean
+  empty?: boolean
+}): React.ReactElement {
+  const [value, setValue] = React.useState<string[]>(empty ? [] : ['Priority', 'alex@acme.com'])
+  const [query, setQuery] = React.useState('')
   const [error, setError] = React.useState<string | null>(null)
   const id = React.useId()
+  const input = (
+    <ComboboxInput
+      aria-label="Values"
+      aria-describedby={error ? `${id}-error` : undefined}
+      placeholder="Add a value"
+    />
+  )
   const chips = (
     <ComboboxChips>
-      {value.map((email) => (
-        <ComboboxChip key={email} label={email} removeLabel={`Remove ${email}`} />
+      {value.map((item) => (
+        <ComboboxChip key={item} label={item} removeLabel={`Remove ${item}`} />
       ))}
-      {!above && <ComboboxInput id={id} aria-describedby={`${id}-help`} placeholder="Add email" />}
+      {!above && input}
     </ComboboxChips>
   )
 
   return (
     <ComboboxFreeText
-      items={['sam@acme.com', 'taylor@acme.com']}
       value={value}
       onValueChange={setValue}
-      createItem={(query) => query}
-      getItemKey={(email) => email.toLowerCase()}
-      normalize={(query) => query.trim().toLowerCase()}
-      validate={(query) =>
-        /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(query) ? null : 'Enter a valid email address.'
-      }
-      addLabel={(query) => `Add ${query}`}
-      duplicateMessage="This email is already added."
+      inputValue={query}
+      onInputValueChange={setQuery}
+      createItem={(text) => text}
+      getItemKey={(text) => text}
+      addLabel={(text) => `Add ${text}`}
+      duplicateMessage="This value is already added."
       onValidationChange={setError}
       errorId={`${id}-error`}
     >
-      <Field>
-        <FieldContent>
-          <FieldLabel htmlFor={id}>Recipients</FieldLabel>
-          <FieldDescription id={`${id}-help`}>
-            Select a suggestion or enter an email and press Enter.
-          </FieldDescription>
-        </FieldContent>
-        <div className="flex flex-col gap-2">
-          {above && chips}
-          <ComboboxControl>
-            {above ? (
-              <ComboboxInput id={id} placeholder="Add email" aria-describedby={`${id}-help`} />
-            ) : (
-              chips
-            )}
-            <ComboboxTrigger aria-label="Show suggestions" />
-          </ComboboxControl>
-        </div>
-        {error && <FieldError id={`${id}-error`}>{error}</FieldError>}
-      </Field>
-      <ComboboxContent>
-        <ComboboxEmpty>No suggestions</ComboboxEmpty>
-        <ComboboxList getItemKey={(email: string) => email}>
-          {(email) => <ComboboxItem value={email}>{email}</ComboboxItem>}
-        </ComboboxList>
-        <ComboboxAdd />
-      </ComboboxContent>
+      <div className="flex flex-col gap-2">
+        {above && chips}
+        <ComboboxControl>{above ? input : chips}</ComboboxControl>
+        {error && (
+          <p id={`${id}-error`} className="v2-text-caption text-danger-foreground">
+            {error}
+          </p>
+        )}
+      </div>
+      {!!query.trim() && !value.includes(query.trim()) && !error && (
+        <ComboboxContent>
+          <ComboboxAdd />
+        </ComboboxContent>
+      )}
     </ComboboxFreeText>
   )
 }
 export const FreeTextInside: Story = { render: () => <FreeTextExample /> }
 export const FreeTextAbove: Story = { render: () => <FreeTextExample above /> }
-export const WithField: Story = {
-  render: () => (
-    <div className="space-y-6">
-      {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid'].map((state) => (
-        <Field key={state}>
-          <FieldContent>
-            <FieldLabel htmlFor={`owner-${state}`}>
-              Quote owner · {state}
-              <FieldHelp label="About quote owners">
-                The owner is responsible for following up on this quote.
-              </FieldHelp>
-            </FieldLabel>
-            <FieldDescription id={`owner-${state}-help`}>
-              Who is responsible for this quote?
-            </FieldDescription>
-          </FieldContent>
-          <Single
-            id={`owner-${state}`}
-            describedBy={`owner-${state}-help${state === 'Invalid' ? ` owner-${state}-error` : ''}`}
-            filled={state !== 'Empty'}
-            disabled={state === 'Disabled'}
-            readOnly={state === 'Read-only'}
-            invalid={state === 'Invalid'}
-          />
-          {state === 'Invalid' && (
-            <FieldError id={`owner-${state}-error`}>Choose an available owner.</FieldError>
-          )}
-        </Field>
-      ))}
-    </div>
-  ),
-}
 
 const manyOwners: Owner[] = Array.from({ length: 10000 }, (_, index) => ({
   id: String(index),
@@ -349,7 +317,7 @@ function PopupExample(): React.ReactElement {
           {query && (
             <IconButton
               label="Clear search"
-              size="icon-sm"
+              size="icon-xs"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => setQuery('')}
             >
@@ -357,6 +325,7 @@ function PopupExample(): React.ReactElement {
             </IconButton>
           )}
         </ComboboxControl>
+        <ComboboxSeparator />
         <ComboboxEmpty>No owners found</ComboboxEmpty>
         <ComboboxList getItemKey={itemKey}>{renderOwner}</ComboboxList>
       </ComboboxContent>
@@ -393,7 +362,7 @@ function RemoteExample(): React.ReactElement {
         <ComboboxInput aria-label="Remote owners" placeholder="Search owners" />
         <ComboboxTrigger aria-label="Show owners" />
       </ComboboxControl>
-      <ComboboxContent>
+      <ComboboxContent aria-busy={loading || undefined}>
         {loading && <ComboboxStatus>Loading owners…</ComboboxStatus>}
         {!loading && <ComboboxEmpty>No owners found</ComboboxEmpty>}
         <ComboboxList getItemKey={itemKey}>{renderOwner}</ComboboxList>
@@ -433,3 +402,29 @@ function DialogExample(): React.ReactElement {
   )
 }
 export const InDialog: Story = { render: () => <DialogExample /> }
+
+function MenuStateExample({ loading }: { loading: boolean }): React.ReactElement {
+  return (
+    <Combobox items={[]} defaultOpen>
+      <ComboboxControl>
+        <ComboboxInput aria-label="Quote owner" placeholder="Select an owner" />
+        <ComboboxTrigger aria-label="Show owners" />
+      </ComboboxControl>
+      <ComboboxContent aria-busy={loading || undefined}>
+        {loading ? (
+          <ComboboxStatus>Loading owners…</ComboboxStatus>
+        ) : (
+          <ComboboxEmpty>No owners found</ComboboxEmpty>
+        )}
+        <ComboboxList getItemKey={(owner: string) => owner}>
+          {(owner) => <ComboboxItem value={owner}>{owner}</ComboboxItem>}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+}
+export const Loading: Story = { render: () => <MenuStateExample loading /> }
+export const Empty: Story = { render: () => <MenuStateExample loading={false} /> }
+
+export const ChipsInsideEmpty: Story = { render: () => <MultipleExample empty /> }
+export const FreeTextInsideEmpty: Story = { render: () => <FreeTextExample empty /> }

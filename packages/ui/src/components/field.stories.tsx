@@ -3,6 +3,7 @@ import { Mail } from 'lucide-react'
 import { type ReactElement, useId } from 'react'
 
 import { Badge } from './badge'
+import { ComboboxFieldStates } from './combobox/field-examples'
 import {
   Field,
   FieldContent,
@@ -208,3 +209,14 @@ const FieldStates = ({
 export const WithInput: Story = { render: () => <FieldStates control="input" /> }
 export const WithInputGroup: Story = { render: () => <FieldStates control="input-group" /> }
 export const WithTextarea: Story = { render: () => <FieldStates control="textarea" /> }
+
+export const WithCombobox: Story = { render: () => <ComboboxFieldStates kind="single" /> }
+export const WithComboboxChipsInside: Story = {
+  render: () => <ComboboxFieldStates kind="inside" />,
+}
+export const WithComboboxChipsAbove: Story = { render: () => <ComboboxFieldStates kind="above" /> }
+export const WithFreeTextInside: Story = {
+  render: () => <ComboboxFieldStates kind="free-inside" />,
+}
+export const WithFreeTextAbove: Story = { render: () => <ComboboxFieldStates kind="free-above" /> }
+export const WithComboboxPopup: Story = { render: () => <ComboboxFieldStates kind="popup" /> }

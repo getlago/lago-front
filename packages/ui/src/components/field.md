@@ -62,3 +62,5 @@ Storybook includes With Input, With Input Group and With Textarea galleries. Eac
 - [Tooltip](./tooltip.md)
 - Storybook: Components / Field
 - Tests: `__tests__/field.test.tsx`
+
+Combobox combinations live in Field Storybook: single, chips inside, chips above, free-text inside, free-text above and popup. Each shows empty, filled, disabled, read-only and invalid states. Free-text defaults to arbitrary values and an Add action without fetching suggestions.

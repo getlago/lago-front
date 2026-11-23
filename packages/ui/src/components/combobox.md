@@ -2,6 +2,8 @@
 
 ## When to use
 
+Free-text accepts arbitrary strings by default, including emails and identifiers. It needs no backend or suggestions: render only `ComboboxAdd` for the typed value. Validation and suggestions remain optional, caller-owned capabilities; email-specific validation belongs to an email use case.
+
 Use Combobox to search and select existing options. Use `multiple` with chips inside the control or in a separate row above. Use `ComboboxFreeText` for email recipients or arbitrary tags that may not exist in the suggestions. Use the popup composition for an action such as assigning an owner from a button; its search lives in the menu. Use Select for a short list that needs no search.
 
 ## Import
@@ -23,7 +25,7 @@ import {
 
 `ComboboxList` accepts a render function, `getItemKey`, optional `groupBy` and `estimateSize`. Supply the complete loaded collection to Root, never just the visible rows. Virtualisation is enabled on Root. Group options contiguously. Logical option indexes exclude headings; variable-height rows are measured. Use stable keys across query changes and appended pages.
 
-`ComboboxFreeText` is a controlled multiple-selection root: supply `value`, `onValueChange`, `createItem`, `getItemKey`, `validate` (message or null), `addLabel` and `duplicateMessage`. Optional `inputValue` and `onInputValueChange` support controlled queries and remote suggestions. Optional `normalize` defaults to trimming; domain-specific normalisation belongs to the caller. `onValidationChange` and `errorId` connect to FieldError. Enter or `ComboboxAdd` commits; blur and Tab do not. Invalid and duplicate values remain editable. A highlighted suggestion takes precedence over free-text creation. IME composition must finish before committing.
+`ComboboxFreeText` is a controlled multiple-selection root: supply `value`, `onValueChange`, `createItem`, `getItemKey`, optional `validate` (message or null), `addLabel` and `duplicateMessage`. Optional `inputValue` and `onInputValueChange` support controlled queries and remote suggestions. Optional `normalize` defaults to trimming; domain-specific normalisation belongs to the caller. `onValidationChange` and `errorId` connect to FieldError. Enter or `ComboboxAdd` commits; blur and Tab do not. Invalid and duplicate values remain editable. A highlighted suggestion takes precedence over free-text creation. IME composition must finish before committing.
 
 `ComboboxChip` requires the complete `label` and accessible `removeLabel`. Disabled chips have no removal button. Read-only chips render as default badges; omit the input shell in that composition. `ComboboxClear` requires `label`. `ComboboxAction` renders an optional full-width creation footer with a plus icon, outside the scrolling list; it does not create a free-text token.
 
@@ -48,7 +50,7 @@ Compose FieldContent, FieldLabel and FieldDescription before the control, and Fi
 
 Remote search belongs to the caller: control inputValue, debounce requests, cancel stale responses, pass `filter={null}`, retain selected objects, and render ComboboxStatus for loading or pagination. Do not clear selections when results change. No Formik or TanStack adapter is included.
 
-Wrap usage in TooltipProvider, as with IconButton. See Storybook for standalone states, both chip positions, free-text, Field, popup and 10,000 grouped options.
+Wrap usage in TooltipProvider, as with IconButton. Combobox Storybook contains standalone controls. Field Storybook contains single, chips inside/above, free-text inside/above and popup combinations, each with empty, filled, disabled, read-only and invalid states.
 
 ## Accessibility
 
@@ -56,7 +58,9 @@ Base UI owns keyboard navigation, active descendant, selection and focus restora
 
 ## Design
 
-Controls have a 36px minimum height and 240px minimum width, shrinking within narrower containers. Chips are 24px with 8px left padding, 2px right padding with a 20px remove IconButton, otherwise 8px. Chip rows use 4px gaps; chips above use an 8px gap before the input. Menus match the anchor width; optional creation stays outside the scroll viewport. Existing Radix components remain unchanged.
+Empty and loading messages use `text-subtle` and body typography. Menus use `surface-floating`, `border-divider` and the theme-aware floating shadow; highlighted rows use `interactive-hover`. The chevron uses `icon-default`, switching to `disabled-foreground` when disabled. Dedicated Loading and Empty stories keep those states visible for review in either theme.
+
+Controls have a 36px minimum height and 240px minimum width, shrinking within narrower containers. Chips are 24px with 8px left padding, 2px right padding with a 20px remove IconButton, otherwise 8px. Inside controls use 12px horizontal padding with no chips and 4px padding once chips are present, for both selection and free-text. Placeholder, query and caret share the same inset. Chip rows use 4px gaps; chips above use an 8px gap before the input. Menus match the anchor width; optional creation stays outside the scroll viewport. Existing Radix components remain unchanged.
 
 ## References
 

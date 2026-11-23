@@ -137,7 +137,7 @@ export const ComboboxClear = React.forwardRef<
   HTMLButtonElement,
   Omit<Primitive.Clear.Props, 'render'> & { label: string }
 >(({ label, ...props }, ref) => (
-  <Primitive.Clear {...props} ref={ref} render={<IconButton label={label} size="icon-sm" />}>
+  <Primitive.Clear {...props} ref={ref} render={<IconButton label={label} size="icon-xs" />}>
     <X aria-hidden="true" />
   </Primitive.Clear>
 ))
@@ -186,14 +186,18 @@ export const ComboboxEmpty = ({
 }: Primitive.Empty.Props): React.ReactElement => (
   <Primitive.Empty
     {...props}
-    className={comboboxClassName('px-3 py-2 text-text-muted empty:p-0', className)}
+    className={comboboxClassName('v2-text-body px-3 py-2 text-text-subtle empty:p-0', className)}
   />
 )
 export const ComboboxStatus = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>): React.ReactElement => (
-  <div {...props} role="status" className={cn('px-3 py-2 text-text-muted', className)} />
+  <div
+    {...props}
+    role="status"
+    className={cn('v2-text-body px-3 py-2 text-text-subtle', className)}
+  />
 )
 export const ComboboxGroup = Primitive.Group
 export const ComboboxLabel = ({
@@ -211,7 +215,8 @@ export const ComboboxSeparator = ({
 }: Primitive.Separator.Props): React.ReactElement => (
   <Primitive.Separator
     {...props}
-    className={comboboxClassName('-mx-1 my-1 h-px bg-border-divider', className)}
+    data-slot="combobox-separator"
+    className={comboboxClassName('-mx-1 my-1 h-px shrink-0 bg-border-divider', className)}
   />
 )
 

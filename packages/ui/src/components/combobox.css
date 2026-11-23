@@ -47,7 +47,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: var(--color-text-muted);
+  color: var(--color-icon-default);
 }
 .v2-combobox-positioner {
   z-index: 50;
@@ -55,14 +55,12 @@
   max-width: var(--available-width);
 }
 .v2-combobox-popup {
-  background: var(--color-surface);
+  background: var(--color-surface-floating);
   color: var(--color-text-default);
   border: 1px solid var(--color-border-divider);
   border-radius: 12px;
   padding: 4px;
-  box-shadow:
-    0 8px 24px #0000001f,
-    0 2px 6px #0000000f;
+  box-shadow: var(--v2-shadow-floating);
   max-height: var(--available-height);
   display: flex;
   flex-direction: column;
@@ -85,7 +83,7 @@
   outline: none;
 }
 .v2-combobox-item[data-highlighted] {
-  background: var(--color-surface-subtle);
+  background: var(--color-interactive-hover);
 }
 .v2-combobox-item[data-disabled] {
   color: var(--color-disabled-foreground);
@@ -98,6 +96,9 @@
   min-width: 0;
 }
 .v2-combobox-control:has(.v2-combobox-chips) {
+  padding: 4px 12px;
+}
+.v2-combobox-control:has(.v2-combobox-chip) {
   padding: 4px;
 }
 .v2-combobox-control > .v2-combobox-chips {
@@ -129,4 +130,16 @@
 .v2-field:has([data-slot='field-label']:hover)
   .v2-combobox-control:not(:has(input:focus)):not(:has(input:disabled)):not(:has(input:read-only)) {
   background: var(--color-surface);
+}
+
+.v2-combobox-trigger:disabled {
+  color: var(--color-disabled-foreground);
+}
+.v2-combobox-item[data-disabled] * {
+  color: inherit;
+}
+
+.v2-combobox-footer:only-child {
+  border-top: 0;
+  margin-top: 0;
 }

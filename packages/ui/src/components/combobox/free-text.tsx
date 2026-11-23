@@ -20,7 +20,7 @@ export interface ComboboxFreeTextProps<Value> extends Omit<
   onValueChange: (value: Value[]) => void
   createItem: (query: string) => Value
   getItemKey: (item: Value) => string
-  validate: (query: string) => string | null
+  validate?: (query: string) => string | null
   normalize?: (query: string) => string
   addLabel: (query: string) => string
   duplicateMessage: string
@@ -35,7 +35,7 @@ export function ComboboxFreeText<Value>({
   onValueChange,
   createItem,
   getItemKey,
-  validate,
+  validate = () => null,
   normalize = (query) => query.trim(),
   addLabel,
   duplicateMessage,
