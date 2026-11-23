@@ -5486,5 +5486,7 @@
   "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id",
   "text_1795108407959zrzrubt3hlc": "Activate your production account",
   "text_1795108407959msxzgohga8h": "Add a payment card to complete your account setup.",
-  "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized."
+  "text_1795108407960l896wfhaet4": "Your production account will only be activated once your card is authorized.",
+  "text_17951819535853oq0ffmmynt": "Total current usage • {{category}}",
+  "text_1795187036698g1pnr18vrtb": "Active contract"
 }

@@ -6,7 +6,7 @@ import { useDeleteCustomerDialog } from '~/components/customers/DeleteCustomerDi
 import { computeCustomerInitials } from '~/components/customers/utils'
 import { Avatar } from '~/components/designSystem/Avatar'
 import { PaginatedContent, usePageSearchParam } from '~/components/designSystem/Pagination'
-import { Table } from '~/components/designSystem/Table/Table'
+import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import {
@@ -27,6 +27,7 @@ import {
   AddCustomerDrawerFragmentDoc,
   CustomerAccountTypeEnum,
   CustomerItemFragmentDoc,
+  CustomersQuery,
   FeatureFlagEnum,
   useCustomersLazyQuery,
 } from '~/generated/graphql'
@@ -46,7 +47,6 @@ gql`
     lastname
     externalId
     createdAt
-    activeSubscriptionsCount
     ...AddCustomerDrawer
   }
 
@@ -67,6 +67,7 @@ gql`
     $hasTaxIdentificationNumber: Boolean
     $hasCustomerType: Boolean
     $metadata: [CustomerMetadataFilter!]
+    $isProductCatalogEnabled: Boolean!
   ) {
     customers(
       page: $page
@@ -95,6 +96,8 @@ gql`
       }
       collection {
         ...CustomerItem
+        activeSubscriptionsCount @skip(if: $isProductCatalogEnabled)
+        activeContractsCount @include(if: $isProductCatalogEnabled)
       }
     }
   }
@@ -102,6 +105,8 @@ gql`
   ${CustomerItemFragmentDoc}
   ${AddCustomerDrawerFragmentDoc}
 `
+
+type CustomerRow = CustomersQuery['customers']['collection'][number]
 
 const CustomersList = () => {
   const { translate } = useInternationalization()
@@ -133,6 +138,7 @@ const CustomersList = () => {
     variables: {
       limit: pageSize,
       page,
+      isProductCatalogEnabled,
       ...otherFiltersForCustomerQuery,
       ...(!isProductCatalogEnabled && {
         accountType: [accountType ?? CustomerAccountTypeEnum.Customer],
@@ -167,6 +173,20 @@ const CustomersList = () => {
 
     return !!variables?.searchTerm || hasPopperFilters
   }, [filtersForCustomerQuery, variables?.searchTerm])
+
+  const activeCountColumn: TableColumn<CustomerRow> = isProductCatalogEnabled
+    ? {
+        key: 'activeContractsCount',
+        title: translate('text_1795187036698g1pnr18vrtb'),
+        content: ({ activeContractsCount }) => activeContractsCount,
+        textAlign: 'right',
+      }
+    : {
+        key: 'activeSubscriptionsCount',
+        title: translate('text_1734452833961chacuky8218'),
+        content: ({ activeSubscriptionsCount }) => activeSubscriptionsCount,
+        textAlign: 'right',
+      }
 
   return (
     <>
@@ -250,12 +270,7 @@ const CustomersList = () => {
               title: translate('text_17436114971570doqrwuwhf0'),
               content: ({ billingEntity }) => billingEntity.name || billingEntity.code || '-',
             },
-            {
-              key: 'activeSubscriptionsCount',
-              title: translate('text_1734452833961chacuky8218'),
-              content: ({ activeSubscriptionsCount }) => activeSubscriptionsCount,
-              textAlign: 'right',
-            },
+            activeCountColumn,
             {
               key: 'paymentProvider',
               title: translate('text_6419c64eace749372fc72b40'),
