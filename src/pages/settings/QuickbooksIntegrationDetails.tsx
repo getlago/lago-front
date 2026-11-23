@@ -23,6 +23,7 @@ import {
   useGetQuickbooksIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import Quickbooks from '~/public/images/quickbooks.svg'
 
 const PROVIDER_CONNECTION_LIMIT = 2
@@ -73,6 +74,9 @@ const QuickbooksIntegrationDetails = () => {
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
   const { openDeleteQuickbooksIntegrationDialog } = useDeleteQuickbooksIntegrationDialog()
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
   const { data, loading } = useGetQuickbooksIntegrationsDetailsQuery({
     variables: {
       id: integrationId as string,
@@ -139,6 +143,7 @@ const QuickbooksIntegrationDetails = () => {
               items: [
                 {
                   label: translate('text_65845f35d7d69c3ab4793dac'),
+                  hidden: !canEditIntegration,
                   onClick: (closePopper) => {
                     openAddQuickbooksDialog({
                       provider: quickbooksIntegration,
@@ -149,6 +154,7 @@ const QuickbooksIntegrationDetails = () => {
                 },
                 {
                   label: translate('text_62b31e1f6a5b8b1b745ece41'),
+                  hidden: !canEditIntegration,
                   onClick: async (closePopper) => {
                     if (!quickbooksIntegration) return closePopper()
 
@@ -176,6 +182,7 @@ const QuickbooksIntegrationDetails = () => {
                 },
                 {
                   label: translate('text_65845f35d7d69c3ab4793dad'),
+                  hidden: !canDeleteIntegration,
                   onClick: (closePopper) => {
                     openDeleteDialog()
                     closePopper()

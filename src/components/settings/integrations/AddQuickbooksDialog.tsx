@@ -19,6 +19,7 @@ import { applyExistingCodeError } from '~/core/form/existingCodeError'
 import { QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   GetQuickbooksIntegrationsListDocument,
+  LagoApiError,
   QuickbooksForCreateDialogFragment,
   useCreateQuickbooksIntegrationMutation,
   useDestroyNangoIntegrationMutation,
@@ -175,6 +176,11 @@ export const useAddQuickbooksDialog = () => {
         if (hasDefinedGQLError('ValueAlreadyExist', errors, 'realmId')) {
           authorizedConnectionRef.current = null
           addToast({ severity: 'danger', translateKey: 'text_1795442089878h1a9gppfypr' })
+          return
+        }
+
+        if (!hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+          addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
         }
       }
 
@@ -191,6 +197,7 @@ export const useAddQuickbooksDialog = () => {
                 syncPayments: value.syncPayments,
               },
             },
+            context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
           })
 
           if (res.errors) {
@@ -222,6 +229,7 @@ export const useAddQuickbooksDialog = () => {
           variables: {
             input: { ...value, connectionId: authorized.connectionId },
           },
+          context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
 
         if (res.errors) {

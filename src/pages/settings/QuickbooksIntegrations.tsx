@@ -22,6 +22,7 @@ import {
   useGetQuickbooksIntegrationsListQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import Quickbooks from '~/public/images/quickbooks.svg'
 import { MenuPopper, PopperOpener } from '~/styles'
 
@@ -63,6 +64,7 @@ const isQuickbooksConnection = (integration: TIntegration): integration is TQuic
 const QuickbooksIntegrations = () => {
   const navigate = useNavigate()
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
   const { openDeleteQuickbooksIntegrationDialog } = useDeleteQuickbooksIntegrationDialog()
   const { data, loading } = useGetQuickbooksIntegrationsListQuery({
@@ -80,6 +82,10 @@ const QuickbooksIntegrations = () => {
           )
       : undefined
 
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
+
   const openDeleteDialog = (provider: TQuickbooksConnection) => {
     openDeleteQuickbooksIntegrationDialog({
       provider,
@@ -92,11 +98,13 @@ const QuickbooksIntegrations = () => {
       {
         icon: 'pen',
         labelKey: 'text_65845f35d7d69c3ab4793dac',
+        allowed: canEditIntegration,
         onClick: () => openAddQuickbooksDialog({ provider: connection, deleteDialogCallback }),
       },
       {
         icon: 'trash',
         labelKey: 'text_645d071272418a14c1c76a81',
+        allowed: canDeleteIntegration,
         onClick: () => openDeleteDialog(connection),
       },
     ] as const
@@ -138,6 +146,7 @@ const QuickbooksIntegrations = () => {
               type: 'action',
               label: translate('text_65846763e6140b469140e235'),
               variant: 'primary',
+              hidden: !canCreateIntegration,
               onClick: () => {
                 openAddQuickbooksDialog()
               },
@@ -167,26 +176,30 @@ const QuickbooksIntegrations = () => {
                   label={connection.name}
                   subLabel={connection.code}
                 >
-                  <Popper PopperProps={{ placement: 'bottom-end' }} opener={renderRowMenuOpener}>
-                    {({ closePopper }) => (
-                      <MenuPopper>
-                        {getRowActions(connection).map(({ icon, labelKey, onClick }) => (
-                          <Button
-                            key={icon}
-                            startIcon={icon}
-                            variant="quaternary"
-                            align="left"
-                            onClick={() => {
-                              onClick()
-                              closePopper()
-                            }}
-                          >
-                            {translate(labelKey)}
-                          </Button>
-                        ))}
-                      </MenuPopper>
-                    )}
-                  </Popper>
+                  {(canEditIntegration || canDeleteIntegration) && (
+                    <Popper PopperProps={{ placement: 'bottom-end' }} opener={renderRowMenuOpener}>
+                      {({ closePopper }) => (
+                        <MenuPopper>
+                          {getRowActions(connection)
+                            .filter(({ allowed }) => allowed)
+                            .map(({ icon, labelKey, onClick }) => (
+                              <Button
+                                key={icon}
+                                startIcon={icon}
+                                variant="quaternary"
+                                align="left"
+                                onClick={() => {
+                                  onClick()
+                                  closePopper()
+                                }}
+                              >
+                                {translate(labelKey)}
+                              </Button>
+                            ))}
+                        </MenuPopper>
+                      )}
+                    </Popper>
+                  )}
                 </IntegrationsPage.ListItem>
               )
             })}
