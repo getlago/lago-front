@@ -2,9 +2,10 @@ import { useCallback } from 'react'
 import { generatePath } from 'react-router'
 
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PRODUCT_DETAILS_ROUTE } from '~/core/router'
-import { ProductForListFragment } from '~/generated/graphql'
+import { MoveToLiveMovableItemTypeEnum, ProductForListFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -23,6 +24,7 @@ export const useProductTableActions = () => {
 
   const canUpdateProducts = hasPermissions(['productsUpdate'])
   const canDeleteProducts = hasPermissions(['productsDelete'])
+  const { canMoveToLive, moveToLive } = useMoveToLive()
 
   const actionColumnTooltip = useCallback((): string => {
     const label = [
@@ -61,6 +63,16 @@ export const useProductTableActions = () => {
         startIcon: 'trash',
         title: translate('text_629728388c4d2300e2d38182'),
         onAction: () => openDeleteProductDialog({ product }),
+      })
+    }
+
+    if (canMoveToLive) {
+      actions.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+        onAction: () =>
+          moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Product, id: product.id }),
       })
     }
 

@@ -8,11 +8,13 @@ import { Table, TableColumn } from '~/components/designSystem/Table/Table'
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PRODUCT_CATEGORY_DETAILS_ROUTE } from '~/core/router'
 import {
+  MoveToLiveMovableItemTypeEnum,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
   ProductCategoryListItemFragment,
@@ -80,6 +82,7 @@ const ProductCategoriesList = () => {
   const canCreateProductCategories = hasPermissions(['productsCreate'])
   const canUpdateProductCategories = hasPermissions(['productsUpdate'])
   const canDeleteProductCategories = hasPermissions(['productsDelete'])
+  const { canMoveToLive, moveToLive } = useMoveToLive()
 
   const composeTooltipLabel = useCallback((): string => {
     const editLabel = translate('text_629728388c4d2300e2d3816a')
@@ -134,6 +137,19 @@ const ProductCategoriesList = () => {
         // list optimistically, so the row disappears without waiting
         // for a refetch.
         onAction: () => openDeleteProductCategoryDialog({ productCategory }),
+      })
+    }
+
+    if (canMoveToLive) {
+      actions.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+        onAction: () =>
+          moveToLive({
+            itemType: MoveToLiveMovableItemTypeEnum.ProductCategory,
+            id: productCategory.id,
+          }),
       })
     }
 

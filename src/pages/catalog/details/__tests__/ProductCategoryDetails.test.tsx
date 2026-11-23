@@ -6,8 +6,12 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductCategoryForDetailsDocument } from '~/generated/graphql'
+import {
+  GetProductCategoryForDetailsDocument,
+  MoveToLiveMovableItemTypeEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductCategoryDetails from '../ProductCategoryDetails'
@@ -108,6 +112,14 @@ const renderPage = (
     ),
   })
 }
+
+const mockMoveToLive = jest.fn()
+let mockCanMoveToLive = false
+
+jest.mock('~/components/sandbox/useMoveToLive', () => ({
+  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
+  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+}))
 
 describe('ProductCategoryDetails', () => {
   beforeEach(() => {
@@ -233,5 +245,33 @@ describe('ProductCategoryDetails', () => {
     expect(screen.queryByTestId('product-details-actions')).not.toBeInTheDocument()
     expect(screen.queryByTestId('product-details-edit')).not.toBeInTheDocument()
     expect(screen.queryByTestId('product-details-delete')).not.toBeInTheDocument()
+  })
+
+  describe('GIVEN move to live mode', () => {
+    afterEach(() => {
+      mockCanMoveToLive = false
+    })
+
+    it('WHEN the member can move items THEN the action moves the item to live mode', async () => {
+      mockCanMoveToLive = true
+
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
+      await userEvent.click(screen.getByTestId(MOVE_TO_LIVE_ACTION_TEST_ID))
+
+      expect(mockMoveToLive).toHaveBeenCalledWith({
+        itemType: MoveToLiveMovableItemTypeEnum.ProductCategory,
+        id: 'prod-1',
+      })
+    })
+
+    it('WHEN the member cannot move items THEN the action is not offered', async () => {
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
+
+      expect(screen.queryByTestId(MOVE_TO_LIVE_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })

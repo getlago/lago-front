@@ -1,4 +1,6 @@
-import { CouponStatusEnum } from '~/generated/graphql'
+import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
+import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
+import { CouponStatusEnum, MoveToLiveMovableItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponDetails from '../CouponDetails'
@@ -79,15 +81,18 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetCouponForDetailsQuery(options),
 }))
 
-interface MainHeaderDropdownAction {
-  type: string
-  items: { hidden?: boolean; disabled?: boolean; label: string }[]
-}
-
 interface MainHeaderTabConfig {
   title: string
   hidden?: boolean
 }
+
+const mockMoveToLive = jest.fn()
+let mockCanMoveToLive = false
+
+jest.mock('~/components/sandbox/useMoveToLive', () => ({
+  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
+  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+}))
 
 describe('CouponDetails', () => {
   const mockActiveCoupon = {
@@ -290,6 +295,47 @@ describe('CouponDetails', () => {
 
         expect(activityLogsTab).toBeDefined()
       })
+    })
+  })
+
+  describe('GIVEN move to live mode', () => {
+    const getMoveItem = (): MainHeaderDropdownItem | undefined => {
+      const [dropdown] = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+        ?.items as MainHeaderDropdownAction[]
+
+      return dropdown?.items.find((item) => item.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID)
+    }
+
+    afterEach(() => {
+      mockCanMoveToLive = false
+    })
+
+    it('WHEN the member can move items THEN the action moves the item to live mode', () => {
+      mockCanMoveToLive = true
+      mockHasPermissions.mockReturnValue(true)
+      const closePopper = jest.fn()
+
+      render(<CouponDetails />)
+
+      const moveItem = getMoveItem()
+
+      expect(moveItem?.hidden).toBe(false)
+
+      moveItem?.onClick(closePopper)
+
+      expect(mockMoveToLive).toHaveBeenCalledWith({
+        itemType: MoveToLiveMovableItemTypeEnum.Coupon,
+        id: 'coupon-123',
+      })
+      expect(closePopper).toHaveBeenCalled()
+    })
+
+    it('WHEN the member cannot move items THEN the action is hidden', () => {
+      mockHasPermissions.mockReturnValue(true)
+
+      render(<CouponDetails />)
+
+      expect(getMoveItem()?.hidden).toBe(true)
     })
   })
 })

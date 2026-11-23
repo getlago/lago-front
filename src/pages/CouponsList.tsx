@@ -16,6 +16,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
@@ -30,6 +31,7 @@ import {
   CouponCaptionFragmentDoc,
   CouponsQuery,
   DeleteCouponFragmentDoc,
+  MoveToLiveMovableItemTypeEnum,
   TerminateCouponFragmentDoc,
   useCouponsLazyQuery,
 } from '~/generated/graphql'
@@ -84,6 +86,7 @@ const CouponsList = () => {
   const navigate = useNavigate()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const actions = usePermissionsCouponActions()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -157,6 +160,16 @@ const CouponsList = () => {
             appliedCouponsCount: coupon.appliedCouponsCount,
           })
         },
+      })
+    }
+
+    if (canMoveToLive) {
+      result.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+        onAction: () =>
+          moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Coupon, id: coupon.id }),
       })
     }
 

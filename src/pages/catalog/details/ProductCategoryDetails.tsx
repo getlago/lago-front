@@ -6,6 +6,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import {
   ProductCatalogTabsOptionsEnum,
   ProductCategoryDetailsTabsOptionsEnum,
@@ -17,6 +18,7 @@ import {
 } from '~/core/router'
 import {
   LagoApiError,
+  MoveToLiveMovableItemTypeEnum,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
   useGetProductCategoryForDetailsQuery,
@@ -66,6 +68,7 @@ const ProductCategoryDetails = () => {
   const { hasPermissions } = usePermissions()
   const { openDrawer: openEditProductCategoryDrawer } = useProductCategoryDrawer()
   const { openDeleteProductCategoryDialog } = useDeleteProductCategoryDialog()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
 
   const { data, loading, error } = useGetProductCategoryForDetailsQuery({
     variables: { id: productCategoryId as string },
@@ -108,6 +111,18 @@ const ProductCategoryDetails = () => {
                 callback: () => navigate(PRODUCTS_LIST_PATH),
               })
             }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+          hidden: !canMoveToLive,
+          onClick: (closePopper) => {
+            moveToLive({
+              itemType: MoveToLiveMovableItemTypeEnum.ProductCategory,
+              id: productCategoryId as string,
+            })
             closePopper()
           },
         },

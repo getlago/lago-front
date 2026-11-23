@@ -8,6 +8,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -18,7 +19,11 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { LagoApiError, useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
+import {
+  LagoApiError,
+  MoveToLiveMovableItemTypeEnum,
+  useGetBillableMetricForHeaderDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
@@ -42,6 +47,7 @@ const BillableMetricDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
 
   const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
     variables: {
@@ -107,6 +113,18 @@ const BillableMetricDetails = () => {
               callback: () => {
                 navigate(generatePath(BILLABLE_METRICS_ROUTE))
               },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+          hidden: !canMoveToLive,
+          onClick: (closePopper) => {
+            moveToLive({
+              itemType: MoveToLiveMovableItemTypeEnum.BillableMetric,
+              id: billableMetricId as string,
             })
             closePopper()
           },

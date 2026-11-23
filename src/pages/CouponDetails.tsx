@@ -11,6 +11,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   COUPON_DETAILS_ROUTE,
@@ -21,6 +22,7 @@ import {
 import {
   DeleteCouponFragmentDoc,
   LagoApiError,
+  MoveToLiveMovableItemTypeEnum,
   TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
 } from '~/generated/graphql'
@@ -63,6 +65,7 @@ const CouponDetails = () => {
   const { hasPermissions } = usePermissions()
   const couponActions = usePermissionsCouponActions()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
   const { data, loading, error } = useGetCouponForDetailsQuery({
@@ -120,6 +123,15 @@ const CouponDetails = () => {
                 navigate(COUPONS_ROUTE)
               },
             })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+          hidden: !canMoveToLive,
+          onClick: (closePopper) => {
+            moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Coupon, id: couponId as string })
             closePopper()
           },
         },

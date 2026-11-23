@@ -12,6 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -22,7 +23,11 @@ import {
   UPDATE_BILLABLE_METRIC_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { BillableMetricItemFragment, useBillableMetricsLazyQuery } from '~/generated/graphql'
+import {
+  BillableMetricItemFragment,
+  MoveToLiveMovableItemTypeEnum,
+  useBillableMetricsLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -57,6 +62,7 @@ const BillableMetricsList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
@@ -103,6 +109,15 @@ const BillableMetricsList = () => {
         onAction: () => {
           openDeleteBillableMetricDialog({ billableMetricId: id })
         },
+      })
+    }
+
+    if (canMoveToLive) {
+      actions.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+        onAction: () => moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.BillableMetric, id }),
       })
     }
 

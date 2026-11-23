@@ -1,6 +1,8 @@
 import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
+import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
+import { MoveToLiveMovableItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillableMetricsList from '../BillableMetricsList'
@@ -71,6 +73,14 @@ jest.mock('~/generated/graphql', () => ({
     jest.fn(),
     { data: null, error: null, loading: false, fetchMore: jest.fn(), variables: {} },
   ],
+}))
+
+const mockMoveToLive = jest.fn()
+let mockCanMoveToLive = false
+
+jest.mock('~/components/sandbox/useMoveToLive', () => ({
+  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
+  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
 }))
 
 describe('BillableMetricsList', () => {
@@ -289,6 +299,47 @@ describe('BillableMetricsList', () => {
       actions[index]?.link?.({ id: 'bm-1' })
 
       expect(generatePath).toHaveBeenLastCalledWith(route, { billableMetricId: 'bm-1' })
+    })
+  })
+
+  describe('GIVEN move to live mode', () => {
+    const MOVE_ROW = { id: 'bm-1', name: 'Test BM', code: 'test' }
+
+    const getMoveAction = () => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof MOVE_ROW,
+      ) => ActionItem<typeof MOVE_ROW>[]
+
+      return actionColumn(MOVE_ROW).find(
+        (action) => action.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanMoveToLive = false
+    })
+
+    it('WHEN the member can move items THEN the row action moves the item to live mode', () => {
+      mockCanMoveToLive = true
+
+      render(<BillableMetricsList />)
+
+      const moveAction = getMoveAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(MOVE_ROW)
+
+      expect(mockMoveToLive).toHaveBeenCalledWith({
+        itemType: MoveToLiveMovableItemTypeEnum.BillableMetric,
+        id: MOVE_ROW.id,
+      })
+    })
+
+    it('WHEN the member cannot move items THEN there is no move to live row action', () => {
+      render(<BillableMetricsList />)
+
+      expect(getMoveAction()).toBeUndefined()
     })
   })
 })

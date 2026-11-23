@@ -3,8 +3,13 @@ import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
+import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { ProductForListFragment, ProductTypeEnum } from '~/generated/graphql'
+import {
+  MoveToLiveMovableItemTypeEnum,
+  ProductForListFragment,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import ProductsList from '../ProductsList'
@@ -95,6 +100,14 @@ const defaultQueryState = {
 }
 
 const getTableProps = () => mockTableProps.mock.calls[0][0] as TableProps<ProductForListFragment>
+
+const mockMoveToLive = jest.fn()
+let mockCanMoveToLive = false
+
+jest.mock('~/components/sandbox/useMoveToLive', () => ({
+  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
+  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+}))
 
 describe('ProductsList', () => {
   beforeEach(() => {
@@ -228,5 +241,46 @@ describe('ProductsList', () => {
 
     expect(placeholder?.emptyState?.title).toBe('text_1783980718114wya9wp01m5i')
     expect(placeholder?.emptyState?.buttonTitle).toBeUndefined()
+  })
+
+  describe('GIVEN move to live mode', () => {
+    const MOVE_ROW = { id: 'pitem-1', name: 'Seats', productType: ProductTypeEnum.Fixed }
+
+    const getMoveAction = () => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof MOVE_ROW,
+      ) => ActionItem<typeof MOVE_ROW>[]
+
+      return actionColumn(MOVE_ROW).find(
+        (action) => action.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanMoveToLive = false
+    })
+
+    it('WHEN the member can move items THEN the row action moves the item to live mode', () => {
+      mockCanMoveToLive = true
+
+      render(<ProductsList />)
+
+      const moveAction = getMoveAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(MOVE_ROW)
+
+      expect(mockMoveToLive).toHaveBeenCalledWith({
+        itemType: MoveToLiveMovableItemTypeEnum.Product,
+        id: MOVE_ROW.id,
+      })
+    })
+
+    it('WHEN the member cannot move items THEN there is no move to live row action', () => {
+      render(<ProductsList />)
+
+      expect(getMoveAction()).toBeUndefined()
+    })
   })
 })

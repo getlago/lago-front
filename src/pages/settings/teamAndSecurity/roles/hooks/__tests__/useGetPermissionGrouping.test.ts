@@ -50,6 +50,12 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping).not.toHaveProperty('other')
   })
 
+  it('leaves out the admin-only move to live permission', () => {
+    const { result } = renderHook(() => useGetPermissionGrouping(['MoveToLiveCreate']))
+
+    expect(result.current.permissionGrouping).toEqual({})
+  })
+
   it('adds unmapped permissions to "other" key', () => {
     const { result } = renderHook(() => useGetPermissionGrouping(['unknownPermission' as never]))
 

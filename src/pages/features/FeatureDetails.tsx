@@ -8,6 +8,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   FEATURE_DETAILS_ROUTE,
@@ -18,6 +19,7 @@ import {
 import {
   FeatureForDeleteFeatureDialogFragmentDoc,
   LagoApiError,
+  MoveToLiveMovableItemTypeEnum,
   useGetFeatureForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -46,6 +48,7 @@ const FeatureDetails = () => {
   const { featureId } = useParams()
 
   const { openDeleteFeatureDialog } = useDeleteFeatureDialog()
+  const { canMoveToLive, moveToLive } = useMoveToLive()
 
   const {
     data: featureResult,
@@ -94,6 +97,15 @@ const FeatureDetails = () => {
                     navigate(FEATURES_ROUTE)
                   },
                 })
+                closePopper()
+              },
+            },
+            {
+              label: translate('text_1795431906432py065218gdv'),
+              dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+              hidden: !canMoveToLive,
+              onClick: (closePopper) => {
+                moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Feature, id: feature.id })
                 closePopper()
               },
             },

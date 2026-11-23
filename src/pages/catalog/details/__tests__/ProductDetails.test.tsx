@@ -6,8 +6,13 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductForDetailsDocument, ProductTypeEnum } from '~/generated/graphql'
+import {
+  GetProductForDetailsDocument,
+  MoveToLiveMovableItemTypeEnum,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductDetails from '../ProductDetails'
@@ -126,6 +131,14 @@ const renderPage = (
     ),
   })
 }
+
+const mockMoveToLive = jest.fn()
+let mockCanMoveToLive = false
+
+jest.mock('~/components/sandbox/useMoveToLive', () => ({
+  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
+  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+}))
 
 describe('ProductDetails', () => {
   beforeEach(() => {
@@ -253,5 +266,33 @@ describe('ProductDetails', () => {
       expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent('Seats')
     })
     expect(screen.queryByTestId('product-item-details-actions')).not.toBeInTheDocument()
+  })
+
+  describe('GIVEN move to live mode', () => {
+    afterEach(() => {
+      mockCanMoveToLive = false
+    })
+
+    it('WHEN the member can move items THEN the action moves the item to live mode', async () => {
+      mockCanMoveToLive = true
+
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+      await userEvent.click(screen.getByTestId(MOVE_TO_LIVE_ACTION_TEST_ID))
+
+      expect(mockMoveToLive).toHaveBeenCalledWith({
+        itemType: MoveToLiveMovableItemTypeEnum.Product,
+        id: 'pitem-1',
+      })
+    })
+
+    it('WHEN the member cannot move items THEN the action is not offered', async () => {
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+
+      expect(screen.queryByTestId(MOVE_TO_LIVE_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })
