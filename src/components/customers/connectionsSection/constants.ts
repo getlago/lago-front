@@ -19,4 +19,5 @@ export const PaymentProviderMethodTranslationsLookup: Record<ProviderPaymentMeth
   [ProviderPaymentMethodsEnum.Boleto]: 'text_1738234109827diqh4eswleu',
   [ProviderPaymentMethodsEnum.Crypto]: 'text_17394287699017cunbdlhnhf',
   [ProviderPaymentMethodsEnum.CustomerBalance]: 'text_1739432510045wh80q1wdt4z',
+  [ProviderPaymentMethodsEnum.SharedPaymentToken]: 'text_1791907940203tazkwmcw016',
 }

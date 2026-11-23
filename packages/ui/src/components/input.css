@@ -1,0 +1,88 @@
+.v2-input {
+  --v2-input-background: var(--color-surface);
+  --v2-input-focus-shadow: 0 0 0 0 transparent;
+
+  background-color: var(--v2-input-background);
+  border-color: var(--color-border-control);
+}
+.v2-input:is([data-variant='search'], :read-only),
+.v2-input:not(:disabled):not(:read-only):not([aria-invalid='true']):hover:not(
+    :where(.v2-field:has([data-slot='field-label']:hover) *)
+  ) {
+  --v2-input-background: var(--color-surface-subtle);
+}
+.v2-input[data-variant='search'],
+.v2-input[data-variant='borderless'] {
+  border-color: transparent;
+}
+.v2-input[data-variant='borderless']:read-only:not(:disabled):not([aria-invalid='true']) {
+  --v2-input-background: transparent;
+}
+.v2-input:not([data-variant='search']):not(:read-only):focus {
+  --v2-input-background: var(--color-surface);
+}
+[data-slot='password-input'] .v2-input:not(:disabled):focus {
+  --v2-input-background: var(--color-surface-subtle);
+}
+.v2-input:focus {
+  outline: none;
+  border-color: var(--color-focus-border);
+  --v2-input-focus-shadow: 0 0 0 4px var(--color-focus-ring);
+
+  box-shadow: var(--v2-input-focus-shadow);
+}
+.v2-input[aria-invalid='true'],
+.v2-input[aria-invalid='true']:focus,
+[data-slot='password-input'] .v2-input[aria-invalid='true']:focus {
+  --v2-input-background: var(--color-surface);
+  border-color: var(--color-danger-border);
+}
+.v2-input[aria-invalid='true']:not(:disabled):not(:read-only):hover:not(
+    :where(.v2-field:has([data-slot='field-label']:hover) *)
+  ) {
+  --v2-input-background: var(--color-surface-subtle);
+}
+.v2-input:disabled {
+  cursor: not-allowed;
+  --v2-input-background: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-foreground);
+}
+.v2-input:disabled::placeholder {
+  color: var(--color-disabled-foreground);
+}
+.v2-input[data-variant='borderless']:disabled,
+.v2-input[data-variant='search']:disabled {
+  border-color: transparent;
+}
+/* Browser autofill backgrounds cannot be overridden with background-color alone. */
+.v2-input:is(:autofill, :-webkit-autofill) {
+  -webkit-text-fill-color: var(--color-text-default);
+  caret-color: var(--color-text-default);
+  box-shadow:
+    inset 0 0 0 1000px var(--v2-input-background),
+    var(--v2-input-focus-shadow);
+}
+.v2-input:is(:autofill, :-webkit-autofill):disabled {
+  -webkit-text-fill-color: var(--color-disabled-foreground);
+}
+.v2-input[type='search']::-webkit-search-cancel-button,
+.v2-input[type='search']::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+.v2-input-action:not(:disabled):hover {
+  background-color: var(--color-surface-subtle);
+}
+.v2-input-action:focus-visible {
+  outline: 1px solid var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-input-action:disabled {
+  cursor: not-allowed;
+}
+@media (forced-colors: active) {
+  .v2-input:focus,
+  .v2-input-action:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}

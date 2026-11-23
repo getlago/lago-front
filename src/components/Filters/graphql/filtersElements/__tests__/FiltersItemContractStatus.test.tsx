@@ -29,6 +29,7 @@ describe('FiltersItemContractStatus', () => {
 
   describe('GIVEN a single value', () => {
     it.each([
+      ['draft', ContractStatusEnum.Draft],
       ['active', ContractStatusEnum.Active],
       ['pending', ContractStatusEnum.Pending],
       ['canceled', ContractStatusEnum.Canceled],

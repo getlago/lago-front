@@ -74,8 +74,8 @@ export const VerticalMenu = ({
                   }}
                   {..._omit(tabProps, ['component', 'match'])}
                 >
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex items-baseline gap-2">
+                  <div className="flex w-full min-w-0 flex-row items-center justify-between">
+                    <div className="flex min-w-0 items-baseline gap-2">
                       <Typography variant="caption" color="inherit" noWrap>
                         {title}
                       </Typography>
@@ -97,8 +97,8 @@ export const VerticalMenu = ({
                   onClick={onAction}
                   size="small"
                 >
-                  <div className="flex w-full flex-row items-center justify-between">
-                    <div className="flex items-baseline gap-2">
+                  <div className="flex w-full min-w-0 flex-row items-center justify-between">
+                    <div className="flex min-w-0 items-baseline gap-2">
                       <Typography variant="caption" color="inherit" noWrap>
                         {title}
                       </Typography>

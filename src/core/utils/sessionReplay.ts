@@ -8,9 +8,9 @@ const REPLAY_INTEGRATION_NAME = 'Replay'
 
 const createReplayIntegration = (): ReplayIntegration =>
   replayIntegration({
-    maskAllText: false,
+    maskAllText: true,
+    maskAllInputs: true,
     blockAllMedia: false,
-    maskAllInputs: false,
     // Replay only hands custom events (breadcrumbs, navigation spans) to this hook
     beforeAddRecordingEvent: scrubUrlTokens,
   })

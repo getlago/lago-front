@@ -7,6 +7,7 @@ describe('mapContractToContractSettingsFormValues', () => {
   it('maps every stored value onto the form shape', () => {
     expect(mapContractToContractSettingsFormValues(contractForDrawerFixture)).toEqual({
       externalId: 'external-contract-1',
+      code: 'initial',
       name: 'Enterprise agreement',
       startedAt: '2026-01-01T00:00:00Z',
       endedAt: '2099-12-31T00:00:00Z',
@@ -19,6 +20,7 @@ describe('mapContractToContractSettingsFormValues', () => {
   it('maps absent optional values to the empty form shapes', () => {
     const values = mapContractToContractSettingsFormValues({
       ...contractForDrawerFixture,
+      code: null,
       name: null,
       endedAt: null,
       purchaseOrderNumber: null,
@@ -26,6 +28,7 @@ describe('mapContractToContractSettingsFormValues', () => {
 
     expect(values).toEqual(
       expect.objectContaining({
+        code: '',
         name: '',
         endedAt: undefined,
         purchaseOrderNumber: undefined,

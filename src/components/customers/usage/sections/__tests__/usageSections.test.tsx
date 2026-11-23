@@ -101,6 +101,31 @@ describe('FiltersOnlyTable', () => {
 
     expect(screen.getByText('Units header')).toBeInTheDocument()
   })
+
+  it('does not truncate long filter display names', () => {
+    const longName = 'A very long charge filter display name '.repeat(5).trim()
+    const usage = asUsage({
+      charge: { invoiceDisplayName: 'My charge' },
+      billableMetric: { name: 'BM' },
+      filters: [
+        {
+          id: 'f1',
+          invoiceDisplayName: longName,
+          values: {},
+          units: 1,
+          amountCents: '100',
+          presentationBreakdowns: [],
+        },
+      ],
+      presentationBreakdowns: [],
+    })
+
+    render(<FiltersOnlyTable {...baseTableProps} usage={usage} />)
+
+    const nameCell = screen.getByText(longName)
+
+    expect(nameCell).not.toHaveClass('MuiTypography-noWrap')
+  })
 })
 
 describe('GroupedUsageTable', () => {

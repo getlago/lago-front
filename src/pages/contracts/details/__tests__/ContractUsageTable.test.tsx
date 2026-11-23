@@ -1,6 +1,11 @@
 import { render, screen } from '@testing-library/react'
 
-import { CurrencyEnum, GetContractUsagesDocument, TimezoneEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  GetContractUsagesDocument,
+  ProductTypeEnum,
+  TimezoneEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { CONTRACT_USAGE_ROW_NAME_TEST_ID, ContractUsageTable } from '../ContractUsageTable'
@@ -20,6 +25,7 @@ const rowFixture = {
   productCode: 'support',
   productName: 'Support plan',
   productFilterCode: null as string | null,
+  productType: ProductTypeEnum.Metered,
   fromDatetime: '2027-02-01T00:00:00.000Z',
   toDatetime: '2027-03-01T00:00:00.000Z',
   __typename: 'RateCardUsage',
@@ -56,6 +62,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[buildMock([rowFixture])]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
@@ -70,6 +79,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[buildMock([rowFixture])]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
@@ -94,6 +106,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[buildMock([row])]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzAmericaNewYork}
         />
@@ -122,6 +137,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[buildMock(collection)]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
@@ -139,11 +157,88 @@ describe('ContractUsageTable', () => {
     expect(indentedByName.get('Filter 1')).toBe('true')
   })
 
+  it("shows each row's product type as a chip", async () => {
+    const collection = [
+      {
+        ...rowFixture,
+        id: 'rc-fixed',
+        invoiceDisplayName: 'Seats',
+        productType: ProductTypeEnum.Fixed,
+      },
+      { ...rowFixture, id: 'rc-metered', invoiceDisplayName: 'API calls' },
+    ]
+
+    render(
+      <AllTheProviders forceTypenames mocks={[buildMock(collection)]}>
+        <ContractUsageTable
+          contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
+      </AllTheProviders>,
+    )
+
+    await screen.findByText('Seats')
+
+    expect(screen.getByText('text_1783980718113ritmy7z94je')).toBeInTheDocument()
+    expect(screen.getByText('text_17839807181133l3z83156s6')).toBeInTheDocument()
+  })
+
+  it('queries the usage of the category it is given instead of the standalone products', async () => {
+    const mock: TestMocksType[number] = {
+      request: {
+        query: GetContractUsagesDocument,
+        variables: {
+          contractId: 'contract-1',
+          page: 1,
+          limit: 20,
+          productCategoryIds: ['cat-1'],
+          withoutProductCategory: false,
+        },
+      },
+      result: {
+        data: {
+          contractUsages: {
+            __typename: 'RateCardUsageCollection',
+            collection: [rowFixture],
+            metadata: {
+              __typename: 'CollectionMetadata',
+              currentPage: 1,
+              totalPages: 1,
+              totalCount: 1,
+            },
+          },
+        },
+      },
+    }
+
+    render(
+      <AllTheProviders forceTypenames mocks={[mock]}>
+        <ContractUsageTable
+          contractId="contract-1"
+          categoryId="cat-1"
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
+          currency={CurrencyEnum.Usd}
+          customerTimezone={TimezoneEnum.TzUtc}
+        />
+      </AllTheProviders>,
+    )
+
+    expect(await screen.findByText('Support plan')).toBeInTheDocument()
+  })
+
   it('shows the empty-state placeholder for a contract with no usage', async () => {
     render(
       <AllTheProviders forceTypenames mocks={[buildMock([])]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
@@ -181,6 +276,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={[mock]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
@@ -198,6 +296,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={mocks}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
           refreshToken={0}
@@ -211,6 +312,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders forceTypenames mocks={mocks}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
           refreshToken={1}
@@ -237,6 +341,9 @@ describe('ContractUsageTable', () => {
       <AllTheProviders mocks={[errorMock]}>
         <ContractUsageTable
           contractId="contract-1"
+          categoryId={null}
+          pageSize={20}
+          onPageSizeChange={jest.fn()}
           currency={CurrencyEnum.Usd}
           customerTimezone={TimezoneEnum.TzUtc}
         />
