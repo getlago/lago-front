@@ -192,6 +192,36 @@ describe('useAddQuickbooksDialog', () => {
     })
   })
 
+  describe('GIVEN the QuickBooks company is already connected', () => {
+    it('THEN explains it and asks for a new login on the next submit', async () => {
+      mockCreate.mockResolvedValueOnce(rejectedUnder('realmId'))
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(addToast).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'danger',
+          translateKey: 'text_1795442089878h1a9gppfypr',
+        }),
+      )
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(mockNangoAuth).toHaveBeenCalledTimes(2)
+      expect(mockCreate.mock.calls[1][0].variables.input.connectionId).not.toBe(
+        mockCreate.mock.calls[0][0].variables.input.connectionId,
+      )
+    })
+  })
+
   describe('GIVEN the edit fails on the network', () => {
     it('THEN shows an error toast', async () => {
       mockUpdate.mockRejectedValue(new Error('Network error'))

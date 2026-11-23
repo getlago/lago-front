@@ -170,6 +170,12 @@ export const useAddQuickbooksDialog = () => {
             modalContainer.scrollTo({ top: 0 })
           }
         }
+
+        // The company picked at login is already connected: the next submit opens the login again.
+        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'realmId')) {
+          authorizedConnectionRef.current = null
+          addToast({ severity: 'danger', translateKey: 'text_1795442089878h1a9gppfypr' })
+        }
       }
 
       if (isEdition) {
