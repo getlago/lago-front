@@ -11,7 +11,6 @@ import { Typography } from '~/components/designSystem/Typography'
 import {
   addToast,
   getDetailError,
-  getGraphQLErrorCode,
   hasDefinedGQLError,
   isSilencedGQLError,
 } from '~/core/apolloClient'
@@ -79,27 +78,17 @@ const CLAIM_FORM_ID = 'agent-claim-form'
 const VERIFY_FORM_ID = 'agent-claim-verify-form'
 
 const GENERIC_ERROR = 'text_622f7a3dc32ce100c46a5154'
-const TOO_MANY_REQUESTS_ERROR = 'text_1793898059309ltbe60gt6pd'
 
-const showErrorToast = (translateKey: string): void => {
-  addToast({ severity: 'danger', translateKey })
+const showGenericError = (): void => {
+  addToast({ severity: 'danger', translateKey: GENERIC_ERROR })
 }
 
-const getToastErrorKey = (errors?: readonly GraphQLFormattedError[]): string | null => {
-  const extensions = errors?.[0]?.extensions
-
-  if (getGraphQLErrorCode(extensions) === LagoApiError.TooManyRequests) {
-    return TOO_MANY_REQUESTS_ERROR
-  }
-
-  const isToastError = isSilencedGQLError({
-    extensions,
+const isToastError = (errors?: readonly GraphQLFormattedError[]): boolean =>
+  isSilencedGQLError({
+    extensions: errors?.[0]?.extensions,
     silentErrorCodes: [LagoApiError.TooManyRequests, LagoApiError.NotFound],
     silentErrorDetails: TOAST_ERROR_DETAILS,
   })
-
-  return isToastError ? GENERIC_ERROR : null
-}
 
 const AgentClaim = (): JSX.Element => {
   const { translate } = useInternationalization()
@@ -110,7 +99,7 @@ const AgentClaim = (): JSX.Element => {
 
   const { data, loading, error } = useGetAgentClaimPageQuery({
     variables: { storefrontId },
-    context: { silentError: true },
+    context: { silentErrorCodes: [LagoApiError.NotFound] },
   })
   // `retryLink` replays network errors on mutations too: a replayed `startAgentClaim` mails
   // a second code and invalidates the one already read, `verifyAgentClaim` errors on it.
@@ -169,11 +158,9 @@ const AgentClaim = (): JSX.Element => {
           return
         }
 
-        const toastErrorKey = getToastErrorKey(result.errors)
-
-        if (toastErrorKey) showErrorToast(toastErrorKey)
+        if (isToastError(result.errors)) showGenericError()
       } catch {
-        showErrorToast(GENERIC_ERROR)
+        showGenericError()
       }
     },
   })
@@ -234,11 +221,9 @@ const AgentClaim = (): JSX.Element => {
           return
         }
 
-        const toastErrorKey = getToastErrorKey(result.errors)
-
-        if (toastErrorKey) showErrorToast(toastErrorKey)
+        if (isToastError(result.errors)) showGenericError()
       } catch {
-        showErrorToast(GENERIC_ERROR)
+        showGenericError()
       }
     },
   })
