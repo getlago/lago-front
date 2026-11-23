@@ -209,6 +209,12 @@ export enum ActivityTypeEnum {
   PlanRateCardUpdated = 'plan_rate_card_updated',
   /** plan.updated */
   PlanUpdated = 'plan_updated',
+  /** plan_wallet.created */
+  PlanWalletCreated = 'plan_wallet_created',
+  /** plan_wallet.deleted */
+  PlanWalletDeleted = 'plan_wallet_deleted',
+  /** plan_wallet.updated */
+  PlanWalletUpdated = 'plan_wallet_updated',
   /** product_category.created */
   ProductCategoryCreated = 'product_category_created',
   /** product_category.deleted */
@@ -422,8 +428,6 @@ export type AdminAuditLog = {
   organizationName: Scalars['String']['output'];
   reason: Scalars['String']['output'];
   rollbackOfId?: Maybe<Scalars['ID']['output']>;
-  /** False for a rollback, an entry already rolled back, an organization creation, or an entry of a sandbox, whose settings follow its production */
-  rollbackable: Scalars['Boolean']['output'];
   rolledBack: Scalars['Boolean']['output'];
 };
 
@@ -466,7 +470,6 @@ export enum AdminFeatureTypeEnum {
   PremiumIntegration = 'premium_integration'
 }
 
-/** Link sandbox organization input arguments */
 export type AdminLinkSandboxOrganizationInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
@@ -483,6 +486,7 @@ export type AdminLinkSandboxOrganizationPayload = {
 
 export type AdminOrganization = {
   __typename?: 'AdminOrganization';
+  activationStatus: OrganizationActivationStatusEnum;
   createdAt: Scalars['ISO8601DateTime']['output'];
   email?: Maybe<Scalars['String']['output']>;
   environment: OrganizationEnvironmentEnum;
@@ -1469,6 +1473,7 @@ export type Contract = {
   billingEntityId?: Maybe<Scalars['ID']['output']>;
   billingTime: ContractBillingTimeEnum;
   canceledAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  code?: Maybe<Scalars['String']['output']>;
   consolidateInvoice: Scalars['Boolean']['output'];
   createdAt: Scalars['ISO8601DateTime']['output'];
   /** The currency fees bill in: the plan's when there is one, otherwise the customer's, falling back to the organization default */
@@ -1532,12 +1537,28 @@ export type ContractCollection = {
   metadata: CollectionMetadata;
 };
 
+/** The share of a contract's current usage total priced by one product category */
+export type ContractCurrentUsageCategoryTotal = {
+  __typename?: 'ContractCurrentUsageCategoryTotal';
+  amountCents: Scalars['BigInt']['output'];
+  /** Earliest billing window start across the category's rate cards */
+  fromDatetime: Scalars['ISO8601DateTime']['output'];
+  /** Null for the products that belong to no category */
+  productCategory?: Maybe<ProductCategory>;
+  taxesAmountCents: Scalars['BigInt']['output'];
+  /** Latest billing window end across the category's rate cards */
+  toDatetime: Scalars['ISO8601DateTime']['output'];
+  totalAmountCents: Scalars['BigInt']['output'];
+};
+
 /** The contract's total computed usage for the current billing period, unfiltered */
 export type ContractCurrentUsageTotal = {
   __typename?: 'ContractCurrentUsageTotal';
   amountCents: Scalars['BigInt']['output'];
   /** Earliest billing window start across the contract's rate cards, null with no usage */
   fromDatetime?: Maybe<Scalars['ISO8601DateTime']['output']>;
+  /** The total split by product category, each one priced and taxed in the same pass as the total */
+  productCategoryTotals: Array<ContractCurrentUsageCategoryTotal>;
   taxesAmountCents: Scalars['BigInt']['output'];
   /** True when the tax provider failed and amount/total above are the untaxed fallback */
   taxesUnavailable: Scalars['Boolean']['output'];
@@ -1549,6 +1570,7 @@ export type ContractCurrentUsageTotal = {
 export enum ContractStatusEnum {
   Active = 'active',
   Canceled = 'canceled',
+  Draft = 'draft',
   Pending = 'pending',
   Terminated = 'terminated'
 }
@@ -3385,6 +3407,7 @@ export type CurrencyMappingItemInput = {
 export type CurrentOrganization = {
   __typename?: 'CurrentOrganization';
   accessibleByCurrentSession: Scalars['Boolean']['output'];
+  activationStatus: OrganizationActivationStatusEnum;
   addressLine1?: Maybe<Scalars['String']['output']>;
   addressLine2?: Maybe<Scalars['String']['output']>;
   adyenPaymentProviders?: Maybe<Array<AdyenProvider>>;
@@ -3456,6 +3479,8 @@ export type CurrentVersion = {
 export type Customer = {
   __typename?: 'Customer';
   accountType: CustomerAccountTypeEnum;
+  /** Number of active contracts per customer */
+  activeContractsCount: Scalars['Int']['output'];
   /** Number of active subscriptions per customer */
   activeSubscriptionsCount: Scalars['Int']['output'];
   activityLogs?: Maybe<Array<ActivityLog>>;
@@ -3842,7 +3867,11 @@ export type DataApiMrrPlan = {
   planCode: Scalars['String']['output'];
   planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
-  planInterval: PlanInterval;
+  /**
+   * Interval of the plan. Null for product catalog plans and contracts without a
+   * plan, whose rate cards each have their own interval
+   */
+  planInterval?: Maybe<PlanInterval>;
   planName: Scalars['String']['output'];
 };
 
@@ -3929,7 +3958,11 @@ export type DataApiRevenueStreamPlan = {
   planCode: Scalars['String']['output'];
   planDeletedAt?: Maybe<Scalars['ISO8601DateTime']['output']>;
   planId: Scalars['ID']['output'];
-  planInterval: PlanInterval;
+  /**
+   * Interval of the plan. Null for product catalog plans and contracts without a
+   * plan, whose rate cards each have their own interval
+   */
+  planInterval?: Maybe<PlanInterval>;
   planName: Scalars['String']['output'];
 };
 
@@ -5006,12 +5039,10 @@ export type Fee = InvoiceItem & {
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
   invoiceId?: Maybe<Scalars['ID']['output']>;
   invoiceName?: Maybe<Scalars['String']['output']>;
-  invoiceWasRegenerated: Scalars['Boolean']['output'];
   itemCode: Scalars['String']['output'];
   itemName: Scalars['String']['output'];
   itemType: Scalars['String']['output'];
   offsettableAmountCents: Scalars['BigInt']['output'];
-  originalFeeId?: Maybe<Scalars['ID']['output']>;
   payInAdvance: Scalars['Boolean']['output'];
   preciseAmountCents: Scalars['Float']['output'];
   preciseCouponsAmountCents: Scalars['Float']['output'];
@@ -5966,6 +5997,7 @@ export enum LagoApiError {
   NotVoidable = 'not_voidable',
   OktaLoginMethodNotAuthorized = 'okta_login_method_not_authorized',
   OktaUserinfoError = 'okta_userinfo_error',
+  OrganizationInactive = 'organization_inactive',
   PasswordRequired = 'password_required',
   PaymentProcessorIsCurrentlyHandlingPayment = 'payment_processor_is_currently_handling_payment',
   PlanNotFound = 'plan_not_found',
@@ -6056,8 +6088,6 @@ export enum LogEventEnum {
   RoleDeleted = 'role_deleted',
   /** role.updated */
   RoleUpdated = 'role_updated',
-  /** user.added */
-  UserAdded = 'user_added',
   /** user.deleted */
   UserDeleted = 'user_deleted',
   /** user.invited */
@@ -6256,8 +6286,6 @@ export type Mutation = {
   addStripePaymentProvider?: Maybe<StripeProvider>;
   /** Create a new organization with pre-configured features */
   adminCreateOrganization?: Maybe<AdminCreateOrganizationPayload>;
-  /** Turns an existing organization into the sandbox of a production organization */
-  adminLinkSandboxOrganization?: Maybe<AdminLinkSandboxOrganizationPayload>;
   /** Rollback a single admin audit log entry */
   adminRollbackChange?: Maybe<AdminAuditLog>;
   /** Toggle a feature flag or premium integration for an organization */
@@ -8211,6 +8239,7 @@ export enum OrderTypeEnum {
 export type Organization = {
   __typename?: 'Organization';
   accessibleByCurrentSession: Scalars['Boolean']['output'];
+  activationStatus?: Maybe<OrganizationActivationStatusEnum>;
   billingConfiguration?: Maybe<OrganizationBillingConfiguration>;
   canCreateBillingEntity: Scalars['Boolean']['output'];
   defaultCurrency: CurrencyEnum;
@@ -8224,6 +8253,14 @@ export type Organization = {
   slug: Scalars['String']['output'];
   timezone?: Maybe<TimezoneEnum>;
 };
+
+/** Whether an organization is open, or a self-serve production organization waiting for a payment method */
+export enum OrganizationActivationStatusEnum {
+  /** Open */
+  Active = 'active',
+  /** Waiting for a payment method before it opens */
+  PendingPaymentMethod = 'pending_payment_method'
+}
 
 export type OrganizationBillingConfiguration = {
   __typename?: 'OrganizationBillingConfiguration';
@@ -9229,6 +9266,7 @@ export enum ProviderPaymentMethodsEnum {
   CustomerBalance = 'customer_balance',
   Link = 'link',
   SepaDebit = 'sepa_debit',
+  SharedPaymentToken = 'shared_payment_token',
   UsBankAccount = 'us_bank_account'
 }
 
@@ -9383,8 +9421,6 @@ export type Query = {
   feature: FeatureObject;
   /** Query features of an organization */
   features: FeatureObjectCollection;
-  /** Query a single fee of an organization */
-  fee?: Maybe<Fee>;
   /** Get Google auth url. */
   googleAuthUrl: AuthUrl;
   /** Query gross revenue of an organization */
@@ -10109,11 +10145,6 @@ export type QueryFeaturesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   page?: InputMaybe<Scalars['Int']['input']>;
   searchTerm?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type QueryFeeArgs = {
-  id: Scalars['ID']['input'];
 };
 
 
@@ -11397,6 +11428,8 @@ export enum ResourceTypeEnum {
   Plan = 'plan',
   /** PlanRateCard */
   PlanRateCard = 'plan_rate_card',
+  /** PlanWallet */
+  PlanWallet = 'plan_wallet',
   /** Product */
   Product = 'product',
   /** ProductCategory */
@@ -12501,8 +12534,7 @@ export type UpdateContractInput = {
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
   endedAt?: InputMaybe<Scalars['ISO8601DateTime']['input']>;
-  /** External id of the contract to update */
-  externalId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
   invoiceCustomSection?: InputMaybe<InvoiceCustomSectionsReferenceInput>;
   name?: InputMaybe<Scalars['String']['input']>;
   paymentMethod?: InputMaybe<PaymentMethodReferenceInput>;
@@ -14009,6 +14041,20 @@ export type DestroyContractRatePhaseMutationVariables = Exact<{
 
 
 export type DestroyContractRatePhaseMutation = { __typename?: 'Mutation', destroyContractRatePhase?: { __typename?: 'RatePhase', id: string } | null };
+export type UpdatePlanAppliedRateCardMutationVariables = Exact<{
+  input: UpdatePlanAppliedRateCardInput;
+}>;
+
+
+export type UpdatePlanAppliedRateCardMutation = { __typename?: 'Mutation', updatePlanAppliedRateCard?: { __typename?: 'PlanAppliedRateCard', id: string, units?: number | null } | null };
+
+export type UpdateContractAppliedRateCardMutationVariables = Exact<{
+  input: UpdateContractAppliedRateCardInput;
+}>;
+
+
+export type UpdateContractAppliedRateCardMutation = { __typename?: 'Mutation', updateContractAppliedRateCard?: { __typename?: 'ContractAppliedRateCard', id: string, units?: number | null } | null };
+
 
 export type DestroyPlanAppliedRateCardMutationVariables = Exact<{
   input: DestroyPlanAppliedRateCardInput;
@@ -14144,7 +14190,7 @@ export type DeleteBillableMetricMutationVariables = Exact<{
 
 export type DeleteBillableMetricMutation = { __typename?: 'Mutation', destroyBillableMetric?: { __typename?: 'DestroyBillableMetricPayload', id?: string | null } | null };
 
-export type ContractForContractsListItemFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
+export type ContractForContractsListItemFragment = { __typename?: 'Contract', id: string, externalId: string, code?: string | null, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
 
 export type GetCustomersForContractDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -14185,7 +14231,7 @@ export type UpdateContractMutationVariables = Exact<{
 }>;
 
 
-export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
+export type UpdateContractMutation = { __typename?: 'Mutation', updateContract?: { __typename?: 'Contract', id: string, externalId: string, code?: string | null, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
 export type CouponCaptionFragment = { __typename?: 'Coupon', id: string, amountCurrency?: CurrencyEnum | null, amountCents?: any | null, couponType: CouponTypeEnum, percentageRate?: number | null, frequency: CouponFrequency, frequencyDuration?: number | null };
 
@@ -14809,7 +14855,7 @@ export type VoidCreditNoteMutationVariables = Exact<{
 
 export type VoidCreditNoteMutation = { __typename?: 'Mutation', voidCreditNote?: { __typename?: 'CreditNote', id: string } | null };
 
-export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
+export type ContractForCustomerContractsListFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, code?: string | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } };
 
 export type GetCustomerContractsListQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -14818,7 +14864,7 @@ export type GetCustomerContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetCustomerContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, code?: string | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetCustomerOverdueBalancesQueryVariables = Exact<{
   externalCustomerId: Scalars['String']['input'];
@@ -18599,7 +18645,7 @@ export type GetContractsListQueryVariables = Exact<{
 }>;
 
 
-export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, code?: string | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type ContractForContractDetailsOverviewFragment = { __typename?: 'Contract', id: string, externalId: string, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, canceledAt?: any | null, terminatedAt?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null };
 
@@ -29367,6 +29413,74 @@ export function useDestroyRatePhaseMutation(baseOptions?: Apollo.MutationHookOpt
       }
 export type DestroyRatePhaseMutationHookResult = ReturnType<typeof useDestroyRatePhaseMutation>;
 export type DestroyRatePhaseMutationResult = Apollo.MutationResult<DestroyRatePhaseMutation>;
+export const UpdatePlanAppliedRateCardDocument = gql`
+    mutation updatePlanAppliedRateCard($input: UpdatePlanAppliedRateCardInput!) {
+  updatePlanAppliedRateCard(input: $input) {
+    id
+    units
+  }
+}
+    `;
+export type UpdatePlanAppliedRateCardMutationFn = Apollo.MutationFunction<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>;
+
+/**
+ * __useUpdatePlanAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useUpdatePlanAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePlanAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePlanAppliedRateCardMutation, { data, loading, error }] = useUpdatePlanAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePlanAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>(UpdatePlanAppliedRateCardDocument, options);
+      }
+export type UpdatePlanAppliedRateCardMutationHookResult = ReturnType<typeof useUpdatePlanAppliedRateCardMutation>;
+export type UpdatePlanAppliedRateCardMutationResult = Apollo.MutationResult<UpdatePlanAppliedRateCardMutation>;
+export type UpdatePlanAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<UpdatePlanAppliedRateCardMutation, UpdatePlanAppliedRateCardMutationVariables>;
+export const UpdateContractAppliedRateCardDocument = gql`
+    mutation updateContractAppliedRateCard($input: UpdateContractAppliedRateCardInput!) {
+  updateContractAppliedRateCard(input: $input) {
+    id
+    units
+  }
+}
+    `;
+export type UpdateContractAppliedRateCardMutationFn = Apollo.MutationFunction<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>;
+
+/**
+ * __useUpdateContractAppliedRateCardMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractAppliedRateCardMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractAppliedRateCardMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractAppliedRateCardMutation, { data, loading, error }] = useUpdateContractAppliedRateCardMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractAppliedRateCardMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>(UpdateContractAppliedRateCardDocument, options);
+      }
+export type UpdateContractAppliedRateCardMutationHookResult = ReturnType<typeof useUpdateContractAppliedRateCardMutation>;
+export type UpdateContractAppliedRateCardMutationResult = Apollo.MutationResult<UpdateContractAppliedRateCardMutation>;
+export type UpdateContractAppliedRateCardMutationOptions = Apollo.BaseMutationOptions<UpdateContractAppliedRateCardMutation, UpdateContractAppliedRateCardMutationVariables>;
 export type DestroyRatePhaseMutationOptions = Apollo.BaseMutationOptions<DestroyRatePhaseMutation, DestroyRatePhaseMutationVariables>;
 export const DestroyContractRatePhaseDocument = gql`
     mutation destroyContractRatePhase($input: DestroyContractRatePhaseInput!) {

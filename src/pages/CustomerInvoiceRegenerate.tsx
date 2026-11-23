@@ -246,7 +246,7 @@ const CustomerInvoiceRegenerate = () => {
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
   const [getOriginalFee] = useGetOriginalFeeLazyQuery({
-    context: { silentErrorCodes: [LagoApiError.NotFound] },
+    context: { silentError: true },
   })
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {

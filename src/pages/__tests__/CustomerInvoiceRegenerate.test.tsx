@@ -22,10 +22,16 @@ import CustomerInvoiceRegenerate, {
 const mockRegenerateInvoice = jest.fn()
 const mockVoidInvoice = jest.fn()
 const mockGetOriginalFee = jest.fn()
+const mockAddToast = jest.fn()
 let mockRegenerateOptions: RegenerateInvoiceMutationOptions | undefined
 
 jest.mock('~/pages/invoiceDetails/common/useInvoiceBuildRegenerationPreview', () => ({
   useInvoiceBuildRegenerationPreview: jest.fn(),
+}))
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (args: unknown) => mockAddToast(args),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -852,6 +858,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         .fees.find((f: { id: string }) => f.id === 'fee-1')
 
       expect(stillThere).toMatchObject({ id: 'fee-1', adjustedFee: true, units: 20 })
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
     })
 
     it('THEN a network error on the original-fee fetch leaves the fee untouched instead of deleting it', async () => {
@@ -891,6 +898,7 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         .fees.find((f: { id: string }) => f.id === 'fee-1')
 
       expect(stillThere).toMatchObject({ id: 'fee-1', adjustedFee: true, units: 20 })
+      expect(mockAddToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
     })
 
     it('THEN resetting a fee with no originalFeeId to restore falls back to deleting it', async () => {
