@@ -143,3 +143,7 @@
   border-top: 0;
   margin-top: 0;
 }
+
+.v2-combobox-trigger[aria-invalid='true']:not(:disabled) {
+  border-color: var(--color-danger-border);
+}

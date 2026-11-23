@@ -21,6 +21,7 @@ export { ComboboxList } from './combobox/list'
 export function Combobox<Value, Multiple extends boolean | undefined = false>(
   props: Primitive.Root.Props<Value, Multiple>,
 ): React.ReactElement {
+  const [internalOpen, setInternalOpen] = React.useState(props.defaultOpen ?? false)
   const scrollToIndex = React.useRef<((index: number) => void) | undefined>(undefined)
   const highlightedIndex = React.useRef<number | undefined>(undefined)
   const context = React.useMemo(
@@ -38,6 +39,7 @@ export function Combobox<Value, Multiple extends boolean | undefined = false>(
     <ComboboxContext.Provider value={context}>
       <Primitive.Root
         {...props}
+        open={props.multiple ? (props.open ?? internalOpen) : props.open}
         onValueChange={(value, details) => {
           if (details.reason === 'escape-key') {
             details.cancel()
@@ -55,8 +57,9 @@ export function Combobox<Value, Multiple extends boolean | undefined = false>(
           }
         }}
         onOpenChange={(open, details) => {
+          if (props.multiple && !open && details.reason === 'item-press') return
           props.onOpenChange?.(open, details)
-          if (props.multiple && !open && details.reason === 'item-press') details.cancel()
+          if (!details.isCanceled) setInternalOpen(open)
         }}
       />
     </ComboboxContext.Provider>
@@ -101,11 +104,15 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, Primitive.Input.
         onKeyDown={(event) => {
           onKeyDown?.(event)
           if (
+            event.key === 'Enter' &&
+            (composing.current || event.nativeEvent.isComposing || event.keyCode === 229)
+          ) {
+            event.preventBaseUIHandler()
+            return
+          }
+          if (
             !event.defaultPrevented &&
             event.key === 'Enter' &&
-            !composing.current &&
-            !event.nativeEvent.isComposing &&
-            event.keyCode !== 229 &&
             freeText &&
             !freeText.highlighted.current
           ) {

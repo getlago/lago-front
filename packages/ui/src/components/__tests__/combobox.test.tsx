@@ -112,6 +112,7 @@ describe.each([false, true])('free text above=%s', (above) => {
     await user.keyboard('{ArrowDown}{Enter}')
     expect(screen.getByLabelText('Selected')).toHaveTextContent('alex@example.com,sam@example.com')
     expect(input).toHaveAttribute('aria-expanded', 'true')
+    expect(input).toHaveValue('')
     await user.keyboard('{Escape}')
     await user.click(screen.getByRole('button', { name: 'Remove alex@example.com' }))
     expect(screen.getByLabelText('Selected')).toHaveTextContent(/^sam@example.com$/)
@@ -232,4 +233,62 @@ it('exposes the free-text query for remote search and resets it after commit', a
   expect(changed).toHaveBeenCalledWith('new-tag')
   expect(changed).toHaveBeenLastCalledWith('')
   expect(screen.getByLabelText('Tags value')).toHaveTextContent('new-tag')
+})
+
+it('keeps a controlled multiple popup open and clears its controlled query on selection', async () => {
+  const user = userEvent.setup()
+
+  function ControlledMultiple(): React.ReactElement {
+    const [open, setOpen] = React.useState(false)
+    const [query, setQuery] = React.useState('')
+
+    return (
+      <Combobox
+        multiple
+        items={['Alex', 'Sam']}
+        open={open}
+        onOpenChange={setOpen}
+        inputValue={query}
+        onInputValueChange={setQuery}
+      >
+        <ComboboxControl>
+          <ComboboxInput aria-label="Owners" />
+        </ComboboxControl>
+        <ComboboxContent>
+          <ComboboxList getItemKey={(name: string) => name}>
+            {(name) => <ComboboxItem value={name}>{name}</ComboboxItem>}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    )
+  }
+  render(<ControlledMultiple />)
+  const input = screen.getByRole('combobox')
+
+  await user.type(input, 'Sam')
+  await user.click(screen.getByRole('option', { name: 'Sam' }))
+  expect(input).toHaveAttribute('aria-expanded', 'true')
+  expect(input).toHaveValue('')
+})
+
+it('does not select a highlighted suggestion during IME composition', async () => {
+  const user = userEvent.setup()
+
+  render(<FreeText />)
+  const input = screen.getByRole('combobox')
+
+  await user.type(input, 'sam')
+  await user.keyboard('{ArrowDown}')
+  fireEvent.compositionStart(input)
+  fireEvent.keyDown(input, {
+    key: 'Enter',
+    code: 'Enter',
+    keyCode: 13,
+    which: 13,
+    isComposing: true,
+  })
+  expect(screen.getByLabelText('Selected')).toHaveTextContent(/^alex@example.com$/)
+  fireEvent.compositionEnd(input)
+  await user.keyboard('{Enter}')
+  expect(screen.getByLabelText('Selected')).toHaveTextContent('sam@example.com')
 })

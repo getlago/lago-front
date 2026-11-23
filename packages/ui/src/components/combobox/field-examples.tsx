@@ -101,14 +101,16 @@ function ComboboxFieldExample({
   const field = (
     <Field>
       <FieldContent>
-        <FieldLabel id={`${id}-label`} htmlFor={multiple && readOnly ? undefined : id}>
-          {freeText ? 'Values' : 'Quote owner'} · {state}
+        <div className="flex items-center gap-1">
+          <FieldLabel id={`${id}-label`} htmlFor={multiple && readOnly ? undefined : id}>
+            {freeText ? 'Values' : 'Quote owner'} · {state}
+          </FieldLabel>
           <FieldHelp label="About this field">
             {freeText
               ? 'Add a string, email address or other value.'
               : 'Choose who is responsible for this quote.'}
           </FieldHelp>
-        </FieldLabel>
+        </div>
         <FieldDescription id={`${id}-help`}>
           {freeText
             ? 'Type a value and choose Add or press Enter.'
