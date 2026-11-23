@@ -72,13 +72,20 @@ export const useQuickbooksIntegrationItems = (
 
   const items = useMemo(() => toComboboxData(data), [data])
 
-  const refresh = useCallback((): void => {
-    if (itemType === IntegrationItemTypeEnum.Account) {
-      void triggerAccountItemRefetch()
-      return
-    }
+  // The API replaces the whole catalog on each fetch, so two at once collide on its unique index.
+  const isRefreshingRef = useRef(false)
 
-    void triggerItemRefetch()
+  const refresh = useCallback((): void => {
+    if (isRefreshingRef.current) return
+
+    isRefreshingRef.current = true
+
+    const trigger =
+      itemType === IntegrationItemTypeEnum.Account ? triggerAccountItemRefetch : triggerItemRefetch
+
+    void trigger().finally(() => {
+      isRefreshingRef.current = false
+    })
   }, [itemType, triggerAccountItemRefetch, triggerItemRefetch])
 
   return {

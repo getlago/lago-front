@@ -300,6 +300,30 @@ describe('useQuickbooksIntegrationItems', () => {
     })
 
     describe('WHEN refresh is called', () => {
+      it('THEN should not start a second fetch while one is running', async () => {
+        const refetchResult = jest.fn(() => buildItemsRefetchMock().result)
+        const { result } = renderHook(
+          () => useQuickbooksIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          {
+            wrapper: createWrapper([
+              buildGetItemsMock({ itemType: 'standard' }, [buildItem('1', 'Item')]),
+              { ...buildItemsRefetchMock(), newData: refetchResult, maxUsageCount: 2 },
+              buildGetItemsMock({ itemType: 'standard' }, [buildItem('1', 'Item')]),
+            ]),
+          },
+        )
+
+        await waitFor(() => expect(result.current.items).toHaveLength(1))
+
+        act(() => {
+          result.current.refresh()
+          result.current.refresh()
+        })
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+        expect(refetchResult).toHaveBeenCalledTimes(1)
+      })
+
       it.each([
         [MappableTypeEnum.BillableMetric, 'standard', buildItemsRefetchMock],
         [MappingTypeEnum.Account, 'account', buildAccountsRefetchMock],
