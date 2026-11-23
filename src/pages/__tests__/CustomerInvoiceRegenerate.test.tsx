@@ -633,6 +633,12 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
             preciseUnitAmount: 100,
             amountCents: 1000,
             amountDetails: { freeUnits: '5' },
+            pricingUnitUsage: {
+              amountCents: 1000,
+              conversionRate: 1,
+              shortName: 'USDC',
+              preciseUnitAmount: 100,
+            },
           },
         },
       })
@@ -645,6 +651,13 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         preciseUnitAmount: 200,
         amountCents: 4000,
         amountDetails: { freeUnits: '0' },
+        // Stale: computed for the adjusted units/price, must not survive the reset.
+        pricingUnitUsage: {
+          amountCents: 4000,
+          conversionRate: 1,
+          shortName: 'USDC',
+          preciseUnitAmount: 200,
+        },
         adjustedFee: true,
         adjustedFeeType: 'adjusted_amount',
         subscription: { id: 'subscription-123' },
@@ -671,6 +684,12 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         .fees.find((f: { id: string }) => f.id === 'fee-1')
 
       expect(resetFee.amountDetails).toEqual({ freeUnits: '5' })
+      expect(resetFee.pricingUnitUsage).toEqual({
+        amountCents: 1000,
+        conversionRate: 1,
+        shortName: 'USDC',
+        preciseUnitAmount: 100,
+      })
 
       fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))
 

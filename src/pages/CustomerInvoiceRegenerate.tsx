@@ -30,6 +30,11 @@ import {
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
+  FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLineGraduatedPercentageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc,
   FeeForInvoiceDetailsTableFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   InvoiceStatusTypeEnum,
@@ -78,40 +83,17 @@ gql`
     preciseUnitAmount
     units
     invoiceWasRegenerated
-    amountDetails {
-      fixedFeeTotalAmount
-      fixedFeeUnitAmount
-      flatUnitAmount
-      freeEvents
-      freeUnits
-      minMaxAdjustmentTotalAmount
-      paidEvents
-      paidUnits
-      perPackageSize
-      perPackageUnitAmount
-      perUnitAmount
-      perUnitTotalAmount
-      rate
-      units
-      graduatedRanges {
-        flatUnitAmount
-        fromValue
-        perUnitAmount
-        perUnitTotalAmount
-        toValue
-        totalWithFlatAmount
-        units
-      }
-      graduatedPercentageRanges {
-        flatUnitAmount
-        fromValue
-        perUnitTotalAmount
-        rate
-        toValue
-        totalWithFlatAmount
-        units
-      }
+    pricingUnitUsage {
+      amountCents
+      conversionRate
+      preciseUnitAmount
+      shortName
     }
+    ...FeeForInvoiceDetailsTableBodyLineGraduated
+    ...FeeForInvoiceDetailsTableBodyLineGraduatedPercentage
+    ...FeeForInvoiceDetailsTableBodyLineVolume
+    ...FeeForInvoiceDetailsTableBodyLinePackage
+    ...FeeForInvoiceDetailsTableBodyLinePercentage
   }
 
   query getOriginalFee($id: ID!) {
@@ -121,6 +103,11 @@ gql`
   }
 
   ${FeeForInvoiceDetailsTableFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineGraduatedPercentageFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc}
 `
 
 export type OnRegeneratedFeeAdd = (input: {
@@ -345,6 +332,7 @@ const CustomerInvoiceRegenerate = () => {
         amountDetails: originalFee.amountDetails,
         invoiceDisplayName: originalFee.invoiceDisplayName,
         preciseUnitAmount: originalFee.preciseUnitAmount,
+        pricingUnitUsage: originalFee.pricingUnitUsage,
         units: originalFee.units,
         adjustedFee: false,
         adjustedFeeType: null,
