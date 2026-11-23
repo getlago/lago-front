@@ -25,6 +25,9 @@ interface CurrencyPickerProps {
   anchor: RefObject<HTMLDivElement>
 }
 
+const currencyKey = (value: CurrencyEnum): string => value
+const currencyRowSize = (): number => 52
+
 export const CurrencyPicker = ({
   currency,
   options,
@@ -37,6 +40,7 @@ export const CurrencyPicker = ({
 
   return (
     <Combobox<CurrencyEnum>
+      virtualized
       items={options.map((option) => option.value)}
       value={currency}
       onValueChange={(value) => {
@@ -71,7 +75,7 @@ export const CurrencyPicker = ({
         />
         <ComboboxSeparator />
         <ComboboxEmpty>{translate('text_1795458691058gq6sghbx4i2')}</ComboboxEmpty>
-        <ComboboxList getItemKey={(value: CurrencyEnum) => value}>
+        <ComboboxList getItemKey={currencyKey} estimateSize={currencyRowSize}>
           {(value) => (
             <ComboboxItem value={value}>
               <div>{value}</div>

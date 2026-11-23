@@ -13,6 +13,11 @@ beforeAll(async () => {
   await initializeTranslations()
   Element.prototype.scrollIntoView = jest.fn()
 })
+beforeEach(() => {
+  jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(256)
+  jest.spyOn(HTMLElement.prototype, 'offsetHeight', 'get').mockReturnValue(56)
+})
+afterEach(() => jest.restoreAllMocks())
 function Controlled(
   props: Partial<Omit<AmountInputV2Props, 'mode' | 'currencyOptions' | 'onCurrencyChange'>>,
 ): JSX.Element {
@@ -198,6 +203,40 @@ const options = [
   { value: CurrencyEnum.Usd, label: 'US Dollar' },
   { value: CurrencyEnum.Jpy, label: 'Japanese Yen' },
 ]
+
+it('virtualizes all currencies and selects a filtered offscreen currency with the keyboard', async () => {
+  const user = userEvent.setup()
+  const currencies = Object.values(CurrencyEnum)
+  const changed = jest.fn()
+  const amountChanged = jest.fn()
+
+  render(
+    <TooltipProvider>
+      <AmountInputV2
+        mode="selectable"
+        currencyOptions={currencies.map((value) => ({ value, label: value }))}
+        currency={CurrencyEnum.Usd}
+        onCurrencyChange={changed}
+        value="123.45"
+        onChange={amountChanged}
+        aria-label="Amount"
+      />
+    </TooltipProvider>,
+  )
+  await user.click(screen.getByRole('combobox', { name: 'Currency, USD' }))
+  const search = await screen.findByRole('combobox', { name: 'Search currencies…' })
+  const rendered = await screen.findAllByRole('option')
+
+  expect(rendered.length).toBeLessThan(20)
+  expect(rendered[0]).toHaveAttribute('aria-setsize', String(currencies.length))
+  expect(screen.queryByRole('option', { name: /ZMW/ })).not.toBeInTheDocument()
+  await user.type(search, 'ZMW')
+  expect(await screen.findByRole('option', { name: /ZMW/ })).toHaveAttribute('aria-setsize', '1')
+  await user.keyboard('{ArrowDown}{Enter}')
+  expect(changed).toHaveBeenCalledWith(CurrencyEnum.Zmw)
+  expect(amountChanged).not.toHaveBeenCalled()
+  expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
+})
 
 it('searches names, clears query only, and changes currency without changing amount', async () => {
   const user = userEvent.setup()

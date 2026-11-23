@@ -13,6 +13,7 @@ import { initializeTranslations } from '~/core/apolloClient/reactiveVars/interna
 import { CurrencyEnum } from '~/generated/graphql'
 
 import { AmountInputV2 } from './AmountInputV2'
+import { currencyOptions } from './currencies.story-data'
 
 export default {
   title: 'Components/Field',
@@ -39,10 +40,7 @@ function Example({ selectable, state }: { selectable: boolean; state: string }):
   const mode = selectable
     ? {
         mode: 'selectable' as const,
-        currencyOptions: [
-          { value: CurrencyEnum.Usd, label: 'US Dollar' },
-          { value: CurrencyEnum.Eur, label: 'Euro' },
-        ],
+        currencyOptions,
         onCurrencyChange: setCurrency,
       }
     : { mode: 'fixed' as const }

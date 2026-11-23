@@ -7,16 +7,7 @@ import { CurrencyEnum } from '~/generated/graphql'
 
 import docs from './amount-input.md?raw'
 import { AmountInputV2, AmountInputV2Props } from './AmountInputV2'
-import { CurrencyOption } from './CurrencyPicker'
-
-const options: CurrencyOption[] = [
-  { value: CurrencyEnum.Usd, label: 'US Dollar' },
-  { value: CurrencyEnum.Eur, label: 'Euro' },
-  { value: CurrencyEnum.Gbp, label: 'British Pound' },
-  { value: CurrencyEnum.Jpy, label: 'Japanese Yen' },
-  { value: CurrencyEnum.Bhd, label: 'Bahraini Dinar' },
-  { value: CurrencyEnum.Clf, label: 'Unidad de Fomento' },
-]
+import { currencyOptions as options } from './currencies.story-data'
 
 export default {
   title: 'Components/AmountInput',

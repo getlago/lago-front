@@ -49,6 +49,7 @@ it.each(['combobox', 'amount'])(
     const scrollIntoView = Element.prototype.scrollIntoView
 
     Element.prototype.scrollIntoView = jest.fn()
+    const height = jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(256)
 
     try {
       render(
@@ -111,6 +112,7 @@ it.each(['combobox', 'amount'])(
       else expect(screen.getByRole('combobox')).toHaveValue('Sam')
       expect(closeDialog).not.toHaveBeenCalled()
     } finally {
+      height.mockRestore()
       style.remove()
       Element.prototype.scrollIntoView = scrollIntoView
     }
