@@ -33,7 +33,7 @@ export const useDeleteQuickbooksIntegrationDialog = () => {
     provider,
     callback,
   }: TDeleteQuickbooksIntegrationDialogProps) => {
-    centralizedDialog.open({
+    void centralizedDialog.open({
       title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
       description: translate('text_1795434241689o9cv2tkoxb2'),
       colorVariant: 'danger',

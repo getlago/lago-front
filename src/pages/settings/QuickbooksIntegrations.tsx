@@ -87,6 +87,32 @@ const QuickbooksIntegrations = () => {
     })
   }
 
+  const getRowActions = (connection: TQuickbooksConnection) =>
+    [
+      {
+        icon: 'pen',
+        labelKey: 'text_65845f35d7d69c3ab4793dac',
+        onClick: () => openAddQuickbooksDialog({ provider: connection, deleteDialogCallback }),
+      },
+      {
+        icon: 'trash',
+        labelKey: 'text_645d071272418a14c1c76a81',
+        onClick: () => openDeleteDialog(connection),
+      },
+    ] as const
+
+  const renderRowMenuOpener = ({ isOpen }: { isOpen: boolean }) => (
+    <PopperOpener className="right-0 md:right-0">
+      <Tooltip
+        placement="top-end"
+        disableHoverListener={isOpen}
+        title={translate('text_626162c62f790600f850b7b6')}
+      >
+        <Button icon="dots-horizontal" variant="quaternary" data-test="plan-item-options" />
+      </Tooltip>
+    </PopperOpener>
+  )
+
   return (
     <>
       <MainHeader.Configure
@@ -129,10 +155,10 @@ const QuickbooksIntegrations = () => {
             [1, 2].map((i) => <IntegrationsPage.ItemSkeleton key={`item-skeleton-item-${i}`} />)}
 
           {!isFirstLoad &&
-            connections?.map((connection, index) => {
+            connections?.map((connection) => {
               return (
                 <IntegrationsPage.ListItem
-                  key={`quickbooks-connection-${index}`}
+                  key={connection.id}
                   to={generatePath(QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, {
                     integrationId: connection.id,
                     tab: QuickbooksIntegrationDetailsTabs.Settings,
@@ -141,51 +167,23 @@ const QuickbooksIntegrations = () => {
                   label={connection.name}
                   subLabel={connection.code}
                 >
-                  <Popper
-                    PopperProps={{ placement: 'bottom-end' }}
-                    opener={({ isOpen }) => (
-                      <PopperOpener className="right-0 md:right-0">
-                        <Tooltip
-                          placement="top-end"
-                          disableHoverListener={isOpen}
-                          title={translate('text_626162c62f790600f850b7b6')}
-                        >
-                          <Button
-                            icon="dots-horizontal"
-                            variant="quaternary"
-                            data-test="plan-item-options"
-                          />
-                        </Tooltip>
-                      </PopperOpener>
-                    )}
-                  >
+                  <Popper PopperProps={{ placement: 'bottom-end' }} opener={renderRowMenuOpener}>
                     {({ closePopper }) => (
                       <MenuPopper>
-                        <Button
-                          startIcon="pen"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            openAddQuickbooksDialog({
-                              provider: connection,
-                              deleteDialogCallback,
-                            })
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_65845f35d7d69c3ab4793dac')}
-                        </Button>
-                        <Button
-                          startIcon="trash"
-                          variant="quaternary"
-                          align="left"
-                          onClick={() => {
-                            openDeleteDialog(connection)
-                            closePopper()
-                          }}
-                        >
-                          {translate('text_645d071272418a14c1c76a81')}
-                        </Button>
+                        {getRowActions(connection).map(({ icon, labelKey, onClick }) => (
+                          <Button
+                            key={icon}
+                            startIcon={icon}
+                            variant="quaternary"
+                            align="left"
+                            onClick={() => {
+                              onClick()
+                              closePopper()
+                            }}
+                          >
+                            {translate(labelKey)}
+                          </Button>
+                        ))}
                       </MenuPopper>
                     )}
                   </Popper>

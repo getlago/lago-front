@@ -57,6 +57,19 @@ gql`
 
 const ADD_QUICKBOOKS_FORM_ID = 'form-add-quickbooks-integration'
 
+// Accounts, customers and items always sync; the rest is the user's choice.
+const ALWAYS_SYNCED_OBJECT_KEYS = [
+  'text_661ff6e56ef7e1b7c542b2a6',
+  'text_661ff6e56ef7e1b7c542b2c2',
+  'text_661ff6e56ef7e1b7c542b2d7',
+]
+
+const OPTIONAL_SYNCED_OBJECTS = [
+  { name: 'syncCreditNotes', objectKey: 'text_661ff6e56ef7e1b7c542b2e9' },
+  { name: 'syncInvoices', objectKey: 'text_661ff6e56ef7e1b7c542b2ff' },
+  { name: 'syncPayments', objectKey: 'text_661ff6e56ef7e1b7c542b311' },
+] as const
+
 type AddQuickbooksFormValues = {
   name: string
   code: string
@@ -241,7 +254,7 @@ export const useAddQuickbooksDialog = () => {
       form.setFieldValue('syncPayments', !!quickbooksProvider.syncPayments)
     }
 
-    formDialogOpeningDialog
+    void formDialogOpeningDialog
       .open({
         title: translate(
           isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_1795434241689x8rpnkscqwf',
@@ -289,78 +302,21 @@ export const useAddQuickbooksDialog = () => {
               </div>
 
               <div className="flex flex-col gap-4">
-                <Checkbox
-                  disabled
-                  label={
-                    <QuickbooksSyncLabel
-                      firstPart={translate('text_17954342416897g8is3qrydn')}
-                      code={translate('text_661ff6e56ef7e1b7c542b2a6')}
-                      lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                    />
-                  }
-                  value={true}
-                />
-                <Checkbox
-                  disabled
-                  label={
-                    <QuickbooksSyncLabel
-                      firstPart={translate('text_17954342416897g8is3qrydn')}
-                      code={translate('text_661ff6e56ef7e1b7c542b2c2')}
-                      lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                    />
-                  }
-                  value={true}
-                />
-                <Checkbox
-                  disabled
-                  label={
-                    <QuickbooksSyncLabel
-                      firstPart={translate('text_17954342416897g8is3qrydn')}
-                      code={translate('text_661ff6e56ef7e1b7c542b2d7')}
-                      lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                    />
-                  }
-                  value={true}
-                />
-                <form.AppField name="syncCreditNotes">
-                  {(field) => (
-                    <field.CheckboxField
-                      label={
-                        <QuickbooksSyncLabel
-                          firstPart={translate('text_17954342416897g8is3qrydn')}
-                          code={translate('text_661ff6e56ef7e1b7c542b2e9')}
-                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                        />
-                      }
-                    />
-                  )}
-                </form.AppField>
-                <form.AppField name="syncInvoices">
-                  {(field) => (
-                    <field.CheckboxField
-                      label={
-                        <QuickbooksSyncLabel
-                          firstPart={translate('text_17954342416897g8is3qrydn')}
-                          code={translate('text_661ff6e56ef7e1b7c542b2ff')}
-                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                        />
-                      }
-                    />
-                  )}
-                </form.AppField>
-                <form.AppField name="syncPayments">
-                  {(field) => (
-                    <field.CheckboxField
-                      label={
-                        <QuickbooksSyncLabel
-                          firstPart={translate('text_17954342416897g8is3qrydn')}
-                          code={translate('text_661ff6e56ef7e1b7c542b311')}
-                          lastPart={translate('text_661ff6e56ef7e1b7c542b29e')}
-                        />
-                      }
-                    />
-                  )}
-                </form.AppField>
+                {ALWAYS_SYNCED_OBJECT_KEYS.map((objectKey) => (
+                  <Checkbox
+                    key={objectKey}
+                    disabled
+                    label={<QuickbooksSyncLabel objectKey={objectKey} />}
+                    value={true}
+                  />
+                ))}
+                {OPTIONAL_SYNCED_OBJECTS.map(({ name, objectKey }) => (
+                  <form.AppField key={name} name={name}>
+                    {(field) => (
+                      <field.CheckboxField label={<QuickbooksSyncLabel objectKey={objectKey} />} />
+                    )}
+                  </form.AppField>
+                ))}
               </div>
             </div>
           </div>
@@ -428,23 +384,17 @@ export const useAddQuickbooksDialog = () => {
   return { openAddQuickbooksDialog }
 }
 
-const QuickbooksSyncLabel = ({
-  firstPart,
-  code,
-  lastPart,
-}: {
-  firstPart: string
-  code: string
-  lastPart: string
-}) => {
+const QuickbooksSyncLabel = ({ objectKey }: { objectKey: string }) => {
+  const { translate } = useInternationalization()
+
   return (
     <div className="flex flex-row flex-wrap items-center gap-1">
       <Typography variant="body" color="grey700">
-        {firstPart}
+        {translate('text_17954342416897g8is3qrydn')}
       </Typography>
-      <Chip size="small" label={code} color="danger600" />
+      <Chip size="small" label={translate(objectKey)} color="danger600" />
       <Typography variant="body" color="grey700">
-        {lastPart}
+        {translate('text_661ff6e56ef7e1b7c542b29e')}
       </Typography>
     </div>
   )
