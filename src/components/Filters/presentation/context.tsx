@@ -6,12 +6,14 @@ import {
   AvailableQuickFilters,
   DynamicFilter,
   FilterKey,
+  ScopedFilterOption,
 } from '~/components/Filters/presentation/types'
 import { useNavigate } from '~/core/router'
 
 interface FilterContextType {
   availableFilters: AvailableFiltersEnum[]
   dynamicFilters?: DynamicFilter[]
+  optionsByFilter?: Partial<Record<AvailableFiltersEnum, ScopedFilterOption[]>>
   quickFiltersType?: AvailableQuickFilters
   staticFilters?: Partial<Record<FilterKey, string>>
   staticQuickFilters?: Partial<Record<AvailableQuickFilters, string>>
