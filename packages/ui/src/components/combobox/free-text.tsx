@@ -75,6 +75,7 @@ export function ComboboxFreeText<Value>({
     <FreeTextContext.Provider
       value={{
         commit,
+        hasQuery: !!normalized && !props.disabled && !props.readOnly,
         highlighted,
         canAdd: !!normalized && !validation && !duplicate && !props.disabled && !props.readOnly,
         addLabel: addLabel(normalized),
@@ -85,6 +86,10 @@ export function ComboboxFreeText<Value>({
       <Combobox
         {...props}
         multiple
+        isItemEqualToValue={
+          props.isItemEqualToValue ??
+          ((item, selected) => getItemKey(item) === getItemKey(selected))
+        }
         value={value}
         inputValue={query}
         onValueChange={(next) => {

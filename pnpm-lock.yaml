@@ -108,6 +108,11 @@ overrides:
   tmp: '>=0.2.6'
   '@graphql-tools/utils': ^12.1.0
 
+patchedDependencies:
+  '@base-ui/react@1.9.0':
+    hash: f2a8e3879af10703641617f9f6a5759936269d57745b85ba70c5cd7d817d88fd
+    path: patches/@base-ui__react@1.9.0.patch
+
 importers:
 
   .:
@@ -592,7 +597,7 @@ importers:
     dependencies:
       '@base-ui/react':
         specifier: 'catalog:'
-        version: 1.9.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 1.9.0(patch_hash=f2a8e3879af10703641617f9f6a5759936269d57745b85ba70c5cd7d817d88fd)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@radix-ui/react-dropdown-menu':
         specifier: 'catalog:'
         version: 2.2.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -10626,7 +10631,7 @@ snapshots:
       '@babel/helper-string-parser': 7.29.7
       '@babel/helper-validator-identifier': 7.29.7
 
-  '@base-ui/react@1.9.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@base-ui/react@1.9.0(patch_hash=f2a8e3879af10703641617f9f6a5759936269d57745b85ba70c5cd7d817d88fd)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@babel/runtime': 8.0.8
       '@base-ui/utils': 0.5.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

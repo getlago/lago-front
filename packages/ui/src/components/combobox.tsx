@@ -113,7 +113,7 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, Primitive.Input.
           if (
             !event.defaultPrevented &&
             event.key === 'Enter' &&
-            freeText &&
+            freeText?.hasQuery &&
             !freeText.highlighted.current
           ) {
             event.preventDefault()

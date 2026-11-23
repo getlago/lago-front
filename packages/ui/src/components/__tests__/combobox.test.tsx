@@ -292,3 +292,149 @@ it('does not select a highlighted suggestion during IME composition', async () =
   await user.keyboard('{Enter}')
   expect(screen.getByLabelText('Selected')).toHaveTextContent('sam@example.com')
 })
+
+it.each(['pointer', 'keyboard'])(
+  'clears the filtered highlight after %s selection',
+  async (mode) => {
+    const user = userEvent.setup()
+    const changed = jest.fn()
+
+    render(
+      <Combobox multiple items={['Alex', 'Sam', 'Samuel']} onValueChange={changed}>
+        <ComboboxControl>
+          <ComboboxInput aria-label="Owner" />
+        </ComboboxControl>
+        <ComboboxContent>
+          <ComboboxList getItemKey={(name: string) => name}>
+            {(name) => <ComboboxItem value={name}>{name}</ComboboxItem>}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>,
+    )
+    const input = screen.getByRole('combobox')
+
+    await user.type(input, 'sam')
+    if (mode === 'pointer') await user.click(screen.getByRole('option', { name: 'Sam' }))
+    else await user.keyboard('{ArrowDown}{Enter}')
+    expect(input).toHaveValue('')
+    expect(input).toHaveAttribute('aria-expanded', 'true')
+    expect(input).not.toHaveAttribute('aria-activedescendant')
+    changed.mockClear()
+    await user.keyboard('{Enter}')
+    expect(changed).not.toHaveBeenCalled()
+    await user.keyboard('{ArrowDown}{Enter}')
+    expect(changed).toHaveBeenCalled()
+  },
+)
+
+it.each(['', '   '])('submits a form with an empty normalized query %j', async (query) => {
+  const user = userEvent.setup()
+  const submit = jest.fn((event: React.FormEvent) => event.preventDefault())
+
+  render(
+    <form onSubmit={submit}>
+      <FreeText />
+      <button type="submit">Save</button>
+    </form>,
+  )
+  const input = screen.getByRole('combobox')
+
+  await user.click(input)
+  if (query) await user.type(input, query)
+  await user.keyboard('{Escape}{Enter}')
+  expect(submit).toHaveBeenCalledTimes(1)
+})
+
+it('recognizes suggestions with the same logical key as existing free-text values', async () => {
+  const user = userEvent.setup()
+  const changed = jest.fn()
+
+  render(
+    <ComboboxFreeText
+      value={['Sam@example.com']}
+      onValueChange={changed}
+      items={['sam@example.com']}
+      createItem={(text) => text}
+      getItemKey={(text) => text.toLowerCase()}
+      addLabel={(text) => `Add ${text}`}
+      duplicateMessage="Duplicate"
+    >
+      <ComboboxControl>
+        <ComboboxInput aria-label="Recipients" />
+      </ComboboxControl>
+      <ComboboxContent>
+        <ComboboxList getItemKey={(text: string) => text}>
+          {(text) => <ComboboxItem value={text}>{text}</ComboboxItem>}
+        </ComboboxList>
+      </ComboboxContent>
+    </ComboboxFreeText>,
+  )
+  await user.click(screen.getByRole('combobox'))
+  const option = screen.getByRole('option', { name: 'sam@example.com' })
+
+  expect(option).toHaveAttribute('aria-selected', 'true')
+  await user.click(option)
+  expect(changed).toHaveBeenCalledWith([])
+})
+
+it('reuses virtual row estimates when an unchanged list rerenders', async () => {
+  const items = Array.from({ length: 1000 }, (_, index) => `Owner ${index}`)
+  const estimate = jest.fn(() => 36)
+  const key = (item: string): string => item
+  const content = (item: string): React.ReactElement => (
+    <ComboboxItem value={item}>{item}</ComboboxItem>
+  )
+  const example = (label: string): React.ReactElement => (
+    <Combobox items={items} virtualized defaultOpen>
+      <ComboboxInput aria-label={label} />
+      <ComboboxContent>
+        <ComboboxList getItemKey={key} estimateSize={estimate}>
+          {content}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  )
+  const { rerender } = render(example('Owners'))
+
+  await waitFor(() => expect(estimate).toHaveBeenCalledTimes(items.length))
+  estimate.mockClear()
+  rerender(example('Quote owners'))
+  expect(estimate).not.toHaveBeenCalled()
+})
+
+it.each([false, true])(
+  'matches object suggestions and respects an explicit comparator: %s',
+  async (override) => {
+    const user = userEvent.setup()
+    const owner = { id: 'sam', label: 'Sam' }
+    const comparator = jest.fn(() => false)
+
+    render(
+      <ComboboxFreeText
+        value={[{ ...owner }]}
+        onValueChange={jest.fn()}
+        items={[owner]}
+        createItem={(label) => ({ id: label, label })}
+        getItemKey={(item) => item.id}
+        isItemEqualToValue={override ? comparator : undefined}
+        addLabel={(text) => `Add ${text}`}
+        duplicateMessage="Duplicate"
+      >
+        <ComboboxControl>
+          <ComboboxInput aria-label="Owners" />
+        </ComboboxControl>
+        <ComboboxContent>
+          <ComboboxList getItemKey={(item: typeof owner) => item.id}>
+            {(item) => <ComboboxItem value={item}>{item.label}</ComboboxItem>}
+          </ComboboxList>
+        </ComboboxContent>
+      </ComboboxFreeText>,
+    )
+    await user.click(screen.getByRole('combobox'))
+    expect(screen.getByRole('option', { name: 'Sam' })).toHaveAttribute(
+      'aria-selected',
+      String(!override),
+    )
+    if (override) expect(comparator).toHaveBeenCalled()
+  },
+)

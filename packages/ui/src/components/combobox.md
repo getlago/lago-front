@@ -68,3 +68,13 @@ Controls have a 36px minimum height and 240px minimum width, shrinking within na
 - [Figma Combo-box](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb/?node-id=295-4153)
 - [Field](./field.md)
 - [IconButton](./icon-button.md)
+
+### Selection identity and Enter
+
+Free-text suggestions default to comparing `getItemKey` values, so typed and suggested values share an identity. An explicit `isItemEqualToValue` overrides this comparison and should agree with `getItemKey`. Selecting an already selected suggestion follows Base UI's toggle behavior.
+
+Enter in an empty normalized free-text query keeps normal form submission behavior. Non-empty values are committed or validated without submitting; IME composition never commits a value.
+
+### Base UI selection patch
+
+Base UI 1.9.0 retains a filtered highlight index when an outside input clears after selecting an item while a controlled multiple popup stays open. The pinned pnpm patch clears that index using Base UI's own index update path. It changes both CommonJS and ESM builds and preserves popup-search behavior. Keep the pointer/keyboard repeated-Enter regressions when upgrading Base UI; remove the patch once an upstream version passes them without it.

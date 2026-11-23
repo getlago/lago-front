@@ -10,7 +10,9 @@ const disconnect = jest.fn()
 
 beforeEach(() => {
   width = 120
-  jest.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockImplementation(() => width)
+  jest
+    .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
+    .mockImplementation(() => ({ width }) as DOMRect)
   jest.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
     measureText: (value: string) => ({ width: value.length * 10 }),
   } as CanvasRenderingContext2D)
@@ -34,7 +36,7 @@ it('keeps the last five characters and full accessible and copied text when trun
   const text = screen.getByLabelText(label)
   const setData = jest.fn()
 
-  expect(text).toHaveTextContent('Taylor… name')
+  expect(text.lastElementChild).toHaveTextContent('Taylor… name')
   fireEvent.copy(text, { clipboardData: { setData } })
   expect(setData).toHaveBeenCalledWith('text/plain', label)
 })
@@ -46,10 +48,10 @@ it('restores the full label when resized and disconnects on unmount', () => {
     </TooltipProvider>,
   )
 
-  expect(screen.getByLabelText(label)).toHaveTextContent('Taylor… name')
+  expect(screen.getByLabelText(label).lastElementChild).toHaveTextContent('Taylor… name')
   width = 1000
   act(() => resize([], {} as ResizeObserver))
-  expect(screen.getByLabelText(label)).toHaveTextContent(label)
+  expect(screen.getByLabelText(label).lastElementChild).toHaveTextContent(label)
   unmount()
   expect(disconnect).toHaveBeenCalled()
 })
@@ -66,5 +68,5 @@ it('remeasures when the selected label changes', () => {
       <ComboboxText>Sam</ComboboxText>
     </TooltipProvider>,
   )
-  expect(screen.getByLabelText('Sam')).toHaveTextContent(/^Sam$/)
+  expect(screen.getByLabelText('Sam').lastElementChild).toHaveTextContent(/^Sam$/)
 })

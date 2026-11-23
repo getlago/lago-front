@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { X } from 'lucide-react'
 import * as React from 'react'
+import { expect, waitFor, within } from 'storybook/test'
 
 import { Button } from './button'
 import {
@@ -142,17 +143,19 @@ export const States: Story = {
 }
 
 function MultipleExample({
+  longLabel = false,
   empty = false,
   above = false,
   disabled = false,
   readOnly = false,
 }: {
+  longLabel?: boolean
   empty?: boolean
   above?: boolean
   disabled?: boolean
   readOnly?: boolean
 }): React.ReactElement {
-  const [value, setValue] = React.useState<Owner[]>(empty ? [] : owners.slice(0, 2))
+  const [value, setValue] = React.useState<Owner[]>(empty ? [] : owners.slice(0, longLabel ? 3 : 2))
   const chips = (
     <ComboboxChips>
       {value.map((owner) => (
@@ -428,3 +431,35 @@ export const Empty: Story = { render: () => <MenuStateExample loading={false} />
 
 export const ChipsInsideEmpty: Story = { render: () => <MultipleExample empty /> }
 export const FreeTextInsideEmpty: Story = { render: () => <FreeTextExample empty /> }
+
+export const ResizableChips: Story = {
+  render: () => (
+    <div className="space-y-2">
+      <p className="v2-text-caption text-text-subtle">
+        Drag the lower-right corner to check truncation and expansion.
+      </p>
+      <div
+        role="group"
+        aria-label="Resizable owners"
+        className="w-80 min-w-60 max-w-full resize-x overflow-auto p-1"
+      >
+        <MultipleExample longLabel />
+      </div>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const container = within(canvasElement).getByRole('group', { name: 'Resizable owners' })
+    const label = container.querySelector<HTMLElement>(
+      `[data-full-text="${owners[2].label}"] > span:last-child`,
+    )
+
+    if (!label) throw new Error('Missing long chip label in resize example')
+    await canvasElement.ownerDocument.fonts.ready
+    for (let cycle = 0; cycle < 3; cycle++) {
+      container.style.width = '240px'
+      await waitFor(() => expect(label).toHaveTextContent(/… name$/), { timeout: 5000 })
+      container.style.width = '400px'
+      await waitFor(() => expect(label).toHaveTextContent(owners[2].label), { timeout: 5000 })
+    }
+  },
+}

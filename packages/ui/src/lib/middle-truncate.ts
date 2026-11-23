@@ -1,9 +1,8 @@
+const segmenter = new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+
 export const middleTruncate = (value: string, fits: (candidate: string) => boolean): string => {
   if (fits(value)) return value
-  const characters = Array.from(
-    new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(value),
-    (part) => part.segment,
-  )
+  const characters = Array.from(segmenter.segment(value), (part) => part.segment)
 
   if (characters.length <= 5) return value
   const suffix = characters.slice(-5).join('')

@@ -1,6 +1,7 @@
 import * as React from 'react'
 
 import { middleTruncate } from '../../lib/middle-truncate'
+import { getTextMeasurementContext } from '../../lib/text-measurement'
 import { cn } from '../../lib/utils'
 import { Tooltip, TooltipContent, TooltipTrigger } from '../tooltip'
 
@@ -18,8 +19,7 @@ export const ComboboxText = ({
     const element = ref.current
 
     if (!element) return
-    const canvas = document.createElement('canvas')
-    const context = canvas.getContext('2d')
+    const context = getTextMeasurementContext(element.ownerDocument)
 
     if (!context) return
     const measure = (): void => {
@@ -32,7 +32,8 @@ export const ComboboxText = ({
         middleTruncate(
           children,
           (value) =>
-            context.measureText(value).width + value.length * spacing <= element.clientWidth,
+            context.measureText(value).width + value.length * spacing <=
+            element.getBoundingClientRect().width,
         ),
       )
     }
@@ -59,11 +60,16 @@ export const ComboboxText = ({
             event.clipboardData.setData('text/plain', children)
             event.preventDefault()
           }}
-          className={cn('min-w-0 flex-1 overflow-hidden whitespace-nowrap', className)}
+          className={cn('inline-grid min-w-0 flex-1 overflow-hidden whitespace-nowrap', className)}
           data-full-text={children}
           aria-label={children}
         >
-          <span aria-hidden="true">{text}</span>
+          <span aria-hidden="true" className="invisible col-start-1 row-start-1 overflow-hidden">
+            {children}
+          </span>
+          <span aria-hidden="true" className="col-start-1 row-start-1 overflow-hidden">
+            {text}
+          </span>
         </span>
       </TooltipTrigger>
       {text !== children && <TooltipContent>{children}</TooltipContent>}

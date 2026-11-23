@@ -10,6 +10,7 @@ export interface ComboboxContextValue {
 export const ComboboxContext = React.createContext<ComboboxContextValue | null>(null)
 export const FreeTextContext = React.createContext<{
   commit: () => void
+  hasQuery: boolean
   canAdd: boolean
   addLabel: string
   invalid: boolean

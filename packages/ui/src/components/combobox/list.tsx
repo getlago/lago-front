@@ -1,5 +1,5 @@
 import { Combobox as Primitive } from '@base-ui/react/combobox'
-import { defaultRangeExtractor, useVirtualizer } from '@tanstack/react-virtual'
+import { defaultRangeExtractor, Range, useVirtualizer } from '@tanstack/react-virtual'
 import * as React from 'react'
 
 import { ComboboxContext } from '../combobox-context'
@@ -40,22 +40,40 @@ export function ComboboxList<Value>({
     })
     return result
   }, [items, getItemKey, groupBy])
+  const rowByOption = React.useMemo(() => {
+    const indexes = new Map<number, number>()
+
+    rows.forEach((row, index) => {
+      if (row.label === undefined) indexes.set(row.index, index)
+    })
+    return indexes
+  }, [rows])
+  const getScrollElement = React.useCallback((): HTMLDivElement | null => scrollRef.current, [])
+  const getRowKey = React.useCallback((index: number): string => rows[index].key, [rows])
+  const estimateRow = React.useCallback(
+    (index: number): number =>
+      rows[index].label !== undefined ? 24 : (estimateSize?.(rows[index].item as Value) ?? 36) + 4,
+    [rows, estimateSize],
+  )
+  const rangeExtractor = React.useCallback(
+    (range: Range): number[] => {
+      const visible = defaultRangeExtractor(range)
+      const active = rowByOption.get(context?.highlightedIndex.current ?? -1)
+
+      return active === undefined
+        ? visible
+        : [...new Set([...visible, active])].sort((a, b) => a - b)
+    },
+    [rowByOption, context],
+  )
   const virtualizer = useVirtualizer({
     count: rows.length,
     enabled: context?.virtualized,
-    getScrollElement: () => scrollRef.current,
-    getItemKey: (index) => rows[index].key,
-    estimateSize: (index) =>
-      rows[index].label !== undefined ? 24 : (estimateSize?.(rows[index].item as Value) ?? 36) + 4,
+    getScrollElement,
+    getItemKey: getRowKey,
+    estimateSize: estimateRow,
     overscan: 5,
-    rangeExtractor: (range) => {
-      const visible = defaultRangeExtractor(range)
-      const active = rows.findIndex(
-        (row) => row.label === undefined && row.index === context?.highlightedIndex.current,
-      )
-
-      return active < 0 ? visible : [...new Set([...visible, active])].sort((a, b) => a - b)
-    },
+    rangeExtractor,
   })
 
   const initialScroll = React.useRef(true)
@@ -63,9 +81,9 @@ export function ComboboxList<Value>({
   React.useLayoutEffect(() => {
     if (!context?.virtualized) return
     const scroll = (index: number): void => {
-      const row = rows.findIndex((entry) => entry.label === undefined && entry.index === index)
+      const row = rowByOption.get(index)
 
-      if (row >= 0) virtualizer.scrollToIndex(row, { align: 'auto' })
+      if (row !== undefined) virtualizer.scrollToIndex(row, { align: 'auto' })
     }
 
     context.scrollToIndex.current = scroll
@@ -75,7 +93,7 @@ export function ComboboxList<Value>({
     return () => {
       context.scrollToIndex.current = undefined
     }
-  }, [context, rows, virtualizer])
+  }, [context, rowByOption, virtualizer])
   const previousKeys = React.useRef<string[]>([])
 
   React.useLayoutEffect(() => {
