@@ -15882,7 +15882,7 @@ export type GetQuickbooksFallbackItemMappingQueryVariables = Exact<{
 }>;
 
 
-export type GetQuickbooksFallbackItemMappingQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum }> } | null };
+export type GetQuickbooksFallbackItemMappingQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, billingEntityId?: string | null }> } | null };
 
 export type UpdateQuickbooksIntegrationMutationVariables = Exact<{
   input: UpdateQuickbooksIntegrationInput;
@@ -37720,6 +37720,7 @@ export const GetQuickbooksFallbackItemMappingDocument = gql`
     collection {
       id
       mappingType
+      billingEntityId
     }
   }
 }

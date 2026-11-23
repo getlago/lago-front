@@ -179,13 +179,15 @@ const renderDrawer = ({
     )
   }
 
-  render(
+  const tree = (instance: number) => (
     <BrowserRouter basename="/">
       <ApolloProvider client={client}>
-        <Host />
+        <Host key={instance} />
       </ApolloProvider>
-    </BrowserRouter>,
+    </BrowserRouter>
   )
+
+  const { rerender } = render(tree(0))
 
   const callsTo = (operationName: string) =>
     executedOperations.mock.calls.filter(([name]) => name === operationName)
@@ -196,6 +198,8 @@ const renderDrawer = ({
     catalogQueries: () => callsTo(ITEMS_QUERY).filter(([, { searchTerm }]) => !searchTerm),
     searchQueries: () => callsTo(ITEMS_QUERY).filter(([, { searchTerm }]) => !!searchTerm),
     callsTo,
+    // A new drawer on the same page: the content mounts again on the same Apollo client.
+    reopen: () => rerender(tree(1)),
     user: userEvent.setup({ pointerEventsCheck: 0 }),
   }
 }
@@ -203,8 +207,7 @@ const renderDrawer = ({
 describe('QuickbooksIntegrationMapItemDrawerContent', () => {
   describe('GIVEN a drawer with several billing entity tabs', () => {
     describe('WHEN it opens', () => {
-      // Opening the drawer syncs the QuickBooks catalog, so an item created there since the last
-      // sync can be mapped without leaving the drawer.
+      // The first drawer opened on a catalog syncs it, so an item created in QuickBooks can be mapped.
       it('THEN should trigger the items sync exactly once', async () => {
         const { callsTo } = renderDrawer()
 
@@ -214,6 +217,16 @@ describe('QuickbooksIntegrationMapItemDrawerContent', () => {
           [ITEMS_REFETCH_MUTATION, { input: { integrationId: INTEGRATION_ID } }],
         ])
         expect(callsTo(ACCOUNTS_REFETCH_MUTATION)).toHaveLength(0)
+      })
+
+      it('THEN should not sync the same catalog again when another drawer opens', async () => {
+        const { callsTo, reopen } = renderDrawer()
+
+        await settle()
+        reopen()
+        await settle()
+
+        expect(callsTo(ITEMS_REFETCH_MUTATION)).toHaveLength(1)
       })
 
       it('THEN should trigger the accounts sync instead in an account context', async () => {

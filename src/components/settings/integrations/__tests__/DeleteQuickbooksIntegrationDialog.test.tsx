@@ -61,6 +61,20 @@ describe('useDeleteQuickbooksIntegrationDialog', () => {
     })
   })
 
+  describe('GIVEN the delete is refused', () => {
+    it('THEN rejects so the error toast shows, and skips the callback', async () => {
+      mockDestroy.mockResolvedValue({ data: { destroyIntegration: null } })
+
+      const dialogProps = openDialog()
+
+      await act(async () => {
+        await expect(dialogProps.onAction()).rejects.toThrow()
+      })
+
+      expect(mockCallback).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN the delete fails on the network', () => {
     it('THEN keeps the dialog open, skips the callback and shows an error toast', async () => {
       mockDestroy.mockRejectedValue(new Error('Network error'))

@@ -24,12 +24,15 @@ export const QuickbooksIntegrationMapItemDrawerContent = ({
   form,
   ...contentProps
 }: QuickbooksIntegrationMapItemDrawerContentProps): JSX.Element => {
-  const { items, isLoading, refresh } = useQuickbooksIntegrationItems(formType, integrationId)
+  const { items, isLoading, refresh, refreshOnce } = useQuickbooksIntegrationItems(
+    formType,
+    integrationId,
+  )
 
-  // Opening the drawer syncs the QuickBooks catalog first, so a new item or account is listed.
+  // The first drawer opened on a catalog syncs it, so a new QuickBooks item or account is listed.
   useEffect(() => {
-    refresh()
-  }, [refresh])
+    refreshOnce()
+  }, [refreshOnce])
 
   return (
     <IntegrationMapItemDrawerContent

@@ -129,8 +129,13 @@ export const useQuickbooksIntegrationMappingCRUD = (
                   id: cachedMapping.mappableId,
                 }),
                 fields: {
-                  integrationMappings(existingMappings: readonly Reference[] = [], { readField }) {
-                    return existingMappings.filter((ref) => readField('id', ref) !== deletedId)
+                  integrationMappings(
+                    existingMappings: readonly Reference[] | undefined,
+                    { readField },
+                  ) {
+                    return (existingMappings ?? []).filter(
+                      (ref) => readField('id', ref) !== deletedId,
+                    )
                   },
                 },
               })

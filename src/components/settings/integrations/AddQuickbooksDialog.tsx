@@ -55,6 +55,7 @@ gql`
       collection {
         id
         mappingType
+        billingEntityId
       }
     }
   }
@@ -112,6 +113,7 @@ export const useAddQuickbooksDialog = () => {
   const dataRef = useRef<OpenAddQuickbooksDialogData | null>(null)
   const successRef = useRef(false)
   const isOpeningRef = useRef(false)
+  const authorizedConnectionRef = useRef<{ connectionId: string; sandbox: boolean } | null>(null)
 
   const [createIntegration] = useCreateQuickbooksIntegrationMutation({
     onCompleted({ createQuickbooksIntegration }) {
@@ -176,47 +178,56 @@ export const useAddQuickbooksDialog = () => {
       }
 
       if (isEdition) {
-        const res = await updateIntegration({
-          variables: {
-            input: {
-              id: quickbooksProvider?.id || '',
-              name: value.name,
-              code: value.code,
-              syncCreditNotes: value.syncCreditNotes,
-              syncInvoices: value.syncInvoices,
-              syncPayments: value.syncPayments,
+        try {
+          const res = await updateIntegration({
+            variables: {
+              input: {
+                id: quickbooksProvider?.id || '',
+                name: value.name,
+                code: value.code,
+                syncCreditNotes: value.syncCreditNotes,
+                syncInvoices: value.syncInvoices,
+                syncPayments: value.syncPayments,
+              },
             },
+          })
+
+          if (res.errors) {
+            handleError(res.errors)
+          }
+        } catch {
+          addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+        }
+
+        return
+      }
+
+      try {
+        // A create refused after the QuickBooks login reuses that connection instead of asking again.
+        let authorized = authorizedConnectionRef.current
+
+        if (authorized?.sandbox !== value.sandbox) {
+          const connectionId = `quickbooks-${componentId.replaceAll(':', '')}-${Date.now()}`
+          const Nango = (await import('@nangohq/frontend')).default
+          const nango = new Nango({ publicKey: nangoPublicKey })
+
+          await nango.auth(getQuickbooksNangoIntegrationKey(value.sandbox), connectionId)
+
+          authorized = { connectionId, sandbox: value.sandbox }
+          authorizedConnectionRef.current = authorized
+        }
+
+        const res = await createIntegration({
+          variables: {
+            input: { ...value, connectionId: authorized.connectionId },
           },
         })
 
         if (res.errors) {
           handleError(res.errors)
         }
-      } else {
-        const connectionId = `quickbooks-${componentId.replaceAll(':', '')}-${Date.now()}`
-        const Nango = (await import('@nangohq/frontend')).default
-        const nango = new Nango({ publicKey: nangoPublicKey })
-
-        try {
-          const nangoAuthResult = await nango.auth(
-            getQuickbooksNangoIntegrationKey(value.sandbox),
-            connectionId,
-          )
-
-          if (!!nangoAuthResult) {
-            const res = await createIntegration({
-              variables: {
-                input: { ...value, connectionId },
-              },
-            })
-
-            if (res.errors) {
-              handleError(res.errors)
-            }
-          }
-        } catch {
-          addToast({ severity: 'danger', translateKey: 'text_1749562792335fy21gc3sxn0' })
-        }
+      } catch {
+        addToast({ severity: 'danger', translateKey: 'text_1749562792335fy21gc3sxn0' })
       }
     },
   })
@@ -232,7 +243,8 @@ export const useAddQuickbooksDialog = () => {
     return { reason: 'success' }
   }
 
-  // Invoices sync to a fallback item: syncing them stays off until one is mapped.
+  // Invoices sync to a fallback item: syncing them stays off until the default one is mapped,
+  // since a billing entity's fallback does not cover the others.
   const fetchHasFallbackItem = async (integrationId?: string): Promise<boolean> => {
     if (!integrationId) return false
 
@@ -240,7 +252,8 @@ export const useAddQuickbooksDialog = () => {
       const { data } = await getCollectionMappings({ variables: { integrationId } })
 
       return !!data?.integrationCollectionMappings?.collection.some(
-        (mapping) => mapping.mappingType === MappingTypeEnum.FallbackItem,
+        (mapping) =>
+          mapping.mappingType === MappingTypeEnum.FallbackItem && !mapping.billingEntityId,
       )
     } catch {
       return false
@@ -261,6 +274,7 @@ export const useAddQuickbooksDialog = () => {
   }
 
   const openDialog = (data: OpenAddQuickbooksDialogData | undefined, hasFallbackItem: boolean) => {
+    authorizedConnectionRef.current = null
     dataRef.current = data ?? null
     const quickbooksProvider = data?.provider
     const isEdition = !!quickbooksProvider
@@ -275,7 +289,7 @@ export const useAddQuickbooksDialog = () => {
       form.setFieldValue('syncPayments', !!quickbooksProvider.syncPayments)
     }
 
-    formDialogOpeningDialog
+    void formDialogOpeningDialog
       .open({
         title: translate(
           isEdition ? 'text_661ff6e56ef7e1b7c542b1d0' : 'text_1795434241689x8rpnkscqwf',
@@ -436,21 +450,22 @@ export const useAddQuickbooksDialog = () => {
 
             const destroyedId = res.data?.destroyIntegration?.id
 
-            if (destroyedId) {
-              evictFromCache(client, {
-                id: destroyedId,
-                __typename: 'QuickbooksIntegration',
-                listFieldName: 'integrations',
-                listQueryDocument: GetQuickbooksIntegrationsListDocument,
-              })
+            // A refused delete resolves without an id: throw so `onError` shows the toast
+            if (!destroyedId) throw new Error('Delete failed')
 
-              data?.deleteDialogCallback?.()
+            evictFromCache(client, {
+              id: destroyedId,
+              __typename: 'QuickbooksIntegration',
+              listFieldName: 'integrations',
+              listQueryDocument: GetQuickbooksIntegrationsListDocument,
+            })
 
-              addToast({
-                message: translate('text_661ff6e56ef7e1b7c542b2f9'),
-                severity: 'success',
-              })
-            }
+            data?.deleteDialogCallback?.()
+
+            addToast({
+              message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+              severity: 'success',
+            })
           },
         },
       })
