@@ -440,12 +440,11 @@ describe('OrganizationLayout', () => {
       expect(mockUseSandbox).not.toHaveBeenCalled()
     })
 
-    it('THEN should pass the organization and an add payment method callback to the shell', () => {
+    it('THEN should pass the organization to the shell', () => {
       render(<OrganizationLayout />)
 
       expect(mockPendingOrganizationShell).toHaveBeenCalledWith({
         organization: pendingOrganization,
-        onAddPaymentMethod: expect.any(Function),
       })
     })
 

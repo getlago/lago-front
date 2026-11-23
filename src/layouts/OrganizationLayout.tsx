@@ -233,7 +233,7 @@ const OrganizationLayout = () => {
 
   if (org) {
     if (isPendingOrg) {
-      return <PendingOrganizationShell organization={org} onAddPaymentMethod={() => undefined} />
+      return <PendingOrganizationShell organization={org} />
     }
 
     if (currentOrgId !== org.id) return <Spinner />
