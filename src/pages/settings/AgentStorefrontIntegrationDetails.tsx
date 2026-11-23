@@ -241,8 +241,9 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
                 key: 'url',
                 title: translate('text_1795087403334v09qxm7w3ze'),
                 maxSpace: true,
+                truncateOverflow: true,
                 content: ({ labelKey, url }) => (
-                  <div className="flex flex-col items-start">
+                  <div className="flex min-w-0 max-w-full flex-col items-start">
                     <Typography variant="body" color="grey700">
                       {translate(labelKey)}
                     </Typography>
@@ -250,9 +251,10 @@ const AgentStorefrontIntegrationDetails = (): JSX.Element | null => {
                       type="button"
                       external
                       to={url}
+                      className="flex min-w-0 max-w-full [&>button]:max-w-full"
                       buttonProps={{ variant: 'inline', size: 'small' }}
                     >
-                      {url}
+                      <span className="truncate">{url}</span>
                     </ButtonLink>
                   </div>
                 ),
