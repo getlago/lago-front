@@ -101,9 +101,11 @@ export const useDeleteStripeIntegrationDialog = (): UseDeleteStripeIntegrationDi
       title: translate('text_658461066530343fe1808cd7', { name: provider?.name }),
       description: translate('text_658461066530343fe1808cdb'),
       children: usingStorefrontName ? (
-        <Alert type="warning">
-          {translate('text_17950964499736yn37b9ictq', { connectionName: usingStorefrontName })}
-        </Alert>
+        <div className="p-8">
+          <Alert type="warning">
+            {translate('text_17950964499736yn37b9ictq', { connectionName: usingStorefrontName })}
+          </Alert>
+        </div>
       ) : undefined,
       colorVariant: 'danger',
       actionText: translate('text_645d071272418a14c1c76a81'),

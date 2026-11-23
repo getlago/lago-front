@@ -57,7 +57,9 @@ export const useDeleteAgentStorefrontIntegrationDialog =
       title: translate('text_658461066530343fe1808cd7', { name: integration.name }),
       description: translate('text_1795096449972k3dsyax1fn8'),
       children: integration.hasEnrolledAgents ? (
-        <Alert type="danger">{translate('text_1795096449972iwzgdt7925i')}</Alert>
+        <div className="p-8">
+          <Alert type="danger">{translate('text_1795096449972iwzgdt7925i')}</Alert>
+        </div>
       ) : undefined,
       colorVariant: 'danger',
       actionText: translate('text_645d071272418a14c1c76a81'),
