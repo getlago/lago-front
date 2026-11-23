@@ -115,6 +115,18 @@ describe('versionStampPlugin', () => {
     expect(idOf('console.log("a")')).not.toBe(idOf('console.log("b")'))
   })
 
+  it('gives a different id when only index.html changes', () => {
+    const bundle = createBundle('console.log("a")')
+    const otherHtml = createBundle('console.log("a")')
+
+    ;(otherHtml['index.html'] as { source: string }).source = HTML.replace('Lago', 'Lago 2')
+
+    const idOf = (b: Rollup.OutputBundle) =>
+      JSON.parse(runGenerateBundle(b).mock.calls[0][0].source).buildId
+
+    expect(idOf(bundle)).not.toBe(idOf(otherHtml))
+  })
+
   it('fails the build when index.html is missing', () => {
     expect(() => runGenerateBundle({} as Rollup.OutputBundle)).toThrow('index.html')
   })

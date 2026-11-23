@@ -47,9 +47,9 @@ export const versionStampPlugin = (): Plugin => ({
       throw new Error(`[lago-version-stamp] ${INDEX_HTML} is missing from the bundle`)
     }
 
+    // index.html is hashed before the meta tag goes in. Source maps only mirror the code.
     const files = Object.values(bundle)
-      // index.html is rewritten below, and source maps only mirror the code.
-      .filter(({ fileName }) => fileName !== INDEX_HTML && !fileName.endsWith('.map'))
+      .filter(({ fileName }) => !fileName.endsWith('.map'))
       .map((file) => ({
         fileName: file.fileName,
         content: file.type === 'chunk' ? file.code : file.source,

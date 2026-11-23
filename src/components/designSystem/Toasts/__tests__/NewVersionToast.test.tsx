@@ -156,4 +156,29 @@ describe('NewVersionToast', () => {
     await focusLater()
     expect(queryToast()).toBeInTheDocument()
   })
+
+  it('keeps every dismissed build quiet while a rollout alternates between two of them', async () => {
+    const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime })
+
+    setRunningBuildId(RUNNING_ID)
+    serveBuildId(NEW_ID)
+    render(<NewVersionToast />)
+    await focusLater()
+    await user.click(screen.getByTestId(NEW_VERSION_TOAST_CLOSE_TEST_ID))
+
+    serveBuildId(NEWER_ID)
+    await focusLater()
+    serveBuildId(NEW_ID)
+    await focusLater()
+    expect(queryToast()).toBeInTheDocument()
+
+    await user.click(screen.getByTestId(NEW_VERSION_TOAST_CLOSE_TEST_ID))
+    serveBuildId(NEW_ID)
+    await focusLater()
+    expect(queryToast()).not.toBeInTheDocument()
+
+    serveBuildId(NEWER_ID)
+    await focusLater()
+    expect(queryToast()).not.toBeInTheDocument()
+  })
 })

@@ -18,7 +18,9 @@ export const useNewVersionCheck = (): NewVersionCheck => {
   // Read once: the build a tab runs never changes until it reloads.
   const [runningBuildId] = useState(getRunningBuildId)
   const [availableBuildId, setAvailableBuildId] = useState<string | null>(null)
-  const [dismissedBuildId, setDismissedBuildId] = useState<string | null>(null)
+  // Every build the user closed the toast for: during a rolling update, answers can alternate
+  // between two of them, and neither may bring the toast back.
+  const dismissedBuildIdsRef = useRef(new Set<string>())
   // The page was just loaded, so the first check can wait for the next trigger.
   const lastCheckAtRef = useRef(Date.now())
   const isCheckingRef = useRef(false)
@@ -35,9 +37,13 @@ export const useNewVersionCheck = (): NewVersionCheck => {
     try {
       const deployedBuildId = await fetchDeployedBuildId()
 
-      // Never cleared once set: during a rolling update, requests can still reach a pod
+      // Never cleared by an answer: during a rolling update, requests can still reach a pod
       // serving the old build, and the toast must not flicker.
-      if (deployedBuildId && deployedBuildId !== runningBuildId) {
+      if (
+        deployedBuildId &&
+        deployedBuildId !== runningBuildId &&
+        !dismissedBuildIdsRef.current.has(deployedBuildId)
+      ) {
         setAvailableBuildId(deployedBuildId)
       }
     } finally {
@@ -68,11 +74,11 @@ export const useNewVersionCheck = (): NewVersionCheck => {
     void check()
   }, [pathname, check])
 
-  const dismiss = useCallback(() => setDismissedBuildId(availableBuildId), [availableBuildId])
+  // A dismissed build stays quiet. A later deploy shows the toast again.
+  const dismiss = useCallback(() => {
+    if (availableBuildId) dismissedBuildIdsRef.current.add(availableBuildId)
+    setAvailableBuildId(null)
+  }, [availableBuildId])
 
-  return {
-    // A dismissed build stays quiet. A later deploy shows the toast again.
-    isNewVersionAvailable: !!availableBuildId && availableBuildId !== dismissedBuildId,
-    dismiss,
-  }
+  return { isNewVersionAvailable: !!availableBuildId, dismiss }
 }
