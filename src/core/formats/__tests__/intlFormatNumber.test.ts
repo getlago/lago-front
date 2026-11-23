@@ -1,4 +1,5 @@
 import {
+  bigNumberShortenNotation,
   bigNumberShortenNotationFormater,
   getCurrencySymbol,
   intlFormatNumber,
@@ -189,6 +190,18 @@ describe('Currency tools', () => {
         bigNumberShortenNotationFormater(100_000_000_000_000_000, { currency: CurrencyEnum.Eur }),
       ).toBe('€100Q')
       expect(bigNumberShortenNotationFormater(100_000_000_000_000_000)).toBe('$100Q')
+    })
+
+    it('should roll over to next unit when rounding up near boundary (#858)', () => {
+      expect(bigNumberShortenNotationFormater(999_940)).toBe('$999.9k')
+      expect(bigNumberShortenNotationFormater(999_960)).toBe('$1M')
+      expect(bigNumberShortenNotationFormater(999_960_000)).toBe('$1B')
+      expect(bigNumberShortenNotationFormater(999_960_000_000)).toBe('$1T')
+      expect(bigNumberShortenNotationFormater(999_960_000_000_000)).toBe('$1Q')
+
+      expect(bigNumberShortenNotation(999_940)).toBe('999.9k')
+      expect(bigNumberShortenNotation(999_960)).toBe('1M')
+      expect(bigNumberShortenNotation(999_999)).toBe('1M')
     })
   })
 })
