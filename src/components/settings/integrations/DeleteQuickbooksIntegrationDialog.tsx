@@ -49,21 +49,22 @@ export const useDeleteQuickbooksIntegrationDialog = () => {
 
         const destroyedId = result.data?.destroyIntegration?.id
 
-        if (destroyedId) {
-          evictFromCache(client, {
-            id: destroyedId,
-            __typename: 'QuickbooksIntegration',
-            listFieldName: 'integrations',
-            listQueryDocument: GetQuickbooksIntegrationsListDocument,
-          })
+        // A refused delete resolves without an id: throw so `onError` shows the toast
+        if (!destroyedId) throw new Error('Delete failed')
 
-          callback?.()
+        evictFromCache(client, {
+          id: destroyedId,
+          __typename: 'QuickbooksIntegration',
+          listFieldName: 'integrations',
+          listQueryDocument: GetQuickbooksIntegrationsListDocument,
+        })
 
-          addToast({
-            message: translate('text_661ff6e56ef7e1b7c542b2f9'),
-            severity: 'success',
-          })
-        }
+        callback?.()
+
+        addToast({
+          message: translate('text_661ff6e56ef7e1b7c542b2f9'),
+          severity: 'success',
+        })
       },
     })
   }

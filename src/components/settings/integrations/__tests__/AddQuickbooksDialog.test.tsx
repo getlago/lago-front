@@ -163,6 +163,65 @@ describe('useAddQuickbooksDialog', () => {
     })
   })
 
+  describe('GIVEN the create is refused after the QuickBooks login', () => {
+    it('THEN reuses the authorized connection on the next submit', async () => {
+      mockCreate.mockResolvedValueOnce(rejectedUnder('code'))
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      const codeInput = screen.getByPlaceholderText('text_6584550dc4cec7adf8615053')
+
+      await userEvent.clear(codeInput)
+      await userEvent.type(codeInput, 'quickbooks_2')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(mockNangoAuth).toHaveBeenCalledTimes(1)
+      expect(mockCreate).toHaveBeenCalledTimes(2)
+      expect(mockCreate.mock.calls[1][0].variables.input.connectionId).toBe(
+        mockNangoAuth.mock.calls[0][1],
+      )
+    })
+  })
+
+  describe('GIVEN the edit fails on the network', () => {
+    it('THEN shows an error toast', async () => {
+      mockUpdate.mockRejectedValue(new Error('Network error'))
+
+      const submit = await openDialog(quickbooksProvider)
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+  })
+
+  describe('GIVEN the delete from the edit dialog is refused', () => {
+    it('THEN rejects so the error toast shows', async () => {
+      mockDestroyNango.mockResolvedValue({ data: { destroyIntegration: null } })
+
+      const { result } = renderHook(() => useAddQuickbooksDialog(), { wrapper })
+
+      act(() => {
+        result.current.openAddQuickbooksDialog({ provider: quickbooksProvider })
+      })
+
+      const { otherDialogProps } = mockDialogOpen.mock.calls[0][0]
+
+      await expect(otherDialogProps.onAction()).rejects.toThrow()
+    })
+  })
+
   describe('GIVEN the delete from the edit dialog fails on the network', () => {
     it('THEN keeps the confirm dialog open and shows an error toast', () => {
       const { result } = renderHook(() => useAddQuickbooksDialog(), { wrapper })
