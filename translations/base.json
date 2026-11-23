@@ -5565,5 +5565,9 @@
   "text_17951678255111532h15xuvl": "Need a new code",
   "text_1795167825511n9ipu034f3a": "Claim code is required",
   "text_1795167825511qk0b9gc77ys": "Enter the 6-digit code from the email",
-  "text_1795177414435gn7pn5ytu3s": "Agent payments need real-time wallet refresh, which is turned off on this Lago instance. Turn it on, then connect."
+  "text_1795177414435gn7pn5ytu3s": "Agent payments need real-time wallet refresh, which is turned off on this Lago instance. Turn it on, then connect.",
+  "text_17950335898705jctc4i4twe": "Type a contract code",
+  "text_17950335898708mg94k6t8ej": "Contract code",
+  "text_1795033589870p2xxngsuzlk": "This code is already used by another contract with the same external ID.",
+  "text_1795100193564fvipwk67u1g": "The code identifies a specific contract version among those sharing the same external_id"
 }

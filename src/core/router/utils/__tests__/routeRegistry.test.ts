@@ -61,11 +61,16 @@ describe('routeRegistry', () => {
 
   describe('isOrganizationPathAvailable', () => {
     it('returns false for a path hidden by an active flag', () => {
-      expect(isOrganizationPathAvailable('/analytics', withProductCatalog)).toBe(false)
+      expect(isOrganizationPathAvailable('/coupons', withProductCatalog)).toBe(false)
     })
 
     it('returns true for the same path when the flag is not active', () => {
-      expect(isOrganizationPathAvailable('/analytics', noFeatureFlag)).toBe(true)
+      expect(isOrganizationPathAvailable('/coupons', noFeatureFlag)).toBe(true)
+    })
+
+    it('keeps analytics available to product catalog organizations', () => {
+      expect(isOrganizationPathAvailable('/analytics', withProductCatalog)).toBe(true)
+      expect(isOrganizationPathAvailable('/analytics-v2', withProductCatalog)).toBe(true)
     })
 
     it('returns false for a path requiring an inactive flag', () => {

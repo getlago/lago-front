@@ -30,6 +30,7 @@ export const mapContractToContractSettingsFormValues = (
 
   return {
     externalId: contract.externalId,
+    code: contract.code ?? '',
     name: contract.name ?? '',
     startedAt: contract.startedAt ?? '',
     endedAt: contract.endedAt ?? undefined,
