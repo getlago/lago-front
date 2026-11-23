@@ -50,7 +50,7 @@
   color: var(--color-icon-default);
 }
 .v2-combobox-positioner {
-  z-index: 50;
+  z-index: 2100;
   width: var(--anchor-width);
   max-width: var(--available-width);
 }
