@@ -32,7 +32,7 @@ catalog:
   tailwind-merge: 2.6.1
   tailwindcss: 3.4.19
   typescript: 6.0.3
-  vite: 7.3.7
+  vite: 7.3.8
 
 # Supply-chain quarantine: a published version must be at least 7 days old
 # (10080 minutes) before any resolution installs it. Applied at the package
