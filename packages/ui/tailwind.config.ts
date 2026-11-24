@@ -6,7 +6,7 @@ import lagoUiPreset from './tailwind-preset'
 const config: Pick<Config, 'presets' | 'content'> = {
   content: [
     'src/**/*.{ts,tsx,mdx}',
-    '../../src/components/form/AmountInputV2/**/*.{ts,tsx}',
+    '../../src/stories/v2/**/*.{ts,tsx}',
     '.storybook/**/*.{ts,tsx}',
   ],
   presets: [sharedConfig, lagoUiPreset],

@@ -18,7 +18,8 @@
     "./styles.css": "./src/styles/index.css",
     "./styles/*": "./src/styles/*",
     "./tailwind-preset": "./tailwind-preset.ts",
-    "./combobox/*": null
+    "./combobox/*": null,
+    "./amount-input/*": null
   },
   "scripts": {
     "lint": "prettier --check . && eslint .",

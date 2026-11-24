@@ -1,5 +1,6 @@
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AmountInput } from 'lago-ui/amount-input'
 import {
   Combobox,
   ComboboxContent,
@@ -11,7 +12,8 @@ import {
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 
-import { AmountInputV2 } from '~/components/form/AmountInputV2'
+import { defineNewBeforeChangeFormatter } from '~/components/form/AmountInput/formatting'
+import { formatValue } from '~/components/form/TextInput/formatValue'
 import { initializeTranslations } from '~/core/apolloClient/reactiveVars/internationalizationVar'
 import { CurrencyEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -54,7 +56,16 @@ it.each(['combobox', 'amount'])(
     const renderControl = (): JSX.Element => {
       if (kind === 'amount')
         return (
-          <AmountInputV2
+          <AmountInput
+            formatValue={(raw) =>
+              formatValue(raw, defineNewBeforeChangeFormatter({ currency: CurrencyEnum.Usd }))
+            }
+            currencyLabels={{
+              trigger: 'Currency, USD',
+              search: 'Search currencies…',
+              clear: 'Clear currency search',
+              empty: 'No currencies found',
+            }}
             mode="selectable"
             currency={CurrencyEnum.Usd}
             currencyOptions={[
