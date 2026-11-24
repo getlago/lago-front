@@ -128,6 +128,12 @@ export enum ActivityTypeEnum {
   ContractTerminated = 'contract_terminated',
   /** contract.updated */
   ContractUpdated = 'contract_updated',
+  /** contract_wallet.created */
+  ContractWalletCreated = 'contract_wallet_created',
+  /** contract_wallet.deleted */
+  ContractWalletDeleted = 'contract_wallet_deleted',
+  /** contract_wallet.updated */
+  ContractWalletUpdated = 'contract_wallet_updated',
   /** coupon.created */
   CouponCreated = 'coupon_created',
   /** coupon.deleted */
@@ -5604,7 +5610,7 @@ export enum IntegrationConnectionCategoryEnum {
   Tax = 'tax'
 }
 
-export type IntegrationCustomer = AnrokCustomer | AvalaraCustomer | HubspotCustomer | NetsuiteCustomer | SalesforceCustomer | XeroCustomer;
+export type IntegrationCustomer = AnrokCustomer | AvalaraCustomer | HubspotCustomer | NetsuiteCustomer | QuickbooksCustomer | SalesforceCustomer | XeroCustomer;
 
 export type IntegrationCustomerInput = {
   code?: InputMaybe<Scalars['String']['input']>;
@@ -10877,6 +10883,33 @@ export type QueryWebhooksArgs = {
   webhookEndpointId: Scalars['String']['input'];
 };
 
+export type QuickbooksCustomer = {
+  __typename?: 'QuickbooksCustomer';
+  category?: Maybe<IntegrationConnectionCategoryEnum>;
+  code?: Maybe<Scalars['String']['output']>;
+  externalCustomerId?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  integrationCode?: Maybe<Scalars['String']['output']>;
+  integrationId?: Maybe<Scalars['ID']['output']>;
+  integrationType?: Maybe<IntegrationTypeEnum>;
+  isDefault: Scalars['Boolean']['output'];
+  syncWithProvider?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type QuickbooksIntegration = {
+  __typename?: 'QuickbooksIntegration';
+  code: Scalars['String']['output'];
+  connectionId: Scalars['ID']['output'];
+  hasMappingsConfigured?: Maybe<Scalars['Boolean']['output']>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  realmId?: Maybe<Scalars['String']['output']>;
+  sandbox: Scalars['Boolean']['output'];
+  syncCreditNotes?: Maybe<Scalars['Boolean']['output']>;
+  syncInvoices?: Maybe<Scalars['Boolean']['output']>;
+  syncPayments?: Maybe<Scalars['Boolean']['output']>;
+};
+
 export type Quote = {
   __typename?: 'Quote';
   activityLogs?: Maybe<Array<ActivityLog>>;
@@ -11495,6 +11528,8 @@ export enum ResourceTypeEnum {
   Contract = 'contract',
   /** ContractRateCard */
   ContractRateCard = 'contract_rate_card',
+  /** CatalogWallet */
+  ContractWallet = 'contract_wallet',
   /** Coupon */
   Coupon = 'coupon',
   /** CreditNote */
@@ -12586,6 +12621,7 @@ export type UpdateBillingEntityInput = {
 export type UpdateCashfreePaymentProviderInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
+  billingTime?: InputMaybe<ContractBillingTimeEnum>;
   code?: InputMaybe<Scalars['String']['input']>;
   flowId?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
@@ -12621,7 +12657,6 @@ export type UpdateContractAppliedRateCardInput = {
 export type UpdateContractInput = {
   billingAnchorDate?: InputMaybe<Scalars['ISO8601Date']['input']>;
   billingEntityId?: InputMaybe<Scalars['ID']['input']>;
-  billingTime?: InputMaybe<ContractBillingTimeEnum>;
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   consolidateInvoice?: InputMaybe<Scalars['Boolean']['input']>;
@@ -14512,6 +14547,7 @@ export type SetCustomerIntegrationConnectionAsDefaultMutation = { __typename?: '
     | { __typename?: 'AvalaraCustomer', id: string, isDefault: boolean }
     | { __typename?: 'HubspotCustomer', id: string, isDefault: boolean }
     | { __typename?: 'NetsuiteCustomer', id: string, isDefault: boolean }
+    | { __typename?: 'QuickbooksCustomer', id: string, isDefault: boolean }
     | { __typename?: 'SalesforceCustomer', id: string, isDefault: boolean }
     | { __typename?: 'XeroCustomer', id: string, isDefault: boolean }
    | null };
@@ -14727,6 +14763,7 @@ export type CustomerMainInfosFragment = { __typename?: 'Customer', id: string, c
     | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
     | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null }
     | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
+    | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
     | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
     | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null }
   >, metadata?: Array<{ __typename?: 'CustomerMetadata', id: string, key: string, value: string }> | null, billingEntity: { __typename?: 'BillingEntity', id: string, name: string, code: string } };
@@ -14865,12 +14902,14 @@ export type IntegrationsListForCustomerMainInfosQueryVariables = Exact<{
 
 
 export type IntegrationsListForCustomerMainInfosQuery = { __typename?: 'Query', integrations?: { __typename?: 'IntegrationCollection', collection: Array<
+      | { __typename?: 'AgentStorefrontIntegration' }
       | { __typename: 'AnrokIntegration', id: string, name: string, apiKey: any, externalAccountId?: string | null }
       | { __typename: 'AvalaraIntegration', id: string, name: string, accountId?: string | null }
       | { __typename?: 'EntraIdIntegration' }
       | { __typename: 'HubspotIntegration', id: string, name: string, portalId?: string | null }
       | { __typename: 'NetsuiteIntegration', id: string, name: string, accountId?: string | null }
       | { __typename?: 'OktaIntegration' }
+      | { __typename?: 'QuickbooksIntegration' }
       | { __typename: 'SalesforceIntegration', id: string, name: string, instanceId: string }
       | { __typename: 'XeroIntegration', id: string, name: string }
     > } | null };
@@ -14906,6 +14945,7 @@ export type CreateCustomerIntegrationConnectionMutation = { __typename?: 'Mutati
     | { __typename: 'AvalaraCustomer' }
     | { __typename: 'HubspotCustomer' }
     | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'QuickbooksCustomer' }
     | { __typename: 'SalesforceCustomer' }
     | { __typename: 'XeroCustomer' }
    | null };
@@ -14920,6 +14960,7 @@ export type UpdateCustomerIntegrationConnectionMutation = { __typename?: 'Mutati
     | { __typename: 'AvalaraCustomer' }
     | { __typename: 'HubspotCustomer' }
     | { __typename: 'NetsuiteCustomer' }
+    | { __typename: 'QuickbooksCustomer' }
     | { __typename: 'SalesforceCustomer' }
     | { __typename: 'XeroCustomer' }
    | null };
@@ -16846,6 +16887,7 @@ export type CreateSubscriptionMutation = { __typename?: 'Mutation', createSubscr
         | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       > }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
@@ -16860,6 +16902,7 @@ export type UpdateSubscriptionMutation = { __typename?: 'Mutation', updateSubscr
         | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       > }, plan: { __typename?: 'Plan', id: string, name: string, code: string, interval?: PlanInterval | null } } | null };
@@ -16890,6 +16933,7 @@ export type CustomerIntegrationConnectionsQuery = { __typename?: 'Query', custom
       | { __typename: 'AvalaraCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
       | { __typename: 'HubspotCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
       | { __typename: 'NetsuiteCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
+      | { __typename: 'QuickbooksCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
       | { __typename: 'SalesforceCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
       | { __typename: 'XeroCustomer', id: string, code?: string | null, integrationCode?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean }
     > } | null };
@@ -17123,6 +17167,7 @@ export type CustomerForExternalAppsAccordionFragment = { __typename?: 'Customer'
     | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
     | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
   > };
@@ -17132,6 +17177,7 @@ export type AddCustomerDrawerFragment = { __typename?: 'Customer', id: string, a
     | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
     | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
   > };
@@ -17146,6 +17192,7 @@ export type CreateCustomerMutation = { __typename?: 'Mutation', createCustomer?:
       | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     > } | null };
@@ -17160,6 +17207,7 @@ export type UpdateCustomerMutation = { __typename?: 'Mutation', updateCustomer?:
       | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     > } | null };
@@ -17174,6 +17222,7 @@ export type GetSingleCustomerQuery = { __typename?: 'Query', customer?: { __type
       | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
       | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     > } | null };
@@ -17582,6 +17631,7 @@ export type CustomerDetailsFragment = { __typename?: 'Customer', id: string, cus
     | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
   > };
@@ -17596,6 +17646,7 @@ export type GetCustomerQuery = { __typename?: 'Query', customer?: { __typename?:
       | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, targetedObject?: HubspotTargetedObjectsEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+      | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
       | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationType?: IntegrationTypeEnum | null, integrationCode?: string | null, code?: string | null, isDefault: boolean, syncWithProvider?: boolean | null }
     > } | null };
@@ -17764,6 +17815,7 @@ export type CustomerItemFragment = { __typename?: 'Customer', id: string, name?:
     | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
     | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+    | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
     | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
   > };
@@ -17794,6 +17846,7 @@ export type CustomersQuery = { __typename?: 'Query', customers: { __typename?: '
         | { __typename: 'AvalaraCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'HubspotCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null, targetedObject?: HubspotTargetedObjectsEnum | null }
         | { __typename: 'NetsuiteCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, subsidiaryId?: string | null, syncWithProvider?: boolean | null }
+        | { __typename: 'QuickbooksCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'SalesforceCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
         | { __typename: 'XeroCustomer', id: string, integrationId?: string | null, externalCustomerId?: string | null, integrationCode?: string | null, code?: string | null, integrationType?: IntegrationTypeEnum | null, isDefault: boolean, syncWithProvider?: boolean | null }
       > }> } };
@@ -25351,6 +25404,17 @@ export const CustomerForExternalAppsAccordionFragmentDoc = gql`
       isDefault
       syncWithProvider
     }
+    ... on QuickbooksCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationCode
+      code
+      integrationType
+      isDefault
+      syncWithProvider
+    }
     ... on HubspotCustomer {
       __typename
       id
@@ -25490,6 +25554,13 @@ export const CustomerMainInfosFragmentDoc = gql`
       integrationType
     }
     ... on XeroCustomer {
+      __typename
+      id
+      integrationId
+      externalCustomerId
+      integrationType
+    }
+    ... on QuickbooksCustomer {
       __typename
       id
       integrationId
@@ -31537,6 +31608,10 @@ export const SetCustomerIntegrationConnectionAsDefaultDocument = gql`
       isDefault
     }
     ... on XeroCustomer {
+      id
+      isDefault
+    }
+    ... on QuickbooksCustomer {
       id
       isDefault
     }
@@ -41607,6 +41682,14 @@ export const CustomerIntegrationConnectionsDocument = gql`
         isDefault
       }
       ... on XeroCustomer {
+        __typename
+        id
+        code
+        integrationCode
+        integrationType
+        isDefault
+      }
+      ... on QuickbooksCustomer {
         __typename
         id
         code

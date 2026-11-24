@@ -77,6 +77,13 @@ gql`
         externalCustomerId
         integrationType
       }
+      ... on QuickbooksCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationType
+      }
       ... on HubspotCustomer {
         __typename
         id
