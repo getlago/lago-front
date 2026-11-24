@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import * as React from 'react'
 
@@ -129,3 +129,32 @@ it('forwards refs on status, separator and action parts', () => {
   expect(separator.current).toHaveAttribute('data-slot', 'combobox-separator')
   expect(action.current).toBe(screen.getByRole('button', { name: 'Create' }))
 })
+
+it.each([false, true])(
+  'preserves mounted options while scrolling (grouped=%s)',
+  async (grouped) => {
+    const items = Array.from({ length: 100 }, (_, index) => `Owner ${index}`)
+
+    render(
+      <Combobox items={items} virtualized defaultOpen>
+        <ComboboxInput aria-label="Owners" />
+        <ComboboxContent>
+          <ComboboxList
+            getItemKey={(item: string) => item}
+            groupBy={grouped ? () => 'Owners' : undefined}
+          >
+            {(item) => <ComboboxItem value={item}>{item}</ComboboxItem>}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>,
+    )
+    const retained = await screen.findByRole('option', { name: 'Owner 8' })
+    const list = screen.getByRole('listbox')
+
+    fireEvent.scroll(list, { target: { scrollTop: 320 } })
+    await waitFor(() =>
+      expect(screen.queryByRole('option', { name: 'Owner 1' })).not.toBeInTheDocument(),
+    )
+    expect(screen.getByRole('option', { name: 'Owner 8' })).toBe(retained)
+  },
+)

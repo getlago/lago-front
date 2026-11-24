@@ -22,17 +22,27 @@ export function ComboboxList<Value>({
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const rows = React.useMemo(() => {
     const result: Array<
-      | { kind: 'group'; key: string; label: string; group: string; index: number }
-      | { kind: 'item'; key: string; item: Value; group?: string; index: number }
+      | {
+          kind: 'group'
+          key: string
+          label: string
+          group: string
+          groupKey: string
+          index: number
+        }
+      | { kind: 'item'; key: string; item: Value; group?: string; groupKey: string; index: number }
     > = []
     let previous: string | undefined
+    let groupKey = 'ungrouped'
 
     items.forEach((item, index) => {
       const group = groupBy?.(item)
 
-      if (group !== undefined && group !== previous)
-        result.push({ kind: 'group', key: `group:${getItemKey(item)}`, label: group, group, index })
-      result.push({ kind: 'item', key: `item:${getItemKey(item)}`, item, group, index })
+      if (group !== undefined && group !== previous) {
+        groupKey = `group:${getItemKey(item)}`
+        result.push({ kind: 'group', key: groupKey, label: group, group, groupKey, index })
+      }
+      result.push({ kind: 'item', key: `item:${getItemKey(item)}`, item, group, groupKey, index })
       previous = group
     })
     return result
@@ -108,14 +118,14 @@ export function ComboboxList<Value>({
     ? virtualizer.getVirtualItems()
     : rows.map((_, index) => ({ index, start: 0, key: rows[index].key }))
 
-  const groups: Array<{ label?: string; rows: typeof visible }> = []
+  const groups: Array<{ key: string; label?: string; rows: typeof visible }> = []
 
   visible.forEach((row) => {
-    const label = rows[row.index].group
+    const { group: label, groupKey } = rows[row.index]
     const previous = groups.at(-1)
 
-    if (previous && previous.label === label) previous.rows.push(row)
-    else groups.push({ label, rows: [row] })
+    if (previous && previous.key === groupKey) previous.rows.push(row)
+    else groups.push({ key: groupKey, label, rows: [row] })
   })
   const renderRow = (virtualRow: (typeof visible)[number]): React.ReactElement => {
     const row = rows[virtualRow.index]
@@ -171,7 +181,7 @@ export function ComboboxList<Value>({
       >
         {groups.map((group) => (
           <div
-            key={rows[group.rows[0].index].key}
+            key={group.key}
             role={group.label === undefined ? 'presentation' : 'group'}
             aria-label={group.label}
           >
