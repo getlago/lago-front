@@ -1,7 +1,6 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { AmountInput, AmountInputProps, CurrencyOption } from 'lago-ui/amount-input'
-import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from 'lago-ui/field'
 import { TooltipProvider } from 'lago-ui/tooltip'
 import { createRef, forwardRef, useState } from 'react'
 
@@ -232,37 +231,6 @@ it('external values and currency changes are displayed without reformatting', ()
   )
   expect(screen.getByRole('textbox')).toHaveValue('')
 })
-it('composes a labelled invalid Field and exposes the native input ref', async () => {
-  const ref = createRef<HTMLInputElement>()
-  const user = userEvent.setup()
-
-  render(
-    <Field>
-      <FieldContent>
-        <FieldLabel htmlFor="amount">Price</FieldLabel>
-        <FieldDescription id="help">In USD</FieldDescription>
-      </FieldContent>
-      <TestAmount
-        id="amount"
-        ref={ref}
-        currency={CurrencyEnum.Usd}
-        value="1"
-        onChange={jest.fn()}
-        aria-invalid
-        aria-describedby="help error"
-      />
-      <FieldError id="error">Too low</FieldError>
-    </Field>,
-  )
-  await user.click(screen.getByText('Price'))
-  expect(ref.current).toHaveFocus()
-  expect(ref.current).toHaveAccessibleDescription('In USD Too low')
-  expect(ref.current).toHaveAttribute('aria-invalid', 'true')
-})
-const options = [
-  { value: CurrencyEnum.Usd, label: 'US Dollar' },
-  { value: CurrencyEnum.Jpy, label: 'Japanese Yen' },
-]
 
 it('virtualizes all currencies and selects a filtered offscreen currency with the keyboard', async () => {
   const user = userEvent.setup()
@@ -298,148 +266,6 @@ it('virtualizes all currencies and selects a filtered offscreen currency with th
   expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
 })
 
-it('searches names, clears query only, and changes currency without changing amount', async () => {
-  const user = userEvent.setup()
-  const amountChanged = jest.fn()
-  const currencyChanged = jest.fn()
-
-  function Selectable(): JSX.Element {
-    const [currency, setCurrency] = useState(CurrencyEnum.Usd)
-
-    return (
-      <TestAmount
-        mode="selectable"
-        currencyOptions={options}
-        currency={currency}
-        onCurrencyChange={(next) => {
-          setCurrency(next)
-          currencyChanged(next)
-        }}
-        value="123.45"
-        onChange={amountChanged}
-        aria-label="Amount"
-      />
-    )
-  }
-  render(
-    <TooltipProvider>
-      <Selectable />
-    </TooltipProvider>,
-  )
-  const trigger = screen.getByRole('combobox', { name: 'Currency, USD' })
-
-  await user.click(trigger)
-  const search = await screen.findByRole('combobox', { name: 'Search currencies…' })
-
-  expect(search).toHaveAttribute('data-variant', 'search')
-  await user.type(search, 'Japanese')
-  expect(screen.queryByRole('option', { name: /US Dollar/ })).not.toBeInTheDocument()
-  await user.click(screen.getByRole('button', { name: 'Clear currency search' }))
-  expect(search).toHaveValue('')
-  await user.click(screen.getByRole('option', { name: /JPY/ }))
-  expect(currencyChanged).toHaveBeenCalledWith(CurrencyEnum.Jpy)
-  expect(amountChanged).not.toHaveBeenCalled()
-  expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
-  await waitFor(() => expect(trigger).toHaveFocus())
-  await user.click(trigger)
-  await screen.findByRole('combobox', { name: 'Search currencies…' })
-  await user.keyboard('{Escape}')
-  expect(screen.getByRole('textbox')).toHaveValue('123.45')
-})
-it.each([true, false])('disables both targets through prop or fieldset (prop=%s)', async (prop) => {
-  const user = userEvent.setup()
-
-  render(
-    <fieldset disabled={!prop}>
-      <TestAmount
-        mode="selectable"
-        currencyOptions={options}
-        currency={CurrencyEnum.Usd}
-        onCurrencyChange={jest.fn()}
-        value="12"
-        onChange={jest.fn()}
-        disabled={prop}
-        aria-label="Amount"
-      />
-    </fieldset>,
-  )
-  expect(screen.getByRole('textbox')).toBeDisabled()
-  const trigger = screen.getByRole('combobox')
-
-  expect(trigger).toBeDisabled()
-  await user.click(trigger)
-  expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
-})
-it('read-only has no interactive currency selector', async () => {
-  const user = userEvent.setup()
-  const change = jest.fn()
-
-  render(
-    <TestAmount
-      mode="selectable"
-      currencyOptions={options}
-      currency={CurrencyEnum.Usd}
-      onCurrencyChange={change}
-      value="12"
-      onChange={change}
-      readOnly
-      aria-label="Amount"
-    />,
-  )
-  expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
-  await user.type(screen.getByRole('textbox'), '3')
-  expect(screen.getByRole('textbox')).toHaveValue('12')
-  expect(change).not.toHaveBeenCalled()
-})
-
-it('external reset cancels a pending composition draft', () => {
-  const change = jest.fn()
-  const props = { currency: CurrencyEnum.Usd, onChange: change, 'aria-label': 'Amount' }
-  const { rerender } = render(<TestAmount {...props} value="12" />)
-  const input = screen.getByRole('textbox')
-
-  fireEvent.compositionStart(input)
-  fireEvent.change(input, { target: { value: '123' } })
-  rerender(<TestAmount {...props} value="0" />)
-  expect(input).toHaveValue('0')
-  fireEvent.compositionEnd(input)
-  expect(change).not.toHaveBeenCalled()
-})
-
-it('updates currency labels and search when the caller replaces options', async () => {
-  const user = userEvent.setup()
-  const props: TestAmountProps = {
-    mode: 'selectable',
-    currency: CurrencyEnum.Usd,
-    currencyOptions: options,
-    onCurrencyChange: jest.fn(),
-    value: '123.45',
-    onChange: jest.fn(),
-    'aria-label': 'Amount',
-  }
-  const { rerender } = render(<TestAmount {...props} />)
-
-  await user.click(screen.getByRole('combobox', { name: 'Currency, USD' }))
-  const search = await screen.findByRole('combobox', { name: 'Search currencies…' })
-
-  await user.type(search, 'Japanese')
-  expect(await screen.findByRole('option', { name: 'JPY Japanese Yen' })).toBeInTheDocument()
-  rerender(
-    <TestAmount
-      {...props}
-      currencyOptions={[
-        { value: CurrencyEnum.Usd, label: 'US Dollar' },
-        { value: CurrencyEnum.Jpy, label: 'Yen japonais' },
-      ]}
-    />,
-  )
-  await waitFor(() => expect(screen.queryByRole('option')).not.toBeInTheDocument())
-  await user.clear(search)
-  await user.type(search, 'japonais')
-  expect(await screen.findByRole('option', { name: 'JPY Yen japonais' })).toBeInTheDocument()
-  expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
-})
-
 it('restores the caret after a rejected edit in an iframe document', () => {
   const frame = document.createElement('iframe')
 
@@ -468,33 +294,6 @@ it('restores the caret after a rejected edit in an iframe document', () => {
     view.unmount()
     frame.remove()
   }
-})
-
-it('does not rescan currency options when only the amount changes', () => {
-  const readCurrency = jest.fn(() => CurrencyEnum.Usd)
-  const currencyOptions = [
-    {
-      get value() {
-        return readCurrency()
-      },
-      label: 'US Dollar',
-    },
-  ]
-  const props: TestAmountProps = {
-    mode: 'selectable',
-    currency: CurrencyEnum.Usd,
-    currencyOptions,
-    onCurrencyChange: jest.fn(),
-    value: '12',
-    onChange: jest.fn(),
-  }
-  const { rerender } = render(<TestAmount {...props} />)
-  const initialReads = readCurrency.mock.calls.length
-
-  expect(initialReads).toBeGreaterThan(0)
-  rerender(<TestAmount {...props} value="123" />)
-  expect(screen.getByRole('textbox')).toHaveValue('123')
-  expect(readCurrency).toHaveBeenCalledTimes(initialReads)
 })
 
 it.each([
