@@ -63,11 +63,11 @@ export function ComboboxFreeText<Value>({
         isItemPress: true,
         isCanceled: false,
         isPropagationAllowed: false,
-        cancel() {
-          this.isCanceled = true
+        cancel(): void {
+          details.isCanceled = true
         },
-        allowPropagation() {
-          this.isPropagationAllowed = true
+        allowPropagation(): void {
+          details.isPropagationAllowed = true
         },
       }
 

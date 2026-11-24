@@ -158,3 +158,33 @@ it.each([false, true])(
     expect(screen.getByRole('option', { name: 'Owner 8' })).toBe(retained)
   },
 )
+
+it('preserves cancellable commit details when handlers are called independently', async () => {
+  const user = userEvent.setup()
+  const changed = jest.fn()
+  const canceled = jest.fn()
+
+  render(
+    <ComboboxFreeText
+      value={[]}
+      onValueChange={changed}
+      createItem={(text) => text}
+      getItemKey={(text) => text}
+      addLabel={(text) => text}
+      onInputValueChange={(_query, details) => {
+        if (details.reason !== 'input-clear') return
+        const { cancel, allowPropagation } = details
+
+        cancel()
+        allowPropagation()
+        canceled(details.isCanceled, details.isPropagationAllowed, details.event.type)
+      }}
+    >
+      <ComboboxInput aria-label="Tags" />
+    </ComboboxFreeText>,
+  )
+  await user.type(screen.getByRole('combobox'), 'hello{Enter}')
+  expect(changed).toHaveBeenCalledWith(['hello'])
+  expect(canceled).toHaveBeenCalledWith(true, true, 'keydown')
+  expect(screen.getByRole('combobox')).toHaveValue('hello')
+})
