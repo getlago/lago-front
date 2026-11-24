@@ -201,7 +201,7 @@ export const useAddQuickbooksDialog = () => {
     const quickbooksProvider = data?.provider
     const isEdition = !!quickbooksProvider
 
-    form.reset(getQuickbooksFormValues(quickbooksProvider))
+    form.reset(getQuickbooksFormValues(quickbooksProvider), { keepDefaultValues: true })
 
     void formDialogOpeningDialog
       .open({
