@@ -16,7 +16,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { currencyOptions as options } from './currencies.story-data'
 
 export default {
-  title: 'Components/AmountInput',
+  title: 'Components/AmountInput/App integration',
   loaders: [
     async (): Promise<object> => {
       await initializeTranslations()

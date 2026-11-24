@@ -22,4 +22,4 @@ Import `defineNewBeforeChangeFormatter` and `definedDefaultPlaceholder` from `~/
 
 Selectable mode additionally receives `currencyOptions`, `onCurrencyChange` and translated `currencyLabels`. Keep amount and currency as separate values; changing currency does not convert or reformat the existing amount. See `amount-input-integration.stories.tsx` for the complete example and all supported currencies.
 
-Package stories demonstrate standalone control and Field states with explicit demonstration callbacks. These app stories retain real precision, unit and reset behavior. No production form adapter or wrapper is introduced.
+Package stories demonstrate standalone control and Field states with explicit demonstration callbacks. The `Components / AmountInput / App integration` stories retain real precision, unit and reset behavior, separate from the component documentation. No production form adapter or wrapper is introduced.
