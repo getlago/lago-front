@@ -357,6 +357,7 @@ describe('useEditFeeBillingPeriodDialog', () => {
         })
 
         expect(callback).not.toHaveBeenCalled()
+        expect(screen.queryByText('text_175459724137023yixxoovqg')).not.toBeInTheDocument()
       })
     })
   })

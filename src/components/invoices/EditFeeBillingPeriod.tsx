@@ -46,6 +46,10 @@ const editFeeBillingPeriodValidationSchema = z
         return true
       }
 
+      if (!DateTime.fromISO(data.fromDatetime).isValid) {
+        return true
+      }
+
       return DateTime.fromISO(data.toDatetime) > DateTime.fromISO(data.fromDatetime)
     },
     {

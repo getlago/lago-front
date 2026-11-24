@@ -36,9 +36,10 @@ const makeSubscriptionSettingsSchema = (isAmendment: boolean) =>
       endDate: z.string(),
     })
     .superRefine((data, ctx) => {
-      addUnsupportedDateIssue(ctx, data.startDate, ['startDate'])
+      const invalidStartDate = addUnsupportedDateIssue(ctx, data.startDate, ['startDate'])
 
       if (addUnsupportedDateIssue(ctx, data.endDate, ['endDate'])) return
+      if (invalidStartDate) return
 
       if (data.endDate && data.startDate && data.endDate < data.startDate) {
         ctx.addIssue({
