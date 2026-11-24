@@ -8,7 +8,7 @@ import {
   ComboboxSeparator,
   ComboboxTrigger,
 } from 'lago-ui/combobox'
-import { RefObject, useState } from 'react'
+import { RefObject, useMemo, useState } from 'react'
 
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -37,6 +37,10 @@ export const CurrencyPicker = ({
 }: CurrencyPickerProps): JSX.Element => {
   const { translate } = useInternationalization()
   const [query, setQuery] = useState('')
+  const labels = useMemo(
+    () => new Map(options.map(({ value, label }) => [value, label])),
+    [options],
+  )
 
   return (
     <Combobox<CurrencyEnum>
@@ -53,7 +57,7 @@ export const CurrencyPicker = ({
         if (!open) setQuery('')
       }}
       filter={(value, search) =>
-        `${value} ${options.find((option) => option.value === value)?.label || ''}`
+        `${value} ${labels.get(value) || ''}`
           .toLocaleLowerCase()
           .includes(search.toLocaleLowerCase())
       }
@@ -79,9 +83,7 @@ export const CurrencyPicker = ({
           {(value) => (
             <ComboboxItem value={value}>
               <div>{value}</div>
-              <div className="v2-text-caption text-text-muted">
-                {options.find((option) => option.value === value)?.label}
-              </div>
+              <div className="v2-text-caption text-text-muted">{labels.get(value)}</div>
             </ComboboxItem>
           )}
         </ComboboxList>

@@ -345,3 +345,37 @@ it('external reset cancels a pending composition draft', () => {
   fireEvent.compositionEnd(input)
   expect(change).not.toHaveBeenCalled()
 })
+
+it('updates currency labels and search when the caller replaces options', async () => {
+  const user = userEvent.setup()
+  const props: AmountInputV2Props = {
+    mode: 'selectable',
+    currency: CurrencyEnum.Usd,
+    currencyOptions: options,
+    onCurrencyChange: jest.fn(),
+    value: '123.45',
+    onChange: jest.fn(),
+    'aria-label': 'Amount',
+  }
+  const { rerender } = render(<AmountInputV2 {...props} />)
+
+  await user.click(screen.getByRole('combobox', { name: 'Currency, USD' }))
+  const search = await screen.findByRole('combobox', { name: 'Search currencies…' })
+
+  await user.type(search, 'Japanese')
+  expect(await screen.findByRole('option', { name: 'JPY Japanese Yen' })).toBeInTheDocument()
+  rerender(
+    <AmountInputV2
+      {...props}
+      currencyOptions={[
+        { value: CurrencyEnum.Usd, label: 'US Dollar' },
+        { value: CurrencyEnum.Jpy, label: 'Yen japonais' },
+      ]}
+    />,
+  )
+  await waitFor(() => expect(screen.queryByRole('option')).not.toBeInTheDocument())
+  await user.clear(search)
+  await user.type(search, 'japonais')
+  expect(await screen.findByRole('option', { name: 'JPY Yen japonais' })).toBeInTheDocument()
+  expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
+})
