@@ -35,6 +35,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   invites: createSinglePageFieldPolicy(),
   invoiceCreditNotes: createSinglePageFieldPolicy(),
   invoiceCustomSections: createSinglePageFieldPolicy(),
+  invoiceProductFees: createSinglePageFieldPolicy(),
   invoices: createSinglePageFieldPolicy(),
   memberships: createSinglePageFieldPolicy(),
   orderForms: createSinglePageFieldPolicy(),

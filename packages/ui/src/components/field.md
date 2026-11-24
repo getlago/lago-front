@@ -26,6 +26,8 @@ Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel 
 
 ## Examples
 
+Combobox uses the same structure: place its root around Field so the label, description, control and error remain siblings. Set the input id, `aria-describedby` and `aria-invalid`; the Field spacing remains 8px/4px. Multiple and free-text chips may sit inside the control or in a row 8px above it. See [Combobox](./combobox.md) for these compositions.
+
 ```tsx
 <Field>
   <FieldContent>
@@ -60,3 +62,5 @@ Storybook includes With Input, With Input Group and With Textarea galleries. Eac
 - [Tooltip](./tooltip.md)
 - Storybook: Components / Field
 - Tests: `__tests__/field.test.tsx`
+
+Combobox combinations live in Field Storybook: single, chips inside, chips above, free-text inside, free-text above and popup. Each shows empty, filled, disabled, read-only and invalid states. Free-text defaults to arbitrary values and an Add action without fetching suggestions.

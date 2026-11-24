@@ -1,0 +1,95 @@
+.v2-combobox-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  min-width: min(240px, 100%);
+  width: 100%;
+  border: 1px solid var(--color-border-control);
+  border-radius: 8px;
+  padding: 0 8px 0 12px;
+  background: var(--color-surface);
+}
+.v2-combobox-control:hover {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox-control:has(input:focus) {
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+  background: var(--color-surface);
+}
+.v2-combobox-control:has([aria-invalid='true']) {
+  border-color: var(--color-danger-border);
+}
+.v2-combobox-control:has(input:disabled) {
+  background: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-foreground);
+  cursor: not-allowed;
+}
+.v2-combobox-control:has(input:read-only) {
+  background: var(--color-surface-subtle);
+}
+.v2-combobox-control .v2-combobox-input {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  height: 34px;
+  min-width: 48px;
+  width: 0;
+  flex: 1;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+}
+.v2-combobox-list {
+  max-height: min(320px, var(--available-height));
+  overflow: auto;
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+.v2-combobox-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  min-width: 0;
+}
+.v2-combobox-control:has(.v2-combobox-chips) {
+  padding: 4px 12px;
+}
+.v2-combobox-control:has(.v2-combobox-chip) {
+  padding: 4px;
+}
+.v2-combobox-control > .v2-combobox-chips {
+  flex: 1;
+}
+.v2-combobox-chips .v2-combobox-input {
+  height: 24px;
+  flex-basis: 80px;
+}
+.v2-combobox-chip {
+  max-width: 100%;
+  flex-shrink: 1;
+  gap: 4px;
+}
+.v2-combobox-chip[data-highlighted] {
+  outline: 1px solid var(--color-focus-border);
+}
+.v2-combobox-control .v2-combobox-input.v2-input {
+  --v2-input-focus-shadow: 0 0 0 0 transparent;
+  box-shadow: none;
+  border-color: transparent;
+}
+.v2-field:has([data-slot='field-label']:hover)
+  .v2-combobox-control:not(:has(input:focus)):not(:has(input:disabled)):not(:has(input:read-only)) {
+  background: var(--color-surface);
+}
+
+.v2-combobox-item[data-disabled] * {
+  color: inherit;
+}
+
+.v2-combobox-trigger[aria-invalid='true']:not(:disabled) {
+  border-color: var(--color-danger-border);
+}
