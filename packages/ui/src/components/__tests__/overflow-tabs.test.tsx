@@ -50,11 +50,11 @@ describe('OverflowTabs', () => {
     )
     expect(screen.getByRole('tab', { name: 'Invoices 12' })).toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
-    expect(await screen.findByRole('menuitem', { name: 'Payments 5' })).toBeInTheDocument()
+    expect(screen.getByRole('menuitem', { name: 'Payments 5' })).toBeInTheDocument()
     await user.click(screen.getByRole('menuitem', { name: 'Account settings' }))
     expect(screen.getByRole('tab', { name: 'Account settings' })).toHaveFocus()
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
-    await user.click(await screen.findByRole('menuitem', { name: 'Payments 5' }))
+    await user.click(screen.getByRole('menuitem', { name: 'Payments 5' }))
     expect(screen.getByRole('tab', { name: 'Payments 5' })).toHaveFocus()
   })
 
@@ -88,7 +88,7 @@ describe('OverflowTabs', () => {
       </OverflowTabs>,
     )
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
-    expect(await screen.findByRole('menu')).toBeInTheDocument()
+    expect(screen.getByRole('menu')).toBeInTheDocument()
 
     width.mockReturnValue(1024)
     act(resize)
@@ -105,7 +105,7 @@ describe('OverflowTabs', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'a' })).toHaveFocus()
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
-    expect(await screen.findByRole('menu')).toBeInTheDocument()
+    expect(screen.getByRole('menu')).toBeInTheDocument()
   })
 
   it('includes caller sizing classes when deciding which tabs fit', () => {
@@ -167,13 +167,13 @@ describe('OverflowTabs', () => {
       </OverflowTabs>,
     )
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
-    await user.click(await screen.findByRole('menuitem', { name: 'c' }))
+    await user.click(screen.getByRole('menuitem', { name: 'c' }))
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(screen.getByRole('tab', { name: 'c' })).toHaveFocus()
     expect(screen.getByRole('tabpanel')).toHaveTextContent('c panel')
     await user.click(screen.getByRole('button', { name: 'More tabs' }))
     expect(
-      within(await screen.findByRole('menu')).getByRole('menuitem', { name: 'a' }),
+      within(screen.getByRole('menu')).getByRole('menuitem', { name: 'a' }),
     ).toBeInTheDocument()
     await user.keyboard('{Escape}')
     expect(screen.getByRole('button', { name: 'More tabs' })).toHaveFocus()

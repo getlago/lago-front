@@ -1,3 +1,4 @@
+import { Slot } from '@radix-ui/react-slot'
 import { type VariantProps } from 'class-variance-authority'
 import { LoaderCircle } from 'lucide-react'
 import * as React from 'react'
@@ -5,7 +6,6 @@ import * as React from 'react'
 import { buttonVariants } from './button-variants'
 import './button.css'
 
-import { RenderChild } from '../lib/render-child'
 import { cn } from '../lib/utils'
 
 export interface ButtonProps
@@ -37,7 +37,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref,
   ) => {
     const blocked = disabled || loading
-    const Comp = asChild ? RenderChild : 'button'
+    const Comp = asChild ? Slot : 'button'
     const content = (value: React.ReactNode) => (
       <>
         {/* Opacity preserves both geometry and the accessible name during loading. */}
@@ -64,7 +64,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       event.preventDefault()
       event.stopPropagation()
     }
-    // Guard child capture handlers before composition can invoke them on blocked links.
+    // Slot merges child handlers first. Guard the child capture handlers too, so a
+    // disabled/loading anchor cannot run its own handlers before ours.
     const slotted = asChild
       ? (React.Children.only(children) as React.ReactElement<SlottedProps>)
       : null

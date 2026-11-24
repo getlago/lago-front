@@ -66,7 +66,7 @@ For app navigation, compose `BreadcrumbLink asChild` with the app's slug-aware r
 - Supply a localized `aria-label` for the navigation landmark; distinguish multiple trails on a page.
 - The trail is an ordered list. The current page is non-interactive text with `aria-current="page"`.
 - Separators and the ellipsis glyph are decorative and hidden from assistive technology. Give the overflow trigger an accessible name.
-- Links retain native keyboard behavior and visible focus. Overflow uses shared Base UI keyboard navigation, Escape and focus restoration.
+- Links retain native keyboard behavior and visible focus. Overflow uses shared Radix keyboard navigation, Escape and focus restoration.
 - Keep full labels in the DOM when truncating.
 - The approved current-page `text-subtle` color remains below AA normal-text contrast in light mode; it is not a disabled-control exemption.
 

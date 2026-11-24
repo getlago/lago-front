@@ -1,6 +1,6 @@
 # Tabs
 
-Switches between panels of the same context, horizontally or vertically, built on Base UI Tabs.
+Switches between panels of the same context, horizontally or vertically, built on Radix Tabs.
 
 ## When to use
 
@@ -53,7 +53,7 @@ Vertical: pass `orientation="vertical"`, put the layout on `Tabs` (`className="f
 ## Accessibility
 
 - Give `TabsList` an `aria-label`.
-- Base UI handles roles, arrow keys and focus. Selection is manual: focus alone never switches the panel.
+- Radix handles roles, arrow keys and focus. Selection is manual: focus alone never switches the panel.
 - A counter is part of the trigger's accessible name; set `aria-label` on the trigger to override it.
 - Leading icons are decorative: `aria-hidden="true"`.
 

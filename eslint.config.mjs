@@ -54,8 +54,8 @@ export default defineConfig([
           ],
           patterns: [
             {
-              group: ['@radix-ui/*', '@base-ui/react', '@base-ui/react/*'],
-              message: 'Use lago-ui components (lago-ui/*), not Base UI or Radix primitives directly.',
+              group: ['@radix-ui/*'],
+              message: 'Use lago-ui components (lago-ui/*), not Radix primitives directly.',
             },
           ],
         },

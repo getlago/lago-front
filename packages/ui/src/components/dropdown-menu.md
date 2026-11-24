@@ -1,6 +1,6 @@
 # Dropdown menu
 
-Menu of actions, toggles or choices opened from a trigger, built on Base UI Menu.
+Menu of actions, toggles or choices opened from a trigger, built on Radix Dropdown Menu.
 
 ## When to use
 
@@ -59,7 +59,7 @@ import { Pencil } from 'lucide-react'
 
 ## Accessibility
 
-- Base UI handles focus, typeahead, arrow keys, collision and Escape.
+- Radix handles focus, typeahead, arrow keys, collision and Escape.
 - Leading icons are decorative: `aria-hidden="true"`.
 - An item with a description: set `textValue` and `aria-label` to the action label, and link the description with a unique `aria-describedby` id.
 - Shortcut text is decorative: register keyboard shortcuts separately in the application.
@@ -75,7 +75,6 @@ import { Pencil } from 'lucide-react'
 - Rows: minimum 36px high, 8px padding, gap and radius. Hover uses `interactive-hover`, press uses `interactive-pressed`.
 - Checkbox and radio indicators sit on the right. Leading Lucide icons use `icon-muted`, 14px, stroke 2.
 - `DropdownMenuSeparator` spans the inner menu width; do not put the standalone `Separator` inside a menu.
-- Use flex/grid `gap` for trigger layouts; Base UI inserts invisible focus guards while open, which participate in sibling-based `space-*` selectors.
 - Layer 2100: above dialogs (2000), below toasts (2200) and tooltips (2400).
 - Wrap the region in [`ColorTheme`](./color-theme.md); the menu and submenu portals inherit it through `ColorThemePortal`.
 

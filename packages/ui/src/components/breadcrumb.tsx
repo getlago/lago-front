@@ -1,9 +1,9 @@
+import { Slot } from '@radix-ui/react-slot'
 import { ChevronRight } from 'lucide-react'
 import * as React from 'react'
 
 import './breadcrumb.css'
 
-import { RenderChild } from '../lib/render-child'
 import { cn } from '../lib/utils'
 
 export const Breadcrumb = React.forwardRef<
@@ -35,7 +35,7 @@ export const BreadcrumbLink = React.forwardRef<
   HTMLAnchorElement,
   React.ComponentPropsWithoutRef<'a'> & { asChild?: boolean }
 >(({ asChild = false, className, ...props }, ref) => {
-  const Comp = asChild ? RenderChild : 'a'
+  const Comp = asChild ? Slot : 'a'
 
   return (
     <Comp

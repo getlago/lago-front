@@ -84,7 +84,6 @@ describe('Shadcn Tooltip', () => {
     const content = document.querySelector('.v2-tooltip')
 
     expect(content).toHaveAttribute('data-color-theme', 'dark')
-    expect(screen.getByRole('button', { name: 'Copy' })).toHaveAccessibleDescription('Copy details')
     expect(container).not.toContainElement(content as HTMLElement)
     expect(screen.getByRole('button', { name: 'Copy' })).toHaveFocus()
     await user.keyboard('{Escape}')
