@@ -145,7 +145,8 @@ export const ComboboxTrigger = React.forwardRef<HTMLButtonElement, ComboboxTrigg
       data-variant={variant}
       className={cn(
         'v2-combobox-trigger flex shrink-0 items-center justify-center text-icon-default disabled:text-disabled-foreground',
-        variant === 'input' && 'v2-text-body',
+        variant === 'input' &&
+          'v2-text-body h-9 justify-between gap-2 rounded-lg border border-border-control bg-surface px-3 text-text-default focus-visible:border-focus-border focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus-ring hover:enabled:bg-surface-subtle disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled disabled:text-disabled-foreground',
         className,
       )}
     >

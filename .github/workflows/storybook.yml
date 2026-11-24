@@ -7,6 +7,9 @@ on:
     paths:
       - "packages/ui/**"
       - "patches/**"
+      - "src/components/form/AmountInputV2/**"
+      - "src/components/form/AmountInput/formatting.ts"
+      - "src/components/form/TextInput/formatValue.ts"
       - "packages/configs/**"
       - "package.json"
       - "pnpm-lock.yaml"

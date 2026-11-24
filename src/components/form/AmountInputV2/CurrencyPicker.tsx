@@ -37,6 +37,7 @@ export const CurrencyPicker = ({
 }: CurrencyPickerProps): JSX.Element => {
   const { translate } = useInternationalization()
   const [query, setQuery] = useState('')
+  const items = useMemo(() => options.map((option) => option.value), [options])
   const labels = useMemo(
     () => new Map(options.map(({ value, label }) => [value, label])),
     [options],
@@ -45,7 +46,7 @@ export const CurrencyPicker = ({
   return (
     <Combobox<CurrencyEnum>
       virtualized
-      items={options.map((option) => option.value)}
+      items={items}
       value={currency}
       onValueChange={(value) => {
         if (value !== null) onChange(value)

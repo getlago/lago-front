@@ -379,3 +379,60 @@ it('updates currency labels and search when the caller replaces options', async 
   expect(await screen.findByRole('option', { name: 'JPY Yen japonais' })).toBeInTheDocument()
   expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
 })
+
+it('restores the caret after a rejected edit in an iframe document', () => {
+  const frame = document.createElement('iframe')
+
+  document.body.append(frame)
+  const body = frame.contentDocument?.body
+
+  if (!body) throw new Error('Missing iframe document')
+  const container = body.ownerDocument.createElement('div')
+
+  body.append(container)
+  const ref = createRef<HTMLInputElement>()
+  const view = render(
+    <AmountInputV2 ref={ref} currency={CurrencyEnum.Usd} value="12.30" onChange={jest.fn()} />,
+    { container },
+  )
+  const input = ref.current
+
+  if (!input) throw new Error('Missing amount input')
+  try {
+    input.focus()
+    fireEvent.change(input, { target: { value: '1x2.30', selectionStart: 2, selectionEnd: 2 } })
+    expect(input).toHaveValue('12.30')
+    expect(input.selectionStart).toBe(1)
+    expect(input.selectionEnd).toBe(1)
+  } finally {
+    view.unmount()
+    frame.remove()
+  }
+})
+
+it('does not rescan currency options when only the amount changes', () => {
+  const readCurrency = jest.fn(() => CurrencyEnum.Usd)
+  const currencyOptions = [
+    {
+      get value() {
+        return readCurrency()
+      },
+      label: 'US Dollar',
+    },
+  ]
+  const props: AmountInputV2Props = {
+    mode: 'selectable',
+    currency: CurrencyEnum.Usd,
+    currencyOptions,
+    onCurrencyChange: jest.fn(),
+    value: '12',
+    onChange: jest.fn(),
+  }
+  const { rerender } = render(<AmountInputV2 {...props} />)
+  const initialReads = readCurrency.mock.calls.length
+
+  expect(initialReads).toBeGreaterThan(0)
+  rerender(<AmountInputV2 {...props} value="123" />)
+  expect(screen.getByRole('textbox')).toHaveValue('123')
+  expect(readCurrency).toHaveBeenCalledTimes(initialReads)
+})

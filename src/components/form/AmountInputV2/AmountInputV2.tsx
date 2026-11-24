@@ -110,7 +110,7 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
       setDraft(null)
     }, [value])
     useLayoutEffect(() => {
-      if (selection && document.activeElement === inputRef.current) {
+      if (selection && inputRef.current?.ownerDocument.activeElement === inputRef.current) {
         inputRef.current?.setSelectionRange(selection.start, selection.end)
       }
     }, [selection])
@@ -194,7 +194,7 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
       if (readOnly)
         return (
           <span
-            className="v2-amount-currency v2-amount-currency-readonly"
+            className="v2-amount-currency v2-amount-currency-readonly flex h-9 items-center rounded-l-lg border border-border-control bg-surface-subtle px-3"
             data-disabled={disabled || undefined}
           >
             {currency}
@@ -212,7 +212,10 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
     }
 
     return (
-      <div ref={anchor} className={cn('v2-amount-input v2-text-body', className)}>
+      <div
+        ref={anchor}
+        className={cn('v2-amount-input v2-text-body flex w-full min-w-0', className)}
+      >
         {renderCurrency()}
         {control}
       </div>

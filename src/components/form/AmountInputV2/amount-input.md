@@ -1,5 +1,7 @@
 # AmountInput
 
+Controlled amount entry with fixed or selectable currency, preserving Lago formatting and precision.
+
 ## When to use
 
 Opt-in v2 amount entry for currency amounts, charge prices, credits, percentages and custom units. Existing forms retain the legacy AmountInput. No Formik or TanStack adapter is included.
@@ -38,3 +40,6 @@ The selector is left of the amount and precedes it in keyboard order. Its popup 
 
 - [Figma AmountInput](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=360-892)
 - [Existing amount behavior](../AmountInput/AmountInput.tsx)
+
+- Storybook: `Components/AmountInput` and `Components/Field` AmountInput examples.
+- Tests: [AmountInputV2.test.tsx](__tests__/AmountInputV2.test.tsx), [formatting.test.ts](../AmountInput/__tests__/formatting.test.ts).
