@@ -645,6 +645,15 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
               shortName: 'USDC',
               preciseUnitAmount: 100,
             },
+            preciseAmountCents: 1000,
+            subTotalExcludingTaxesAmountCents: 1000,
+            subTotalExcludingTaxesPreciseAmountCents: 1000,
+            taxesRate: 10,
+            taxesAmountCents: 100,
+            taxesPreciseAmountCents: 100,
+            totalAmountCents: 1100,
+            preciseTotalAmountCents: 1100,
+            presentationBreakdowns: [{ presentationBy: 'root', units: '10' }],
           },
         },
       })
@@ -664,6 +673,15 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
           shortName: 'USDC',
           preciseUnitAmount: 200,
         },
+        preciseAmountCents: 4000,
+        subTotalExcludingTaxesAmountCents: 4000,
+        subTotalExcludingTaxesPreciseAmountCents: 4000,
+        taxesRate: 10,
+        taxesAmountCents: 400,
+        taxesPreciseAmountCents: 400,
+        totalAmountCents: 4400,
+        preciseTotalAmountCents: 4400,
+        presentationBreakdowns: [{ presentationBy: 'adjusted', units: '20' }],
         adjustedFee: true,
         adjustedFeeType: 'adjusted_amount',
         subscription: { id: 'subscription-123' },
@@ -695,6 +713,19 @@ describe('CustomerInvoiceRegenerate - hook integration', () => {
         conversionRate: 1,
         shortName: 'USDC',
         preciseUnitAmount: 100,
+      })
+      // The "View fee details" drawer reads these directly off the fee; a partial
+      // reset left them at the adjusted fee's stale totals.
+      expect(resetFee).toMatchObject({
+        preciseAmountCents: 1000,
+        subTotalExcludingTaxesAmountCents: 1000,
+        subTotalExcludingTaxesPreciseAmountCents: 1000,
+        taxesRate: 10,
+        taxesAmountCents: 100,
+        taxesPreciseAmountCents: 100,
+        totalAmountCents: 1100,
+        preciseTotalAmountCents: 1100,
+        presentationBreakdowns: [{ presentationBy: 'root', units: '10' }],
       })
 
       fireEvent.click(screen.getByTestId(REGENERATE_INVOICE_SUBMIT_TEST_ID))

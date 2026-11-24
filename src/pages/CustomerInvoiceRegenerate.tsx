@@ -36,6 +36,7 @@ import {
   FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc,
   FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc,
   FeeForInvoiceDetailsTableFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   InvoiceStatusTypeEnum,
   LagoApiError,
@@ -94,6 +95,7 @@ gql`
     ...FeeForInvoiceDetailsTableBodyLineVolume
     ...FeeForInvoiceDetailsTableBodyLinePackage
     ...FeeForInvoiceDetailsTableBodyLinePercentage
+    ...FeeForViewFeeDetailsDrawer
   }
 
   query getOriginalFee($id: ID!) {
@@ -108,6 +110,7 @@ gql`
   ${FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc}
   ${FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 export type OnRegeneratedFeeAdd = (input: {
@@ -334,6 +337,19 @@ const CustomerInvoiceRegenerate = () => {
         preciseUnitAmount: originalFee.preciseUnitAmount,
         pricingUnitUsage: originalFee.pricingUnitUsage,
         units: originalFee.units,
+        // Not selected/overwritten elsewhere above: the "View fee details" drawer reads
+        // these directly off the fee, so a reset must restore them too or it shows the
+        // adjusted fee's totals next to the restored amount.
+        preciseAmountCents: originalFee.preciseAmountCents,
+        subTotalExcludingTaxesAmountCents: originalFee.subTotalExcludingTaxesAmountCents,
+        subTotalExcludingTaxesPreciseAmountCents:
+          originalFee.subTotalExcludingTaxesPreciseAmountCents,
+        taxesRate: originalFee.taxesRate,
+        taxesAmountCents: originalFee.taxesAmountCents,
+        taxesPreciseAmountCents: originalFee.taxesPreciseAmountCents,
+        totalAmountCents: originalFee.totalAmountCents,
+        preciseTotalAmountCents: originalFee.preciseTotalAmountCents,
+        presentationBreakdowns: originalFee.presentationBreakdowns,
         adjustedFee: false,
         adjustedFeeType: null,
       }
