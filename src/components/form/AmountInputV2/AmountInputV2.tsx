@@ -59,6 +59,8 @@ const mapCaret = (raw: string, formatted: string, position: number): number => {
     if (raw[source] === formatted[target]) {
       source++
       target++
+    } else if (raw[source] === '.' && formatted.startsWith('0.', target)) {
+      target++
     } else if (raw.includes(formatted[target], source)) {
       source++
     } else {

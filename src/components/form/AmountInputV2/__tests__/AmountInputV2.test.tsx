@@ -577,3 +577,69 @@ it('deduplicates final composition input with an inline formatter array', () => 
   fireEvent.change(input, { target: { value: '1.239' } })
   expect(changed).toHaveBeenCalledTimes(1)
 })
+
+it.each([
+  [CurrencyEnum.Usd, '50', 0, '0.50', '0.15'],
+  [CurrencyEnum.Usd, '100', 0, '0.10', '0.11'],
+  [CurrencyEnum.Usd, '-50', 1, '-0.50', '-0.15'],
+  [CurrencyEnum.Bhd, '50', 0, '0.50', '0.150'],
+])(
+  'keeps the caret after a normalized decimal in %s %s',
+  async (currency, value, position, normalized, next) => {
+    const user = userEvent.setup()
+
+    render(<Controlled currency={currency} value={value} />)
+    const input = screen.getByRole('textbox') as HTMLInputElement
+
+    await user.click(input)
+    input.setSelectionRange(position, position)
+    await user.keyboard('.')
+    expect(input).toHaveValue(normalized)
+    expect(input.selectionStart).toBe(position + 2)
+    expect(input.selectionEnd).toBe(position + 2)
+    await user.keyboard('1')
+    expect(input).toHaveValue(next)
+    expect(input.selectionStart).toBe(position + 3)
+  },
+)
+
+it('maps a pasted leading decimal after removing repeated minus signs', async () => {
+  const user = userEvent.setup()
+
+  render(<Controlled value="50" beforeChangeFormatter="positiveNumber" />)
+  const input = screen.getByRole('textbox') as HTMLInputElement
+
+  await user.click(input)
+  input.setSelectionRange(0, 0)
+  await user.paste('--.')
+  expect(input).toHaveValue('0.50')
+  expect(input.selectionStart).toBe(2)
+  await user.keyboard('1')
+  expect(input).toHaveValue('0.15')
+})
+
+it('maps both selection endpoints across an inserted decimal zero', () => {
+  render(<Controlled value="50" />)
+  const input = screen.getByRole('textbox') as HTMLInputElement
+
+  input.focus()
+  fireEvent.change(input, { target: { value: '.50', selectionStart: 1, selectionEnd: 2 } })
+  expect(input).toHaveValue('0.50')
+  expect(input.selectionStart).toBe(2)
+  expect(input.selectionEnd).toBe(3)
+})
+
+it('keeps the caret before repeated integer zeros removed by formatting', async () => {
+  const user = userEvent.setup()
+
+  render(<Controlled currency={CurrencyEnum.Jpy} value="10" />)
+  const input = screen.getByRole('textbox') as HTMLInputElement
+
+  await user.click(input)
+  input.setSelectionRange(0, 0)
+  await user.keyboard('0')
+  expect(input).toHaveValue('10')
+  expect(input.selectionStart).toBe(0)
+  await user.keyboard('2')
+  expect(input).toHaveValue('210')
+})
