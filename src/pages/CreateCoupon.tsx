@@ -103,7 +103,6 @@ const CreateCoupon = () => {
   const expiration = useStore(form.store, (state) => state.values.expiration)
   const reusable = useStore(form.store, (state) => state.values.reusable)
   const amountCurrency = useStore(form.store, (state) => state.values.amountCurrency)
-  const expirationAt = useStore(form.store, (state) => state.values.expirationAt)
   const formHasPlanLimit = useStore(form.store, (state) => state.values.hasPlanLimit)
   const formHasBillableMetricLimit = useStore(
     form.store,
