@@ -13,9 +13,44 @@ import {
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
+  ComboboxSearch,
   ComboboxTrigger,
 } from '../combobox'
+import { SearchInput } from '../input'
+import { InputGroup, InputGroupInput } from '../input-group'
 import { TooltipProvider } from '../tooltip'
+
+it('uses SearchInput in a popup while retaining filtering, selection and focus restoration', async () => {
+  const user = userEvent.setup()
+  const changed = jest.fn()
+  const inputRef = React.createRef<HTMLInputElement>()
+
+  render(
+    <Combobox items={['USD', 'EUR']} onValueChange={changed}>
+      <ComboboxTrigger aria-label="Choose currency">Choose currency</ComboboxTrigger>
+      <ComboboxContent>
+        <ComboboxInput ref={inputRef} render={<SearchInput />} aria-label="Search currencies" />
+        <ComboboxList getItemKey={(value: string) => value}>
+          {(value) => <ComboboxItem value={value}>{value}</ComboboxItem>}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>,
+  )
+
+  const trigger = screen.getByRole('combobox', { name: 'Choose currency' })
+
+  await user.click(trigger)
+  const search = await screen.findByRole('combobox', { name: 'Search currencies' })
+
+  expect(search).toHaveAttribute('type', 'search')
+  expect(search).toHaveAttribute('data-variant', 'search')
+  expect(inputRef.current).toBe(search)
+  await user.type(search, 'EUR')
+  expect(screen.queryByRole('option', { name: 'USD' })).not.toBeInTheDocument()
+  await user.keyboard('{ArrowDown}{Enter}')
+  expect(changed).toHaveBeenCalledWith('EUR', expect.anything())
+  await waitFor(() => expect(trigger).toHaveFocus())
+})
 
 function FreeText({ above = false }: { above?: boolean }): React.ReactElement {
   const [value, setValue] = React.useState(['alex@example.com'])
@@ -522,3 +557,60 @@ it.each([false, true])(
     expect(input).toHaveValue('Alex')
   },
 )
+
+it('keeps an attached popup trigger independent from numeric input focus', async () => {
+  const user = userEvent.setup()
+  const selected = jest.fn()
+
+  function Attached(): React.ReactElement {
+    const anchor = React.useRef<HTMLDivElement>(null)
+    const [query, setQuery] = React.useState('')
+
+    return (
+      <Combobox
+        items={['USD', 'EUR']}
+        onValueChange={selected}
+        inputValue={query}
+        onInputValueChange={setQuery}
+      >
+        <div ref={anchor}>
+          <ComboboxTrigger variant="input" aria-label="Currency">
+            USD
+          </ComboboxTrigger>
+          <InputGroup>
+            <InputGroupInput aria-label="Amount" defaultValue="123.4567" />
+          </InputGroup>
+        </div>
+        <ComboboxContent anchor={anchor}>
+          <ComboboxSearch
+            aria-label="Search currencies"
+            clearLabel="Clear search"
+            showClear={!!query}
+            onClear={() => setQuery('')}
+          />
+          <ComboboxList getItemKey={(value: string) => value}>
+            {(value) => <ComboboxItem value={value}>{value}</ComboboxItem>}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    )
+  }
+  render(
+    <TooltipProvider>
+      <Attached />
+    </TooltipProvider>,
+  )
+  const trigger = screen.getByRole('combobox', { name: 'Currency' })
+
+  await user.click(trigger)
+  const search = await screen.findByRole('combobox', { name: 'Search currencies' })
+
+  await user.type(search, 'EUR')
+  await user.click(screen.getByRole('button', { name: 'Clear search' }))
+  expect(search).toHaveValue('')
+  expect(search).toHaveFocus()
+  await user.click(screen.getByRole('option', { name: 'EUR' }))
+  expect(selected).toHaveBeenCalledWith('EUR', expect.anything())
+  expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.4567')
+  await waitFor(() => expect(trigger).toHaveFocus())
+})

@@ -93,3 +93,9 @@
 .v2-combobox-trigger[aria-invalid='true']:not(:disabled) {
   border-color: var(--color-danger-border);
 }
+
+@media (forced-colors: active) {
+  .v2-combobox-trigger[data-variant='input']:focus-visible {
+    outline: 2px solid Highlight;
+  }
+}
