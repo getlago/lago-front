@@ -10,9 +10,9 @@ import {
   TriggerXeroIntegrationAccountsRefetchDocument,
   TriggerXeroIntegrationItemsRefetchDocument,
 } from '~/generated/graphql'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
-import { stringifyOptionValue } from '../stringifyOptionValue'
 import { useXeroIntegrationItems, useXeroIntegrationItemSearch } from '../useXeroIntegrationItems'
 
 const INTEGRATION_ID = 'integration-123'

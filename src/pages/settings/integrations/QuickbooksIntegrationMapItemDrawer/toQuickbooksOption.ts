@@ -1,5 +1,5 @@
 import { BasicComboBoxData } from '~/components/form'
-import { stringifyOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/stringifyOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 
 type QuickbooksOptionSource = {
   externalId: string

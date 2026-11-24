@@ -1,5 +1,5 @@
-import { extractOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue'
-import { stringifyOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/stringifyOptionValue'
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 
 import { toQuickbooksOption } from '../toQuickbooksOption'
 

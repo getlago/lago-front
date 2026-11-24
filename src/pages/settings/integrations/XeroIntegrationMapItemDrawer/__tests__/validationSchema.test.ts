@@ -1,4 +1,5 @@
-import { stringifyOptionValue } from '../stringifyOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
+
 import { xeroMappingValidationSchema } from '../validationSchema'
 
 const COMPLETE_OPTION = stringifyOptionValue({

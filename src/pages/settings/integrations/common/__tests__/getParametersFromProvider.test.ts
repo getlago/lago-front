@@ -3,12 +3,12 @@ import { IntegrationTypeEnum } from '~/generated/graphql'
 import { getParametersFromProvider } from '../getParametersFromProvider'
 
 // Mock the extractOptionValue function
-jest.mock('~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue', () => ({
+jest.mock('~/pages/settings/integrations/common/extractOptionValue', () => ({
   extractOptionValue: jest.fn(),
 }))
 
 const mockExtractOptionValue = jest.requireMock(
-  '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue',
+  '~/pages/settings/integrations/common/extractOptionValue',
 ).extractOptionValue
 
 describe('getParametersFromProvider', () => {

@@ -1,7 +1,7 @@
 import { z } from 'zod'
 
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
 import { refineIntegrationMapItemEntries } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
-import { extractOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue'
 
 export const quickbooksMappingValidationSchema = z
   .record(

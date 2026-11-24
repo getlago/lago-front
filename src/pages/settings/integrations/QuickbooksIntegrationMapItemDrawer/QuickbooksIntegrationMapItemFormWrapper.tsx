@@ -6,11 +6,13 @@ import { BasicComboBoxData } from '~/components/form'
 import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
-import { extractOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue'
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
 
 import { toQuickbooksOption } from './toQuickbooksOption'
 import { useQuickbooksIntegrationItemSearch } from './useQuickbooksIntegrationItems'
 import { quickbooksMappingDefaultValues } from './validationSchema'
+
+export const QUICKBOOKS_MAPPING_RELOAD_BUTTON_TEST_ID = 'quickbooks-mapping-reload-button'
 
 type QuickbooksIntegrationMapItemFormWrapperProps = {
   billingEntityKey: string
@@ -95,7 +97,11 @@ export const QuickbooksIntegrationMapItemFormWrapper = withForm({
               <field.ComboBoxField
                 data={comboboxData}
                 loading={isBusy}
-                label={translate('text_17954348915427eym1cdesug')}
+                label={translate(
+                  formType === MappingTypeEnum.Account
+                    ? 'text_1795519180458zs30h9yzidm'
+                    : 'text_17954348915427eym1cdesug',
+                )}
                 placeholder={translate('text_6630e51df0a194013daea622')}
                 helperText={helperText}
                 searchQuery={search}
@@ -107,6 +113,7 @@ export const QuickbooksIntegrationMapItemFormWrapper = withForm({
         </div>
         <Button
           className="mt-8"
+          data-test={QUICKBOOKS_MAPPING_RELOAD_BUTTON_TEST_ID}
           icon="reload"
           variant="quaternary"
           disabled={isBusy}

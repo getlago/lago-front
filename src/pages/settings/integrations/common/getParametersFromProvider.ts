@@ -1,5 +1,5 @@
 import { IntegrationTypeEnum } from '~/generated/graphql'
-import { extractOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue'
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
 
 import {
   AvalaraAndAnrokParameters,

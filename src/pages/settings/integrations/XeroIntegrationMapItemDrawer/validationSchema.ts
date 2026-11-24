@@ -1,8 +1,7 @@
 import { z } from 'zod'
 
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
 import { refineIntegrationMapItemEntries } from '~/pages/settings/integrations/IntegrationMapItemDrawer/validationSchema'
-
-import { extractOptionValue } from './extractOptionValue'
 
 export const xeroMappingValidationSchema = z
   .record(

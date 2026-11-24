@@ -9,10 +9,16 @@ import { MappableTypeEnum, MappingTypeEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 
 import { QuickbooksIntegrationMapItemDrawerContent } from '../QuickbooksIntegrationMapItemDrawerContent'
+import { QUICKBOOKS_MAPPING_RELOAD_BUTTON_TEST_ID } from '../QuickbooksIntegrationMapItemFormWrapper'
 import { toQuickbooksOption } from '../toQuickbooksOption'
 import { quickbooksMappingDefaultValues } from '../validationSchema'
 
 const mockRenderedOptions = jest.fn()
+
+// Identity translate so the field label is asserted by its message key.
+jest.mock('~/hooks/core/useInternationalization', () => ({
+  useInternationalization: () => ({ translate: (key: string) => key }),
+}))
 
 // The real ComboBox virtualizes its options (0px in jsdom) and two open dropdowns probe flakily,
 // so the spy records the `data` each field is given instead.
@@ -44,6 +50,7 @@ const DEBOUNCE_MS = 700
 
 const ITEMS_QUERY = 'getQuickbooksIntegrationItems'
 const ITEMS_REFETCH_MUTATION = 'triggerQuickbooksIntegrationItemsRefetch'
+const QUICKBOOKS_ACCOUNT_LABEL_KEY = 'text_1795519180458zs30h9yzidm'
 const ACCOUNTS_REFETCH_MUTATION = 'triggerQuickbooksIntegrationAccountsRefetch'
 
 // QuickBooks items and accounts carry no account code.
@@ -205,7 +212,9 @@ const renderDrawer = ({
 }
 
 const reloadButton = (): HTMLElement => {
-  const button = document.querySelector('[data-test="reload/medium"]')?.closest('button')
+  const button = document.querySelector<HTMLElement>(
+    `[data-test="${QUICKBOOKS_MAPPING_RELOAD_BUTTON_TEST_ID}"]`,
+  )
 
   if (!button) throw new Error('No reload button')
 
@@ -236,6 +245,16 @@ describe('QuickbooksIntegrationMapItemDrawerContent', () => {
         expect(catalogQueries()).toEqual([
           [ITEMS_QUERY, { integrationId: INTEGRATION_ID, itemType: 'account', limit: 1000 }],
         ])
+      })
+    })
+
+    describe('WHEN it maps a payment account', () => {
+      it('THEN labels the field as a QuickBooks account', async () => {
+        renderDrawer({ formType: MappingTypeEnum.Account })
+
+        await settle()
+
+        expect(screen.getAllByText(QUICKBOOKS_ACCOUNT_LABEL_KEY).length).toBeGreaterThan(0)
       })
     })
 

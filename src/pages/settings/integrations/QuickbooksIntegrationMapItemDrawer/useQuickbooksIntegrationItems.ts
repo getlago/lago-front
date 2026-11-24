@@ -2,6 +2,7 @@ import { gql, LazyQueryExecFunction } from '@apollo/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
+import { addToast } from '~/core/apolloClient'
 import {
   GetQuickbooksIntegrationItemsQuery,
   GetQuickbooksIntegrationItemsQueryVariables,
@@ -138,9 +139,14 @@ export const useQuickbooksIntegrationItems = (
     const trigger =
       itemType === IntegrationItemTypeEnum.Account ? triggerAccountItemRefetch : triggerItemRefetch
 
-    void trigger().finally(() => {
-      isRefreshingRef.current = false
-    })
+    // The error link only toasts GraphQL errors: a network failure still rejects.
+    void trigger()
+      .catch(() => {
+        addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+      })
+      .finally(() => {
+        isRefreshingRef.current = false
+      })
   }, [itemType, triggerAccountItemRefetch, triggerItemRefetch])
 
   return {

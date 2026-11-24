@@ -12,8 +12,8 @@ import {
   DEFAULT_MAPPING_KEY,
   isItemMappingForKeyNotForCurrenciesMapping,
 } from '~/pages/settings/integrations/common'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 import { submitIntegrationMapItemMappings } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
-import { stringifyOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/stringifyOptionValue'
 
 import { QuickbooksIntegrationMapItemDrawerContent } from './QuickbooksIntegrationMapItemDrawerContent'
 import { QuickbooksIntegrationMapItemDrawerProps } from './types'

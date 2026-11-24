@@ -10,7 +10,7 @@ import {
   TriggerQuickbooksIntegrationAccountsRefetchDocument,
   TriggerQuickbooksIntegrationItemsRefetchDocument,
 } from '~/generated/graphql'
-import { stringifyOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/stringifyOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import {
@@ -19,6 +19,13 @@ import {
 } from '../useQuickbooksIntegrationItems'
 
 const INTEGRATION_ID = 'integration-123'
+
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 const createWrapper = (mocks: TestMocksType) => {
   return ({ children }: { children: React.ReactNode }) =>
@@ -383,6 +390,32 @@ describe('useQuickbooksIntegrationItems', () => {
 
         await waitFor(() => expect(result.current.isLoading).toBe(true))
         await waitFor(() => expect(result.current.isLoading).toBe(false))
+      })
+
+      it('THEN should show an error toast when the refetch fails on the network', async () => {
+        mockAddToast.mockClear()
+
+        const { result } = renderHook(
+          () => useQuickbooksIntegrationItems(MappableTypeEnum.BillableMetric, INTEGRATION_ID),
+          {
+            wrapper: createWrapper([
+              buildGetItemsMock(),
+              { request: buildItemsRefetchMock().request, error: new Error('Network error') },
+            ]),
+          },
+        )
+
+        await waitFor(() => expect(result.current.isLoading).toBe(false))
+
+        act(() => {
+          result.current.refresh()
+        })
+
+        await waitFor(() =>
+          expect(mockAddToast).toHaveBeenCalledWith(
+            expect.objectContaining({ severity: 'danger' }),
+          ),
+        )
       })
 
       it('THEN should trigger the account refetch in an account context', async () => {

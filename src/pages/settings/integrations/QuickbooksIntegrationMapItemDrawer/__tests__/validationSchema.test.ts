@@ -1,4 +1,4 @@
-import { stringifyOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/stringifyOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 
 import { quickbooksMappingValidationSchema } from '../validationSchema'
 
