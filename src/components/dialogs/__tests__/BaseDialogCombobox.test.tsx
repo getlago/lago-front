@@ -8,7 +8,6 @@ import {
   ComboboxItem,
   ComboboxList,
 } from 'lago-ui/combobox'
-import { resolve } from 'node:path'
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 
@@ -19,6 +18,7 @@ import BaseDialog from '../BaseDialog'
 
 it('keeps the body-portalled results above the app dialog and selects an option', async () => {
   const { readFileSync } = await import('node:fs')
+  const { resolve } = await import('node:path')
   const user = userEvent.setup()
   const changed = jest.fn()
   const closeDialog = jest.fn().mockResolvedValue(undefined)
