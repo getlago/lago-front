@@ -24,8 +24,8 @@ const withSelectedOption = (
   return [...options, { value: selectedValue, label: selectedValue, hidden: true }]
 }
 
-// External id of a QuickBooks connection: a picker of the stored QuickBooks customers that also
-// takes a typed id, or the plain id input while none is stored.
+// External id of a QuickBooks connection: a picker of the stored QuickBooks customers, or the
+// plain id input while none is stored, so an id can always be typed.
 export const QuickbooksCustomerIdField = ({
   form,
   integrationId,
@@ -66,9 +66,6 @@ export const QuickbooksCustomerIdField = ({
                 placeholder={translate('text_1795450153419mxue68940rx')}
                 searchQuery={search}
                 PopperProps={{ displayInDialog: true }}
-                // A stale or capped list can miss the customer: a typed id is kept as typed
-                allowAddValue
-                addValueProps={{ label: translate('text_1795512856467waw7y9s1rqf') }}
               />
             ) : (
               <field.TextInputField

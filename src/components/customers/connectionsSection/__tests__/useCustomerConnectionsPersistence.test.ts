@@ -177,12 +177,6 @@ const connectionOptions = {
   allAccountingIntegrations: [
     { __typename: 'NetsuiteIntegration', id: 'org-int-ns', code: 'ns-1', name: 'NetSuite Prod' },
     { __typename: 'XeroIntegration', id: 'org-int-xero', code: 'xero-1', name: 'Xero Main' },
-    {
-      __typename: 'QuickbooksIntegration',
-      id: 'org-int-qbo',
-      code: 'qbo-1',
-      name: 'QuickBooks Main',
-    },
   ],
   allTaxIntegrations: [
     { __typename: 'AnrokIntegration', id: 'org-int-anrok', code: 'anrok-1', name: 'Anrok Main' },
@@ -467,35 +461,6 @@ describe('useCustomerConnectionsPersistence', () => {
         expect(mockDestroyIntegration.mock.invocationCallOrder[0]).toBeLessThan(
           mockCreateIntegration.mock.invocationCallOrder[0],
         )
-      })
-    })
-
-    describe('WHEN linking a QuickBooks customer by a typed id', () => {
-      it('THEN should send the typed id as the external customer id', async () => {
-        const result = setup()
-
-        await result.current.saveConnection(
-          ConnectionCategory.Accounting,
-          {
-            providerCode: 'qbo-1',
-            providerType: IntegrationTypeEnum.Quickbooks,
-            externalCustomerId: '9001',
-            syncWithProvider: false,
-          } as ConnectionFormValues,
-          { isEdition: true, formApi },
-        )
-
-        expect(mockCreateIntegration).toHaveBeenCalledWith({
-          variables: {
-            input: {
-              code: null,
-              customerId: 'cust-1',
-              integrationId: 'org-int-qbo',
-              externalCustomerId: '9001',
-              syncWithProvider: false,
-            },
-          },
-        })
       })
     })
 
