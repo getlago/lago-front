@@ -241,6 +241,19 @@ const Integrations = () => {
     (integration) => integration.__typename === 'SalesforceIntegration',
   )
 
+  // Every value the Lago tab renders from, so the header refreshes its content when one changes.
+  const lagoTabSnapshotKey = JSON.stringify([
+    isLagoTabLoading,
+    isPremium,
+    isProductCatalogEnabled,
+    isX402Enabled,
+    hasX402Integration,
+    hasTaxManagement,
+    premiumIntegrations,
+    data?.paymentProviders?.collection.map((provider) => provider.__typename),
+    data?.integrations?.collection.map((integration) => integration.__typename),
+  ])
+
   const activeTabContent = useMainHeaderTabContent()
 
   const getEndContent = ({
@@ -297,7 +310,7 @@ const Integrations = () => {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
             ],
-            snapshotKey: JSON.stringify([isX402Enabled, data]),
+            snapshotKey: lagoTabSnapshotKey,
             content: (
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
