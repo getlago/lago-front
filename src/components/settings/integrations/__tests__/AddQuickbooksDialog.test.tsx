@@ -358,6 +358,22 @@ describe('useAddQuickbooksDialog', () => {
   })
 
   describe('GIVEN an existing connection', () => {
+    it('THEN keeps the saved values when the host re-renders', async () => {
+      const { result, rerender } = renderHook(() => useAddQuickbooksDialog(), { wrapper })
+
+      act(() => {
+        result.current.openAddQuickbooksDialog({ provider: quickbooksProvider })
+      })
+      rerender()
+
+      await act(() => render(<>{mockDialogOpen.mock.calls[0][0].children}</>))
+
+      expect(screen.getByPlaceholderText(NAME_PLACEHOLDER)).toHaveValue('Test Integration')
+      expect(screen.getByPlaceholderText('text_6584550dc4cec7adf8615053')).toHaveValue(
+        'test_integration',
+      )
+    })
+
     it('THEN locks the sandbox switch', async () => {
       await openDialog(quickbooksProvider)
 
