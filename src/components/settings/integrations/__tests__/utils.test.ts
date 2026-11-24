@@ -1,4 +1,4 @@
-import { hasNonEuEligibilityError } from '../utils'
+import { getQuickbooksNangoIntegrationKey, hasNonEuEligibilityError } from '../utils'
 
 const createNonEuError = () => ({
   errors: [
@@ -47,5 +47,15 @@ describe('lagoTaxManagementUtils', () => {
 
       expect(hasNonEuEligibilityError(results)).toBe(true)
     })
+  })
+})
+
+describe('getQuickbooksNangoIntegrationKey', () => {
+  it.each([
+    [true, 'quickbooks-sandbox'],
+    [false, 'quickbooks'],
+    [null, 'quickbooks'],
+  ])('WHEN sandbox is %s THEN returns %s', (sandbox, key) => {
+    expect(getQuickbooksNangoIntegrationKey(sandbox)).toBe(key)
   })
 })

@@ -96,7 +96,7 @@ const QuickbooksIntegrationSettings = () => {
   const { translate } = useInternationalization()
   const { data, loading } = useGetQuickbooksIntegrationsSettingsQuery({
     variables: {
-      id: integrationId as string,
+      id: integrationId,
       limit: PROVIDER_CONNECTION_LIMIT,
       integrationsType: [IntegrationTypeEnum.Quickbooks],
     },

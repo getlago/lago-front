@@ -1,18 +1,13 @@
 import { gql, useApolloClient } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
 import { GraphQLFormattedError } from 'graphql'
-import { useId, useRef } from 'react'
+import { useRef } from 'react'
 import { generatePath } from 'react-router'
-import { z } from 'zod'
 
-import { Chip } from '~/components/designSystem/Chip'
-import { Typography } from '~/components/designSystem/Typography'
 import { useFormDialogOpeningDialog } from '~/components/dialogs/FormDialogOpeningDialog'
 import { DialogResult } from '~/components/dialogs/types'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
-import { Checkbox } from '~/components/form'
-import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
-import { addToast, envGlobalVar, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { applyExistingCodeError } from '~/core/form/existingCodeError'
@@ -33,7 +28,17 @@ import {
   getDestroyedQuickbooksId,
   toastQuickbooksDeleteError,
 } from './DeleteQuickbooksIntegrationDialog'
-import { getQuickbooksNangoIntegrationKey } from './getQuickbooksNangoIntegrationKey'
+import {
+  DEFAULT_QUICKBOOKS_FORM_VALUES,
+  getQuickbooksFormValues,
+  quickbooksFormValidationSchema,
+} from './quickbooksIntegrationForm'
+import { QuickbooksIntegrationFormContent } from './QuickbooksIntegrationFormContent'
+import {
+  getQuickbooksSubmitErrorOutcome,
+  QUICKBOOKS_GENERIC_ERROR_KEY,
+} from './quickbooksSubmitErrors'
+import { useQuickbooksAuthorization } from './useQuickbooksAuthorization'
 
 gql`
   fragment QuickbooksForCreateDialog on QuickbooksIntegration {
@@ -60,54 +65,7 @@ gql`
   }
 `
 
-const SILENCED_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.Forbidden]
-
 const ADD_QUICKBOOKS_FORM_ID = 'form-add-quickbooks-integration'
-
-// Accounts, customers and items always sync; the rest is the user's choice.
-const ALWAYS_SYNCED_OBJECT_KEYS = [
-  'text_661ff6e56ef7e1b7c542b2a6',
-  'text_661ff6e56ef7e1b7c542b2c2',
-  'text_661ff6e56ef7e1b7c542b2d7',
-]
-
-type OptionalSyncedObject = {
-  name: keyof Pick<AddQuickbooksFormValues, 'syncCreditNotes' | 'syncInvoices' | 'syncPayments'>
-  objectKey: string
-}
-
-const OPTIONAL_SYNCED_OBJECTS: OptionalSyncedObject[] = [
-  { name: 'syncCreditNotes', objectKey: 'text_661ff6e56ef7e1b7c542b2e9' },
-  { name: 'syncInvoices', objectKey: 'text_661ff6e56ef7e1b7c542b2ff' },
-  { name: 'syncPayments', objectKey: 'text_661ff6e56ef7e1b7c542b311' },
-]
-
-type AddQuickbooksFormValues = {
-  name: string
-  code: string
-  sandbox: boolean
-  syncCreditNotes: boolean
-  syncInvoices: boolean
-  syncPayments: boolean
-}
-
-const defaultFormValues: AddQuickbooksFormValues = {
-  name: '',
-  code: '',
-  sandbox: false,
-  syncCreditNotes: false,
-  syncInvoices: false,
-  syncPayments: false,
-}
-
-const validationSchema = z.object({
-  name: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  code: z.string().min(1, { message: 'text_624ea7c29103fd010732ab7d' }),
-  sandbox: z.boolean(),
-  syncCreditNotes: z.boolean(),
-  syncInvoices: z.boolean(),
-  syncPayments: z.boolean(),
-})
 
 type OpenAddQuickbooksDialogData = {
   provider?: QuickbooksForCreateDialogFragment
@@ -115,9 +73,6 @@ type OpenAddQuickbooksDialogData = {
 }
 
 export const useAddQuickbooksDialog = () => {
-  const componentId = useId()
-  const { nangoPublicKey } = envGlobalVar()
-
   const { translate } = useInternationalization()
   const navigate = useNavigate()
   const formDialogOpeningDialog = useFormDialogOpeningDialog()
@@ -125,7 +80,7 @@ export const useAddQuickbooksDialog = () => {
 
   const dataRef = useRef<OpenAddQuickbooksDialogData | null>(null)
   const successRef = useRef(false)
-  const authorizedConnectionRef = useRef<{ connectionId: string; sandbox: boolean } | null>(null)
+  const quickbooksAuthorization = useQuickbooksAuthorization()
 
   const [createIntegration] = useCreateQuickbooksIntegrationMutation({
     onCompleted({ createQuickbooksIntegration }) {
@@ -163,43 +118,24 @@ export const useAddQuickbooksDialog = () => {
   const [deleteQuickbooks] = useDestroyNangoIntegrationMutation()
 
   const form = useAppForm({
-    defaultValues: defaultFormValues,
+    defaultValues: DEFAULT_QUICKBOOKS_FORM_VALUES,
     validationLogic: revalidateLogic(),
     validators: {
-      onDynamic: validationSchema,
+      onDynamic: quickbooksFormValidationSchema,
     },
     onSubmit: async ({ value, formApi }) => {
       const quickbooksProvider = dataRef.current?.provider
       const isEdition = !!quickbooksProvider
 
       const handleError = (errors: readonly GraphQLFormattedError[]) => {
-        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
-          applyExistingCodeError(formApi)
+        const { isCodeTaken, keepConnection, toastKey } = getQuickbooksSubmitErrorOutcome(errors)
 
-          const modalContainer = document.getElementsByClassName('MuiDialog-container')[0]
+        if (!keepConnection) quickbooksAuthorization.reset()
+        if (toastKey) addToast({ severity: 'danger', translateKey: toastKey })
+        if (!isCodeTaken) return
 
-          if (modalContainer) {
-            modalContainer.scrollTo({ top: 0 })
-          }
-        }
-
-        // The company picked at login is already connected: the next submit opens the login again.
-        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'realmId')) {
-          authorizedConnectionRef.current = null
-          addToast({ severity: 'danger', translateKey: 'text_1795442089878h1a9gppfypr' })
-          return
-        }
-
-        if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) return
-
-        // Other codes already get the global error toast from the error link.
-        const isSilenced = errors.some((error) =>
-          SILENCED_ERROR_CODES.some((code) => code === error.extensions?.code),
-        )
-
-        if (isSilenced) {
-          addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
-        }
+        applyExistingCodeError(formApi)
+        document.getElementsByClassName('MuiDialog-container')[0]?.scrollTo({ top: 0 })
       }
 
       if (isEdition) {
@@ -222,31 +158,19 @@ export const useAddQuickbooksDialog = () => {
             handleError(res.errors)
           }
         } catch {
-          addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+          addToast({ severity: 'danger', translateKey: QUICKBOOKS_GENERIC_ERROR_KEY })
         }
 
         return
       }
 
+      const connectionId = await quickbooksAuthorization.authorize(value.sandbox)
+
+      if (!connectionId) return
+
       try {
-        // A create refused after the QuickBooks login reuses that connection instead of asking again.
-        let authorized = authorizedConnectionRef.current
-
-        if (authorized?.sandbox !== value.sandbox) {
-          const connectionId = `quickbooks-${componentId.replaceAll(':', '')}-${Date.now()}`
-          const Nango = (await import('@nangohq/frontend')).default
-          const nango = new Nango({ publicKey: nangoPublicKey })
-
-          await nango.auth(getQuickbooksNangoIntegrationKey(value.sandbox), connectionId)
-
-          authorized = { connectionId, sandbox: value.sandbox }
-          authorizedConnectionRef.current = authorized
-        }
-
         const res = await createIntegration({
-          variables: {
-            input: { ...value, connectionId: authorized.connectionId },
-          },
+          variables: { input: { ...value, connectionId } },
           context: { silentErrorCodes: [LagoApiError.UnprocessableEntity] },
         })
 
@@ -254,7 +178,8 @@ export const useAddQuickbooksDialog = () => {
           handleError(res.errors)
         }
       } catch {
-        addToast({ severity: 'danger', translateKey: 'text_1749562792335fy21gc3sxn0' })
+        quickbooksAuthorization.reset()
+        addToast({ severity: 'danger', translateKey: QUICKBOOKS_GENERIC_ERROR_KEY })
       }
     },
   })
@@ -271,20 +196,12 @@ export const useAddQuickbooksDialog = () => {
   }
 
   const openAddQuickbooksDialog = (data?: OpenAddQuickbooksDialogData) => {
-    authorizedConnectionRef.current = null
+    quickbooksAuthorization.reset()
     dataRef.current = data ?? null
     const quickbooksProvider = data?.provider
     const isEdition = !!quickbooksProvider
 
-    form.reset()
-    if (quickbooksProvider) {
-      form.setFieldValue('name', quickbooksProvider.name || '')
-      form.setFieldValue('code', quickbooksProvider.code || '')
-      form.setFieldValue('sandbox', !!quickbooksProvider.sandbox)
-      form.setFieldValue('syncCreditNotes', !!quickbooksProvider.syncCreditNotes)
-      form.setFieldValue('syncInvoices', !!quickbooksProvider.syncInvoices)
-      form.setFieldValue('syncPayments', !!quickbooksProvider.syncPayments)
-    }
+    form.reset(getQuickbooksFormValues(quickbooksProvider))
 
     void formDialogOpeningDialog
       .open({
@@ -297,62 +214,7 @@ export const useAddQuickbooksDialog = () => {
         description: translate(
           isEdition ? 'text_1795434241689zt7omfc8e2q' : 'text_17954342416896zjyvneqtih',
         ),
-        children: (
-          <div className="flex flex-col gap-8 p-8">
-            <NameAndCodeGroup
-              form={form}
-              fields={{ name: 'name', code: 'code' }}
-              disableAutoGenerateCode={isEdition}
-              nameProps={{
-                label: translate('text_6419c64eace749372fc72b0f'),
-                placeholder: translate('text_6584550dc4cec7adf861504f'),
-              }}
-              codeProps={{
-                label: translate('text_62876e85e32e0300e1803127'),
-                placeholder: translate('text_6584550dc4cec7adf8615053'),
-              }}
-            />
-
-            <form.AppField name="sandbox">
-              {(field) => (
-                <field.SwitchField
-                  disabled={isEdition}
-                  label={translate('text_1795434241689f1hpeds18j4')}
-                  subLabel={translate('text_1795434241689jpvife1j8z1')}
-                />
-              )}
-            </form.AppField>
-
-            <div className="flex flex-col gap-6">
-              <div>
-                <Typography variant="bodyHl" color="grey700">
-                  {translate('text_1795434241689erqzal40vl2')}
-                </Typography>
-                <Typography variant="caption" color="grey600">
-                  {translate('text_661ff6e56ef7e1b7c542b28e')}
-                </Typography>
-              </div>
-
-              <div className="flex flex-col gap-4">
-                {ALWAYS_SYNCED_OBJECT_KEYS.map((objectKey) => (
-                  <Checkbox
-                    key={objectKey}
-                    disabled
-                    label={<QuickbooksSyncLabel objectKey={objectKey} />}
-                    value={true}
-                  />
-                ))}
-                {OPTIONAL_SYNCED_OBJECTS.map(({ name, objectKey }) => (
-                  <form.AppField key={name} name={name}>
-                    {(field) => (
-                      <field.CheckboxField label={<QuickbooksSyncLabel objectKey={objectKey} />} />
-                    )}
-                  </form.AppField>
-                ))}
-              </div>
-            </div>
-          </div>
-        ),
+        children: <QuickbooksIntegrationFormContent form={form} isEdition={isEdition} />,
         closeOnError: false,
         onEntered: isEdition ? undefined : focusFirstInput,
         mainAction: (
@@ -409,20 +271,4 @@ export const useAddQuickbooksDialog = () => {
   }
 
   return { openAddQuickbooksDialog }
-}
-
-const QuickbooksSyncLabel = ({ objectKey }: { objectKey: string }) => {
-  const { translate } = useInternationalization()
-
-  return (
-    <div className="flex flex-row flex-wrap items-center gap-1">
-      <Typography variant="body" color="grey700">
-        {translate('text_17954342416897g8is3qrydn')}
-      </Typography>
-      <Chip size="small" label={translate(objectKey)} color="danger600" />
-      <Typography variant="body" color="grey700">
-        {translate('text_661ff6e56ef7e1b7c542b29e')}
-      </Typography>
-    </div>
-  )
 }
