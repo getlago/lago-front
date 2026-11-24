@@ -1,3 +1,8 @@
+import { useId, useState } from 'react'
+
+import { acceptValue, currencyLabels, currencyOptions } from './amount-input-data'
+
+import { AmountInput } from '../components/amount-input'
 import {
   Field,
   FieldContent,
@@ -5,36 +10,12 @@ import {
   FieldError,
   FieldHelp,
   FieldLabel,
-} from 'lago-ui/field'
-import { TooltipProvider } from 'lago-ui/tooltip'
-import { ComponentType, useId, useState } from 'react'
+} from '../components/field'
 
-import { initializeTranslations } from '~/core/apolloClient/reactiveVars/internationalizationVar'
-import { CurrencyEnum } from '~/generated/graphql'
-
-import { AmountInputV2 } from './AmountInputV2'
-import { currencyOptions } from './currencies.story-data'
-
-export default {
-  title: 'Components/AmountInput/Field',
-  loaders: [
-    async (): Promise<object> => {
-      await initializeTranslations()
-      return {}
-    },
-  ],
-  decorators: [
-    (Story: ComponentType): JSX.Element => (
-      <TooltipProvider>
-        <Story />
-      </TooltipProvider>
-    ),
-  ],
-}
 function Example({ selectable, state }: { selectable: boolean; state: string }): JSX.Element {
   const id = useId()
   const [value, setValue] = useState(state === 'Empty' ? '' : '123.45')
-  const [currency, setCurrency] = useState(CurrencyEnum.Usd)
+  const [currency, setCurrency] = useState('USD')
   const invalid = state === 'Invalid' || state === 'Invalid without message'
   const error = state === 'Invalid' ? 'Enter a valid amount.' : undefined
   const mode = selectable
@@ -42,6 +23,7 @@ function Example({ selectable, state }: { selectable: boolean; state: string }):
         mode: 'selectable' as const,
         currencyOptions,
         onCurrencyChange: setCurrency,
+        currencyLabels: { ...currencyLabels, trigger: `Currency, ${currency}` },
       }
     : { mode: 'fixed' as const }
 
@@ -56,8 +38,10 @@ function Example({ selectable, state }: { selectable: boolean; state: string }):
           {selectable ? 'Choose a currency and enter an amount.' : 'Enter an amount in USD.'}
         </FieldDescription>
       </FieldContent>
-      <AmountInputV2
+      <AmountInput
         {...mode}
+        formatValue={acceptValue}
+        placeholder="0.00"
         id={id}
         currency={currency}
         value={value}
@@ -71,7 +55,7 @@ function Example({ selectable, state }: { selectable: boolean; state: string }):
     </Field>
   )
 }
-function States({ selectable }: { selectable: boolean }): JSX.Element {
+export function AmountFieldStates({ selectable }: { selectable: boolean }): JSX.Element {
   return (
     <div className="max-w-[400px] space-y-6">
       {['Empty', 'Filled', 'Disabled', 'Read-only', 'Invalid', 'Invalid without message'].map(
@@ -82,5 +66,3 @@ function States({ selectable }: { selectable: boolean }): JSX.Element {
     </div>
   )
 }
-export const AmountFixedCurrency = { render: (): JSX.Element => <States selectable={false} /> }
-export const AmountSelectableCurrency = { render: (): JSX.Element => <States selectable /> }

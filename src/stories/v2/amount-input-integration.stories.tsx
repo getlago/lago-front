@@ -1,18 +1,22 @@
+import { AmountInput, AmountInputProps } from 'lago-ui/amount-input'
 import { Button } from 'lago-ui/button'
 import { TooltipProvider } from 'lago-ui/tooltip'
 import { ComponentType, useState } from 'react'
 
+import {
+  AmountFormattingOptions,
+  definedDefaultPlaceholder,
+  defineNewBeforeChangeFormatter,
+} from '~/components/form/AmountInput/formatting'
+import { formatValue } from '~/components/form/TextInput/formatValue'
 import { initializeTranslations } from '~/core/apolloClient/reactiveVars/internationalizationVar'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import docs from './amount-input.md?raw'
-import { AmountInputV2, AmountInputV2Props } from './AmountInputV2'
 import { currencyOptions as options } from './currencies.story-data'
 
 export default {
   title: 'Components/AmountInput',
-  tags: ['autodocs'],
-  parameters: { docs: { description: { component: docs } } },
   loaders: [
     async (): Promise<object> => {
       await initializeTranslations()
@@ -30,19 +34,52 @@ export default {
 
 function Example({
   selectable = false,
+  beforeChangeFormatter,
+  chargePricingUnitShortName,
   ...props
-}: Partial<Omit<AmountInputV2Props, 'mode' | 'currencyOptions' | 'onCurrencyChange'>> & {
-  selectable?: boolean
-}): JSX.Element {
+}: Partial<
+  Omit<
+    AmountInputProps<CurrencyEnum>,
+    'mode' | 'currencyOptions' | 'onCurrencyChange' | 'currencyLabels' | 'formatValue'
+  >
+> &
+  Partial<AmountFormattingOptions> & {
+    selectable?: boolean
+  }): JSX.Element {
+  const { translate } = useInternationalization()
   const [value, setValue] = useState(props.value ?? '123.45')
   const [currency, setCurrency] = useState(props.currency ?? CurrencyEnum.Usd)
   const mode = selectable
-    ? { mode: 'selectable' as const, currencyOptions: options, onCurrencyChange: setCurrency }
+    ? {
+        mode: 'selectable' as const,
+        currencyOptions: options,
+        onCurrencyChange: setCurrency,
+        currencyLabels: {
+          trigger: translate('text_1795458691058ndiz7xihicb', { currency }),
+          search: translate('text_1795458691058dmcgdfghi2t'),
+          clear: translate('text_1795458691058olq3knc6zqw'),
+          empty: translate('text_1795458691058gq6sghbx4i2'),
+        },
+      }
     : { mode: 'fixed' as const }
 
   return (
-    <AmountInputV2
+    <AmountInput
       {...props}
+      formatValue={(raw) =>
+        formatValue(
+          raw,
+          defineNewBeforeChangeFormatter({
+            currency,
+            beforeChangeFormatter,
+            chargePricingUnitShortName,
+          }),
+        )
+      }
+      placeholder={
+        props.placeholder ??
+        definedDefaultPlaceholder({ currency, chargePricingUnitShortName, translate })
+      }
       {...mode}
       currency={currency}
       value={value}
@@ -51,33 +88,6 @@ function Example({
     />
   )
 }
-function StatesExample({ selectable }: { selectable: boolean }): JSX.Element {
-  return (
-    <div className="max-w-[400px] space-y-6">
-      <Example selectable={selectable} value="" aria-label="Empty amount" />
-      <Example selectable={selectable} aria-label="Filled amount" />
-      <Example selectable={selectable} disabled aria-label="Disabled amount" />
-      <Example selectable={selectable} readOnly aria-label="Read-only amount" />
-      <Example selectable={selectable} aria-invalid aria-label="Invalid amount" />
-    </div>
-  )
-}
-export const FixedCurrency = {
-  render: (): JSX.Element => (
-    <div className="w-full max-w-[400px]">
-      <Example />
-    </div>
-  ),
-}
-export const SelectableCurrency = {
-  render: (): JSX.Element => (
-    <div className="w-full max-w-[400px]">
-      <Example selectable />
-    </div>
-  ),
-}
-export const FixedStates = { render: (): JSX.Element => <StatesExample selectable={false} /> }
-export const SelectableStates = { render: (): JSX.Element => <StatesExample selectable /> }
 export const Precision = {
   render: (): JSX.Element => (
     <div className="max-w-[400px] space-y-6">
@@ -105,12 +115,21 @@ export const Units = {
   ),
 }
 function ResetExample(): JSX.Element {
+  const { translate } = useInternationalization()
   const [value, setValue] = useState('123.4567')
   const [currency, setCurrency] = useState(CurrencyEnum.Clf)
 
   return (
     <div className="max-w-[400px] space-y-6">
-      <AmountInputV2
+      <AmountInput
+        formatValue={(raw) => formatValue(raw, defineNewBeforeChangeFormatter({ currency }))}
+        placeholder={definedDefaultPlaceholder({ currency, translate })}
+        currencyLabels={{
+          trigger: translate('text_1795458691058ndiz7xihicb', { currency }),
+          search: translate('text_1795458691058dmcgdfghi2t'),
+          clear: translate('text_1795458691058olq3knc6zqw'),
+          empty: translate('text_1795458691058gq6sghbx4i2'),
+        }}
         mode="selectable"
         currencyOptions={options}
         currency={currency}

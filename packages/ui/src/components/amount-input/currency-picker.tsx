@@ -1,3 +1,5 @@
+import { RefObject, useMemo, useState } from 'react'
+
 import {
   Combobox,
   ComboboxContent,
@@ -7,44 +9,47 @@ import {
   ComboboxSearch,
   ComboboxSeparator,
   ComboboxTrigger,
-} from 'lago-ui/combobox'
-import { RefObject, useMemo, useState } from 'react'
+} from '../combobox'
 
-import { CurrencyEnum } from '~/generated/graphql'
-import { useInternationalization } from '~/hooks/core/useInternationalization'
-
-export interface CurrencyOption {
-  value: CurrencyEnum
+export interface CurrencyOption<Currency extends string = string> {
+  value: Currency
   label: string
 }
-interface CurrencyPickerProps {
-  currency: CurrencyEnum
-  options: readonly CurrencyOption[]
-  onChange: (currency: CurrencyEnum) => void
+export interface CurrencyLabels {
+  trigger: string
+  search: string
+  clear: string
+  empty: string
+}
+interface CurrencyPickerProps<Currency extends string> {
+  labels: CurrencyLabels
+  currency: Currency
+  options: readonly CurrencyOption<Currency>[]
+  onChange: (currency: Currency) => void
   disabled?: boolean
   anchor: RefObject<HTMLDivElement>
 }
 
-const currencyKey = (value: CurrencyEnum): string => value
+const currencyKey = (value: string): string => value
 const currencyRowSize = (): number => 52
 
-export const CurrencyPicker = ({
+export const CurrencyPicker = <Currency extends string>({
+  labels,
   currency,
   options,
   onChange,
   disabled,
   anchor,
-}: CurrencyPickerProps): JSX.Element => {
-  const { translate } = useInternationalization()
+}: CurrencyPickerProps<Currency>): JSX.Element => {
   const [query, setQuery] = useState('')
   const items = useMemo(() => options.map((option) => option.value), [options])
-  const labels = useMemo(
+  const currencyNames = useMemo(
     () => new Map(options.map(({ value, label }) => [value, label])),
     [options],
   )
 
   return (
-    <Combobox<CurrencyEnum>
+    <Combobox<Currency>
       virtualized
       items={items}
       value={currency}
@@ -58,33 +63,29 @@ export const CurrencyPicker = ({
         if (!open) setQuery('')
       }}
       filter={(value, search) =>
-        `${value} ${labels.get(value) || ''}`
+        `${value} ${currencyNames.get(value) || ''}`
           .toLocaleLowerCase()
           .includes(search.toLocaleLowerCase())
       }
     >
-      <ComboboxTrigger
-        variant="input"
-        className="v2-amount-currency"
-        aria-label={translate('text_1795458691058ndiz7xihicb', { currency })}
-      >
+      <ComboboxTrigger variant="input" className="v2-amount-currency" aria-label={labels.trigger}>
         {currency}
       </ComboboxTrigger>
       <ComboboxContent anchor={anchor}>
         <ComboboxSearch
-          aria-label={translate('text_1795458691058dmcgdfghi2t')}
-          placeholder={translate('text_1795458691058dmcgdfghi2t')}
+          aria-label={labels.search}
+          placeholder={labels.search}
           showClear={!!query}
-          clearLabel={translate('text_1795458691058olq3knc6zqw')}
+          clearLabel={labels.clear}
           onClear={() => setQuery('')}
         />
         <ComboboxSeparator />
-        <ComboboxEmpty>{translate('text_1795458691058gq6sghbx4i2')}</ComboboxEmpty>
-        <ComboboxList getItemKey={currencyKey} estimateSize={currencyRowSize}>
+        <ComboboxEmpty>{labels.empty}</ComboboxEmpty>
+        <ComboboxList<Currency> getItemKey={currencyKey} estimateSize={currencyRowSize}>
           {(value) => (
             <ComboboxItem value={value}>
               <div>{value}</div>
-              <div className="v2-text-caption text-text-muted">{labels.get(value)}</div>
+              <div className="v2-text-caption text-text-muted">{currencyNames.get(value)}</div>
             </ComboboxItem>
           )}
         </ComboboxList>

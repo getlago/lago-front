@@ -7,10 +7,7 @@ const brandDir = fileURLToPath(
 
 const config: StorybookConfig = {
   framework: '@storybook/react-vite',
-  stories: [
-    '../src/**/*.stories.@(ts|tsx)',
-    '../../../src/components/form/AmountInputV2/**/*.stories.tsx',
-  ],
+  stories: ['../src/**/*.stories.@(ts|tsx)', '../../../src/stories/v2/**/*.stories.tsx'],
   viteFinal: async (viteConfig) => {
     viteConfig.resolve = {
       ...viteConfig.resolve,

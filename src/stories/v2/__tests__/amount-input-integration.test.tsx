@@ -1,13 +1,73 @@
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { AmountInput, AmountInputProps, CurrencyOption } from 'lago-ui/amount-input'
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from 'lago-ui/field'
 import { TooltipProvider } from 'lago-ui/tooltip'
-import { createRef, useState } from 'react'
+import { createRef, forwardRef, useState } from 'react'
 
+import {
+  AmountFormattingOptions,
+  definedDefaultPlaceholder,
+  defineNewBeforeChangeFormatter,
+} from '~/components/form/AmountInput/formatting'
+import { formatValue } from '~/components/form/TextInput/formatValue'
 import { initializeTranslations } from '~/core/apolloClient/reactiveVars/internationalizationVar'
 import { CurrencyEnum } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { AmountInputV2, AmountInputV2Props } from '../AmountInputV2'
+type TestAmountProps = Omit<
+  AmountInputProps<CurrencyEnum>,
+  'formatValue' | 'currencyLabels' | 'mode' | 'currencyOptions' | 'onCurrencyChange'
+> &
+  AmountFormattingOptions &
+  (
+    | { mode?: 'fixed' }
+    | {
+        mode: 'selectable'
+        currencyOptions: readonly CurrencyOption<CurrencyEnum>[]
+        onCurrencyChange: (currency: CurrencyEnum) => void
+      }
+  )
+const TestAmount = forwardRef<HTMLInputElement, TestAmountProps>(
+  ({ beforeChangeFormatter, chargePricingUnitShortName, ...props }, ref): JSX.Element => {
+    const { translate } = useInternationalization()
+    const formatters = defineNewBeforeChangeFormatter({
+      currency: props.currency,
+      beforeChangeFormatter,
+      chargePricingUnitShortName,
+    })
+    const mode =
+      props.mode === 'selectable'
+        ? {
+            ...props,
+            currencyLabels: {
+              trigger: `Currency, ${props.currency}`,
+              search: 'Search currencies…',
+              clear: 'Clear currency search',
+              empty: 'No currencies found',
+            },
+          }
+        : props
+
+    return (
+      <AmountInput
+        {...mode}
+        ref={ref}
+        formatValue={(raw) => formatValue(raw, formatters)}
+        placeholder={
+          props.placeholder ??
+          definedDefaultPlaceholder({
+            currency: props.currency,
+            chargePricingUnitShortName,
+            translate,
+          })
+        }
+      />
+    )
+  },
+)
+
+TestAmount.displayName = 'TestAmount'
 
 beforeAll(async () => {
   await initializeTranslations()
@@ -19,12 +79,12 @@ beforeEach(() => {
 })
 afterEach(() => jest.restoreAllMocks())
 function Controlled(
-  props: Partial<Omit<AmountInputV2Props, 'mode' | 'currencyOptions' | 'onCurrencyChange'>>,
+  props: Partial<Omit<TestAmountProps, 'mode' | 'currencyOptions' | 'onCurrencyChange'>>,
 ): JSX.Element {
   const [value, setValue] = useState(props.value ?? '')
 
   return (
-    <AmountInputV2
+    <TestAmount
       currency={CurrencyEnum.Usd}
       {...props}
       mode="fixed"
@@ -140,7 +200,7 @@ it('defers formatting until composition ends without duplicate emission', () => 
 it('external values and currency changes are displayed without reformatting', () => {
   const change = jest.fn()
   const { rerender } = render(
-    <AmountInputV2
+    <TestAmount
       currency={CurrencyEnum.Clf}
       value="123.4567"
       onChange={change}
@@ -149,7 +209,7 @@ it('external values and currency changes are displayed without reformatting', ()
   )
 
   rerender(
-    <AmountInputV2
+    <TestAmount
       currency={CurrencyEnum.Jpy}
       value="123.4567"
       onChange={change}
@@ -159,11 +219,11 @@ it('external values and currency changes are displayed without reformatting', ()
   expect(screen.getByRole('textbox')).toHaveValue('123.4567')
   expect(change).not.toHaveBeenCalled()
   rerender(
-    <AmountInputV2 currency={CurrencyEnum.Jpy} value={0} onChange={change} aria-label="Amount" />,
+    <TestAmount currency={CurrencyEnum.Jpy} value={0} onChange={change} aria-label="Amount" />,
   )
   expect(screen.getByRole('textbox')).toHaveValue('0')
   rerender(
-    <AmountInputV2
+    <TestAmount
       currency={CurrencyEnum.Jpy}
       value={undefined}
       onChange={change}
@@ -182,7 +242,7 @@ it('composes a labelled invalid Field and exposes the native input ref', async (
         <FieldLabel htmlFor="amount">Price</FieldLabel>
         <FieldDescription id="help">In USD</FieldDescription>
       </FieldContent>
-      <AmountInputV2
+      <TestAmount
         id="amount"
         ref={ref}
         currency={CurrencyEnum.Usd}
@@ -212,7 +272,7 @@ it('virtualizes all currencies and selects a filtered offscreen currency with th
 
   render(
     <TooltipProvider>
-      <AmountInputV2
+      <TestAmount
         mode="selectable"
         currencyOptions={currencies.map((value) => ({ value, label: value }))}
         currency={CurrencyEnum.Usd}
@@ -247,7 +307,7 @@ it('searches names, clears query only, and changes currency without changing amo
     const [currency, setCurrency] = useState(CurrencyEnum.Usd)
 
     return (
-      <AmountInputV2
+      <TestAmount
         mode="selectable"
         currencyOptions={options}
         currency={currency}
@@ -291,7 +351,7 @@ it.each([true, false])('disables both targets through prop or fieldset (prop=%s)
 
   render(
     <fieldset disabled={!prop}>
-      <AmountInputV2
+      <TestAmount
         mode="selectable"
         currencyOptions={options}
         currency={CurrencyEnum.Usd}
@@ -315,7 +375,7 @@ it('read-only has no interactive currency selector', async () => {
   const change = jest.fn()
 
   render(
-    <AmountInputV2
+    <TestAmount
       mode="selectable"
       currencyOptions={options}
       currency={CurrencyEnum.Usd}
@@ -335,12 +395,12 @@ it('read-only has no interactive currency selector', async () => {
 it('external reset cancels a pending composition draft', () => {
   const change = jest.fn()
   const props = { currency: CurrencyEnum.Usd, onChange: change, 'aria-label': 'Amount' }
-  const { rerender } = render(<AmountInputV2 {...props} value="12" />)
+  const { rerender } = render(<TestAmount {...props} value="12" />)
   const input = screen.getByRole('textbox')
 
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '123' } })
-  rerender(<AmountInputV2 {...props} value="0" />)
+  rerender(<TestAmount {...props} value="0" />)
   expect(input).toHaveValue('0')
   fireEvent.compositionEnd(input)
   expect(change).not.toHaveBeenCalled()
@@ -348,7 +408,7 @@ it('external reset cancels a pending composition draft', () => {
 
 it('updates currency labels and search when the caller replaces options', async () => {
   const user = userEvent.setup()
-  const props: AmountInputV2Props = {
+  const props: TestAmountProps = {
     mode: 'selectable',
     currency: CurrencyEnum.Usd,
     currencyOptions: options,
@@ -357,7 +417,7 @@ it('updates currency labels and search when the caller replaces options', async 
     onChange: jest.fn(),
     'aria-label': 'Amount',
   }
-  const { rerender } = render(<AmountInputV2 {...props} />)
+  const { rerender } = render(<TestAmount {...props} />)
 
   await user.click(screen.getByRole('combobox', { name: 'Currency, USD' }))
   const search = await screen.findByRole('combobox', { name: 'Search currencies…' })
@@ -365,7 +425,7 @@ it('updates currency labels and search when the caller replaces options', async 
   await user.type(search, 'Japanese')
   expect(await screen.findByRole('option', { name: 'JPY Japanese Yen' })).toBeInTheDocument()
   rerender(
-    <AmountInputV2
+    <TestAmount
       {...props}
       currencyOptions={[
         { value: CurrencyEnum.Usd, label: 'US Dollar' },
@@ -392,7 +452,7 @@ it('restores the caret after a rejected edit in an iframe document', () => {
   body.append(container)
   const ref = createRef<HTMLInputElement>()
   const view = render(
-    <AmountInputV2 ref={ref} currency={CurrencyEnum.Usd} value="12.30" onChange={jest.fn()} />,
+    <TestAmount ref={ref} currency={CurrencyEnum.Usd} value="12.30" onChange={jest.fn()} />,
     { container },
   )
   const input = ref.current
@@ -420,7 +480,7 @@ it('does not rescan currency options when only the amount changes', () => {
       label: 'US Dollar',
     },
   ]
-  const props: AmountInputV2Props = {
+  const props: TestAmountProps = {
     mode: 'selectable',
     currency: CurrencyEnum.Usd,
     currencyOptions,
@@ -428,11 +488,11 @@ it('does not rescan currency options when only the amount changes', () => {
     value: '12',
     onChange: jest.fn(),
   }
-  const { rerender } = render(<AmountInputV2 {...props} />)
+  const { rerender } = render(<TestAmount {...props} />)
   const initialReads = readCurrency.mock.calls.length
 
   expect(initialReads).toBeGreaterThan(0)
-  rerender(<AmountInputV2 {...props} value="123" />)
+  rerender(<TestAmount {...props} value="123" />)
   expect(screen.getByRole('textbox')).toHaveValue('123')
   expect(readCurrency).toHaveBeenCalledTimes(initialReads)
 })
@@ -475,12 +535,12 @@ it('restores a selected range after a rejected paste', async () => {
 it('ignores further IME changes after an external reset until composition ends', () => {
   const change = jest.fn()
   const props = { currency: CurrencyEnum.Usd, onChange: change }
-  const { rerender } = render(<AmountInputV2 {...props} value="12" />)
+  const { rerender } = render(<TestAmount {...props} value="12" />)
   const input = screen.getByRole('textbox')
 
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '123' } })
-  rerender(<AmountInputV2 {...props} value="0" />)
+  rerender(<TestAmount {...props} value="0" />)
   fireEvent.change(input, { target: { value: '1234' } })
   expect(change).not.toHaveBeenCalled()
   expect(input).toHaveValue('0')
@@ -555,7 +615,7 @@ it('deduplicates final composition input with an inline formatter array', () => 
     const [value, setValue] = useState('')
 
     return (
-      <AmountInputV2
+      <TestAmount
         currency={CurrencyEnum.Usd}
         value={value}
         beforeChangeFormatter={['positiveNumber']}
