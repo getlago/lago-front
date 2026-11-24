@@ -442,10 +442,12 @@ it.each([
   [CurrencyEnum.Usd, 'positiveNumber' as const, '-'],
 ])('maps removed leading characters for %s', async (currency, beforeChangeFormatter, key) => {
   const user = userEvent.setup()
+
   render(
     <Controlled value="15" currency={currency} beforeChangeFormatter={beforeChangeFormatter} />,
   )
   const input = screen.getByRole('textbox') as HTMLInputElement
+
   await user.click(input)
   input.setSelectionRange(0, 0)
   await user.keyboard(key)
@@ -456,8 +458,10 @@ it.each([
 
 it('restores a selected range after a rejected paste', async () => {
   const user = userEvent.setup()
+
   render(<Controlled value="123.45" />)
   const input = screen.getByRole('textbox') as HTMLInputElement
+
   await user.click(input)
   input.setSelectionRange(1, 3)
   await user.paste('x')
@@ -473,6 +477,7 @@ it('ignores further IME changes after an external reset until composition ends',
   const props = { currency: CurrencyEnum.Usd, onChange: change }
   const { rerender } = render(<AmountInputV2 {...props} value="12" />)
   const input = screen.getByRole('textbox')
+
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '123' } })
   rerender(<AmountInputV2 {...props} value="0" />)
@@ -491,6 +496,7 @@ it('does not swallow a new edit matching an old composition after currency chang
   const change = jest.fn()
   const { rerender } = render(<Controlled onChange={change} />)
   const input = screen.getByRole('textbox')
+
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '1.239' } })
   fireEvent.compositionEnd(input)
@@ -502,8 +508,10 @@ it('does not swallow a new edit matching an old composition after currency chang
 
 it('accepts a leading decimal typed one character at a time', async () => {
   const user = userEvent.setup()
+
   render(<Controlled />)
   const input = screen.getByRole('textbox')
+
   await user.type(input, '.5')
   expect(input).toHaveValue('0.5')
 })
@@ -512,8 +520,10 @@ it('expires final-input suppression when composition has no trailing input', () 
   jest.useFakeTimers()
   try {
     const change = jest.fn()
+
     render(<Controlled onChange={change} />)
     const input = screen.getByRole('textbox')
+
     fireEvent.compositionStart(input)
     fireEvent.change(input, { target: { value: '1.239' } })
     fireEvent.compositionEnd(input)
@@ -528,8 +538,10 @@ it('expires final-input suppression when composition has no trailing input', () 
 
 it('allows a new keyboard edit at the composition boundary', () => {
   const change = jest.fn()
+
   render(<Controlled onChange={change} />)
   const input = screen.getByRole('textbox')
+
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '1.239' } })
   fireEvent.compositionEnd(input)
@@ -541,6 +553,7 @@ it('allows a new keyboard edit at the composition boundary', () => {
 it('deduplicates final composition input with an inline formatter array', () => {
   function InlineFormatter(): JSX.Element {
     const [value, setValue] = useState('')
+
     return (
       <AmountInputV2
         currency={CurrencyEnum.Usd}
@@ -554,8 +567,10 @@ it('deduplicates final composition input with an inline formatter array', () => 
     )
   }
   const changed = jest.fn()
+
   render(<InlineFormatter />)
   const input = screen.getByRole('textbox')
+
   fireEvent.compositionStart(input)
   fireEvent.change(input, { target: { value: '1.239' } })
   fireEvent.compositionEnd(input)
