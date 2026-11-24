@@ -88,6 +88,13 @@ export const useAddMetadataDrawer = ({
         return
       }
 
+      // Nothing to send, and an empty array would still report metadata as
+      // added; edition does send it, that is how the pairs are deleted.
+      if (!isEditionRef.current && !value.metadata.length) {
+        drawer.close()
+        return
+      }
+
       const { errors } = await updateInvoiceMetadata({
         variables: {
           input: {

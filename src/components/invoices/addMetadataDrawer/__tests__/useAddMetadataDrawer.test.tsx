@@ -212,6 +212,24 @@ describe('useAddMetadataDrawer', () => {
       expect(screen.getAllByRole('textbox')).toHaveLength(4)
     })
 
+    // Sending an empty array here would report metadata as added
+    it('THEN should save nothing when the seeded row is removed', async () => {
+      const user = userEvent.setup()
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer())
+      renderDrawerBody()
+
+      await user.click(screen.getByTestId('trash/medium'))
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockClose).toHaveBeenCalled()
+      })
+      expect(mockUpdateInvoiceMetadata).not.toHaveBeenCalled()
+      expect(addToast).not.toHaveBeenCalled()
+    })
+
     it('THEN should prompt before closing once a pair has been typed', async () => {
       const user = userEvent.setup()
       const { result } = renderDrawerHook()
@@ -361,6 +379,28 @@ describe('useAddMetadataDrawer', () => {
       await user.click(screen.getByTestId('trash/medium'))
 
       expect(screen.queryByDisplayValue('purchase_order')).not.toBeInTheDocument()
+    })
+
+    // Clearing every row is how the invoice's metadata is deleted
+    it('THEN should save an empty list when every pair is removed', async () => {
+      const user = userEvent.setup()
+      const { result } = renderDrawerHook()
+
+      act(() => result.current.openDrawer())
+      renderDrawerBody()
+
+      await user.click(screen.getByTestId('trash/medium'))
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      await waitFor(() => {
+        expect(mockUpdateInvoiceMetadata).toHaveBeenCalledWith({
+          variables: { input: { id: INVOICE_ID, metadata: [] } },
+        })
+      })
+      expect(addToast).toHaveBeenCalledWith({
+        message: 'text_6405cac5c833dcf18cad01fb',
+        severity: 'success',
+      })
     })
 
     it('THEN should keep the drawer open when the mutation fails', async () => {
