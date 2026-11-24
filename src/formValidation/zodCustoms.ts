@@ -29,10 +29,7 @@ export const addUnsupportedDateIssue = (
   return true
 }
 
-/**
- * The parse-only half of `addUnsupportedDateIssue`, for a field whose own rule already rejects
- * the 1970 floor with better copy (must-be-future) but would misreport a date that does not exist.
- */
+// Like `addUnsupportedDateIssue`, parse-only: for a field whose own rule already rejects the 1970 floor with better copy.
 export const addUnparseableDateIssue = (
   ctx: z.RefinementCtx,
   value: string | null | undefined,
