@@ -6,8 +6,8 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useDeleteQuickbooksIntegrationDialog } from '~/components/settings/integrations/DeleteQuickbooksIntegrationDialog'
-import { getQuickbooksNangoIntegrationKey } from '~/components/settings/integrations/getQuickbooksNangoIntegrationKey'
 import QuickbooksIntegrationSettings from '~/components/settings/integrations/QuickbooksIntegrationSettings'
+import { getQuickbooksNangoIntegrationKey } from '~/components/settings/integrations/utils'
 import { addToast, envGlobalVar } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -79,7 +79,7 @@ const QuickbooksIntegrationDetails = () => {
   const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
   const { data, loading } = useGetQuickbooksIntegrationsDetailsQuery({
     variables: {
-      id: integrationId as string,
+      id: integrationId,
       limit: PROVIDER_CONNECTION_LIMIT,
       integrationsType: [IntegrationTypeEnum.Quickbooks],
     },
