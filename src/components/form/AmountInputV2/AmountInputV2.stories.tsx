@@ -86,10 +86,10 @@ export const Precision = {
       <Example currency={CurrencyEnum.Bhd} value="123.456" aria-label="BHD three decimals" />
       <Example currency={CurrencyEnum.Clf} value="123.4567" aria-label="CLF four decimals" />
       <Example
-        currency={CurrencyEnum.Jpy}
+        currency={CurrencyEnum.Usd}
         value="0.123456789012345"
         beforeChangeFormatter="chargeDecimal"
-        aria-label="JPY charge price"
+        aria-label="USD charge price, 15 decimals"
       />
     </div>
   ),
