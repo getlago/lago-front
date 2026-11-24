@@ -103,19 +103,13 @@ gql`
     rateOverride {
       id
     }
-    trueUpParentFee {
-      id
-      productFilter {
-        id
-      }
-    }
   }
 
   query getInvoiceProductFees(
     $invoiceId: ID!
     $contractId: ID
-    $productCategoryId: ID
-    $standaloneProducts: Boolean
+    $productCategoryIds: [ID!]
+    $withoutProductCategory: Boolean
     $searchTerm: String
     $productIds: [ID!]
     $productFilterIds: [ID!]
@@ -127,8 +121,8 @@ gql`
     invoiceProductFees(
       invoiceId: $invoiceId
       contractId: $contractId
-      productCategoryId: $productCategoryId
-      standaloneProducts: $standaloneProducts
+      productCategoryIds: $productCategoryIds
+      withoutProductCategory: $withoutProductCategory
       searchTerm: $searchTerm
       productIds: $productIds
       productFilterIds: $productFilterIds
@@ -201,8 +195,8 @@ export const useInvoiceProductFees = ({
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
   const sectionVariables = section.productCategory
-    ? { productCategoryId: section.productCategory.id }
-    : { standaloneProducts: true }
+    ? { productCategoryIds: [section.productCategory.id] }
+    : { withoutProductCategory: true }
   const [getFees, result] = useGetInvoiceProductFeesLazyQuery({
     variables: {
       ...filters,

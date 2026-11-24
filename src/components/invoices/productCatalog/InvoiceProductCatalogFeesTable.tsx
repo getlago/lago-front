@@ -52,6 +52,11 @@ gql`
     }
     trueUpParentFee {
       id
+      productFilter {
+        id
+        name
+        invoiceDisplayName
+      }
     }
     appliedTaxes {
       id

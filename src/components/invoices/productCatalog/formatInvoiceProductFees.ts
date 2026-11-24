@@ -305,7 +305,8 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
       currentFilter = undefined
     }
 
-    const filterId = fee.productFilter?.id
+    const feeFilter = fee.trueUpParentFee?.productFilter ?? fee.productFilter
+    const filterId = feeFilter?.id
     let parentRows = currentProduct.row.subRows
 
     if (filterId) {
@@ -316,7 +317,7 @@ export const formatInvoiceProductFees = <TFee extends Fee>({
         const row: InvoiceProductCatalogFeeRow<TFee> = {
           kind: 'filter',
           id: getGroupRowId(`filter-${filterId}`),
-          label: getDisplayName(filterGroup?.productFilter ?? fee.productFilter),
+          label: getDisplayName(filterGroup?.productFilter ?? feeFilter),
           amountCents: String(filterGroup?.amountCents ?? '0'),
           subRows: [],
         }

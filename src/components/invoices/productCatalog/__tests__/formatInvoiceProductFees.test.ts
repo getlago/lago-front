@@ -108,6 +108,35 @@ describe('formatInvoiceProductFees', () => {
     })
   })
 
+  describe('GIVEN a true-up of a filtered fee', () => {
+    describe('WHEN the true-up has no filter of its own', () => {
+      it('THEN groups it under the filter of the fee it tops up', () => {
+        const rows = format([
+          createFee({ id: 'b', productFilter: filterFee }),
+          createFee({ id: 'b-tu', trueUpParentFee: { id: 'b', productFilter: filterFee } }),
+        ])
+
+        expect(rows).toMatchObject([
+          {
+            kind: 'product',
+            id: 'product-p1',
+            subRows: [
+              {
+                kind: 'filter',
+                id: 'filter-f1',
+                label: 'Filter f1',
+                subRows: [
+                  { kind: 'fee', id: 'b', isTrueUp: false },
+                  { kind: 'fee', id: 'b-tu', isTrueUp: true },
+                ],
+              },
+            ],
+          },
+        ])
+      })
+    })
+  })
+
   describe('GIVEN a second page continuing a group from the previous page', () => {
     describe('WHEN the page starts inside a filter and then moves to another product', () => {
       it('THEN repeats the product and filter headers with skeleton totals, not page sums', () => {
@@ -115,8 +144,7 @@ describe('formatInvoiceProductFees', () => {
           createFee({
             id: 'b-tu',
             amountCents: '5',
-            productFilter: filterFee,
-            trueUpParentFee: { id: 'b' },
+            trueUpParentFee: { id: 'b', productFilter: filterFee },
           }),
           createFee({ id: 'c', product: { id: 'p2', name: 'Graduated' } }),
         ])

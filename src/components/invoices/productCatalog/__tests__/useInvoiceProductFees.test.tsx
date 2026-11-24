@@ -108,7 +108,7 @@ describe('GIVEN the paginated fees hook', () => {
     expect(requests[0]).toEqual({
       invoiceId: 'invoice-1',
       contractId: 'c1',
-      productCategoryId: 'catA',
+      productCategoryIds: ['catA'],
       page: 3,
       limit: 100,
       productIds: ['product-1'],
@@ -125,11 +125,11 @@ describe('GIVEN the paginated fees hook', () => {
     await waitFor(() => expect(requests).toHaveLength(1))
     expect(requests[0]).toMatchObject({
       contractId: 'c1',
-      standaloneProducts: true,
+      withoutProductCategory: true,
       page: 3,
       limit: 100,
     })
-    expect(requests[0]).not.toHaveProperty('productCategoryId')
+    expect(requests[0]).not.toHaveProperty('productCategoryIds')
   })
 
   it('THEN changes section and removes page and fees filters in one navigation', async () => {
