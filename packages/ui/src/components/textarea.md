@@ -45,6 +45,8 @@ Connect FieldLabel with htmlFor/id or provide an accessible name. Keep descripti
 
 ## Design
 
+Hovering the associated FieldLabel highlights the editable control. Description/help hover does not highlight it. Disabled, read-only and focused controls retain their existing appearance.
+
 Minimum height 78px; 12px horizontal padding (px-3), 8px vertical padding (py-2), and a stable 8px radius (rounded-lg). Body Regular400 typography is 14/20. Values use text-default; placeholders use text-subtle. Default uses surface and border-control. Hover and read-only use surface-subtle. Focus uses surface, focus-border and a 4px focus-ring. Invalid uses surface with danger-border at rest, surface-subtle on hover, and retains danger-border with the focus ring on focus. Disabled uses the shared disabled tokens. All colors follow the active light/dark theme.
 
 ## References

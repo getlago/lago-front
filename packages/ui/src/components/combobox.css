@@ -81,9 +81,9 @@
   box-shadow: none;
   border-color: transparent;
 }
-.v2-field:has([data-slot='field-label']:hover)
-  .v2-combobox-control:not(:has(input:focus)):not(:has(input:disabled)):not(:has(input:read-only)) {
-  background: var(--color-surface);
+:where(.v2-field:has(> [data-slot='field-content'] [data-slot='field-label']:hover))
+  .v2-combobox-control:not(:focus-within):not(:has(input:disabled)):not(:has(input:read-only)) {
+  background: var(--color-surface-subtle);
 }
 
 .v2-combobox-item[data-disabled] * {
