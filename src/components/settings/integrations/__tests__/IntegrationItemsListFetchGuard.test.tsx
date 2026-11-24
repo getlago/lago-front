@@ -136,9 +136,12 @@ jest.mock('~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer', () =>
 jest.mock('~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer', () => ({
   useNetsuiteIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
-jest.mock('~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer', () => ({
-  useQuickbooksIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
-}))
+jest.mock(
+  '~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer/useQuickbooksIntegrationMapItemDrawer',
+  () => ({
+    useQuickbooksIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
+  }),
+)
 jest.mock('~/pages/settings/integrations/XeroIntegrationMapItemDrawer', () => ({
   useXeroIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))

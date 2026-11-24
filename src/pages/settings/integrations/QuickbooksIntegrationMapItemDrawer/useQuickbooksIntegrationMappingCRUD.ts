@@ -11,6 +11,69 @@ import {
   useUpdateQuickbooksIntegrationMappingMutation,
 } from '~/generated/graphql'
 
+gql`
+  fragment QuickbooksIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
+    id
+    externalId
+    externalName
+    externalAccountCode
+  }
+
+  fragment QuickbooksIntegrationMapItemDrawerCollectionItem on Mapping {
+    id
+    externalId
+    externalName
+    externalAccountCode
+  }
+
+  # Mapping Creation
+  mutation createQuickbooksIntegrationCollectionMapping(
+    $input: CreateIntegrationCollectionMappingInput!
+  ) {
+    createIntegrationCollectionMapping(input: $input) {
+      id
+      ...QuickbooksIntegrationMapItemDrawerCollectionMappingItem
+    }
+  }
+
+  mutation createQuickbooksIntegrationMapping($input: CreateIntegrationMappingInput!) {
+    createIntegrationMapping(input: $input) {
+      id
+      ...QuickbooksIntegrationMapItemDrawerCollectionItem
+    }
+  }
+
+  # Mapping edition
+  mutation updateQuickbooksIntegrationCollectionMapping(
+    $input: UpdateIntegrationCollectionMappingInput!
+  ) {
+    updateIntegrationCollectionMapping(input: $input) {
+      id
+    }
+  }
+
+  mutation updateQuickbooksIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+    updateIntegrationMapping(input: $input) {
+      id
+    }
+  }
+
+  # Mapping deletion
+  mutation deleteQuickbooksIntegrationCollectionMapping(
+    $input: DestroyIntegrationCollectionMappingInput!
+  ) {
+    destroyIntegrationCollectionMapping(input: $input) {
+      id
+    }
+  }
+
+  mutation deleteQuickbooksIntegrationMapping($input: DestroyIntegrationMappingInput!) {
+    destroyIntegrationMapping(input: $input) {
+      id
+    }
+  }
+`
+
 const MAPPING_CACHE_FRAGMENT = gql`
   fragment QuickbooksMappingCacheFields on Mapping {
     id
@@ -50,7 +113,7 @@ export const useQuickbooksIntegrationMappingCRUD = (
                 integrationMappings(existingMappings = []) {
                   const newRef = cache.writeFragment({
                     data: {
-                      __typename: 'Mapping' as const,
+                      __typename: 'Mapping',
                       id: newMapping.id,
                       externalId: newMapping.externalId,
                       externalName: newMapping.externalName ?? null,

@@ -19,7 +19,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
-import { useQuickbooksIntegrationMapItemDrawer } from '~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer'
+import { useQuickbooksIntegrationMapItemDrawer } from '~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer/useQuickbooksIntegrationMapItemDrawer'
 import { MenuPopper } from '~/styles'
 
 import QuickbooksIntegrationItemsListAddons from './QuickbooksIntegrationItemsListAddons'

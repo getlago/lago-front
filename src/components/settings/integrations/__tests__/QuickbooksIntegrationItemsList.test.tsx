@@ -63,9 +63,12 @@ jest.mock('~/components/settings/integrations/QuickbooksIntegrationItemsListDefa
   },
 }))
 
-jest.mock('~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer', () => ({
-  useQuickbooksIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
-}))
+jest.mock(
+  '~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer/useQuickbooksIntegrationMapItemDrawer',
+  () => ({
+    useQuickbooksIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
+  }),
+)
 
 const renderAt = (itemType: string) => {
   window.history.pushState({}, '', `/?item_type=${itemType}`)

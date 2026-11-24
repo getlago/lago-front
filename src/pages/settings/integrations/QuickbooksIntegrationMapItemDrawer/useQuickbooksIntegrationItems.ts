@@ -1,8 +1,10 @@
+import { gql, LazyQueryExecFunction } from '@apollo/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import {
   GetQuickbooksIntegrationItemsQuery,
+  GetQuickbooksIntegrationItemsQueryVariables,
   IntegrationItemTypeEnum,
   MappableTypeEnum,
   MappingTypeEnum,
@@ -13,6 +15,58 @@ import {
 } from '~/generated/graphql'
 
 import { toQuickbooksOption } from './toQuickbooksOption'
+
+gql`
+  fragment QuickbooksIntegrationMapItemDrawer on IntegrationItem {
+    id
+    externalId
+    externalName
+    externalAccountCode
+    itemType
+  }
+
+  # Item fetch
+  query getQuickbooksIntegrationItems(
+    $integrationId: ID!
+    $itemType: IntegrationItemTypeEnum
+    $page: Int
+    $limit: Int
+    $searchTerm: String
+  ) {
+    integrationItems(
+      integrationId: $integrationId
+      itemType: $itemType
+      page: $page
+      limit: $limit
+      searchTerm: $searchTerm
+    ) {
+      collection {
+        ...QuickbooksIntegrationMapItemDrawer
+      }
+      metadata {
+        currentPage
+        totalPages
+        totalCount
+      }
+    }
+  }
+
+  mutation triggerQuickbooksIntegrationAccountsRefetch($input: FetchIntegrationAccountsInput!) {
+    fetchIntegrationAccounts(input: $input) {
+      collection {
+        ...QuickbooksIntegrationMapItemDrawer
+      }
+    }
+  }
+
+  mutation triggerQuickbooksIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
+    fetchIntegrationItems(input: $input) {
+      collection {
+        ...QuickbooksIntegrationMapItemDrawer
+      }
+    }
+  }
+`
 
 const ITEMS_LIMIT = 1000
 
@@ -132,31 +186,33 @@ export const useQuickbooksIntegrationItemSearch = (
     setSearchResults(toComboboxData(data))
   }, [data, loading, variables, latestSearchTerm])
 
-  const search = useCallback(
-    (...args: Parameters<typeof rawSearchItems>): ReturnType<typeof rawSearchItems> | undefined => {
+  const search = useCallback<
+    LazyQueryExecFunction<
+      GetQuickbooksIntegrationItemsQuery,
+      GetQuickbooksIntegrationItemsQueryVariables
+    >
+  >(
+    (options) => {
       const { integrationId: currentIntegrationId, itemType } = queryParamsRef.current
-      const searchTerm = args[0]?.variables?.searchTerm ?? undefined
+      const searchTerm = options?.variables?.searchTerm ?? undefined
+      const queryVariables = {
+        ...options?.variables,
+        limit: ITEMS_LIMIT,
+        integrationId: currentIntegrationId ?? '',
+        itemType,
+      }
 
       setLatestSearchTerm(searchTerm)
 
-      // Clearing the search falls back to the catalog the drawer already holds, so the 1000-item
-      // query would only be run to throw its result away.
-      if (!searchTerm) {
+      // Clearing the search falls back to the catalog the drawer already holds: the cache-only
+      // read keeps the 1000-item query off the network.
+      if (!searchTerm || !currentIntegrationId) {
         setSearchResults(undefined)
-        return undefined
+
+        return rawSearchItems({ ...options, variables: queryVariables, fetchPolicy: 'cache-only' })
       }
 
-      if (!currentIntegrationId) return undefined
-
-      return rawSearchItems({
-        ...args[0],
-        variables: {
-          ...args[0]?.variables,
-          limit: ITEMS_LIMIT,
-          integrationId: currentIntegrationId,
-          itemType,
-        },
-      })
+      return rawSearchItems({ ...options, variables: queryVariables })
     },
     [rawSearchItems],
   )
@@ -165,6 +221,6 @@ export const useQuickbooksIntegrationItemSearch = (
     searchResults: searchResults ?? NO_SEARCH_RESULTS,
     isSearching: !!searchResults,
     isLoading: loading,
-    search: search as unknown as ComboBoxProps['searchQuery'],
+    search,
   }
 }
