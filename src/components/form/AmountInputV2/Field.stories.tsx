@@ -16,7 +16,7 @@ import { AmountInputV2 } from './AmountInputV2'
 import { currencyOptions } from './currencies.story-data'
 
 export default {
-  title: 'Components/Field',
+  title: 'Components/AmountInput/Field',
   loaders: [
     async (): Promise<object> => {
       await initializeTranslations()

@@ -51,6 +51,36 @@ it.each(['combobox', 'amount'])(
     Element.prototype.scrollIntoView = jest.fn()
     const height = jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(256)
 
+    const renderControl = (): JSX.Element => {
+      if (kind === 'amount')
+        return (
+          <AmountInputV2
+            mode="selectable"
+            currency={CurrencyEnum.Usd}
+            currencyOptions={[
+              { value: CurrencyEnum.Usd, label: 'US Dollar' },
+              { value: CurrencyEnum.Eur, label: 'Euro' },
+            ]}
+            onCurrencyChange={changed}
+            value="123.45"
+            onChange={jest.fn()}
+            aria-label="Amount"
+          />
+        )
+      return (
+        <Combobox items={['Alex', 'Sam']} onValueChange={changed}>
+          <ComboboxControl>
+            <ComboboxInput aria-label="Quote owner" />
+          </ComboboxControl>
+          <ComboboxContent>
+            <ComboboxList getItemKey={(name: string) => name}>
+              {(name) => <ComboboxItem value={name}>{name}</ComboboxItem>}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      )
+    }
+
     try {
       render(
         <BaseDialog
@@ -60,31 +90,7 @@ it.each(['combobox', 'amount'])(
           closeDialog={closeDialog}
           removeDialog={jest.fn()}
         >
-          {kind === 'amount' ? (
-            <AmountInputV2
-              mode="selectable"
-              currency={CurrencyEnum.Usd}
-              currencyOptions={[
-                { value: CurrencyEnum.Usd, label: 'US Dollar' },
-                { value: CurrencyEnum.Eur, label: 'Euro' },
-              ]}
-              onCurrencyChange={changed}
-              value="123.45"
-              onChange={jest.fn()}
-              aria-label="Amount"
-            />
-          ) : (
-            <Combobox items={['Alex', 'Sam']} onValueChange={changed}>
-              <ComboboxControl>
-                <ComboboxInput aria-label="Quote owner" />
-              </ComboboxControl>
-              <ComboboxContent>
-                <ComboboxList getItemKey={(name: string) => name}>
-                  {(name) => <ComboboxItem value={name}>{name}</ComboboxItem>}
-                </ComboboxList>
-              </ComboboxContent>
-            </Combobox>
-          )}
+          {renderControl()}
         </BaseDialog>,
       )
       await user.click(

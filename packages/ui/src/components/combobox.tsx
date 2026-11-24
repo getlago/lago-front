@@ -138,7 +138,7 @@ export interface ComboboxTriggerProps extends StyledProps<Primitive.Trigger.Prop
 }
 
 export const ComboboxTrigger = React.forwardRef<HTMLButtonElement, ComboboxTriggerProps>(
-  ({ className, children, variant = 'icon', ...props }, ref) => (
+  ({ className, children, variant = 'icon', ...props }, ref): React.ReactElement => (
     <Primitive.Trigger
       {...props}
       ref={ref}
@@ -164,7 +164,7 @@ export interface ComboboxSearchProps extends Omit<StyledProps<Primitive.Input.Pr
 }
 
 export const ComboboxSearch = React.forwardRef<HTMLInputElement, ComboboxSearchProps>(
-  ({ clearLabel, onClear, showClear, className, ...props }, ref) => (
+  ({ clearLabel, onClear, showClear, className, ...props }, ref): React.ReactElement => (
     <div className="relative min-w-0">
       <ComboboxInput
         {...props}

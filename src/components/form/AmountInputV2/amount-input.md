@@ -41,5 +41,5 @@ The selector is left of the amount and precedes it in keyboard order. Its popup 
 - [Figma AmountInput](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb?node-id=360-892)
 - [Existing amount behavior](../AmountInput/AmountInput.tsx)
 
-- Storybook: `Components/AmountInput` and `Components/Field` AmountInput examples.
+- Storybook: `Components/AmountInput` and `Components/AmountInput/Field` AmountInput examples.
 - Tests: [AmountInputV2.test.tsx](__tests__/AmountInputV2.test.tsx), [formatting.test.ts](../AmountInput/__tests__/formatting.test.ts).
