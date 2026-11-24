@@ -31,7 +31,7 @@ export const defineNewBeforeChangeFormatter = ({
     return beforeChangeFormatter
   }
 
-  if (!!chargePricingUnitShortName) {
+  if (chargePricingUnitShortName) {
     newBeforeChangeFormatter.push('decimal')
   } else if (getCurrencyPrecision(currency) === 0) {
     newBeforeChangeFormatter.push('int')
@@ -55,7 +55,7 @@ export const definedDefaultPlaceholder = ({
   translate: TranslateFunc
   chargePricingUnitShortName?: string
 }): string => {
-  if (!!chargePricingUnitShortName) {
+  if (chargePricingUnitShortName) {
     return translate('text_63971043c9668f1ba5221bac', undefined, 1)
   } else if (getCurrencyPrecision(currency) === 0) {
     return translate('text_63971043c9668f1ba5221bac', undefined, 0)

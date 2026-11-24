@@ -59,7 +59,7 @@ const mapCaret = (raw: string, formatted: string, position: number): number => {
     if (raw[source] === formatted[target]) {
       source++
       target++
-    } else if (raw.indexOf(formatted[target], source) !== -1) {
+    } else if (raw.includes(formatted[target], source)) {
       source++
     } else {
       target++
