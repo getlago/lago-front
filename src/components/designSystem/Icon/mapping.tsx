@@ -32,6 +32,7 @@ import ChevronRightFilled from './icons/chevron-right-filled.svg'
 import ChevronRight from './icons/chevron-right.svg'
 import ChevronTop from './icons/chevron-top.svg'
 import ChevronUpDown from './icons/chevron-up-down.svg'
+import CircleDashed from './icons/circle-dashed.svg'
 import Clock from './icons/clock.svg'
 import CloseCircleFilled from './icons/close-circle-filled.svg'
 import CloseCircleUnfilled from './icons/close-circle-unfilled.svg'
@@ -196,6 +197,7 @@ export const ALL_ICONS = {
   'chevron-right-filled': ChevronRightFilled,
   'chevron-top': ChevronTop,
   'chevron-up-down': ChevronUpDown,
+  'circle-dashed': CircleDashed,
   clock: Clock,
   'close-circle-filled': CloseCircleFilled,
   'close-circle-unfilled': CloseCircleUnfilled,

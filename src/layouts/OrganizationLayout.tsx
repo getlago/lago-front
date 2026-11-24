@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/react'
 import { lazy, ReactElement, Suspense, useEffect, useRef, useState } from 'react'
 import { Outlet, useParams } from 'react-router'
 
-import { Button } from '~/components/designSystem/Button'
+import { Alert } from '~/components/designSystem/Alert'
 import { Spinner } from '~/components/designSystem/Spinner'
 import { Typography } from '~/components/designSystem/Typography'
 import { switchCurrentOrganization } from '~/core/apolloClient'
@@ -17,10 +17,12 @@ import {
 import { useLocation, useNavigate } from '~/core/router'
 import { LEGACY_APP_PATH_SEGMENTS } from '~/core/router/legacyPaths'
 import { getAccessibleMemberships, resolveOrgSlug } from '~/core/router/utils/orgSlug'
+import { OrganizationActivationStatusEnum } from '~/generated/graphql'
 import { useIsAuthenticated } from '~/hooks/auth/useIsAuthenticated'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useSandbox } from '~/hooks/useSandbox'
+import { PendingOrganizationShell } from '~/layouts/PendingOrganizationShell'
 import { useSandboxBannerHeightCssVar } from '~/layouts/sandboxBannerHeight'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
@@ -54,24 +56,27 @@ const SandboxBanner = (): ReactElement | null => {
   if (!isSandbox) return null
 
   return (
-    <div
-      ref={setBanner}
-      className="flex shrink-0 flex-wrap items-center justify-center gap-x-2 bg-purple-100 px-4 py-1"
-      data-test={SANDBOX_BANNER_TEST_ID}
-    >
-      <Typography variant="caption" color="grey700">
-        {translate('text_1794221187063vcta3ox2a0c')}
-      </Typography>
-      {!!productionPath && (
-        <Button
-          variant="inline"
-          size="small"
-          data-test={SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID}
-          onClick={() => navigate(productionPath, { skipSlugPrepend: true })}
-        >
-          {translate('text_1794221187063tztk6kvdznf')}
-        </Button>
-      )}
+    <div ref={setBanner} className="shrink-0" data-test={SANDBOX_BANNER_TEST_ID}>
+      <Alert
+        type="info"
+        tone="dark"
+        fullWidth
+        className="px-7"
+        ButtonProps={
+          productionPath
+            ? {
+                label: translate('text_1794221187063tztk6kvdznf'),
+                onClick: () => navigate(productionPath, { skipSlugPrepend: true }),
+                'data-test': SANDBOX_BANNER_SWITCH_BUTTON_TEST_ID,
+              }
+            : undefined
+        }
+      >
+        <Typography component="span" variant="bodyHl" color="inherit">
+          {translate('text_1794221187063c6xcfwvtt6l')}
+        </Typography>
+        {` • ${translate('text_1794995101466zj746a29m20')}`}
+      </Alert>
     </div>
   )
 }
@@ -91,6 +96,10 @@ const OrganizationLayout = () => {
   )?.organization
   // The API refuses every request to an organization the session can't open.
   const org = membershipOrg?.accessibleByCurrentSession ? membershipOrg : undefined
+  // The API answers `organization_inactive` to every request for this organization: its id must never
+  // reach `currentOrganizationVar`, which every org-scoped query sends.
+  const isPendingOrg =
+    org?.activationStatus === OrganizationActivationStatusEnum.PendingPaymentMethod
 
   // Auto-recovery for legacy pre-migration paths (e.g. `/customers`).
   const isLegacyPath = LEGACY_APP_PATH_SEGMENTS.has(organizationSlug ?? '')
@@ -112,7 +121,7 @@ const OrganizationLayout = () => {
   // (e.g. browser back after org switch). In that case, call switchCurrentOrganization
   // to clear the Apollo cache — otherwise stale data from the previous org leaks.
   useEffect(() => {
-    if (org?.id) {
+    if (org?.id && !isPendingOrg) {
       if (currentOrgId && currentOrgId !== org.id) {
         switchCurrentOrganization(client, org.id)
       } else {
@@ -122,7 +131,7 @@ const OrganizationLayout = () => {
       // by `RootRedirect` at `/` to pick a landing slug when the URL has none.
       setPersistedOrganizationSlug(org.slug)
     }
-  }, [org?.id, org?.slug, currentOrgId, client])
+  }, [org?.id, org?.slug, isPendingOrg, currentOrgId, client])
 
   // Auto-recover legacy paths universally. Runs in an effect (not render) to
   // avoid React's "cannot update during render" warning when navigation
@@ -223,6 +232,10 @@ const OrganizationLayout = () => {
   }
 
   if (org) {
+    if (isPendingOrg) {
+      return <PendingOrganizationShell organization={org} onAddPaymentMethod={() => undefined} />
+    }
+
     if (currentOrgId !== org.id) return <Spinner />
 
     return (

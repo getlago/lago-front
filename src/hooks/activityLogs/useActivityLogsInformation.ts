@@ -25,9 +25,15 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractRateCardCreated]: 'text_17919219748028qs8slf9r4r',
   [ActivityTypeEnum.ContractRateCardDeleted]: 'text_1791921974802buml62fqqaz',
   [ActivityTypeEnum.ContractRateCardUpdated]: 'text_1791921974802geeg4bwwkvk',
+  [ActivityTypeEnum.ContractWalletCreated]: 'text_1795454086814mzvn73ebgux',
+  [ActivityTypeEnum.ContractWalletDeleted]: 'text_1795454086814j2ad501cmlx',
+  [ActivityTypeEnum.ContractWalletUpdated]: 'text_1795454086814egs32zmws65',
   [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
   [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
   [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
+  [ActivityTypeEnum.PlanWalletCreated]: 'text_1795093921133goym1lmktoq',
+  [ActivityTypeEnum.PlanWalletDeleted]: 'text_1795093921133a8yyd8l1i37',
+  [ActivityTypeEnum.PlanWalletUpdated]: 'text_1795093921133stwkpx4uv8x',
   [ActivityTypeEnum.RateCardRateCreated]: 'text_1791921974803r2tomq2nay3',
   [ActivityTypeEnum.RateCardRateDeleted]: 'text_1791921974803zghgbb7drn4',
   [ActivityTypeEnum.RateCardRateUpdated]: 'text_1791921974803lfnnssptes9',
@@ -200,9 +206,15 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ContractRateCardCreated:
       case ActivityTypeEnum.ContractRateCardDeleted:
       case ActivityTypeEnum.ContractRateCardUpdated:
+      case ActivityTypeEnum.ContractWalletCreated:
+      case ActivityTypeEnum.ContractWalletDeleted:
+      case ActivityTypeEnum.ContractWalletUpdated:
       case ActivityTypeEnum.PlanRateCardCreated:
       case ActivityTypeEnum.PlanRateCardDeleted:
       case ActivityTypeEnum.PlanRateCardUpdated:
+      case ActivityTypeEnum.PlanWalletCreated:
+      case ActivityTypeEnum.PlanWalletDeleted:
+      case ActivityTypeEnum.PlanWalletUpdated:
       case ActivityTypeEnum.RateCardRateCreated:
       case ActivityTypeEnum.RateCardRateDeleted:
       case ActivityTypeEnum.RateCardRateUpdated:

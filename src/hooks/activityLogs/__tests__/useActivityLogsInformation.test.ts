@@ -72,7 +72,13 @@ describe('useActivityLogsInformation', () => {
     it.each([
       [ActivityTypeEnum.ContractStarted, 'text_1791921974802xc0m2b09axm'],
       [ActivityTypeEnum.ContractRateCardUpdated, 'text_1791921974802geeg4bwwkvk'],
+      [ActivityTypeEnum.ContractWalletCreated, 'text_1795454086814mzvn73ebgux'],
+      [ActivityTypeEnum.ContractWalletDeleted, 'text_1795454086814j2ad501cmlx'],
+      [ActivityTypeEnum.ContractWalletUpdated, 'text_1795454086814egs32zmws65'],
       [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],
+      [ActivityTypeEnum.PlanWalletCreated, 'text_1795093921133goym1lmktoq'],
+      [ActivityTypeEnum.PlanWalletDeleted, 'text_1795093921133a8yyd8l1i37'],
+      [ActivityTypeEnum.PlanWalletUpdated, 'text_1795093921133stwkpx4uv8x'],
       [ActivityTypeEnum.RateCardRateDeleted, 'text_1791921974803zghgbb7drn4'],
     ])('should return translation key for %s', (activityType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())

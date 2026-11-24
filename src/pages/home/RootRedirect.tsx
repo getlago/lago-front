@@ -5,7 +5,11 @@ import { getPersistedOrganizationSlug } from '~/core/apolloClient/reactiveVars'
 import { FORBIDDEN_ROUTE, useLocation, useNavigate } from '~/core/router'
 import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { getFirstPathSegment } from '~/core/router/utils/getFirstPathSegment'
-import { getAccessibleMemberships, isAccessibleOrgSlug } from '~/core/router/utils/orgSlug'
+import {
+  getAccessibleMemberships,
+  getLandingMemberships,
+  isLandingOrgSlug,
+} from '~/core/router/utils/orgSlug'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { REDIRECT_AFTER_LOGIN_LS_KEY } from '~/core/utils/localStorageKeys'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
@@ -22,9 +26,9 @@ import { useNeedsOrganization } from '~/hooks/useNeedsOrganization'
  * has set the org context from the URL slug. Keeping the root org-data-free is
  * what makes the in-memory (non-LS-seeded) org var safe.
  *
- * Landing slug priority (each candidate validated against the user's accessible
+ * Landing slug priority (each candidate validated against the user's landing
  * memberships): slug of the saved `from` location → slug of the SSO redirect
- * path → persisted "last used" slug → first accessible membership.
+ * path → persisted "last used" slug → first one (`getLandingMemberships`).
  * `REDIRECT_AFTER_LOGIN_LS_KEY` is left untouched (the org-scoped `Home`
  * consumes it) and `location.state` is forwarded so the saved `from` survives
  * the bounce.
@@ -72,8 +76,8 @@ const RootRedirect = () => {
     const persistedSlug = getPersistedOrganizationSlug() || undefined
 
     const targetSlug =
-      [savedSlug, ssoSlug, persistedSlug].find((slug) => isAccessibleOrgSlug(slug, currentUser)) ??
-      accessibleMemberships[0].organization.slug
+      [savedSlug, ssoSlug, persistedSlug].find((slug) => isLandingOrgSlug(slug, currentUser)) ??
+      getLandingMemberships(currentUser)[0].organization.slug
 
     hasNavigatedRef.current = true
     navigate(`/${targetSlug}`, { replace: true, state: location.state, skipSlugPrepend: true })

@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
-import { ContractStatusEnum } from '~/generated/graphql'
+import { ContractForContractDrawerFragment, ContractStatusEnum } from '~/generated/graphql'
 
 import {
   getContractTerminationCopy,
@@ -29,7 +29,7 @@ jest.mock('~/core/apolloClient', () => ({
   addToast: jest.fn(),
 }))
 
-const openDialog = (contract?: { externalId: string; status: ContractStatusEnum }) => {
+const openDialog = (contract?: Pick<ContractForContractDrawerFragment, 'id' | 'status'>) => {
   const hook = renderHook(() => useTerminateContractDialog())
 
   act(() => hook.result.current.openTerminateContractDialog(contract))
@@ -53,7 +53,7 @@ describe('useTerminateContractDialog', () => {
       openDialog(
         status
           ? {
-              externalId: 'external-contract-1',
+              id: 'contract-1',
               status,
             }
           : undefined,
@@ -64,7 +64,7 @@ describe('useTerminateContractDialog', () => {
   )
 
   it('opens a persistent danger confirmation for an active contract', () => {
-    openDialog({ externalId: 'external-contract-1', status: ContractStatusEnum.Active })
+    openDialog({ id: 'contract-1', status: ContractStatusEnum.Active })
 
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -77,7 +77,7 @@ describe('useTerminateContractDialog', () => {
   })
 
   it('uses cancellation copy for a pending contract', () => {
-    openDialog({ externalId: 'external-contract-1', status: ContractStatusEnum.Pending })
+    openDialog({ id: 'contract-1', status: ContractStatusEnum.Pending })
 
     expect(mockOpen).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -87,23 +87,29 @@ describe('useTerminateContractDialog', () => {
     )
   })
 
-  it('calls terminateContract by external ID and shows the matching toast', async () => {
-    openDialog({ externalId: 'external-contract-1', status: ContractStatusEnum.Active })
+  it.each([ContractStatusEnum.Active, ContractStatusEnum.Pending])(
+    'calls terminateContract by ID for a %s contract and shows the matching toast',
+    async (status) => {
+      openDialog({ id: 'contract-1', status })
 
-    await act(async () => getDialogProps().onAction())
+      await act(async () => getDialogProps().onAction())
 
-    expect(mockTerminateContract).toHaveBeenCalledWith({
-      variables: { input: { externalId: 'external-contract-1' } },
-    })
-    expect(addToast).toHaveBeenCalledWith({
-      severity: 'success',
-      translateKey: 'text_1789971751137egm0tdl3q96',
-    })
-  })
+      expect(mockTerminateContract).toHaveBeenCalledWith({
+        variables: { input: { id: 'contract-1' } },
+      })
+      expect(addToast).toHaveBeenCalledWith({
+        severity: 'success',
+        translateKey:
+          status === ContractStatusEnum.Active
+            ? 'text_1789971751137egm0tdl3q96'
+            : 'text_1789971751137982utge606b',
+      })
+    },
+  )
 
   it('keeps the action unsuccessful when the API returns no contract', async () => {
     mockTerminateContract.mockResolvedValue({ data: { terminateContract: null } })
-    openDialog({ externalId: 'external-contract-1', status: ContractStatusEnum.Active })
+    openDialog({ id: 'contract-1', status: ContractStatusEnum.Active })
 
     await expect(getDialogProps().onAction()).rejects.toThrow(
       'Contract lifecycle mutation returned no contract',

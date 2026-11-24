@@ -12,6 +12,8 @@ type FiltersItemContractStatusProps = {
 
 export const contractStatusTranslation = (status: ContractStatusEnum): string => {
   switch (status) {
+    case ContractStatusEnum.Draft:
+      return 'text_63ac86d797f728a87b2f9f91'
     case ContractStatusEnum.Active:
       return 'text_624efab67eb2570101d1180e'
     case ContractStatusEnum.Pending:

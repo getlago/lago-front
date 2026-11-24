@@ -14,7 +14,8 @@ import { Typography } from '~/components/designSystem/Typography'
 import { VerticalMenuSectionTitle } from '~/components/designSystem/VerticalMenu'
 import { addToast, logOut } from '~/core/apolloClient'
 import { authenticationMethodsMapping } from '~/core/constants/authenticationMethodsMapping'
-import { HOME_ROUTE, useNavigate } from '~/core/router'
+import { HOME_ROUTE, useLocation, useNavigate } from '~/core/router'
+import { getCounterpartPath } from '~/core/router/utils/counterpartPath'
 import {
   AuthenticationMethodsEnum,
   CurrentUserInfosFragment,
@@ -45,10 +46,53 @@ export const ORGANIZATION_SWITCHER_NAME_TEST_ID = 'side-nav-name'
 export const ORGANIZATION_SWITCHER_CURRENT_SANDBOX_TAG_TEST_ID = 'side-nav-sandbox-tag'
 export const ORGANIZATION_SWITCHER_ORG_ITEM_TEST_ID = 'organization-switcher-org-item'
 export const ORGANIZATION_SWITCHER_ORG_LIST_TEST_ID = 'organization-switcher-org-list'
+export const ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID = 'organization-switcher-sandbox-tag'
 const ORGANIZATION_SWITCHER_LOGOUT_TEST_ID = 'side-nav-logout'
 const ORGANIZATION_SWITCHER_VERSION_LINK_TEST_ID = 'organization-switcher-version-link'
 
 type OrganizationFromMembership = CurrentUserInfosFragment['memberships'][0]['organization']
+
+const compareOrganizations = (
+  a: OrganizationFromMembership,
+  b: OrganizationFromMembership,
+): number => {
+  if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
+    return a.accessibleByCurrentSession ? -1 : 1
+  }
+
+  return a.name.toLowerCase().localeCompare(b.name.toLowerCase())
+}
+
+const getOrderedOrganizations = (
+  organizations: OrganizationFromMembership[],
+): OrganizationFromMembership[] => {
+  const organizationsById = new Map(organizations.map((org) => [org.id, org]))
+  const sandboxIdByProductionId = new Map<string, string>()
+
+  organizations.forEach((org) => {
+    const sandboxId = org.sandboxOrganization?.id
+    const productionId = org.productionOrganization?.id
+
+    if (sandboxId && organizationsById.has(sandboxId)) {
+      sandboxIdByProductionId.set(org.id, sandboxId)
+    }
+
+    if (productionId && organizationsById.has(productionId)) {
+      sandboxIdByProductionId.set(productionId, org.id)
+    }
+  })
+
+  const pairedSandboxIds = new Set(sandboxIdByProductionId.values())
+
+  return organizations
+    .filter((org) => !pairedSandboxIds.has(org.id))
+    .sort(compareOrganizations)
+    .flatMap((org) => {
+      const sandbox = organizationsById.get(sandboxIdByProductionId.get(org.id) ?? '')
+
+      return sandbox ? [org, sandbox] : [org]
+    })
+}
 
 interface OrganizationSwitcherProps {
   client: ApolloClient<object>
@@ -76,6 +120,7 @@ export const OrganizationSwitcher = ({
 }: OrganizationSwitcherProps) => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { strippedPathname, search } = useLocation()
   const { organizationSlug } = useParams<{ organizationSlug: string }>()
 
   const organizationList: OrganizationFromMembership[] | undefined = currentUser?.memberships.map(
@@ -113,6 +158,18 @@ export const OrganizationSwitcher = ({
 
   const inaccessibleOrganizationTooltip = getInaccessibleOrganizationTooltip()
 
+  const getSwitchTargetPath = (targetOrg: OrganizationFromMembership): string => {
+    const counterpartIds = [
+      currentOrgFromSlug?.sandboxOrganization?.id,
+      currentOrgFromSlug?.productionOrganization?.id,
+    ]
+    // Only the other organization of the pair has the same pages: any other one opens on its home.
+
+    if (!counterpartIds.includes(targetOrg.id)) return `/${targetOrg.slug}${HOME_ROUTE}`
+
+    return getCounterpartPath({ targetSlug: targetOrg.slug, strippedPathname, search })
+  }
+
   /**
    * Switches the current organization by navigating to its slug.
    *
@@ -139,7 +196,7 @@ export const OrganizationSwitcher = ({
 
       // `skipSlugPrepend` — the target slug is the NEW org, different from the
       // one currently in `useParams()`, so we must bypass the wrapper's auto-prepend.
-      navigate(`/${targetOrg.slug}${HOME_ROUTE}`, { skipSlugPrepend: true })
+      navigate(getSwitchTargetPath(targetOrg), { skipSlugPrepend: true })
     } catch (error) {
       // Apollo/GraphQL errors are automatically captured by the errorLink in apolloClient/init.ts
       // Only capture non-Apollo errors manually to avoid duplicates
@@ -204,7 +261,7 @@ export const OrganizationSwitcher = ({
                 >
                   {currentOrgFromSlug?.name}
                 </Typography>
-                {organization?.environment === OrganizationEnvironmentEnum.Sandbox && (
+                {currentOrgFromSlug?.environment === OrganizationEnvironmentEnum.Sandbox && (
                   <Chip
                     className="ml-2 shrink-0"
                     size="small"
@@ -227,17 +284,8 @@ export const OrganizationSwitcher = ({
               >
                 <VerticalMenuSectionTitle title={currentUser?.email || ''} loading={isLoading} />
 
-                {[...organizationList]
-                  .sort((a, b) => {
-                    // First sort by accessibleByCurrentSession (accessible first)
-                    if (a.accessibleByCurrentSession !== b.accessibleByCurrentSession) {
-                      return a.accessibleByCurrentSession ? -1 : 1
-                    }
-
-                    // Then sort alphabetically by name
-                    return a.name.toLowerCase()?.localeCompare(b.name.toLowerCase() ?? '') ?? 0
-                  })
-                  ?.map(({ id, name, logoUrl, accessibleByCurrentSession }) => (
+                {getOrderedOrganizations(organizationList).map(
+                  ({ id, name, logoUrl, accessibleByCurrentSession, environment }) => (
                     <ConditionalWrapper
                       key={`organization-in-side-nav-${id}`}
                       condition={accessibleByCurrentSession}
@@ -277,9 +325,18 @@ export const OrganizationSwitcher = ({
                         <Typography variant="caption" color="inherit" noWrap>
                           {name}
                         </Typography>
+                        {environment === OrganizationEnvironmentEnum.Sandbox && (
+                          <Chip
+                            data-test={ORGANIZATION_SWITCHER_SANDBOX_TAG_TEST_ID}
+                            className="ml-2 shrink-0"
+                            size="small"
+                            label={translate('text_1794221187063c6xcfwvtt6l')}
+                          />
+                        )}
                       </Button>
                     </ConditionalWrapper>
-                  ))}
+                  ),
+                )}
               </div>
             )}
 

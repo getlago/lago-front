@@ -6,6 +6,7 @@ import { TimezoneEnum } from '~/generated/graphql'
 export const CONTRACT_FORM_ID = 'contract-drawer-form'
 
 export const CONTRACT_DRAWER_SUBMIT_TEST_ID = 'contract-drawer-submit'
+export const CONTRACT_DRAWER_CODE_INPUT_TEST_ID = 'contract-drawer-code-input'
 export const CONTRACT_DRAWER_SHOW_NAME_TEST_ID = 'contract-drawer-show-name'
 export const CONTRACT_DRAWER_SHOW_EXTERNAL_ID_TEST_ID = 'contract-drawer-show-external-id'
 export const CONTRACT_DRAWER_REMOVE_EXTERNAL_ID_TEST_ID = 'contract-drawer-remove-external-id'
@@ -19,6 +20,10 @@ export const VALUE_REQUIRED_KEY = 'text_620bc4d4269a55014d493f98'
 
 export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
 
+export const CONTRACT_EXISTING_CODE_FIELD_ERRORS = {
+  code: { message: 'text_1795033589870p2xxngsuzlk', path: ['code'] },
+}
+
 /**
  * `externalCustomerId` and `planCode` mirror `CreateContractInput`, which is keyed on
  * the customer's EXTERNAL id and the plan's CODE — not the internal ids the
@@ -28,6 +33,7 @@ export const CONTRACT_DRAWER_TITLE_CREATE_KEY = 'text_1789552637140uev14bbwspq'
 export interface ContractFormValues {
   externalCustomerId: string
   externalId: string
+  code: string
   planCode: string
   name: string
   billingEntityId?: string
@@ -63,6 +69,7 @@ export const buildContractFormDefaults = (
   return {
     externalCustomerId: customer?.externalId ?? '',
     externalId: '',
+    code: '',
     planCode: '',
     name: '',
     billingEntityId: customer?.billingEntityId,
@@ -86,6 +93,7 @@ export const buildContractFormDefaults = (
 export const CONTRACT_FORM_DEFAULTS: ContractFormValues = {
   externalCustomerId: '',
   externalId: '',
+  code: '',
   planCode: '',
   name: '',
   billingEntityId: undefined,
