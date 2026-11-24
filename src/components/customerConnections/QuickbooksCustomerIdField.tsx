@@ -25,7 +25,7 @@ const withSelectedOption = (
 }
 
 // External id of a QuickBooks connection: a picker of the stored QuickBooks customers, or the
-// plain id input while none is stored, so an id can always be typed.
+// plain id input while none is stored or the list is too large to load.
 export const QuickbooksCustomerIdField = ({
   form,
   integrationId,
@@ -37,6 +37,7 @@ export const QuickbooksCustomerIdField = ({
     hasStoredCustomers,
     isLoading,
     isRefreshing,
+    isListTooLarge,
     canRefresh,
     search,
     refresh,
@@ -57,7 +58,7 @@ export const QuickbooksCustomerIdField = ({
       <div className="flex-1">
         <form.AppField name="externalCustomerId">
           {(field) =>
-            hasStoredCustomers ? (
+            hasStoredCustomers && !isListTooLarge ? (
               <field.ComboBoxField
                 data={data}
                 loading={isLoading || isRefreshing}
@@ -70,7 +71,12 @@ export const QuickbooksCustomerIdField = ({
             ) : (
               <field.TextInputField
                 label={translate('text_1784649473978u6kmffzlw0b', { connectionName })}
-                description={translate('text_1784649473978uuc3oggbf1r', { connectionName })}
+                description={translate(
+                  isListTooLarge
+                    ? 'text_1795513116112pq114g3wdc4'
+                    : 'text_1784649473978uuc3oggbf1r',
+                  { connectionName },
+                )}
                 placeholder={translate('text_1784649473978i3wq11ccip3')}
               />
             )

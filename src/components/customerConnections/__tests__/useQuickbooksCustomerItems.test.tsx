@@ -301,6 +301,55 @@ describe('useQuickbooksCustomerItems', () => {
     })
   })
 
+  describe('GIVEN the sync hits the QuickBooks customer cap', () => {
+    const tooManyCustomers = {
+      failedWith: LagoApiError.UnprocessableEntity,
+      details: { customers: ['too_many_customers'] },
+    }
+
+    describe('WHEN it was the automatic sync', () => {
+      it('THEN should flag the list as too large, without a toast', async () => {
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([buildCountMock(2), buildFetchMock(jest.fn(), tooManyCustomers)]),
+        })
+
+        expect(result.current.isListTooLarge).toBe(false)
+
+        act(() => {
+          result.current.refreshOnce()
+        })
+
+        await waitFor(() => expect(result.current.isListTooLarge).toBe(true))
+        expect(mockAddToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN a later refresh succeeds', () => {
+      it('THEN should clear the flag', async () => {
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([
+            buildCountMock(2),
+            buildFetchMock(jest.fn(), tooManyCustomers),
+            buildFetchMock(jest.fn()),
+            buildCountMock(2),
+          ]),
+        })
+
+        act(() => {
+          result.current.refresh()
+        })
+        await waitFor(() => expect(result.current.isListTooLarge).toBe(true))
+        await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+
+        act(() => {
+          result.current.refresh()
+        })
+
+        await waitFor(() => expect(result.current.isListTooLarge).toBe(false))
+      })
+    })
+  })
+
   describe.each([LagoApiError.UnprocessableEntity, LagoApiError.Forbidden])(
     'GIVEN a clicked refresh fails with %s, which the error link silences',
     (code) => {

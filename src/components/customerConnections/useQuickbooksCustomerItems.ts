@@ -1,5 +1,5 @@
 import { ApolloClient, gql, useApolloClient } from '@apollo/client'
-import { useCallback, useMemo, useRef } from 'react'
+import { useCallback, useMemo, useReducer, useRef } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import { addToast, isSilencedGQLError } from '~/core/apolloClient'
@@ -61,6 +61,8 @@ export const QUICKBOOKS_CUSTOMER_ITEMS_LIMIT = 100
 
 // Keyed by client so each Apollo store, a test's included, starts with nothing synced.
 const syncedIntegrations = new WeakMap<ApolloClient, Set<string>>()
+// Integrations whose last sync hit the API's customer cap, so a reopened drawer still knows
+const tooLargeIntegrations = new WeakMap<ApolloClient, Set<string>>()
 
 const REFETCH_QUERIES = ['getQuickbooksCustomerItems', 'getQuickbooksCustomerItemsCount']
 
@@ -82,6 +84,7 @@ type UseQuickbooksCustomerItemsReturn = {
   hasStoredCustomers: boolean
   isLoading: boolean
   isRefreshing: boolean
+  isListTooLarge: boolean
   canRefresh: boolean
   search: ComboBoxProps['searchQuery']
   refresh: () => void
@@ -143,6 +146,23 @@ export const useQuickbooksCustomerItems = (
   // The API replaces the whole list on each fetch, so two at once collide on its unique index.
   const isRefreshingRef = useRef(false)
 
+  // The flag lives outside React (see `tooLargeIntegrations`): a change re-renders explicitly.
+  const [, rerender] = useReducer((count: number) => count + 1, 0)
+  const isListTooLarge = !!integrationId && !!tooLargeIntegrations.get(client)?.has(integrationId)
+
+  const setListTooLarge = useCallback(
+    (id: string, isTooLarge: boolean): void => {
+      const tooLarge = tooLargeIntegrations.get(client) ?? new Set<string>()
+
+      if (isTooLarge) tooLarge.add(id)
+      else tooLarge.delete(id)
+
+      tooLargeIntegrations.set(client, tooLarge)
+      rerender()
+    },
+    [client],
+  )
+
   const sync = useCallback(
     (notifyOnError: boolean): void => {
       if (!integrationId || !canRefresh || isRefreshingRef.current) return
@@ -151,15 +171,8 @@ export const useQuickbooksCustomerItems = (
 
       void fetchCustomers({ variables: { input: { integrationId } } })
         .then(({ errors }) => {
-          // Other codes already get the global error toast from the error link. The automatic
-          // sync stays quiet: the plain id input remains usable without the list.
-          const isSilenced = !!errors?.some((error) =>
-            SILENCED_ERROR_CODES.includes(error.extensions?.code as LagoApiError),
-          )
-
-          if (!isSilenced || !notifyOnError) return
-
-          // Past the API's customer cap, the stored list is left as it was
+          // Past the API's customer cap, the stored list is left as it was: the field asks for
+          // a typed id instead, since that list can miss the customer.
           const hasTooManyCustomers = !!errors?.some(({ extensions }) =>
             isSilencedGQLError({
               extensions,
@@ -167,6 +180,22 @@ export const useQuickbooksCustomerItems = (
               silentErrorDetails: [TOO_MANY_CUSTOMERS_ERROR],
             }),
           )
+
+          if (hasTooManyCustomers || !errors?.length) {
+            setListTooLarge(integrationId, hasTooManyCustomers)
+          }
+
+          // Other codes already get the global error toast from the error link. The automatic
+          // sync stays quiet: the plain id input remains usable without the list.
+          const isSilenced = !!errors?.some(({ extensions }) =>
+            isSilencedGQLError({
+              extensions,
+              silentErrorCodes: SILENCED_ERROR_CODES,
+              silentErrorDetails: [],
+            }),
+          )
+
+          if (!isSilenced || !notifyOnError) return
 
           addToast({
             severity: 'danger',
@@ -180,7 +209,7 @@ export const useQuickbooksCustomerItems = (
           isRefreshingRef.current = false
         })
     },
-    [canRefresh, fetchCustomers, integrationId],
+    [canRefresh, fetchCustomers, integrationId, setListTooLarge],
   )
 
   const refresh = useCallback((): void => sync(true), [sync])
@@ -206,6 +235,7 @@ export const useQuickbooksCustomerItems = (
     hasStoredCustomers: (countData?.integrationItems?.metadata.totalCount ?? 0) > 0,
     isLoading: (countLoading && !countData) || itemsLoading,
     isRefreshing,
+    isListTooLarge,
     canRefresh,
     search: search as unknown as ComboBoxProps['searchQuery'],
     refresh,

@@ -5510,5 +5510,6 @@
   "text_1795450153419qsg9jme6t9o": "Customer from {{connectionName}}",
   "text_1795450153419c7na4oxm1wr": "Pick an existing customer from {{connectionName}} to link it with this customer.",
   "text_1795450153419mxue68940rx": "Search and select a customer",
-  "text_179551175424115ckjscs7o7": "This QuickBooks company has too many customers to list them in Lago. Enter the customer ID instead."
+  "text_179551175424115ckjscs7o7": "The QuickBooks customer list is too large to load. Type the customer ID instead.",
+  "text_1795513116112pq114g3wdc4": "The {{connectionName}} customer list is too large to load. Type the ID of the customer to link it with this customer."
 }

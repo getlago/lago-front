@@ -6,6 +6,7 @@ import {
   FetchQuickbooksCustomerItemsDocument,
   GetQuickbooksCustomerItemsCountDocument,
   IntegrationItemTypeEnum,
+  LagoApiError,
 } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
@@ -35,13 +36,27 @@ const buildCountMock = (totalCount: number) => ({
   },
 })
 
-const buildFetchMock = (onCall: jest.Mock) => ({
+const buildFetchMock = (onCall: jest.Mock, { tooManyCustomers = false } = {}) => ({
   request: {
     query: FetchQuickbooksCustomerItemsDocument,
     variables: { input: { integrationId: INTEGRATION_ID } },
   },
   result: () => {
     onCall()
+
+    if (tooManyCustomers) {
+      return {
+        errors: [
+          {
+            message: LagoApiError.UnprocessableEntity,
+            extensions: {
+              code: LagoApiError.UnprocessableEntity,
+              details: { customers: ['too_many_customers'] },
+            },
+          },
+        ],
+      }
+    }
 
     return {
       data: {
@@ -51,23 +66,29 @@ const buildFetchMock = (onCall: jest.Mock) => ({
   },
 })
 
-const Harness = () => {
-  const form = useAppForm({ defaultValues: { externalCustomerId: '' } })
+const Harness = ({ onSubmit }: { onSubmit: (values: { externalCustomerId: string }) => void }) => {
+  const form = useAppForm({
+    defaultValues: { externalCustomerId: '' },
+    onSubmit: ({ value }) => onSubmit(value),
+  })
 
   return (
-    <QuickbooksCustomerIdField
-      form={form as unknown as CustomerConnectionDrawerFormApi}
-      integrationId={INTEGRATION_ID}
-      connectionName="QuickBooks"
-    />
+    <>
+      <QuickbooksCustomerIdField
+        form={form as unknown as CustomerConnectionDrawerFormApi}
+        integrationId={INTEGRATION_ID}
+        connectionName="QuickBooks"
+      />
+      <button type="button" data-test="submit" onClick={() => form.handleSubmit()} />
+    </>
   )
 }
 
-const renderField = (mocks: TestMocksType) =>
+const renderField = (mocks: TestMocksType, onSubmit = jest.fn()) =>
   render(
     <StrictMode>
       <AllTheProviders mocks={mocks} forceTypenames>
-        <Harness />
+        <Harness onSubmit={onSubmit} />
       </AllTheProviders>
     </StrictMode>,
   )
@@ -114,6 +135,32 @@ describe('QuickbooksCustomerIdField', () => {
     })
   })
 
+  describe('GIVEN a stored list and a QuickBooks company over the customer cap', () => {
+    describe('WHEN the sync fails with too_many_customers and an id is typed', () => {
+      it('THEN should switch to the id input, explain why and submit the typed id', async () => {
+        const onSubmit = jest.fn()
+        const { container } = renderField(
+          [buildCountMock(2), buildFetchMock(jest.fn(), { tooManyCustomers: true })],
+          onSubmit,
+        )
+
+        expect(
+          await screen.findByText(
+            'The QuickBooks customer list is too large to load. Type the ID of the customer to link it with this customer.',
+          ),
+        ).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
+
+        fireEvent.change(externalIdInput(container) as HTMLInputElement, {
+          target: { value: '9001' },
+        })
+        fireEvent.click(container.querySelector('[data-test="submit"]') as HTMLElement)
+
+        await waitFor(() => expect(onSubmit).toHaveBeenCalledWith({ externalCustomerId: '9001' }))
+      })
+    })
+  })
+
   describe('GIVEN the refresh button', () => {
     describe('WHEN it is clicked after the first sync', () => {
       it('THEN should sync the customers again', async () => {
@@ -129,9 +176,12 @@ describe('QuickbooksCustomerIdField', () => {
 
         await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
         expect(container.querySelector('[data-test^="reload"]')).toBeInTheDocument()
-        await waitFor(() => expect(screen.getByRole('button')).not.toBeDisabled())
+        const reloadButton = () =>
+          container.querySelector('[data-test^="reload"]')?.closest('button') as HTMLElement
 
-        fireEvent.click(screen.getByRole('button'))
+        await waitFor(() => expect(reloadButton()).not.toBeDisabled())
+
+        fireEvent.click(reloadButton())
 
         await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(2))
         expect(await screen.findByRole('combobox')).toBeInTheDocument()
