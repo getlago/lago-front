@@ -8,6 +8,12 @@ import { renderIntegrationPage } from './integrationTestHelpers'
 import QuickbooksIntegrationDetails from '../QuickbooksIntegrationDetails'
 
 const mockNangoAuth = jest.fn()
+const mockAddToast = jest.fn()
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: (...args: unknown[]) => mockAddToast(...args),
+}))
 
 jest.mock('@nangohq/frontend', () => ({
   __esModule: true,
@@ -141,6 +147,38 @@ describe('QuickbooksIntegrationDetails', () => {
           expect(mockNangoAuth).toHaveBeenCalledWith('quickbooks-sandbox', 'quickbooks-conn-123')
         })
       })
+    })
+  })
+
+  describe('GIVEN the re-authentication window is closed', () => {
+    it('THEN shows no toast', async () => {
+      mockAddToast.mockClear()
+      mockNangoAuth.mockRejectedValue(Object.assign(new Error('closed'), { type: 'window_closed' }))
+      mockQueryResult.mockReturnValue({
+        data: {
+          integration: {
+            __typename: 'QuickbooksIntegration',
+            id: 'test-id',
+            name: 'Test Integration',
+            connectionId: 'quickbooks-conn-123',
+            sandbox: false,
+          },
+          integrations: { __typename: 'IntegrationCollection', collection: [] },
+        },
+        loading: false,
+      })
+
+      await renderIntegrationPage(QuickbooksIntegrationDetails, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      await userEvent.click(await screen.findByRole('button', { name: /Actions/ }))
+      await userEvent.click(await screen.findByRole('button', { name: /Re-authenticate/ }))
+
+      await waitFor(() =>
+        expect(mockNangoAuth).toHaveBeenCalledWith('quickbooks', 'quickbooks-conn-123'),
+      )
+      expect(mockAddToast).not.toHaveBeenCalled()
     })
   })
 
