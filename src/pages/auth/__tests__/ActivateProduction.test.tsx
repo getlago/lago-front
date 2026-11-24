@@ -14,6 +14,7 @@ const mockNavigate = jest.fn()
 const mockRefetchCurrentUserInfos = jest.fn()
 const mockActivateBillingAccount = jest.fn()
 const mockAddToast = jest.fn()
+const mockMarkProductionActivationAttempted = jest.fn()
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
@@ -26,6 +27,11 @@ jest.mock('~/hooks/useCurrentUser', () => ({
 
 jest.mock('~/core/utils/billingAccounts', () => ({
   activateBillingAccount: (organizationId: string) => mockActivateBillingAccount(organizationId),
+}))
+
+jest.mock('~/layouts/useActivatePendingProductionOrganizations', () => ({
+  markProductionActivationAttempted: (organizationId: string) =>
+    mockMarkProductionActivationAttempted(organizationId),
 }))
 
 jest.mock('~/core/apolloClient', () => ({
@@ -107,6 +113,16 @@ describe('ActivateProduction', () => {
           'Creating your production account ...',
         )
         expect(screen.getByTestId(PENDING_ORGANIZATION_NAME_TEST_ID)).toHaveTextContent('Acme Inc.')
+      })
+
+      it('THEN should keep the app shell from calling Activate again for that organization', async () => {
+        render(<ActivateProduction />)
+
+        await waitFor(() => expect(mockActivateBillingAccount).toHaveBeenCalledWith(PRODUCTION_ID))
+        expect(mockMarkProductionActivationAttempted).toHaveBeenCalledWith(PRODUCTION_ID)
+        expect(mockMarkProductionActivationAttempted.mock.invocationCallOrder[0]).toBeLessThan(
+          mockActivateBillingAccount.mock.invocationCallOrder[0],
+        )
       })
 
       it('THEN should call Activate only once across renders', async () => {

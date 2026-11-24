@@ -112,6 +112,10 @@ jest.mock('~/layouts/PendingOrganizationShell', () => ({
   },
 }))
 
+jest.mock('~/layouts/useActivatePendingProductionOrganizations', () => ({
+  useActivatePendingProductionOrganizations: jest.fn(),
+}))
+
 jest.mock('~/pages/Error404', () => ({
   __esModule: true,
   default: () => <div data-test="error-404" />,

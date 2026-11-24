@@ -24,6 +24,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useSandbox } from '~/hooks/useSandbox'
 import { PendingOrganizationShell } from '~/layouts/PendingOrganizationShell'
 import { useSandboxBannerHeightCssVar } from '~/layouts/sandboxBannerHeight'
+import { useActivatePendingProductionOrganizations } from '~/layouts/useActivatePendingProductionOrganizations'
 
 const Error404 = lazy(() => import('~/pages/Error404'))
 const Forbidden = lazy(() => import('~/pages/Forbidden'))
@@ -90,6 +91,8 @@ const OrganizationLayout = () => {
   const client = useApolloClient()
 
   const currentOrgId = useReactiveVar(currentOrganizationVar)
+
+  useActivatePendingProductionOrganizations()
 
   const membershipOrg = currentUser?.memberships.find(
     (m) => m.organization.slug === organizationSlug,

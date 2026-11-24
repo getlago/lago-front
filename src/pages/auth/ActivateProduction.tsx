@@ -11,6 +11,7 @@ import {
 } from '~/generated/graphql'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { ProductionActivationLoader } from '~/layouts/PendingOrganizationShell'
+import { markProductionActivationAttempted } from '~/layouts/useActivatePendingProductionOrganizations'
 
 type MembershipOrganization = CurrentUserInfosFragment['memberships'][number]['organization']
 
@@ -64,6 +65,7 @@ const ActivateProduction = (): JSX.Element => {
         })
       }
 
+      markProductionActivationAttempted(productionOrganization.id)
       setActivatingOrganization(productionOrganization)
 
       const isActive = await activateBillingAccount(productionOrganization.id).then(
