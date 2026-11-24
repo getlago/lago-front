@@ -3,7 +3,7 @@ import { createRef, RefObject, useEffect, useRef } from 'react'
 
 import { removeAllToasts, toastsVar } from '~/core/apolloClient'
 
-import { NewVersionToast } from './NewVersionToast'
+import { NewAppVersionToast } from './NewAppVersionToast'
 import { Toast } from './Toast'
 
 const MAX_DISPLAYED_ITEMS = 3
@@ -51,7 +51,7 @@ export const ToastContainer = () => {
           <Toast key={toast.id} ref={elementsRefs.current[toast.id]} toast={toast} />
         ))}
       </div>
-      <NewVersionToast />
+      <NewAppVersionToast />
     </>
   )
 }

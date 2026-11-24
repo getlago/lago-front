@@ -54,7 +54,7 @@ export const versionStampPlugin = (): Plugin => ({
     const indexHtml = bundle[INDEX_HTML]
 
     // Cypress bundles its specs with this config: no app page there, nothing to stamp.
-    if (!indexHtml || indexHtml.type !== 'asset') return
+    if (indexHtml?.type !== 'asset') return
 
     // index.html is hashed before the meta tags go in. Source maps only mirror the code.
     const files = Object.values(bundle)

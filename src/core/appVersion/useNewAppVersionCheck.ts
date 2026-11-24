@@ -12,14 +12,14 @@ export const MIN_CHECK_GAP_MS = 60 * 1000
 // finishing a rollout: a front rollout replaces every pod well within it.
 export const ROLLBACK_CONFIRM_MS = 10 * 60 * 1000
 
-type NewVersionCheck = {
-  isNewVersionAvailable: boolean
+type NewAppVersionCheck = {
+  isNewAppVersionAvailable: boolean
   dismiss: () => void
 }
 
 type OlderSighting = { id: string; firstSeenAt: number }
 
-export const useNewVersionCheck = (): NewVersionCheck => {
+export const useNewAppVersionCheck = (): NewAppVersionCheck => {
   // Read once: the build a tab runs never changes until it reloads.
   const [runningBuild] = useState(getRunningBuild)
   const [availableBuildId, setAvailableBuildId] = useState<string | null>(null)
@@ -101,5 +101,5 @@ export const useNewVersionCheck = (): NewVersionCheck => {
     setAvailableBuildId(null)
   }, [availableBuildId])
 
-  return { isNewVersionAvailable: !!availableBuildId, dismiss }
+  return { isNewAppVersionAvailable: !!availableBuildId, dismiss }
 }
