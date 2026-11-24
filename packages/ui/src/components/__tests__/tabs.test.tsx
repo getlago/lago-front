@@ -96,7 +96,7 @@ it('preserves RTL navigation when skipping a disabled tab', async () => {
 
   render(
     <Tabs defaultValue="a" dir="rtl">
-      <TabsList>
+      <TabsList style={{ direction: 'rtl' }}>
         <TabsTrigger value="a">First</TabsTrigger>
         <TabsTrigger value="disabled" disabled>
           Unavailable

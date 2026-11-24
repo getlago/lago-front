@@ -34,14 +34,21 @@ export const Tabs = React.forwardRef<
   const direction = dir ?? inheritedDirection
   const [internalValue, setInternalValue] = React.useState(defaultValue)
   const selected = value ?? internalValue
-  const change = (next: string): void => {
-    if (value === undefined) setInternalValue(next)
-    onValueChange?.(next)
-  }
+  const change = React.useCallback(
+    (next: string): void => {
+      if (value === undefined) setInternalValue(next)
+      onValueChange?.(next)
+    },
+    [value, onValueChange],
+  )
+  const context = React.useMemo(
+    () => ({ value: selected, onValueChange: change, activationMode }),
+    [selected, change, activationMode],
+  )
 
   return (
     <DirectionProvider direction={direction}>
-      <TabsContext.Provider value={{ value: selected, onValueChange: change, activationMode }}>
+      <TabsContext.Provider value={context}>
         <Primitive.Root
           {...props}
           ref={ref}
@@ -99,9 +106,13 @@ export const TabsTrigger = React.forwardRef<
   Omit<React.ComponentPropsWithoutRef<typeof Primitive.Tab>, 'value'> & { value: string }
 >(({ className, children, value, disabled = false, ...props }, ref) => {
   const tabs = React.useContext(TabsContext)
+  const context = React.useMemo(
+    () => ({ selected: tabs.value === value, disabled }),
+    [tabs.value, value, disabled],
+  )
 
   return (
-    <TabsTriggerContext.Provider value={{ selected: tabs.value === value, disabled }}>
+    <TabsTriggerContext.Provider value={context}>
       <Primitive.Tab
         {...props}
         ref={ref}

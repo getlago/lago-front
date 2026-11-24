@@ -5,10 +5,18 @@ import { ColorThemePortal } from './color-theme'
 
 import { cn } from '../lib/utils'
 
-const TooltipContext = React.createContext({
+const TooltipContext = React.createContext<{
+  id: string
+  open: boolean
+  delayDuration?: number
+  contentMounted: boolean
+  setContentMounted: (mounted: boolean) => void
+}>({
   id: '',
   open: false,
-  delayDuration: undefined as number | undefined,
+  delayDuration: undefined,
+  contentMounted: false,
+  setContentMounted: (): void => {},
 })
 
 export const TooltipProvider = ({ children }: { children: React.ReactNode }): JSX.Element => (
@@ -36,9 +44,14 @@ export const Tooltip = ({
   const id = React.useId()
   const [internalOpen, setOpen] = React.useState(defaultOpen)
   const open = controlledOpen ?? internalOpen
+  const [contentMounted, setContentMounted] = React.useState(false)
+  const context = React.useMemo(
+    () => ({ id, open, delayDuration, contentMounted, setContentMounted }),
+    [id, open, delayDuration, contentMounted],
+  )
 
   return (
-    <TooltipContext.Provider value={{ id, open, delayDuration }}>
+    <TooltipContext.Provider value={context}>
       <Primitive.Root
         {...props}
         open={open}
@@ -58,14 +71,17 @@ export const TooltipTrigger = React.forwardRef<
   HTMLButtonElement,
   React.ButtonHTMLAttributes<HTMLButtonElement> & { asChild?: boolean; 'aria-describedby'?: string }
 >(({ asChild, children, 'aria-describedby': describedBy, ...props }, ref) => {
-  const { id, open, delayDuration } = React.useContext(TooltipContext)
+  const { id, open, delayDuration, contentMounted } = React.useContext(TooltipContext)
 
   return (
     <Primitive.Trigger
       {...props}
       ref={ref}
       delay={delayDuration}
-      aria-describedby={[describedBy, open ? id : undefined].filter(Boolean).join(' ') || undefined}
+      aria-describedby={
+        [describedBy, open && contentMounted ? id : undefined].filter(Boolean).join(' ') ||
+        undefined
+      }
       render={asChild ? (React.Children.only(children) as React.ReactElement) : undefined}
     >
       {asChild ? undefined : children}
@@ -94,7 +110,12 @@ export const TooltipContent = React.forwardRef<HTMLDivElement, TooltipContentPro
     },
     ref,
   ) => {
-    const { id } = React.useContext(TooltipContext)
+    const { id, setContentMounted } = React.useContext(TooltipContext)
+
+    React.useLayoutEffect(() => {
+      setContentMounted(true)
+      return () => setContentMounted(false)
+    }, [setContentMounted])
 
     return (
       <Primitive.Portal keepMounted={forceMount}>

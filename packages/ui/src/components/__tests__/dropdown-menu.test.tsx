@@ -376,3 +376,40 @@ it('honors click cancellation before selection or checkbox changes', async () =>
   expect(onCheckedChange).not.toHaveBeenCalled()
   expect(screen.getByRole('menu')).toBeVisible()
 })
+
+it.each(['ArrowDown', 'ArrowUp', 'Home', 'End'])(
+  'keeps %s inside a portalled submenu with disabled root boundaries',
+  async (key) => {
+    const user = userEvent.setup()
+
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Root</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem disabled>First disabled</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>Child one</DropdownMenuItem>
+              <DropdownMenuItem>Child two</DropdownMenuItem>
+              <DropdownMenuItem>Child three</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuItem disabled>Last disabled</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Root' }))
+    const more = await screen.findByRole('menuitem', { name: 'More' })
+
+    act(() => more.focus())
+    await user.keyboard('{ArrowRight}')
+    const second = await screen.findByRole('menuitem', { name: 'Child two' })
+
+    act(() => second.focus())
+    await user.keyboard(`{${key}}`)
+    const expected = key === 'Home' || key === 'ArrowUp' ? 'Child one' : 'Child three'
+
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: expected })).toHaveFocus())
+  },
+)

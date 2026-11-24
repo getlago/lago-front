@@ -130,3 +130,23 @@ it.each(['drawer', 'dialog'])('renders portalled content above the %s layer', as
     style.remove()
   }
 })
+
+it('describes only mounted tooltip content and preserves caller descriptions', () => {
+  const example = (content: boolean) => (
+    <TooltipProvider>
+      <Tooltip open>
+        <TooltipTrigger aria-describedby="help">Trigger</TooltipTrigger>
+        <p id="help">Existing help</p>
+        {content && <TooltipContent>More details</TooltipContent>}
+      </Tooltip>
+    </TooltipProvider>
+  )
+  const { rerender } = render(example(false))
+  const trigger = screen.getByRole('button', { name: 'Trigger' })
+
+  expect(trigger).toHaveAttribute('aria-describedby', 'help')
+  rerender(example(true))
+  expect(trigger).toHaveAccessibleDescription('Existing help More details')
+  rerender(example(false))
+  expect(trigger).toHaveAttribute('aria-describedby', 'help')
+})
