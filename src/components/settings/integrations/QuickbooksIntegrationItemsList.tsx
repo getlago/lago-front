@@ -26,17 +26,25 @@ import QuickbooksIntegrationItemsListAddons from './QuickbooksIntegrationItemsLi
 import QuickbooksIntegrationItemsListBillableMetrics from './QuickbooksIntegrationItemsListBillableMetrics'
 import QuickbooksIntegrationItemsListDefault from './QuickbooksIntegrationItemsListDefault'
 
-const SelectedItemTypeEnum = {
-  Default: 'Default',
-  [MappableTypeEnum.AddOn]: 'AddOn',
-  [MappableTypeEnum.BillableMetric]: 'BillableMetric',
-} as const
+const DEFAULT_ITEM_TYPE = 'Default'
 
-const SelectedItemTypeEnumTranslation = {
-  Default: 'text_65281f686a80b400c8e2f6d1',
+type SelectedItemType =
+  typeof DEFAULT_ITEM_TYPE | MappableTypeEnum.AddOn | MappableTypeEnum.BillableMetric
+
+const SELECTED_ITEM_TYPE_TRANSLATIONS: Record<SelectedItemType, string> = {
+  [DEFAULT_ITEM_TYPE]: 'text_65281f686a80b400c8e2f6d1',
   [MappableTypeEnum.AddOn]: 'text_629728388c4d2300e2d3801a',
   [MappableTypeEnum.BillableMetric]: 'text_623b497ad05b960101be3438',
-} as const
+}
+
+const SELECTED_ITEM_TYPES: SelectedItemType[] = [
+  DEFAULT_ITEM_TYPE,
+  MappableTypeEnum.AddOn,
+  MappableTypeEnum.BillableMetric,
+]
+
+const isSelectedItemType = (value: string | null): value is SelectedItemType =>
+  SELECTED_ITEM_TYPES.some((itemType) => itemType === value)
 
 gql`
   fragment QuickbooksIntegrationItems on QuickbooksIntegration {
@@ -100,16 +108,15 @@ gql`
 const QuickbooksIntegrationItemsList = ({ integrationId }: { integrationId: string }) => {
   const { translate } = useInternationalization()
   const { openDrawer: openIntegrationMapItemDrawer } = useQuickbooksIntegrationMapItemDrawer()
-  const [searchParams, setSearchParams] = useSearchParams({
-    item_type: SelectedItemTypeEnum.Default,
-  })
-  const [selectedItemType, setSelectedItemType] = useState<keyof typeof SelectedItemTypeEnum>(
-    searchParams.get('item_type') as keyof typeof SelectedItemTypeEnum,
+  const [searchParams, setSearchParams] = useSearchParams()
+  const itemTypeFromSearchParams = searchParams.get('item_type')
+  const [selectedItemType, setSelectedItemType] = useState<SelectedItemType>(
+    isSelectedItemType(itemTypeFromSearchParams) ? itemTypeFromSearchParams : DEFAULT_ITEM_TYPE,
   )
 
+  // Replaces the history entry, so Back leaves the page instead of re-selecting the tab.
   useEffect(() => {
-    // Update url with the search param depending on the selected item type
-    setSearchParams({ item_type: selectedItemType })
+    setSearchParams({ item_type: selectedItemType }, { replace: true })
   }, [selectedItemType, setSearchParams])
 
   const [
@@ -172,7 +179,7 @@ const QuickbooksIntegrationItemsList = ({ integrationId }: { integrationId: stri
   useEffect(() => {
     if (!integrationId) return
 
-    if (selectedItemType === SelectedItemTypeEnum.Default) {
+    if (selectedItemType === DEFAULT_ITEM_TYPE) {
       getDefaultItems()
     } else if (selectedItemType === MappableTypeEnum.AddOn) {
       getAddonList()
@@ -192,7 +199,7 @@ const QuickbooksIntegrationItemsList = ({ integrationId }: { integrationId: stri
             PopperProps={{ placement: 'bottom-end' }}
             opener={
               <Button endIcon="chevron-down" variant="secondary">
-                {translate(SelectedItemTypeEnumTranslation[selectedItemType])}
+                {translate(SELECTED_ITEM_TYPE_TRANSLATIONS[selectedItemType])}
               </Button>
             }
           >
@@ -203,7 +210,7 @@ const QuickbooksIntegrationItemsList = ({ integrationId }: { integrationId: stri
                   fullWidth
                   align="left"
                   onClick={() => {
-                    setSelectedItemType(SelectedItemTypeEnum.Default)
+                    setSelectedItemType(DEFAULT_ITEM_TYPE)
                     closePopper()
                   }}
                 >
@@ -250,7 +257,7 @@ const QuickbooksIntegrationItemsList = ({ integrationId }: { integrationId: stri
         )}
       </div>
 
-      {selectedItemType === SelectedItemTypeEnum.Default ? (
+      {selectedItemType === DEFAULT_ITEM_TYPE ? (
         <QuickbooksIntegrationItemsListDefault
           defaultItems={collectionMappingData?.integrationCollectionMappings?.collection}
           integrationId={integrationId}

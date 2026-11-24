@@ -51,7 +51,7 @@ export const useQuickbooksIntegrationItems = (
   const itemType = getItemType(formType)
 
   const { data, loading: itemsFetchLoading } = useGetQuickbooksIntegrationItemsQuery({
-    variables: { integrationId: integrationId as string, itemType, limit: ITEMS_LIMIT },
+    variables: { integrationId: integrationId ?? '', itemType, limit: ITEMS_LIMIT },
     skip: !integrationId,
   })
 

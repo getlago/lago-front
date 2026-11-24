@@ -115,4 +115,25 @@ describe('QuickbooksIntegrationItemsList', () => {
       expect(mockGetDefaultItems).not.toHaveBeenCalled()
     })
   })
+
+  describe('GIVEN an unknown item type in the URL', () => {
+    it('THEN falls back to the default items', () => {
+      renderAt('not_a_type')
+
+      expect(mockGetDefaultItems).toHaveBeenCalled()
+      expect(mockDefaultListProps).toHaveBeenCalled()
+      expect(new URLSearchParams(window.location.search).get('item_type')).toBe('Default')
+    })
+  })
+
+  describe('GIVEN the selected tab is written to the URL', () => {
+    it('THEN replaces the history entry instead of adding one', () => {
+      window.history.pushState({}, '', '/?item_type=add_on')
+      const historyLength = window.history.length
+
+      render(<QuickbooksIntegrationItemsList integrationId="integration-1" />)
+
+      expect(window.history.length).toBe(historyLength)
+    })
+  })
 })
