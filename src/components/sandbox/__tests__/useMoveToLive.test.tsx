@@ -23,6 +23,12 @@ const mockGetPreview = jest.fn()
 const mockMoveToLiveMode = jest.fn()
 const mockUseSandbox = jest.fn()
 const mockHasPermissions = jest.fn()
+const mockRefetchQueries = jest.fn()
+
+jest.mock('@apollo/client', () => ({
+  ...jest.requireActual('@apollo/client'),
+  useApolloClient: () => ({ refetchQueries: mockRefetchQueries }),
+}))
 
 jest.mock('~/components/dialogs/CentralizedDialog', () => ({
   useCentralizedDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
@@ -55,6 +61,8 @@ jest.mock('~/generated/graphql', () => ({
 }))
 
 const ALREADY_EXISTS_KEY = 'text_1795431906433xcd1rme3cdx'
+const CODE_CONFLICT_KEY = 'text_17955393256589pupqccgr1x'
+const NOT_FOUND_KEY = 'text_1795539325659cdyvy8085m1'
 const PARENT_MISSING_KEY = 'text_1795431906433wbhymkx79qb'
 const ADMIN_ONLY_KEY = 'text_1795431906433pfg3dttjin2'
 const ORGANIZATION_INACTIVE_KEY = 'text_1795431906433mautyr4e7ta'
@@ -164,7 +172,6 @@ describe('useMoveToLive', () => {
         expect(addToast).not.toHaveBeenCalled()
         expect(openedDialog()).toEqual(
           expect.objectContaining({
-            title: 'text_1795431906433rcppnbh5k88|storage',
             description: 'text_1795431906433hmboas9jg4e',
             actionText: 'text_1795431906432py065218gdv',
             colorVariant: 'danger',
@@ -173,6 +180,10 @@ describe('useMoveToLive', () => {
             headerContent: undefined,
           }),
         )
+
+        render(openedDialog().title as ReactElement)
+
+        expect(screen.getByText('text_1795431906433rcppnbh5k88|storage')).toBeInTheDocument()
       })
 
       it('THEN the dialog lists the items copied along and the reused items, without the moved item', async () => {
@@ -225,7 +236,7 @@ describe('useMoveToLive', () => {
             blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveCodeConflict,
             refusedItem: METRIC,
           },
-          `${ALREADY_EXISTS_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+          `${CODE_CONFLICT_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
         ],
         [
           'a prorated rate card would bill a live metric that cannot prorate',
@@ -362,6 +373,40 @@ describe('useMoveToLive', () => {
         await act(() => result.current.moveToLive(TARGET))
 
         expect(mockGetPreview).toHaveBeenCalledTimes(2)
+      })
+    })
+
+    describe('GIVEN the item was deleted from the sandbox', () => {
+      const NOT_FOUND_ERRORS = [
+        { message: 'Resource not found', extensions: { code: 'not_found' } },
+      ]
+
+      it('WHEN the preview answers not found THEN it says so and refetches the lists', async () => {
+        mockGetPreview.mockResolvedValue({ error: { graphQLErrors: NOT_FOUND_ERRORS } })
+
+        await moveToLive()
+
+        expect(addToast).toHaveBeenCalledWith({ severity: 'info', translateKey: NOT_FOUND_KEY })
+        expect(mockRefetchQueries).toHaveBeenCalledWith({ include: 'active' })
+        expect(mockDialogOpen).not.toHaveBeenCalled()
+      })
+
+      it('WHEN the move answers not found THEN it says so without a second preview', async () => {
+        mockGetPreview.mockResolvedValue(buildPreview())
+        mockMoveToLiveMode.mockResolvedValue({
+          data: { moveToLiveMode: null },
+          errors: NOT_FOUND_ERRORS,
+        })
+
+        await moveToLive()
+        await act(async () => {
+          await openedDialog().onAction()
+        })
+
+        expect(mockGetPreview).toHaveBeenCalledTimes(1)
+        expect(addToast).toHaveBeenCalledTimes(1)
+        expect(addToast).toHaveBeenCalledWith({ severity: 'info', translateKey: NOT_FOUND_KEY })
+        expect(mockRefetchQueries).toHaveBeenCalledWith({ include: 'active' })
       })
     })
 

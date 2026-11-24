@@ -1,4 +1,5 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
+import { GraphQLFormattedError } from 'graphql'
 import { ReactNode, useRef } from 'react'
 
 import { Typography } from '~/components/designSystem/Typography'
@@ -55,6 +56,7 @@ export const MOVE_TO_LIVE_COPIED_ITEMS_TEST_ID = 'move-to-live-copied-items'
 export const MOVE_TO_LIVE_REUSED_ITEMS_TEST_ID = 'move-to-live-reused-items'
 
 const ERROR_TRANSLATION_KEY = 'text_17954319064335ads00pkxh8'
+const NOT_FOUND_TRANSLATION_KEY = 'text_1795539325659cdyvy8085m1'
 
 const ITEM_TYPE_TRANSLATION_KEYS: Record<MoveToLiveItemTypeEnum, string> = {
   [MoveToLiveItemTypeEnum.BillableMetric]: 'text_1795431906433n4atjiccd3h',
@@ -69,7 +71,7 @@ const ITEM_TYPE_TRANSLATION_KEYS: Record<MoveToLiveItemTypeEnum, string> = {
 
 const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, string> = {
   [MoveToLiveBlockingReasonEnum.ValueAlreadyExist]: 'text_1795431906433xcd1rme3cdx',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveCodeConflict]: 'text_1795431906433xcd1rme3cdx',
+  [MoveToLiveBlockingReasonEnum.MoveToLiveCodeConflict]: 'text_17955393256589pupqccgr1x',
   [MoveToLiveBlockingReasonEnum.MoveToLiveParentMissing]: 'text_1795431906433wbhymkx79qb',
   [MoveToLiveBlockingReasonEnum.MoveToLiveAdminOnly]: 'text_1795431906433pfg3dttjin2',
   [MoveToLiveBlockingReasonEnum.OrganizationInactive]: 'text_1795431906433mautyr4e7ta',
@@ -103,6 +105,10 @@ const getBlockingReasonKey = (reason: MoveToLiveBlockingReasonEnum): string => {
   return key ?? UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY
 }
 
+// The item was deleted from the sandbox after the list that offered it was loaded.
+const isNotFound = (errors?: readonly GraphQLFormattedError[]): boolean =>
+  !!errors?.some((error) => error.extensions?.code === 'not_found')
+
 type MoveToLivePreview = MoveToLivePreviewQuery['moveToLivePreview']
 
 type MoveToLiveTarget = {
@@ -120,6 +126,7 @@ export const useMoveToLive: UseMoveToLive = () => {
   const { isSandbox } = useSandbox()
   const { hasPermissions } = usePermissions()
   const centralizedDialog = useCentralizedDialog()
+  const client = useApolloClient()
   const isPendingRef = useRef(false)
 
   const [getPreview] = useMoveToLivePreviewLazyQuery({
@@ -138,10 +145,19 @@ export const useMoveToLive: UseMoveToLive = () => {
     addToast({ severity: 'danger', translateKey: ERROR_TRANSLATION_KEY })
   }
 
-  const fetchPreview = async (target: MoveToLiveTarget): Promise<MoveToLivePreview | null> => {
+  // The deleted item's list is refetched, so it stops offering the item.
+  const showNotFound = (): void => {
+    addToast({ severity: 'info', translateKey: NOT_FOUND_TRANSLATION_KEY })
+    void client.refetchQueries({ include: 'active' })
+  }
+
+  const fetchPreview = async (
+    target: MoveToLiveTarget,
+  ): Promise<MoveToLivePreview | 'not_found' | null> => {
     try {
       const { data, error } = await getPreview({ variables: target })
 
+      if (isNotFound(error?.graphQLErrors)) return 'not_found'
       if (error || !data) return null
 
       return data.moveToLivePreview
@@ -196,6 +212,8 @@ export const useMoveToLive: UseMoveToLive = () => {
     const { data, errors } = await moveToLiveMode({ variables: { input: target } })
     const movedItem = data?.moveToLiveMode
 
+    if (isNotFound(errors)) return showNotFound()
+
     if (movedItem && !errors?.length) {
       addToast({
         severity: 'success',
@@ -208,12 +226,14 @@ export const useMoveToLive: UseMoveToLive = () => {
     // The preview passed, so production changed meanwhile: its blocking reason names the item.
     const preview = await fetchPreview(target)
 
+    if (preview === 'not_found') return showNotFound()
     if (!preview || !showBlockingReason(preview, target)) showError()
   }
 
   const previewAndConfirm = async (target: MoveToLiveTarget): Promise<void> => {
     const preview = await fetchPreview(target)
 
+    if (preview === 'not_found') return showNotFound()
     if (!preview) return showError()
     if (showBlockingReason(preview, target)) return
 
@@ -222,7 +242,12 @@ export const useMoveToLive: UseMoveToLive = () => {
     const hasItems = !!copiedAlong.length || !!preview.reusedItems.length
 
     void centralizedDialog.open({
-      title: translate('text_1795431906433rcppnbh5k88', { code: movedItem?.code ?? '' }),
+      // Codes have no spaces: a long one breaks anywhere instead of overflowing the dialog.
+      title: (
+        <span className="[overflow-wrap:anywhere]">
+          {translate('text_1795431906433rcppnbh5k88', { code: movedItem?.code ?? '' })}
+        </span>
+      ),
       description: translate('text_1795431906433hmboas9jg4e'),
       headerContent: hasItems ? (
         <div className="flex flex-col gap-6">

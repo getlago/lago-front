@@ -86,7 +86,7 @@ export const Toast = forwardRef<ToastRef, ToastProps>(({ toast }: ToastProps, re
       data-test={`toast/${severity}`}
     >
       <Typography
-        className="mr-4 flex-1 [&>a]:text-white [&>a]:underline"
+        className="mr-4 min-w-0 flex-1 [overflow-wrap:anywhere] [&>a]:text-white [&>a]:underline"
         color="inherit"
         html={translateKey ? translate(translateKey) : message}
       />
