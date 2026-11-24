@@ -1,5 +1,4 @@
 import { gql } from '@apollo/client'
-import Nango from '@nangohq/frontend'
 import { generatePath, useParams } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
@@ -7,8 +6,8 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useDeleteQuickbooksIntegrationDialog } from '~/components/settings/integrations/DeleteQuickbooksIntegrationDialog'
 import QuickbooksIntegrationSettings from '~/components/settings/integrations/QuickbooksIntegrationSettings'
-import { getQuickbooksNangoIntegrationKey } from '~/components/settings/integrations/utils'
-import { addToast, envGlobalVar } from '~/core/apolloClient'
+import { authorizeQuickbooksConnection } from '~/components/settings/integrations/utils'
+import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   INTEGRATIONS_ROUTE,
@@ -69,7 +68,6 @@ gql`
 
 const QuickbooksIntegrationDetails = () => {
   const navigate = useNavigate()
-  const { nangoPublicKey } = envGlobalVar()
   const { integrationId = '' } = useParams()
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
   const { openDeleteQuickbooksIntegrationDialog } = useDeleteQuickbooksIntegrationDialog()
@@ -158,26 +156,19 @@ const QuickbooksIntegrationDetails = () => {
                   onClick: async (closePopper) => {
                     if (!quickbooksIntegration) return closePopper()
 
-                    const nango = new Nango({ publicKey: nangoPublicKey })
+                    const isAuthorized = await authorizeQuickbooksConnection({
+                      sandbox: quickbooksIntegration.sandbox,
+                      connectionId: quickbooksIntegration.connectionId,
+                    })
 
-                    try {
-                      await nango.auth(
-                        getQuickbooksNangoIntegrationKey(quickbooksIntegration.sandbox),
-                        quickbooksIntegration.connectionId,
-                      )
-
+                    if (isAuthorized) {
                       addToast({
                         message: translate('text_174677760992972pm9p2l5on'),
                         severity: 'success',
                       })
-                    } catch {
-                      addToast({
-                        message: translate('text_62b31e1f6a5b8b1b745ece48'),
-                        severity: 'danger',
-                      })
-                    } finally {
-                      closePopper()
                     }
+
+                    closePopper()
                   },
                 },
                 {

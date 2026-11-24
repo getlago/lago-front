@@ -2,11 +2,8 @@ import { act, renderHook } from '@testing-library/react'
 
 import { addToast } from '~/core/apolloClient'
 
-import {
-  QUICKBOOKS_LOGIN_ERROR_KEY,
-  QUICKBOOKS_POPUP_BLOCKED_KEY,
-  useQuickbooksAuthorization,
-} from '../useQuickbooksAuthorization'
+import { useQuickbooksAuthorization } from '../useQuickbooksAuthorization'
+import { QUICKBOOKS_LOGIN_ERROR_KEY, QUICKBOOKS_POPUP_BLOCKED_KEY } from '../utils'
 
 const mockNangoAuth = jest.fn()
 
