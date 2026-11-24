@@ -10,7 +10,7 @@ import {
 } from '~/generated/graphql'
 
 gql`
-  fragment InvoiceForFormatInvoiceItemMap on Invoice {
+  fragment InvoiceSubscriptionsForFormatInvoiceItemMap on Invoice {
     id
     status
     invoiceSubscriptions {
@@ -22,6 +22,10 @@ gql`
       }
       acceptNewChargeFees
     }
+  }
+
+  fragment InvoiceForFormatInvoiceItemMap on Invoice {
+    ...InvoiceSubscriptionsForFormatInvoiceItemMap
     fees {
       id
       amountCents

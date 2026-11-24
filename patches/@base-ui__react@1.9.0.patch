@@ -1,0 +1,28 @@
+diff --git a/combobox/root/AriaCombobox.js b/combobox/root/AriaCombobox.js
+index 11e64956ad1ff534a34b1c0709c4b5f6d60cc9fb..d75083f17952a489ec790616921ae1637b674608 100644
+--- a/combobox/root/AriaCombobox.js
++++ b/combobox/root/AriaCombobox.js
+@@ -567,6 +567,9 @@ function AriaCombobox(props) {
+         selection: true
+       };
+     }
++    if (eventDetails.reason === _reasons.REASONS.inputClear && eventDetails.isItemPress && !store.state.inputInsidePopup && next === '') {
++      setIndices({ activeIndex: null });
++    }
+     setInputValueUnwrapped(next);
+   });
+   const handleInterruptedReopen = (0, _useStableCallback.useStableCallback)(isInputChange => {
+diff --git a/combobox/root/AriaCombobox.mjs b/combobox/root/AriaCombobox.mjs
+index 55338bbd442e2ef25c61bbed59c3b83cec653fba..74aaf423aec5a87cff1439af706d4c33e44e50e6 100644
+--- a/combobox/root/AriaCombobox.mjs
++++ b/combobox/root/AriaCombobox.mjs
+@@ -560,6 +560,9 @@ export function AriaCombobox(props) {
+         selection: true
+       };
+     }
++    if (eventDetails.reason === REASONS.inputClear && eventDetails.isItemPress && !store.state.inputInsidePopup && next === '') {
++      setIndices({ activeIndex: null });
++    }
+     setInputValueUnwrapped(next);
+   });
+   const handleInterruptedReopen = useStableCallback(isInputChange => {

@@ -6,6 +6,15 @@ on:
       - main
     paths:
       - "packages/ui/**"
+      - "patches/**"
+      - "src/components/form/AmountInputV2/**"
+      - "src/components/form/AmountInput/formatting.ts"
+      - "src/components/form/TextInput/formatValue.ts"
+      - "translations/base.json"
+      - "src/core/apolloClient/reactiveVars/**"
+      - "src/hooks/core/useInternationalization.ts"
+      - "src/core/serializers/serializeAmount.ts"
+      - "src/generated/graphql.tsx"
       - "packages/configs/**"
       - "package.json"
       - "pnpm-lock.yaml"
