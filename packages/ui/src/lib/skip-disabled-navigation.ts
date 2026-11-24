@@ -20,7 +20,7 @@ export const skipDisabledNavigation = (
     direction === 'rtl' ? ['ArrowLeft', 'ArrowRight'] : ['ArrowRight', 'ArrowLeft']
   const [forward, backward] = orientation === 'vertical' ? ['ArrowDown', 'ArrowUp'] : horizontalKeys
   const step = event.key === backward || event.key === 'End' ? -1 : 1
-  let next = current + step
+  let next = (current < 0 && step < 0 ? items.length : current) + step
 
   if (event.key === 'Home') next = 0
   else if (event.key === 'End') next = items.length - 1

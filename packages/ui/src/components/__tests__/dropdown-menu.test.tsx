@@ -413,3 +413,24 @@ it.each(['ArrowDown', 'ArrowUp', 'Home', 'End'])(
     await waitFor(() => expect(screen.getByRole('menuitem', { name: expected })).toHaveFocus())
   },
 )
+
+it('skips a disabled last item on ArrowUp from a mouse-opened popup', async () => {
+  const user = userEvent.setup()
+
+  render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem>First</DropdownMenuItem>
+        <DropdownMenuItem>Last enabled</DropdownMenuItem>
+        <DropdownMenuItem disabled>Unavailable</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Options' }))
+  const menu = await screen.findByRole('menu')
+
+  await waitFor(() => expect(menu).toHaveFocus())
+  await user.keyboard('{ArrowUp}')
+  expect(screen.getByRole('menuitem', { name: 'Last enabled' })).toHaveFocus()
+})
