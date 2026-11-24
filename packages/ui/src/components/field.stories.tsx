@@ -19,6 +19,7 @@ import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
 
 import { ComboboxFieldStates } from '../stories/combobox-field-examples'
+import { SelectStates } from '../stories/select-examples'
 
 const meta = {
   title: 'Components/Field',
@@ -221,3 +222,5 @@ export const WithFreeTextInside: Story = {
 }
 export const WithFreeTextAbove: Story = { render: () => <ComboboxFieldStates kind="free-above" /> }
 export const WithComboboxPopup: Story = { render: () => <ComboboxFieldStates kind="popup" /> }
+
+export const WithSelect: Story = { render: () => <SelectStates withField /> }
