@@ -63,6 +63,7 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
+import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
@@ -166,6 +167,8 @@ const Integrations = () => {
   const { openAddSalesforceDialog } = useAddSalesforceDialog()
   const { openAddXeroDialog } = useAddXeroDialog()
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
+  const { hasPermissions } = usePermissions()
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
@@ -710,15 +713,16 @@ const Integrations = () => {
                             </Avatar>
                           }
                           onClick={() => {
-                            if (hasQuickbooksIntegration) {
-                              navigate(
-                                generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
-                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-                                }),
-                              )
-                            } else {
+                            if (!hasQuickbooksIntegration && canCreateIntegration) {
                               openAddQuickbooksDialog()
+                              return
                             }
+
+                            navigate(
+                              generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
                           }}
                         />
                       )}

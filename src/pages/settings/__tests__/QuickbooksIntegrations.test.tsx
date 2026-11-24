@@ -9,7 +9,9 @@ import {
   renderIntegrationPage,
 } from './integrationTestHelpers'
 
-import QuickbooksIntegrations from '../QuickbooksIntegrations'
+import QuickbooksIntegrations, {
+  QUICKBOOKS_INTEGRATION_ITEM_OPTIONS_TEST_ID,
+} from '../QuickbooksIntegrations'
 
 jest.mock('~/components/drawers/useDrawer', () => ({
   useDrawer: () => ({ open: jest.fn(), close: jest.fn() }),
@@ -85,7 +87,7 @@ describe('QuickbooksIntegrations', () => {
         ),
       })
 
-      await userEvent.click(await screen.findByTestId('plan-item-options'))
+      await userEvent.click(await screen.findByTestId(QUICKBOOKS_INTEGRATION_ITEM_OPTIONS_TEST_ID))
       await userEvent.click(await screen.findByRole('button', { name: label }))
 
       expect(getMock()).toHaveBeenCalledWith(
@@ -108,7 +110,9 @@ describe('QuickbooksIntegrations', () => {
 
       expect(await screen.findByText('Test Connection')).toBeInTheDocument()
       expect(screen.queryByRole('button', { name: 'Add a connection' })).not.toBeInTheDocument()
-      expect(screen.queryByTestId('plan-item-options')).not.toBeInTheDocument()
+      expect(
+        screen.queryByTestId(QUICKBOOKS_INTEGRATION_ITEM_OPTIONS_TEST_ID),
+      ).not.toBeInTheDocument()
     })
   })
 })

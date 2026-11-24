@@ -50,6 +50,12 @@ jest.mock('~/generated/graphql', () => ({
   useDestroyNangoIntegrationMutation: () => [mockDestroyNango],
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 const NAME_PLACEHOLDER = 'text_6584550dc4cec7adf861504f'
 
 const wrapper = ({ children }: { children: ReactNode }) => (
@@ -89,6 +95,7 @@ describe('useAddQuickbooksDialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasPermissions.mockReturnValue(true)
 
     // Keep the dialog pending so the `.then` cleanup does not reset the form mid-test
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
@@ -358,6 +365,23 @@ describe('useAddQuickbooksDialog', () => {
   })
 
   describe('GIVEN an existing connection', () => {
+    it.each([
+      [true, true],
+      [false, false],
+    ])(
+      'WHEN the delete permission is %s THEN offering the delete dialog is %s',
+      async (canDelete, offered) => {
+        mockHasPermissions.mockImplementation(
+          (permissions: string[]) =>
+            canDelete || !permissions.includes('organizationIntegrationsDelete'),
+        )
+
+        await openDialog(quickbooksProvider)
+
+        expect(mockDialogOpen.mock.calls[0][0].canOpenDialog).toBe(offered)
+      },
+    )
+
     it('THEN keeps the saved values when the host re-renders', async () => {
       const { result, rerender } = renderHook(() => useAddQuickbooksDialog(), { wrapper })
 

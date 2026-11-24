@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { generatePath } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
+import { IconName } from '~/components/designSystem/Icon/Icon'
 import { Popper } from '~/components/designSystem/Popper'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
@@ -58,6 +59,15 @@ type TIntegration = NonNullable<
 >['collection'][number]
 type TQuickbooksConnection = Extract<TIntegration, { __typename?: 'QuickbooksIntegration' }>
 
+export const QUICKBOOKS_INTEGRATION_ITEM_OPTIONS_TEST_ID = 'quickbooks-integration-item-options'
+
+type RowAction = {
+  icon: IconName
+  labelKey: string
+  allowed: boolean
+  onClick: () => void
+}
+
 const isQuickbooksConnection = (integration: TIntegration): integration is TQuickbooksConnection =>
   integration.__typename === 'QuickbooksIntegration'
 
@@ -93,21 +103,20 @@ const QuickbooksIntegrations = () => {
     })
   }
 
-  const getRowActions = (connection: TQuickbooksConnection) =>
-    [
-      {
-        icon: 'pen',
-        labelKey: 'text_65845f35d7d69c3ab4793dac',
-        allowed: canEditIntegration,
-        onClick: () => openAddQuickbooksDialog({ provider: connection, deleteDialogCallback }),
-      },
-      {
-        icon: 'trash',
-        labelKey: 'text_645d071272418a14c1c76a81',
-        allowed: canDeleteIntegration,
-        onClick: () => openDeleteDialog(connection),
-      },
-    ] as const
+  const getRowActions = (connection: TQuickbooksConnection): RowAction[] => [
+    {
+      icon: 'pen',
+      labelKey: 'text_65845f35d7d69c3ab4793dac',
+      allowed: canEditIntegration,
+      onClick: () => openAddQuickbooksDialog({ provider: connection, deleteDialogCallback }),
+    },
+    {
+      icon: 'trash',
+      labelKey: 'text_645d071272418a14c1c76a81',
+      allowed: canDeleteIntegration,
+      onClick: () => openDeleteDialog(connection),
+    },
+  ]
 
   const renderRowMenuOpener = ({ isOpen }: { isOpen: boolean }) => (
     <PopperOpener className="right-0 md:right-0">
@@ -116,7 +125,11 @@ const QuickbooksIntegrations = () => {
         disableHoverListener={isOpen}
         title={translate('text_626162c62f790600f850b7b6')}
       >
-        <Button icon="dots-horizontal" variant="quaternary" data-test="plan-item-options" />
+        <Button
+          icon="dots-horizontal"
+          variant="quaternary"
+          data-test={QUICKBOOKS_INTEGRATION_ITEM_OPTIONS_TEST_ID}
+        />
       </Tooltip>
     </PopperOpener>
   )
