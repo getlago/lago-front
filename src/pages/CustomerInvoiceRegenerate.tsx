@@ -337,9 +337,8 @@ const CustomerInvoiceRegenerate = () => {
         preciseUnitAmount: originalFee.preciseUnitAmount,
         pricingUnitUsage: originalFee.pricingUnitUsage,
         units: originalFee.units,
-        // Not selected/overwritten elsewhere above: the "View fee details" drawer reads
-        // these directly off the fee, so a reset must restore them too or it shows the
-        // adjusted fee's totals next to the restored amount.
+        // The "View fee details" drawer reads these directly off the fee, so a reset
+        // must restore them too or it shows the adjusted fee's stale totals.
         preciseAmountCents: originalFee.preciseAmountCents,
         subTotalExcludingTaxesAmountCents: originalFee.subTotalExcludingTaxesAmountCents,
         subTotalExcludingTaxesPreciseAmountCents:
@@ -391,9 +390,8 @@ const CustomerInvoiceRegenerate = () => {
           : fee?.preciseUnitAmount,
         units: fee?.units,
       }),
-      // Always sent, even null: this always holds the fee's true current name (restored
-      // on reset, untouched otherwise), so a null here must clear the name on the backend
-      // rather than being dropped and misread as "leave it as-is".
+      // Always sent, even null: this is the fee's true current name, so null must clear
+      // it on the backend rather than being dropped and misread as "leave it as-is".
       invoiceDisplayName: fee?.invoiceDisplayName ?? null,
     }))
 
