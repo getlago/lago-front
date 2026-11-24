@@ -187,6 +187,20 @@ describe('scrubUrlTokens', () => {
     })
   })
 
+  describe('GIVEN the variables of an agent claim page query', () => {
+    it('THEN should redact the storefront id at the root and inside an input', () => {
+      const variables = {
+        storefrontId: SECRET,
+        input: { storefrontId: SECRET, email: 'jane@acme.com' },
+      }
+
+      expect(scrubUrlTokens(variables)).toEqual({
+        storefrontId: '[Filtered]',
+        input: { storefrontId: '[Filtered]', email: 'jane@acme.com' },
+      })
+    })
+  })
+
   describe('GIVEN a payload without token', () => {
     it('THEN should return the same reference', () => {
       const payload = { request: { url: 'https://app.test/acme/customers' }, urls: ['/login'] }

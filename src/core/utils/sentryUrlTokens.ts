@@ -15,7 +15,8 @@ const TOKEN_QUERY_PARAM =
 
 // GraphQL error and slow-query reports attach `operation.variables`, e.g. `resetPassword`'s
 // `{ token, newPassword }`
-const SECRET_KEY = /token$|password|^claimCode$|^verificationCode$/i
+// `storefrontId` is the claim URL's capability, redacted above in the path and here as a variable
+const SECRET_KEY = /token$|password|^claimCode$|^verificationCode$|^storefrontId$/i
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
   if (typeof value !== 'object' || value === null) return false
