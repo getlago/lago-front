@@ -2,7 +2,7 @@ import { ApolloClient, gql, useApolloClient } from '@apollo/client'
 import { useCallback, useMemo, useRef } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
-import { addToast } from '~/core/apolloClient'
+import { addToast, isSilencedGQLError } from '~/core/apolloClient'
 import {
   IntegrationItemTypeEnum,
   LagoApiError,
@@ -66,6 +66,8 @@ const REFETCH_QUERIES = ['getQuickbooksCustomerItems', 'getQuickbooksCustomerIte
 
 // The codes the error link leaves without a toast: the ones passed below, plus forbidden
 const SILENCED_ERROR_CODES = [LagoApiError.UnprocessableEntity, LagoApiError.Forbidden]
+
+const TOO_MANY_CUSTOMERS_ERROR = 'too_many_customers'
 
 export const toQuickbooksCustomerOption = ({
   externalId,
@@ -155,9 +157,23 @@ export const useQuickbooksCustomerItems = (
             SILENCED_ERROR_CODES.includes(error.extensions?.code as LagoApiError),
           )
 
-          if (isSilenced && notifyOnError) {
-            addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
-          }
+          if (!isSilenced || !notifyOnError) return
+
+          // Past the API's customer cap, the stored list is left as it was
+          const hasTooManyCustomers = !!errors?.some(({ extensions }) =>
+            isSilencedGQLError({
+              extensions,
+              silentErrorCodes: [],
+              silentErrorDetails: [TOO_MANY_CUSTOMERS_ERROR],
+            }),
+          )
+
+          addToast({
+            severity: 'danger',
+            translateKey: hasTooManyCustomers
+              ? 'text_179551175424115ckjscs7o7'
+              : 'text_62b31e1f6a5b8b1b745ece48',
+          })
         })
         .catch(() => undefined)
         .finally(() => {

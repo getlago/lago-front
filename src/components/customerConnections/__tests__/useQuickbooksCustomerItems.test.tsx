@@ -75,7 +75,10 @@ const buildItemsMock = (
   },
 })
 
-const buildFetchMock = (onCall: jest.Mock, { failedWith }: { failedWith?: LagoApiError } = {}) => ({
+const buildFetchMock = (
+  onCall: jest.Mock,
+  { failedWith, details }: { failedWith?: LagoApiError; details?: Record<string, string[]> } = {},
+) => ({
   request: {
     query: FetchQuickbooksCustomerItemsDocument,
     variables: { input: { integrationId: INTEGRATION_ID } },
@@ -85,7 +88,7 @@ const buildFetchMock = (onCall: jest.Mock, { failedWith }: { failedWith?: LagoAp
 
     if (failedWith) {
       return {
-        errors: [{ message: failedWith, extensions: { code: failedWith } }],
+        errors: [{ message: failedWith, extensions: { code: failedWith, details } }],
       }
     }
 
@@ -323,6 +326,33 @@ describe('useQuickbooksCustomerItems', () => {
       })
     },
   )
+
+  describe('GIVEN a clicked refresh fails because QuickBooks has too many customers', () => {
+    it('THEN should explain it and point to the id input', async () => {
+      const onFetch = jest.fn()
+      const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+        wrapper: createWrapper([
+          buildCountMock(0),
+          buildFetchMock(onFetch, {
+            failedWith: LagoApiError.UnprocessableEntity,
+            details: { customers: ['too_many_customers'] },
+          }),
+        ]),
+      })
+
+      act(() => {
+        result.current.refresh()
+      })
+
+      await waitFor(() =>
+        expect(mockAddToast).toHaveBeenCalledWith({
+          severity: 'danger',
+          translateKey: 'text_179551175424115ckjscs7o7',
+        }),
+      )
+      expect(mockAddToast).toHaveBeenCalledTimes(1)
+    })
+  })
 
   describe('GIVEN a clicked refresh fails with an error the error link already reports', () => {
     it('THEN should add no second toast', async () => {
