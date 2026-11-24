@@ -7,8 +7,16 @@ Choose one value from a short, predefined list. Use Combobox for search, large d
 ## Import
 
 ```tsx
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem,
-  SelectGroup, SelectLabel, SelectSeparator } from 'lago-ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from 'lago-ui/select'
 ```
 
 ## API
@@ -40,7 +48,7 @@ Compose with FieldContent, FieldLabel, FieldDescription and FieldError. Set Fiel
 
 ## Accessibility
 
-Provide a visible label or aria-label. Group labels are not selectable. Descriptions are associated separately from option names, and typeahead matches the label. Base UI handles arrow navigation, typeahead, selection, Escape dismissal and focus restoration. Disabled options cannot be committed. Keyboard focus stays visible in read-only mode. Use native name/required for form integration.
+Provide a visible label or aria-label. Group labels are not selectable. Descriptions are associated separately from option names, and typeahead matches the label. SelectItem respects a supplied aria-label or aria-labelledby; aria-labelledby takes precedence when both are supplied. Base UI handles arrow navigation, typeahead, selection, Escape dismissal and focus restoration. Disabled options cannot be committed. Keyboard focus stays visible in read-only mode while preserving its subtle background. Use native name/required for form integration.
 
 ## Design
 

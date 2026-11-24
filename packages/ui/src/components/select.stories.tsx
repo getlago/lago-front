@@ -1,4 +1,5 @@
-import type { Meta } from '@storybook/react-vite'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { expect, userEvent, within } from 'storybook/test'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
 import docs from './select.md?raw'
@@ -80,4 +81,43 @@ export const LongLabels = {
       </div>
     )
   },
+}
+
+export const ReadOnlyFocus: StoryObj = {
+  render: (): JSX.Element => (
+    <div className="w-[280px]">
+      <SelectExample state="Read-only" />
+    </div>
+  ),
+  play: async ({ canvasElement }): Promise<void> => {
+    const trigger = within(canvasElement).getByRole('combobox')
+    const background = getComputedStyle(trigger).backgroundColor
+
+    await userEvent.tab()
+    await expect(trigger).toHaveFocus()
+    await expect(trigger).toHaveAttribute('aria-readonly', 'true')
+    await expect(getComputedStyle(trigger).backgroundColor).toBe(background)
+    await expect(getComputedStyle(trigger).boxShadow).not.toBe('none')
+    await expect(trigger).toHaveAttribute('aria-expanded', 'false')
+  },
+}
+
+export const CustomAccessibleName = {
+  render: (): JSX.Element => (
+    <div className="w-[280px]">
+      <Select items={[{ value: 'month', label: 'Monthly' }]}>
+        <SelectTrigger aria-label="Billing period">
+          <SelectValue placeholder="Choose a billing period" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem
+            value="month"
+            label="Monthly"
+            aria-label="Monthly billing"
+            description="Bill every month"
+          />
+        </SelectContent>
+      </Select>
+    </div>
+  ),
 }

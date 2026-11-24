@@ -118,13 +118,15 @@ export type SelectItemProps = Omit<
 export const SelectItem = React.forwardRef<HTMLElement, SelectItemProps>(
   ({ className, label, description, ...props }, ref) => {
     const descriptionId = React.useId()
+    const labelledBy =
+      props['aria-labelledby'] ?? (props['aria-label'] ? undefined : `${descriptionId}-label`)
 
     return (
       <Primitive.Item
         {...props}
         ref={ref}
         label={label}
-        aria-labelledby={props['aria-labelledby'] ?? `${descriptionId}-label`}
+        aria-labelledby={labelledBy}
         aria-describedby={props['aria-describedby'] ?? (description ? descriptionId : undefined)}
         className={cn(
           'v2-select-item flex min-h-9 cursor-default select-none items-center gap-2 rounded-lg p-2 outline-none data-[highlighted]:bg-interactive-hover data-[disabled]:text-disabled-foreground',

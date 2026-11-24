@@ -12,9 +12,14 @@
 .v2-select-trigger[aria-readonly='true'] {
   background: var(--color-surface-subtle);
 }
+.v2-select-trigger:not(:disabled):not([aria-readonly='true']):is(
+    :focus-visible,
+    [data-popup-open]
+  ) {
+  background: var(--color-surface);
+}
 .v2-select-trigger:not(:disabled):focus-visible,
 .v2-select-trigger[data-popup-open] {
-  background: var(--color-surface);
   border-color: var(--color-focus-border);
   box-shadow: 0 0 0 4px var(--color-focus-ring);
 }

@@ -234,3 +234,40 @@ it('keeps a controlled value authoritative and does not choose an option when it
   expect(changed).toHaveBeenCalledTimes(1)
   expect(screen.getByRole('combobox')).not.toHaveTextContent('Monthly')
 })
+
+it.each([
+  { 'aria-label': 'Monthly billing', expected: 'Monthly billing' },
+  { 'aria-labelledby': 'custom-label', expected: 'Custom billing label' },
+  {
+    'aria-label': 'Monthly billing',
+    'aria-labelledby': 'custom-label',
+    expected: 'Custom billing label',
+  },
+])('respects caller-supplied option names: %j', async ({ expected, ...attributes }) => {
+  const user = userEvent.setup()
+
+  render(
+    <>
+      <span id="custom-label">Custom billing label</span>
+      <Select items={periods}>
+        <SelectTrigger aria-label="Period">
+          <SelectValue placeholder="Choose" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem
+            value="month"
+            label="Monthly"
+            description="Bill every month"
+            {...attributes}
+          />
+        </SelectContent>
+      </Select>
+    </>,
+  )
+  await user.click(screen.getByRole('combobox'))
+  const option = await screen.findByRole('option', { name: expected })
+
+  expect(option).toHaveAccessibleDescription('Bill every month')
+  await user.click(option)
+  expect(screen.getByRole('combobox')).toHaveTextContent('Monthly')
+})
