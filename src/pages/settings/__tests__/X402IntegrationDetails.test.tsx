@@ -4,6 +4,7 @@ import { generatePath } from 'react-router'
 
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { ENTITY_SECTION_VIEW_NAME_TEST_ID } from '~/components/MainHeader/mainHeaderTestIds'
+import { X402_TEST_CATALOG } from '~/components/settings/integrations/__tests__/x402NetworksFixture'
 import { initializeTranslations } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { INTEGRATIONS_ROUTE, X402_INTEGRATION_ROUTE } from '~/core/router'
@@ -25,6 +26,14 @@ const EDIT_ACTION = 'Edit connection'
 
 const mockOpenDeleteDialog = jest.fn()
 const mockOpenAddDialog = jest.fn()
+
+jest.mock('~/hooks/useX402Networks', () => ({
+  useX402Networks: () => ({
+    networks: jest.requireActual('~/components/settings/integrations/__tests__/x402NetworksFixture')
+      .X402_TEST_CATALOG,
+    loading: false,
+  }),
+}))
 
 jest.mock('~/components/settings/integrations/AddX402Dialog', () => ({
   useAddX402Dialog: () => ({ openAddX402Dialog: mockOpenAddDialog }),
@@ -190,6 +199,7 @@ describe('X402IntegrationDetails', () => {
 
       expect(mockOpenAddDialog).toHaveBeenLastCalledWith({
         connection: expect.objectContaining({ allowedOrigins: ['https://saved.example.com'] }),
+        catalog: X402_TEST_CATALOG,
       })
     })
   })

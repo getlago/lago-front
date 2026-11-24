@@ -19,6 +19,8 @@ import {
 } from '~/generated/graphql'
 import { AllTheProviders, render, testMockNavigateFn } from '~/test-utils'
 
+import { X402_TEST_CATALOG } from './x402NetworksFixture'
+
 import { useAddX402Dialog } from '../AddX402Dialog'
 
 const REQUIRED_ERROR = 'Value is mandatory to move forward'
@@ -36,6 +38,13 @@ const mockUpdateConnection = jest.fn()
 let mockCreateOptions: CreateX402ConnectionMutationOptions | undefined
 let mockUpdateOptions: UpdateX402ConnectionMutationOptions | undefined
 
+jest.mock('~/hooks/useX402Networks', () => ({
+  useX402Networks: () => ({
+    networks: jest.requireActual('~/components/settings/integrations/__tests__/x402NetworksFixture')
+      .X402_TEST_CATALOG,
+    loading: false,
+  }),
+}))
 jest.mock('~/components/dialogs/FormDialog', () => ({
   useFormDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
 }))
@@ -99,11 +108,11 @@ const fieldOf = (input: HTMLElement): HTMLElement => {
   return field
 }
 
-const openDialog = async (data?: { connection?: AddX402ConnectionDialogFragment }) => {
+const openDialog = async (data?: { connection: AddX402ConnectionDialogFragment }) => {
   const { result } = renderHook(() => useAddX402Dialog(), { wrapper })
 
   act(() => {
-    result.current.openAddX402Dialog(data)
+    result.current.openAddX402Dialog(data && { ...data, catalog: X402_TEST_CATALOG })
   })
 
   const dialogProps = mockDialogOpen.mock.calls[0][0]

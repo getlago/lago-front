@@ -5,8 +5,8 @@ import {
   isValidAllowedOrigin,
   MAX_ALLOWED_ORIGINS,
   parseAllowedOrigins,
-  X402FamilyEnum,
 } from '~/components/settings/integrations/x402Connection'
+import { X402NetworkFamilyEnum } from '~/generated/graphql'
 
 export const REQUIRED_ERROR = 'text_624ea7c29103fd010732ab7d'
 export const TOO_MANY_ORIGINS_ERROR = 'text_1793132394870tuaiztlruvj'
@@ -45,11 +45,11 @@ export const x402ValidationSchema = z
       ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['cdpApiKeySecret'] })
     }
 
-    if (families.includes(X402FamilyEnum.Evm) && !values.evmPayoutAddress) {
+    if (families.includes(X402NetworkFamilyEnum.Evm) && !values.evmPayoutAddress) {
       ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['evmPayoutAddress'] })
     }
 
-    if (families.includes(X402FamilyEnum.Svm) && !values.svmPayoutAddress) {
+    if (families.includes(X402NetworkFamilyEnum.Svm) && !values.svmPayoutAddress) {
       ctx.addIssue({ code: 'custom', message: REQUIRED_ERROR, path: ['svmPayoutAddress'] })
     }
 

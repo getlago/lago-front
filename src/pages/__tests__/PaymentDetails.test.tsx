@@ -24,6 +24,14 @@ import PaymentDetails, {
 
 let capturedConfig: MainHeaderConfig | null = null
 
+jest.mock('~/hooks/useX402Networks', () => ({
+  useX402Networks: () => ({
+    networks: jest.requireActual('~/components/settings/integrations/__tests__/x402NetworksFixture')
+      .X402_TEST_CATALOG,
+    loading: false,
+  }),
+}))
+
 jest.mock('~/components/MainHeader/MainHeader', () => ({
   MainHeader: Object.assign(() => null, {
     Configure: (props: MainHeaderConfig) => {
