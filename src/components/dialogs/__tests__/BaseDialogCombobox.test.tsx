@@ -8,6 +8,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from 'lago-ui/combobox'
+import { resolve } from 'node:path'
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 
@@ -23,11 +24,11 @@ it('keeps the body-portalled results above the app dialog and selects an option'
   const closeDialog = jest.fn().mockResolvedValue(undefined)
   const style = document.createElement('style')
   const utilities = await postcss([
-    tailwindcss({ ...config, content: [{ raw: 'z-dialog', extension: 'html' }] }),
+    tailwindcss({ ...config, content: [{ raw: 'z-dialog z-[2100]', extension: 'html' }] }),
   ]).process('@tailwind utilities;', { from: undefined })
 
   const comboboxStyles = postcss.parse(
-    readFileSync('packages/ui/src/components/combobox.css', 'utf8'),
+    readFileSync(resolve(__dirname, '../../../../packages/ui/src/components/combobox.css'), 'utf8'),
   )
 
   // jsdom cannot evaluate the nested :has selectors used for control hover states.

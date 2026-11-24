@@ -32,8 +32,8 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 | Badge        | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
 | Breadcrumb   | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
 | Button       | `lago-ui/button`        | [button.md](src/components/button.md)               |
-| Combobox     | `lago-ui/combobox`      | [combobox.md](src/components/combobox.md)           |
 | ColorTheme   | `lago-ui/color-theme`   | [color-theme.md](src/components/color-theme.md)     |
+| Combobox     | `lago-ui/combobox`      | [combobox.md](src/components/combobox.md)           |
 | DropdownMenu | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
 | Field        | `lago-ui/field`         | [field.md](src/components/field.md)                 |
 | IconButton   | `lago-ui/icon-button`   | [icon-button.md](src/components/icon-button.md)     |

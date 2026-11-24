@@ -17,7 +17,8 @@
     "./utils": "./src/lib/utils.ts",
     "./styles.css": "./src/styles/index.css",
     "./styles/*": "./src/styles/*",
-    "./tailwind-preset": "./tailwind-preset.ts"
+    "./tailwind-preset": "./tailwind-preset.ts",
+    "./combobox/*": null
   },
   "scripts": {
     "lint": "prettier --check . && eslint .",
@@ -28,16 +29,16 @@
     "test:docs": "node --test scripts/docs.test.mjs"
   },
   "dependencies": {
+    "@base-ui/react": "catalog:",
     "@radix-ui/react-dropdown-menu": "catalog:",
     "@radix-ui/react-separator": "catalog:",
     "@radix-ui/react-slot": "catalog:",
     "@radix-ui/react-tabs": "catalog:",
     "@radix-ui/react-tooltip": "catalog:",
+    "@tanstack/react-virtual": "catalog:",
     "class-variance-authority": "catalog:",
     "lucide-react": "catalog:",
-    "tailwind-merge": "catalog:",
-    "@base-ui/react": "catalog:",
-    "@tanstack/react-virtual": "catalog:"
+    "tailwind-merge": "catalog:"
   },
   "peerDependencies": {
     "react": "catalog:",

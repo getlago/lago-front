@@ -141,9 +141,10 @@ function ComboboxFieldExample({
         createItem={(value) => value}
         getItemKey={(value) => value}
         addLabel={(value) => `Add ${value}`}
-        duplicateMessage="This value is already added."
+        validate={(candidate, selected) =>
+          selected.includes(candidate) ? 'This value is already added.' : null
+        }
         onValidationChange={setError}
-        errorId={`${id}-error`}
       >
         {field}
         {!!query.trim() && !values.includes(query.trim()) && !error && (

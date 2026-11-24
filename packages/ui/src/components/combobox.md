@@ -1,5 +1,7 @@
 # Combobox
 
+Searchable selection and free-text entry with optional chips and virtualized results.
+
 ## When to use
 
 Free-text accepts arbitrary strings by default, including emails and identifiers. It needs no backend or suggestions: render only `ComboboxAdd` for the typed value. Validation and suggestions remain optional, caller-owned capabilities; email-specific validation belongs to an email use case.
@@ -25,11 +27,15 @@ import {
 
 `ComboboxList` accepts a render function, `getItemKey`, optional `groupBy` and `estimateSize`. Supply the complete loaded collection to Root, never just the visible rows. Virtualisation is enabled on Root. Group options contiguously. Logical option indexes exclude headings; variable-height rows are measured. Use stable keys across query changes and appended pages.
 
-`ComboboxFreeText` is a controlled multiple-selection root: supply `value`, `onValueChange`, `createItem`, `getItemKey`, optional `validate` (message or null), `addLabel` and `duplicateMessage`. Optional `inputValue` and `onInputValueChange` support controlled queries and remote suggestions. Optional `normalize` defaults to trimming; domain-specific normalisation belongs to the caller. `onValidationChange` and `errorId` connect to FieldError. Enter or `ComboboxAdd` commits; blur and Tab do not. Invalid and duplicate values remain editable. A highlighted suggestion takes precedence over free-text creation. IME composition must finish before committing.
+`ComboboxFreeText` is a controlled multiple-selection root: supply `value`, `onValueChange`, `createItem`, `getItemKey`, optional `validate` (message or null), `addLabel`. Optional `inputValue` and `onInputValueChange` support controlled queries and remote suggestions. Optional `normalize` defaults to trimming; domain-specific normalisation belongs to the caller. `onValidationChange` reports to caller-owned FieldError state. Enter or `ComboboxAdd` commits; blur and Tab do not. Invalid and duplicate values remain editable. A highlighted suggestion takes precedence over free-text creation. IME composition must finish before committing.
 
 `ComboboxChip` requires the complete `label` and accessible `removeLabel`. Disabled chips have no removal button. Read-only chips render as default badges; omit the input shell in that composition. `ComboboxClear` requires `label`. `ComboboxAction` renders an optional full-width creation footer with a plus icon, outside the scrolling list; it does not create a free-text token.
 
 `ComboboxContent` supports `anchor` and portal `container` for nested overlays. `ComboboxText` truncates display labels in the middle, preserving the last five graphemes, and exposes full text to assistive technology and a tooltip. Editable query text is never shortened. In a popup, use a controlled query and an IconButton to clear only that query; ComboboxClear clears the selection.
+
+All wrapper className props accept strings; use data attributes for state styles. Internal combobox/* modules are private.
+
+Free-text validate(query, values) is a pure caller function that can reject duplicates by semantic value, even when createItem generates IDs. createItem runs once per accepted commit. The caller owns error state through onValidationChange and passes aria-invalid/aria-describedby to ComboboxInput. onInputValueChange receives (value, details), including a cancellable input-clear event with the original native event after a typed commit. Object suggestions should provide itemToStringLabel for the same validation contract.
 
 ## Examples
 
@@ -64,17 +70,20 @@ Controls have a 36px minimum height and 240px minimum width, shrinking within na
 
 ## References
 
+- Storybook: [Combobox](https://getlago.github.io/lago-front/ui/?path=/docs/components-combobox--docs)
+- Tests: [Combobox tests](./__tests__/combobox.test.tsx)
+
 - [Base UI Combobox](https://base-ui.com/react/components/combobox)
 - [Figma Combo-box](https://www.figma.com/design/B3QfPQpQfNXlBOu6hjvQUb/?node-id=295-4153)
 - [Field](./field.md)
 - [IconButton](./icon-button.md)
 
-### Selection identity and Enter
+**Selection identity and Enter**
 
 Free-text suggestions default to comparing `getItemKey` values, so typed and suggested values share an identity. An explicit `isItemEqualToValue` overrides this comparison and should agree with `getItemKey`. Selecting an already selected suggestion follows Base UI's toggle behavior.
 
 Enter in an empty normalized free-text query keeps normal form submission behavior. Non-empty values are committed or validated without submitting; IME composition never commits a value.
 
-### Base UI selection patch
+**Base UI selection patch**
 
 Base UI 1.9.0 retains a filtered highlight index when an outside input clears after selecting an item while a controlled multiple popup stays open. The pinned pnpm patch clears that index using Base UI's own index update path. It changes both CommonJS and ESM builds and preserves popup-search behavior. Keep the pointer/keyboard repeated-Enter regressions when upgrading Base UI; remove the patch once an upstream version passes them without it.

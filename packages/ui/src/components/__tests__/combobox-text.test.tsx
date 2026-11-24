@@ -88,3 +88,34 @@ it('updates the visible label when canvas measurement is unavailable', () => {
   )
   expect(screen.getByLabelText('Sam').lastElementChild).toHaveTextContent(/^Sam$/)
 })
+
+it('uses longhand font properties when shorthand is empty and repeatedly expands after resize', () => {
+  const context = {
+    font: '',
+    measureText: (value: string) => ({ width: value.length * 10 }),
+  } as CanvasRenderingContext2D
+
+  jest.spyOn(textMeasurement, 'getTextMeasurementContext').mockReturnValue(context)
+  jest.spyOn(window, 'getComputedStyle').mockReturnValue({
+    font: '',
+    fontStyle: 'italic',
+    fontWeight: '600',
+    fontSize: '16px',
+    fontFamily: 'Arial',
+    letterSpacing: '0px',
+  } as CSSStyleDeclaration)
+  render(
+    <TooltipProvider>
+      <ComboboxText>{label}</ComboboxText>
+    </TooltipProvider>,
+  )
+  expect(context.font).toBe('italic 600 16px Arial')
+  for (let cycle = 0; cycle < 3; cycle++) {
+    width = 120
+    act(() => resize([], {} as ResizeObserver))
+    expect(screen.getByLabelText(label).lastElementChild).toHaveTextContent('Taylor… name')
+    width = 1000
+    act(() => resize([], {} as ResizeObserver))
+    expect(screen.getByLabelText(label).lastElementChild).toHaveTextContent(label)
+  }
+})

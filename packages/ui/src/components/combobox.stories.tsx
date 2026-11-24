@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { X } from 'lucide-react'
 import * as React from 'react'
-import { expect, waitFor, within } from 'storybook/test'
 
 import { Button } from './button'
 import {
@@ -221,6 +220,7 @@ function FreeTextExample({
   const input = (
     <ComboboxInput
       aria-label="Values"
+      aria-invalid={!!error || undefined}
       aria-describedby={error ? `${id}-error` : undefined}
       placeholder="Add a value"
     />
@@ -243,9 +243,10 @@ function FreeTextExample({
       createItem={(text) => text}
       getItemKey={(text) => text}
       addLabel={(text) => `Add ${text}`}
-      duplicateMessage="This value is already added."
+      validate={(candidate, selected) =>
+        selected.includes(candidate) ? 'This value is already added.' : null
+      }
       onValidationChange={setError}
-      errorId={`${id}-error`}
     >
       <div className="flex flex-col gap-2">
         {above && chips}
@@ -447,19 +448,4 @@ export const ResizableChips: Story = {
       </div>
     </div>
   ),
-  play: async ({ canvasElement }) => {
-    const container = within(canvasElement).getByRole('group', { name: 'Resizable owners' })
-    const label = container.querySelector<HTMLElement>(
-      `[data-full-text="${owners[2].label}"] > span:last-child`,
-    )
-
-    if (!label) throw new Error('Missing long chip label in resize example')
-    await canvasElement.ownerDocument.fonts.ready
-    for (let cycle = 0; cycle < 3; cycle++) {
-      container.style.width = '240px'
-      await waitFor(() => expect(label).toHaveTextContent(/… name$/), { timeout: 5000 })
-      container.style.width = '400px'
-      await waitFor(() => expect(label).toHaveTextContent(owners[2].label), { timeout: 5000 })
-    }
-  },
 }

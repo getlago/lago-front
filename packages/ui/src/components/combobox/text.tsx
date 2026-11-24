@@ -26,9 +26,11 @@ export const ComboboxText = ({
       return
     }
     const measure = (): void => {
-      const style = getComputedStyle(element)
+      const style = element.ownerDocument.defaultView?.getComputedStyle(element)
 
-      context.font = style.font
+      if (!style) return
+
+      context.font = `${style.fontStyle || 'normal'} ${style.fontWeight || 'normal'} ${style.fontSize || '14px'} ${style.fontFamily || 'sans-serif'}`
       const spacing = Number.parseFloat(style.letterSpacing) || 0
 
       setText(
@@ -45,7 +47,7 @@ export const ComboboxText = ({
     observer.observe(element)
     let mounted = true
 
-    void document.fonts?.ready.then(() => {
+    void element.ownerDocument.fonts?.ready.then(() => {
       if (mounted) measure()
     })
     measure()

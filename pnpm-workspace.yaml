@@ -45,5 +45,6 @@ minimumReleaseAgeExclude:
   # Renovate security update: sanitize-html@2.18.1
   - sanitize-html@2.18.1
 
+# Patch maintenance and removal criteria: patches/README.md
 patchedDependencies:
   '@base-ui/react@1.9.0': patches/@base-ui__react@1.9.0.patch

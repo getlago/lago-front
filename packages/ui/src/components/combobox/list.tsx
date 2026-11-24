@@ -2,7 +2,7 @@ import { Combobox as Primitive } from '@base-ui/react/combobox'
 import { defaultRangeExtractor, Range, useVirtualizer } from '@tanstack/react-virtual'
 import * as React from 'react'
 
-import { ComboboxContext } from '../combobox-context'
+import { ComboboxContext } from './context'
 
 export interface ComboboxListProps<Value> {
   children: (item: Value, index: number) => React.ReactElement<Primitive.Item.Props>
@@ -16,26 +16,23 @@ export function ComboboxList<Value>({
   getItemKey,
   groupBy,
   estimateSize,
-}: ComboboxListProps<Value>): React.ReactElement {
+}: Readonly<ComboboxListProps<Value>>): React.ReactElement {
   const items = Primitive.useFilteredItems<Value>()
   const context = React.useContext(ComboboxContext)
   const scrollRef = React.useRef<HTMLDivElement>(null)
   const rows = React.useMemo(() => {
-    const result: Array<{
-      key: string
-      label?: string
-      group?: string
-      item?: Value
-      index: number
-    }> = []
+    const result: Array<
+      | { kind: 'group'; key: string; label: string; group: string; index: number }
+      | { kind: 'item'; key: string; item: Value; group?: string; index: number }
+    > = []
     let previous: string | undefined
 
     items.forEach((item, index) => {
       const group = groupBy?.(item)
 
       if (group !== undefined && group !== previous)
-        result.push({ key: `group:${group}:${index}`, label: group, group, index })
-      result.push({ key: `item:${getItemKey(item)}`, item, group, index })
+        result.push({ kind: 'group', key: `group:${getItemKey(item)}`, label: group, group, index })
+      result.push({ kind: 'item', key: `item:${getItemKey(item)}`, item, group, index })
       previous = group
     })
     return result
@@ -44,15 +41,18 @@ export function ComboboxList<Value>({
     const indexes = new Map<number, number>()
 
     rows.forEach((row, index) => {
-      if (row.label === undefined) indexes.set(row.index, index)
+      if (row.kind === 'item') indexes.set(row.index, index)
     })
     return indexes
   }, [rows])
   const getScrollElement = React.useCallback((): HTMLDivElement | null => scrollRef.current, [])
   const getRowKey = React.useCallback((index: number): string => rows[index].key, [rows])
   const estimateRow = React.useCallback(
-    (index: number): number =>
-      rows[index].label !== undefined ? 24 : (estimateSize?.(rows[index].item as Value) ?? 36) + 4,
+    (index: number): number => {
+      const row = rows[index]
+
+      return row.kind === 'group' ? 24 : (estimateSize?.(row.item) ?? 36) + 4
+    },
     [rows, estimateSize],
   )
   const rangeExtractor = React.useCallback(
@@ -112,7 +112,7 @@ export function ComboboxList<Value>({
 
   visible.forEach((row) => {
     const label = rows[row.index].group
-    const previous = groups[groups.length - 1]
+    const previous = groups.at(-1)
 
     if (previous && previous.label === label) previous.rows.push(row)
     else groups.push({ label, rows: [row] })
@@ -129,7 +129,7 @@ export function ComboboxList<Value>({
         }
       : {}
 
-    if (row.label !== undefined)
+    if (row.kind === 'group')
       return (
         <div
           key={row.key}
@@ -151,7 +151,7 @@ export function ComboboxList<Value>({
         className="pb-1"
         role="presentation"
       >
-        {React.cloneElement(children(row.item as Value, row.index), {
+        {React.cloneElement(children(row.item, row.index), {
           index: row.index,
           'aria-posinset': row.index + 1,
           'aria-setsize': items.length,
@@ -169,9 +169,9 @@ export function ComboboxList<Value>({
             : undefined
         }
       >
-        {groups.map((group, index) => (
+        {groups.map((group) => (
           <div
-            key={group.label ?? index}
+            key={rows[group.rows[0].index].key}
             role={group.label === undefined ? 'presentation' : 'group'}
             aria-label={group.label}
           >

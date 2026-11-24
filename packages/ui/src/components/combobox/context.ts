@@ -9,11 +9,9 @@ export interface ComboboxContextValue {
 }
 export const ComboboxContext = React.createContext<ComboboxContextValue | null>(null)
 export const FreeTextContext = React.createContext<{
-  commit: () => void
+  commit: (event: React.SyntheticEvent) => void
   hasQuery: boolean
   canAdd: boolean
   addLabel: string
-  invalid: boolean
-  errorId?: string
   highlighted: React.MutableRefObject<boolean>
 } | null>(null)

@@ -25,7 +25,13 @@ function FreeText({ above = false }: { above?: boolean }): React.ReactElement {
       {value.map((email) => (
         <ComboboxChip key={email} label={email} removeLabel={`Remove ${email}`} />
       ))}
-      {!above && <ComboboxInput aria-label="Recipients" />}
+      {!above && (
+        <ComboboxInput
+          aria-label="Recipients"
+          aria-invalid={!!error || undefined}
+          aria-describedby={error ? 'error' : undefined}
+        />
+      )}
     </ComboboxChips>
   )
 
@@ -38,15 +44,24 @@ function FreeText({ above = false }: { above?: boolean }): React.ReactElement {
         createItem={(query) => query}
         getItemKey={(email) => email.toLowerCase()}
         normalize={(query) => query.trim().toLowerCase()}
-        validate={(query) => (query.includes('@') ? null : 'Invalid email')}
-        duplicateMessage="Duplicate email"
+        validate={(query, values) => {
+          if (!query.includes('@')) return 'Invalid email'
+          return values.includes(query) ? 'Duplicate email' : null
+        }}
         addLabel={(query) => `Add ${query}`}
         onValidationChange={setError}
-        errorId="error"
       >
         {above && chips}
         <ComboboxControl>
-          {above ? <ComboboxInput aria-label="Recipients" /> : chips}
+          {above ? (
+            <ComboboxInput
+              aria-label="Recipients"
+              aria-invalid={!!error || undefined}
+              aria-describedby={error ? 'error' : undefined}
+            />
+          ) : (
+            chips
+          )}
         </ComboboxControl>
         <p id="error">{error}</p>
         <output aria-label="Selected">{value.join(',')}</output>
@@ -218,7 +233,6 @@ it('exposes the free-text query for remote search and resets it after commit', a
         createItem={(text) => text}
         getItemKey={(text) => text}
         validate={() => null}
-        duplicateMessage="Duplicate"
         addLabel={(text) => `Add ${text}`}
       >
         <ComboboxControl>
@@ -357,7 +371,6 @@ it('recognizes suggestions with the same logical key as existing free-text value
       createItem={(text) => text}
       getItemKey={(text) => text.toLowerCase()}
       addLabel={(text) => `Add ${text}`}
-      duplicateMessage="Duplicate"
     >
       <ComboboxControl>
         <ComboboxInput aria-label="Recipients" />
@@ -418,7 +431,6 @@ it.each([false, true])(
         getItemKey={(item) => item.id}
         isItemEqualToValue={override ? comparator : undefined}
         addLabel={(text) => `Add ${text}`}
-        duplicateMessage="Duplicate"
       >
         <ComboboxControl>
           <ComboboxInput aria-label="Owners" />
