@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "packages/ui/**"
+      - "patches/**"
       - "packages/configs/**"
       - "package.json"
       - "pnpm-lock.yaml"

@@ -167,7 +167,7 @@ export const DropdownMenuLabel = React.forwardRef<
   <Menu.Label
     {...props}
     ref={ref}
-    className={cn('v2-text-caption truncate px-2 py-1 text-text-muted', className)}
+    className={cn('v2-text-caption h-7 shrink-0 truncate p-2 text-text-muted', className)}
   />
 ))
 DropdownMenuLabel.displayName = 'DropdownMenuLabel'
