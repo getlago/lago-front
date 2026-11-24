@@ -1,5 +1,6 @@
 import { DateTime, Settings } from 'luxon'
 
+import { INVALID_DATE_VALUE, UNSUPPORTED_DATE_ERROR } from '~/core/constants/form'
 import {
   CouponExpiration,
   CouponFrequency,
@@ -429,6 +430,26 @@ describe('couponValidationSchema', () => {
         const result = couponValidationSchema.safeParse(data)
 
         expect(result.success).toBe(true)
+      })
+    })
+
+    describe('WHEN expirationAt is the placeholder for a date that does not exist', () => {
+      it('THEN should fail validation with the unsupported-date error, not the past-date error', () => {
+        const data = createValidCouponData({
+          expiration: CouponExpiration.TimeLimit,
+          expirationAt: INVALID_DATE_VALUE,
+        })
+
+        const result = couponValidationSchema.safeParse(data)
+
+        expect(result.success).toBe(false)
+        if (!result.success) {
+          const expirationErrors = result.error.issues.filter((issue) =>
+            issue.path.includes('expirationAt'),
+          )
+
+          expect(expirationErrors.map((issue) => issue.message)).toEqual([UNSUPPORTED_DATE_ERROR])
+        }
       })
     })
   })
