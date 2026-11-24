@@ -1570,6 +1570,7 @@ export type ContractCurrentUsageTotal = {
 export enum ContractStatusEnum {
   Active = 'active',
   Canceled = 'canceled',
+  Draft = 'draft',
   Pending = 'pending',
   Terminated = 'terminated'
 }
@@ -9265,6 +9266,7 @@ export enum ProviderPaymentMethodsEnum {
   CustomerBalance = 'customer_balance',
   Link = 'link',
   SepaDebit = 'sepa_debit',
+  SharedPaymentToken = 'shared_payment_token',
   UsBankAccount = 'us_bank_account'
 }
 

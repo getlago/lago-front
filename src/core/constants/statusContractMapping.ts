@@ -3,6 +3,8 @@ import { ContractStatusEnum } from '~/generated/graphql'
 
 export const contractStatusMapping = (status?: ContractStatusEnum | null): StatusProps => {
   switch (status) {
+    case ContractStatusEnum.Draft:
+      return { type: StatusType.outline, label: 'draft' }
     case ContractStatusEnum.Active:
       return { type: StatusType.success, label: 'active' }
     case ContractStatusEnum.Pending:
