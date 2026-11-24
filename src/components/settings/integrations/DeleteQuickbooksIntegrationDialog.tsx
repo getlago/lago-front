@@ -5,7 +5,9 @@ import { addToast } from '~/core/apolloClient'
 import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
   DeleteQuickbooksIntegrationDialogFragment,
+  DestroyNangoIntegrationMutation,
   GetQuickbooksIntegrationsListDocument,
+  LagoApiError,
   useDestroyNangoIntegrationMutation,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -16,6 +18,30 @@ gql`
     name
   }
 `
+
+// A delete error the error link already toasted: every GraphQL code but `forbidden`, which it silences.
+class ReportedDeleteError extends Error {}
+
+export const getDestroyedQuickbooksId = (result: {
+  data?: DestroyNangoIntegrationMutation | null
+  errors?: ReadonlyArray<{ extensions?: Record<string, unknown> }>
+}): string => {
+  const destroyedId = result.data?.destroyIntegration?.id
+
+  if (destroyedId) return destroyedId
+
+  const isReported = result.errors?.some(
+    (error) => error.extensions?.code !== LagoApiError.Forbidden,
+  )
+
+  throw isReported ? new ReportedDeleteError('Delete failed') : new Error('Delete failed')
+}
+
+export const toastQuickbooksDeleteError = (error: Error) => {
+  if (error instanceof ReportedDeleteError) return
+
+  addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+}
 
 type TDeleteQuickbooksIntegrationDialogProps = {
   provider: DeleteQuickbooksIntegrationDialogFragment | null
@@ -39,18 +65,13 @@ export const useDeleteQuickbooksIntegrationDialog = () => {
       colorVariant: 'danger',
       actionText: translate('text_645d071272418a14c1c76a81'),
       closeOnError: false,
-      onError: () => {
-        addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
-      },
+      onError: toastQuickbooksDeleteError,
       onAction: async () => {
         const result = await deleteQuickbooks({
           variables: { input: { id: provider?.id as string } },
         })
 
-        const destroyedId = result.data?.destroyIntegration?.id
-
-        // A refused delete resolves without an id: throw so `onError` shows the toast
-        if (!destroyedId) throw new Error('Delete failed')
+        const destroyedId = getDestroyedQuickbooksId(result)
 
         evictFromCache(client, {
           id: destroyedId,

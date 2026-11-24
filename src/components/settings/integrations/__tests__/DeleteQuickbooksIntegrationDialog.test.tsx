@@ -2,6 +2,7 @@ import { act, renderHook } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { addToast } from '~/core/apolloClient'
+import { LagoApiError } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import { useDeleteQuickbooksIntegrationDialog } from '../DeleteQuickbooksIntegrationDialog'
@@ -62,16 +63,38 @@ describe('useDeleteQuickbooksIntegrationDialog', () => {
   })
 
   describe('GIVEN the delete is refused', () => {
-    it('THEN rejects so the error toast shows, and skips the callback', async () => {
-      mockDestroy.mockResolvedValue({ data: { destroyIntegration: null } })
+    const refuseWith = async (errors?: Array<{ extensions: { code: string } }>) => {
+      mockDestroy.mockResolvedValue({ data: { destroyIntegration: null }, errors })
 
       const dialogProps = openDialog()
+      let rejection: Error | undefined
 
       await act(async () => {
-        await expect(dialogProps.onAction()).rejects.toThrow()
+        rejection = await dialogProps.onAction().catch((error: Error) => error)
       })
 
+      expect(rejection).toBeInstanceOf(Error)
+      dialogProps.onError(rejection as Error)
+    }
+
+    it('THEN shows the error toast and skips the callback when no error is returned', async () => {
+      await refuseWith()
+
       expect(mockCallback).not.toHaveBeenCalled()
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+
+    it('THEN shows the error toast for a forbidden error, which the error link silences', async () => {
+      await refuseWith([{ extensions: { code: LagoApiError.Forbidden } }])
+
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+
+    it('THEN adds no second toast for an error the error link already reports', async () => {
+      await refuseWith([{ extensions: { code: LagoApiError.NotFound } }])
+
+      expect(mockCallback).not.toHaveBeenCalled()
+      expect(addToast).not.toHaveBeenCalled()
     })
   })
 
