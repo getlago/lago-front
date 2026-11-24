@@ -71,11 +71,16 @@ const ALWAYS_SYNCED_OBJECT_KEYS = [
   'text_661ff6e56ef7e1b7c542b2d7',
 ]
 
-const OPTIONAL_SYNCED_OBJECTS = [
+type OptionalSyncedObject = {
+  name: keyof Pick<AddQuickbooksFormValues, 'syncCreditNotes' | 'syncInvoices' | 'syncPayments'>
+  objectKey: string
+}
+
+const OPTIONAL_SYNCED_OBJECTS: OptionalSyncedObject[] = [
   { name: 'syncCreditNotes', objectKey: 'text_661ff6e56ef7e1b7c542b2e9' },
   { name: 'syncInvoices', objectKey: 'text_661ff6e56ef7e1b7c542b2ff' },
   { name: 'syncPayments', objectKey: 'text_661ff6e56ef7e1b7c542b311' },
-] as const
+]
 
 type AddQuickbooksFormValues = {
   name: string
@@ -189,7 +194,7 @@ export const useAddQuickbooksDialog = () => {
 
         // Other codes already get the global error toast from the error link.
         const isSilenced = errors.some((error) =>
-          SILENCED_ERROR_CODES.includes(error.extensions?.code as LagoApiError),
+          SILENCED_ERROR_CODES.some((code) => code === error.extensions?.code),
         )
 
         if (isSilenced) {
@@ -374,7 +379,7 @@ export const useAddQuickbooksDialog = () => {
           onError: toastQuickbooksDeleteError,
           onAction: async () => {
             const res = await deleteQuickbooks({
-              variables: { input: { id: quickbooksProvider?.id as string } },
+              variables: { input: { id: quickbooksProvider?.id ?? '' } },
             })
 
             const destroyedId = getDestroyedQuickbooksId(res)
