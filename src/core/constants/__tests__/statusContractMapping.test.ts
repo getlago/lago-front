@@ -4,6 +4,10 @@ import { ContractStatusEnum } from '~/generated/graphql'
 
 describe('contractStatusMapping', () => {
   it('GIVEN each contract status THEN maps it to its own status type', () => {
+    expect(contractStatusMapping(ContractStatusEnum.Draft)).toEqual({
+      type: StatusType.outline,
+      label: 'draft',
+    })
     expect(contractStatusMapping(ContractStatusEnum.Active)).toEqual({
       type: StatusType.success,
       label: 'active',
