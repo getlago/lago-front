@@ -194,6 +194,49 @@ describe('useAddQuickbooksDialog', () => {
     })
   })
 
+  describe('GIVEN the create is refused for the QuickBooks connection itself', () => {
+    it('THEN asks for a new QuickBooks login on the next submit', async () => {
+      mockCreate.mockResolvedValueOnce({
+        errors: [{ message: 'error', extensions: { code: 'third_party_error' } }],
+      })
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(mockNangoAuth).toHaveBeenCalledTimes(2)
+      expect(mockCreate.mock.calls[1][0].variables.input.connectionId).not.toBe(
+        mockCreate.mock.calls[0][0].variables.input.connectionId,
+      )
+    })
+  })
+
+  describe('GIVEN the QuickBooks login window is closed', () => {
+    it('THEN creates nothing and shows no error', async () => {
+      mockNangoAuth.mockRejectedValueOnce(
+        Object.assign(new Error('closed'), { type: 'window_closed' }),
+      )
+
+      const submit = await openDialog()
+
+      await userEvent.type(screen.getByPlaceholderText(NAME_PLACEHOLDER), 'QuickBooks')
+
+      await act(async () => {
+        await submit().catch(() => undefined)
+      })
+
+      expect(mockCreate).not.toHaveBeenCalled()
+      expect(addToast).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN the QuickBooks company is already connected', () => {
     it('THEN explains it and asks for a new login on the next submit', async () => {
       mockCreate.mockResolvedValueOnce(rejectedUnder('realmId'))

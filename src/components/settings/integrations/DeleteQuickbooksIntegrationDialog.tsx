@@ -68,7 +68,7 @@ export const useDeleteQuickbooksIntegrationDialog = () => {
       onError: toastQuickbooksDeleteError,
       onAction: async () => {
         const result = await deleteQuickbooks({
-          variables: { input: { id: provider?.id as string } },
+          variables: { input: { id: provider?.id ?? '' } },
         })
 
         const destroyedId = getDestroyedQuickbooksId(result)
