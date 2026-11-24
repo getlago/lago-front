@@ -1,4 +1,3 @@
-import { ApolloClient, useApolloClient } from '@apollo/client'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
@@ -17,8 +16,6 @@ import { toQuickbooksOption } from './toQuickbooksOption'
 
 const ITEMS_LIMIT = 1000
 
-// Keyed by client so each Apollo store, a test's included, starts with nothing synced.
-const syncedCatalogs = new WeakMap<ApolloClient, Set<string>>()
 const NO_SEARCH_RESULTS: BasicComboBoxData[] = []
 
 type QuickbooksFormType = MappableTypeEnum | MappingTypeEnum | undefined
@@ -27,7 +24,6 @@ export type UseQuickbooksIntegrationItemsReturn = {
   items: BasicComboBoxData[]
   isLoading: boolean
   refresh: () => void
-  refreshOnce: () => void
 }
 
 export type UseQuickbooksIntegrationItemSearchReturn = {
@@ -93,27 +89,12 @@ export const useQuickbooksIntegrationItems = (
     })
   }, [itemType, triggerAccountItemRefetch, triggerItemRefetch])
 
-  const client = useApolloClient()
-
-  // Nango syncs asynchronously, so opening another drawer right away would only rewrite the same
-  // catalog: sync each catalog once per session, and leave later syncs to the reload button.
-  const refreshOnce = useCallback((): void => {
-    const key = `${integrationId}:${itemType}`
-    const synced = syncedCatalogs.get(client) ?? new Set<string>()
-
-    if (!integrationId || synced.has(key)) return
-
-    syncedCatalogs.set(client, synced.add(key))
-    refresh()
-  }, [client, integrationId, itemType, refresh])
-
   return {
     items,
     // Gated on the first load: under cache-and-network a reopened drawer revalidates a cached
     // catalog, and `loading` alone would spin over the list the field is already showing.
     isLoading: (itemsFetchLoading && !data) || refetchItemsLoading || accountItemsLoading,
     refresh,
-    refreshOnce,
   }
 }
 

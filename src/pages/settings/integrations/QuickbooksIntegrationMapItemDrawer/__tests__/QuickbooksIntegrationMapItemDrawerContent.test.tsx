@@ -204,64 +204,70 @@ const renderDrawer = ({
   }
 }
 
+const reloadButton = (): HTMLElement => {
+  const button = document.querySelector('[data-test="reload/medium"]')?.closest('button')
+
+  if (!button) throw new Error('No reload button')
+
+  return button
+}
+
 describe('QuickbooksIntegrationMapItemDrawerContent', () => {
   describe('GIVEN a drawer with several billing entity tabs', () => {
     describe('WHEN it opens', () => {
-      // The first drawer opened on a catalog syncs it, so an item created in QuickBooks can be mapped.
-      it('THEN should trigger the items sync exactly once', async () => {
-        const { callsTo } = renderDrawer()
+      it('THEN should load the stored catalog without triggering a sync', async () => {
+        const { callsTo, catalogQueries } = renderDrawer()
 
+        await settle()
+
+        expect(callsTo(ITEMS_REFETCH_MUTATION)).toHaveLength(0)
+        expect(callsTo(ACCOUNTS_REFETCH_MUTATION)).toHaveLength(0)
+        expect(catalogQueries()).toEqual([
+          [ITEMS_QUERY, { integrationId: INTEGRATION_ID, itemType: 'standard', limit: 1000 }],
+        ])
+      })
+
+      it('THEN should query the accounts catalog in an account context', async () => {
+        const { callsTo, catalogQueries } = renderDrawer({ formType: MappingTypeEnum.Account })
+
+        await settle()
+
+        expect(callsTo(ACCOUNTS_REFETCH_MUTATION)).toHaveLength(0)
+        expect(catalogQueries()).toEqual([
+          [ITEMS_QUERY, { integrationId: INTEGRATION_ID, itemType: 'account', limit: 1000 }],
+        ])
+      })
+    })
+
+    describe('WHEN the reload button is clicked', () => {
+      it('THEN should trigger the items sync, then reload the catalog', async () => {
+        const { callsTo, catalogQueries, user } = renderDrawer()
+
+        await settle()
+        await user.click(reloadButton())
         await settle()
 
         expect(callsTo(ITEMS_REFETCH_MUTATION)).toEqual([
           [ITEMS_REFETCH_MUTATION, { input: { integrationId: INTEGRATION_ID } }],
         ])
-        expect(callsTo(ACCOUNTS_REFETCH_MUTATION)).toHaveLength(0)
-      })
-
-      it('THEN should not sync the same catalog again when another drawer opens', async () => {
-        const { callsTo, reopen } = renderDrawer()
-
-        await settle()
-        reopen()
-        await settle()
-
-        expect(callsTo(ITEMS_REFETCH_MUTATION)).toHaveLength(1)
+        expect(catalogQueries()).toHaveLength(2)
       })
 
       it('THEN should trigger the accounts sync instead in an account context', async () => {
-        const { callsTo, catalogQueries } = renderDrawer({ formType: MappingTypeEnum.Account })
+        const { callsTo, user } = renderDrawer({ formType: MappingTypeEnum.Account })
 
+        await settle()
+        await user.click(reloadButton())
         await settle()
 
         expect(callsTo(ACCOUNTS_REFETCH_MUTATION)).toEqual([
           [ACCOUNTS_REFETCH_MUTATION, { input: { integrationId: INTEGRATION_ID } }],
         ])
         expect(callsTo(ITEMS_REFETCH_MUTATION)).toHaveLength(0)
-        expect(catalogQueries()).not.toHaveLength(0)
-        catalogQueries().forEach(([, variables]) =>
-          expect(variables).toEqual({
-            integrationId: INTEGRATION_ID,
-            itemType: 'account',
-            limit: 1000,
-          }),
-        )
       })
+    })
 
-      it('THEN should load the catalog, then reload it once the sync completes', async () => {
-        const { catalogQueries, searchQueries } = renderDrawer()
-
-        await settle()
-
-        const catalogQuery = [
-          ITEMS_QUERY,
-          { integrationId: INTEGRATION_ID, itemType: 'standard', limit: 1000 },
-        ]
-
-        expect(catalogQueries()).toEqual([catalogQuery, catalogQuery])
-        expect(searchQueries()).toHaveLength(0)
-      })
-
+    describe('WHEN it opens with its catalog loaded', () => {
       it('THEN should give the fetched options to every rendered combobox', async () => {
         renderDrawer({ seeded: true })
 

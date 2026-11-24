@@ -60,7 +60,6 @@ jest.mock('../useQuickbooksIntegrationItems', () => ({
       items: mockComboboxData,
       isLoading: false,
       refresh: jest.fn(),
-      refreshOnce: jest.fn(),
     }
   },
   useQuickbooksIntegrationItemSearch: () => ({
