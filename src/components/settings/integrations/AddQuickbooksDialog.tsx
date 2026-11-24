@@ -29,6 +29,10 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { QuickbooksIntegrationDetailsTabs } from '~/pages/settings/QuickbooksIntegrationDetails'
 
+import {
+  getDestroyedQuickbooksId,
+  toastQuickbooksDeleteError,
+} from './DeleteQuickbooksIntegrationDialog'
 import { getQuickbooksNangoIntegrationKey } from './getQuickbooksNangoIntegrationKey'
 
 gql`
@@ -367,18 +371,13 @@ export const useAddQuickbooksDialog = () => {
           colorVariant: 'danger',
           actionText: translate('text_645d071272418a14c1c76a81'),
           closeOnError: false,
-          onError: () => {
-            addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
-          },
+          onError: toastQuickbooksDeleteError,
           onAction: async () => {
             const res = await deleteQuickbooks({
               variables: { input: { id: quickbooksProvider?.id as string } },
             })
 
-            const destroyedId = res.data?.destroyIntegration?.id
-
-            // A refused delete resolves without an id: throw so `onError` shows the toast
-            if (!destroyedId) throw new Error('Delete failed')
+            const destroyedId = getDestroyedQuickbooksId(res)
 
             evictFromCache(client, {
               id: destroyedId,
