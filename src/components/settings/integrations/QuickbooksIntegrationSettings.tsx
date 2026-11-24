@@ -19,6 +19,7 @@ import {
   useGetQuickbooksIntegrationsSettingsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
+import { usePermissions } from '~/hooks/usePermissions'
 import { QuickbooksIntegrationDetailsTabs } from '~/pages/settings/QuickbooksIntegrationDetails'
 
 import { useAddQuickbooksDialog } from './AddQuickbooksDialog'
@@ -104,6 +105,8 @@ const QuickbooksIntegrationSettings = () => {
   const quickbooksIntegration =
     data?.integration?.__typename === 'QuickbooksIntegration' ? data.integration : undefined
   const isFirstLoad = loading && !data
+  const { hasPermissions } = usePermissions()
+  const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
   const deleteDialogCallback = () => {
     if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
       navigate(
@@ -142,18 +145,20 @@ const QuickbooksIntegrationSettings = () => {
 
       <section>
         <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
-          <Button
-            variant="inline"
-            disabled={isFirstLoad}
-            onClick={() => {
-              openAddQuickbooksDialog({
-                provider: quickbooksIntegration,
-                deleteDialogCallback,
-              })
-            }}
-          >
-            {translate('text_62b1edddbf5f461ab9712787')}
-          </Button>
+          {canEditIntegration && (
+            <Button
+              variant="inline"
+              disabled={isFirstLoad}
+              onClick={() => {
+                openAddQuickbooksDialog({
+                  provider: quickbooksIntegration,
+                  deleteDialogCallback,
+                })
+              }}
+            >
+              {translate('text_62b1edddbf5f461ab9712787')}
+            </Button>
+          )}
         </IntegrationsPage.Headline>
 
         <>

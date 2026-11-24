@@ -21,6 +21,12 @@ jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
 
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 const mockQueryResult = jest.fn()
 
 jest.mock('~/generated/graphql', () => ({
@@ -53,7 +59,10 @@ const integration = (sandbox: boolean, hasMappingsConfigured = true) => ({
   loading: false,
 })
 
+const EDIT_LABEL = 'text_62b1edddbf5f461ab9712787'
+
 describe('QuickbooksIntegrationSettings', () => {
+  beforeEach(() => mockHasPermissions.mockReturnValue(true))
   afterEach(cleanup)
 
   describe('GIVEN a sandbox connection', () => {
@@ -104,6 +113,22 @@ describe('QuickbooksIntegrationSettings', () => {
 
       expect(screen.getByText(PRODUCTION_LABEL)).toBeInTheDocument()
       expect(screen.queryByText(SANDBOX_LABEL)).not.toBeInTheDocument()
+    })
+  })
+
+  describe('GIVEN the permission to update integrations', () => {
+    it.each([
+      [true, 'shows'],
+      [false, 'hides'],
+    ])('WHEN it is %s THEN %s the inline Edit button', async (allowed) => {
+      mockHasPermissions.mockReturnValue(allowed)
+      mockQueryResult.mockReturnValue(integration(false))
+
+      await renderIntegrationPage(QuickbooksIntegrationSettings, {
+        useParams: { integrationId: 'test-id' },
+      })
+
+      expect(screen.queryByRole('button', { name: EDIT_LABEL }) !== null).toBe(allowed)
     })
   })
 })
