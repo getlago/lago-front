@@ -83,7 +83,7 @@ gql`
     invoiceDisplayName
     preciseUnitAmount
     units
-    invoiceWasRegenerated
+    invoiceIsRegeneration
     pricingUnitUsage {
       amountCents
       conversionRate
@@ -325,7 +325,7 @@ const CustomerInvoiceRegenerate = () => {
 
       // A hand-added fee's root only ever lives on a regenerated invoice; a genuinely
       // billed fee's root lives on the true original one, even if edited.
-      if (originalFee.invoiceWasRegenerated) {
+      if (originalFee.invoiceIsRegeneration) {
         return setFees((f) => f.filter((fee) => fee.id !== id))
       }
 
@@ -378,21 +378,24 @@ const CustomerInvoiceRegenerate = () => {
       })
     }
 
-    const feesInput: VoidedInvoiceFeeInput[] = fees
-      .map((fee) => ({
+    const feesInput: VoidedInvoiceFeeInput[] = fees.map((fee) => ({
+      ...removeEmptyKeys({
         id: fee.id.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
         addOnId: fee?.addOn?.id,
         chargeId: fee?.charge?.id,
         chargeFilterId: fee?.chargeFilter?.id,
         description: fee?.description,
-        invoiceDisplayName: fee?.invoiceDisplayName,
         subscriptionId: fee?.subscription?.id,
         unitAmountCents: (fee as { wasOnlyUnitsUpdate?: boolean })?.wasOnlyUnitsUpdate
           ? null
           : fee?.preciseUnitAmount,
         units: fee?.units,
-      }))
-      .map((fee) => removeEmptyKeys(fee))
+      }),
+      // Always sent, even null: this always holds the fee's true current name (restored
+      // on reset, untouched otherwise), so a null here must clear the name on the backend
+      // rather than being dropped and misread as "leave it as-is".
+      invoiceDisplayName: fee?.invoiceDisplayName ?? null,
+    }))
 
     await regenerateInvoice({
       variables: {
