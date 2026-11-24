@@ -1,6 +1,6 @@
 # lago-ui — v2 design system
 
-The v2 design system of lago-front: shadcn-style components built on Base UI (Combobox), Radix (existing components), CVA and Tailwind, with the v2 tokens. This README is the entry point; every component and foundation links to its own guide below.
+The v2 design system of lago-front: shadcn-style components built on Base UI, CVA and Tailwind, with the v2 tokens. This README is the entry point; every component and foundation links to its own guide below.
 
 ## When to use v2
 
@@ -16,7 +16,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
    import { buttonVariants } from 'lago-ui/button-variants'
    import { cn } from 'lago-ui/utils'
    ```
-2. **Never import `@radix-ui/*` or `lucide-react` in the app.** Use the `lago-ui` component; if none fits, add or extend one here. App ESLint enforces this.
+2. **Never import `@base-ui/react`, `@radix-ui/*` or `lucide-react` in the app.** Use the `lago-ui` component; if none fits, add or extend one here. App ESLint enforces this.
    - Known gap: the guides show Lucide icons as children (`<Copy aria-hidden="true" />`), which works inside this package and in Storybook. `lago-ui` does not expose icons to the app yet, so an app view cannot pass a Lucide icon today. Do not disable the ESLint rule to work around it; raise it instead.
 3. **Use semantic tokens**, never primitives or hex values: `bg-surface-raised`, `text-text-muted`, `border-border-control`. See the [color guide](src/styles/colors.md) and [component surfaces](src/styles/component-surfaces.md).
 4. **Use the typography classes** (`v2-text-*`), never raw font sizes or weights. See [typography](src/styles/typography.md).

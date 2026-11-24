@@ -66,7 +66,7 @@ Base UI owns keyboard navigation, active descendant, selection and focus restora
 
 Empty and loading messages use `text-subtle` and body typography. Menus use `surface-floating`, `border-divider` and the theme-aware floating shadow; highlighted rows use `interactive-hover`. The chevron uses `icon-default`, switching to `disabled-foreground` when disabled. Dedicated Loading and Empty stories keep those states visible for review in either theme.
 
-Controls have a 36px minimum height and 240px minimum width, shrinking within narrower containers. Chips are 24px with 8px left padding, 2px right padding with a 20px remove IconButton, otherwise 8px. Inside controls use 12px horizontal padding with no chips and 4px padding once chips are present, for both selection and free-text. Placeholder, query and caret share the same inset. Chip rows use 4px gaps; chips above use an 8px gap before the input. Menus match the anchor width; optional creation stays outside the scroll viewport. Existing Radix components remain unchanged.
+Controls have a 36px minimum height and 240px minimum width, shrinking within narrower containers. Chips are 24px with 8px left padding, 2px right padding with a 20px remove IconButton, otherwise 8px. Inside controls use 12px horizontal padding with no chips and 4px padding once chips are present, for both selection and free-text. Placeholder, query and caret share the same inset. Chip rows use 4px gaps; chips above use an 8px gap before the input. Menus match the anchor width; optional creation stays outside the scroll viewport.
 
 ## References
 
