@@ -51,6 +51,23 @@ export type AmountInputV2Props = Omit<
     suffix?: string
   }
 
+const mapCaret = (raw: string, formatted: string, position: number): number => {
+  let source = 0
+  let target = 0
+
+  while (source < position && target < formatted.length) {
+    if (raw[source] === formatted[target]) {
+      source++
+      target++
+    } else if (raw.indexOf(formatted[target], source) !== -1) {
+      source++
+    } else {
+      target++
+    }
+  }
+  return target
+}
+
 export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
   (
     {
@@ -73,11 +90,14 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
       ...inputProps
     },
     ref,
-  ) => {
+  ): JSX.Element => {
     const { translate } = useInternationalization()
     const inputRef = useRef<HTMLInputElement | null>(null)
     const anchor = useRef<HTMLDivElement>(null)
     const composing = useRef(false)
+    const compositionCancelled = useRef(false)
+    const compositionTimer = useRef<ReturnType<typeof setTimeout>>()
+    const previousSelection = useRef<{ start: number; end: number } | null>(null)
     const completedComposition = useRef<{ raw: string; value: string } | null>(null)
     const [draft, setDraft] = useState<string | null>(null)
     const [selection, setSelection] = useState<{ start: number; end: number } | null>(null)
@@ -87,6 +107,7 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
       beforeChangeFormatter,
       chargePricingUnitShortName,
     })
+    const formattingKey = JSON.stringify(formatters)
     const defaultPlaceholder = definedDefaultPlaceholder({
       currency,
       chargePricingUnitShortName,
@@ -104,11 +125,24 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
     )
 
     useEffect(() => {
-      composing.current = false
+      if (composing.current) compositionCancelled.current = true
       if (completedComposition.current?.value !== String(value ?? ''))
         completedComposition.current = null
       setDraft(null)
     }, [value])
+    useEffect(() => {
+      completedComposition.current = null
+    }, [currency, formattingKey])
+    useEffect(() => () => clearTimeout(compositionTimer.current), [])
+
+    const captureSelection = (input: HTMLInputElement): void => {
+      completedComposition.current = null
+      previousSelection.current = {
+        start: input.selectionStart ?? 0,
+        end: input.selectionEnd ?? 0,
+      }
+    }
+
     useLayoutEffect(() => {
       if (selection && inputRef.current?.ownerDocument.activeElement === inputRef.current) {
         inputRef.current?.setSelectionRange(selection.start, selection.end)
@@ -123,12 +157,53 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
       const accepted = formatted ?? displayedValue
       const offset = formatted === null ? Math.max(0, raw.length - accepted.length) : 0
 
-      setSelection({
-        start: Math.min(accepted.length, Math.max(0, start - offset)),
-        end: Math.min(accepted.length, Math.max(0, end - offset)),
-      })
+      setSelection(
+        formatted === null && previousSelection.current
+          ? previousSelection.current
+          : {
+              start:
+                formatted === null ? Math.max(0, start - offset) : mapCaret(raw, accepted, start),
+              end: formatted === null ? Math.max(0, end - offset) : mapCaret(raw, accepted, end),
+            },
+      )
+      previousSelection.current = null
       if (formatted !== null) onChange(formatted, event)
       return formatted
+    }
+    const handleChange = (event: ChangeEvent<HTMLInputElement>): void => {
+      if (composing.current) {
+        if (!compositionCancelled.current) setDraft(event.currentTarget.value)
+        return
+      }
+      const completed = completedComposition.current
+
+      completedComposition.current = null
+      if (completed && [completed.raw, completed.value].includes(event.currentTarget.value)) return
+      commit(event)
+    }
+    const handleCompositionStart = (event: CompositionEvent<HTMLInputElement>): void => {
+      captureSelection(event.currentTarget)
+      composing.current = true
+      compositionCancelled.current = false
+      setDraft(event.currentTarget.value)
+      onCompositionStart?.(event)
+    }
+    const handleCompositionEnd = (event: CompositionEvent<HTMLInputElement>): void => {
+      if (composing.current) {
+        composing.current = false
+        const raw = event.currentTarget.value
+
+        setDraft(null)
+        const accepted = compositionCancelled.current ? displayedValue : commit(event)
+
+        completedComposition.current = { raw, value: accepted ?? displayedValue }
+        clearTimeout(compositionTimer.current)
+        // Some browsers send one final input immediately after compositionend.
+        compositionTimer.current = setTimeout(() => {
+          completedComposition.current = null
+        }, 0)
+      }
+      onCompositionEnd?.(event)
     }
     const control = (
       <InputGroup className={cn('v2-amount-control', mode !== 'selectable' && className)}>
@@ -144,41 +219,22 @@ export const AmountInputV2 = forwardRef<HTMLInputElement, AmountInputV2Props>(
           placeholder={placeholder ?? defaultPlaceholder}
           disabled={disabled}
           readOnly={readOnly}
-          onChange={(event) => {
-            if (composing.current) {
-              setDraft(event.currentTarget.value)
-              return
-            }
-            if (
-              completedComposition.current &&
-              [completedComposition.current.raw, completedComposition.current.value].includes(
-                event.currentTarget.value,
-              )
-            ) {
-              completedComposition.current = null
-              return
-            }
-            completedComposition.current = null
-            commit(event)
+          onKeyDown={(event) => {
+            captureSelection(event.currentTarget)
+            inputProps.onKeyDown?.(event)
           }}
-          onCompositionStart={(event) => {
-            composing.current = true
-            completedComposition.current = null
-            setDraft(event.currentTarget.value)
-            onCompositionStart?.(event)
+          onPaste={(event) => {
+            captureSelection(event.currentTarget)
+            inputProps.onPaste?.(event)
           }}
-          onCompositionEnd={(event) => {
-            if (composing.current) {
-              composing.current = false
-              const raw = event.currentTarget.value
-
-              setDraft(null)
-              const accepted = commit(event)
-
-              completedComposition.current = { raw, value: accepted ?? displayedValue }
-            }
-            onCompositionEnd?.(event)
+          onBeforeInput={(event) => {
+            if (!composing.current && !completedComposition.current)
+              captureSelection(event.currentTarget)
+            inputProps.onBeforeInput?.(event)
           }}
+          onChange={handleChange}
+          onCompositionStart={handleCompositionStart}
+          onCompositionEnd={handleCompositionEnd}
         />
         {suffix && (
           <InputGroupAddon align="inline-end">

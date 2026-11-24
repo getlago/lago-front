@@ -53,6 +53,7 @@ const applyNumericFormatters = (value: string, formatterFunctions: FormatterFunc
 
   DECIMAL_TRUNCATIONS.forEach(([formatter, truncation]) => {
     if (formatterFunctions.includes(formatter)) {
+      formatted = formatted.replace(/^(-?)\./, '$10.')
       formatted = truncation.exec(formatted)?.[0] ?? ''
     }
   })
@@ -78,7 +79,7 @@ export const formatValue = (
   }
 
   if (formatterFunctions.includes(ValueFormatter.positiveNumber)) {
-    formattedValue = formattedValue.replace('-', '')
+    formattedValue = formattedValue.replaceAll('-', '')
   }
 
   formattedValue = applyNumericFormatters(formattedValue, formatterFunctions)

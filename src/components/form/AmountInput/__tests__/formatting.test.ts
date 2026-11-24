@@ -13,7 +13,7 @@ const translate: TranslateFunc = (key, _data, plural) => `${key}:${plural ?? ''}
 it.each<[Partial<AmountFormattingOptions>, string, string | null]>([
   [{}, '001.20', '001.20'],
   [{}, '1.', '1.'],
-  [{}, '.5', ''],
+  [{}, '.5', '0.5'],
   [{}, '12abc', null],
   [{}, '1,23', null],
   [{}, '1e3', '1'],

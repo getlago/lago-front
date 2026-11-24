@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Field, FieldContent, FieldDescription, FieldError, FieldLabel } from 'lago-ui/field'
 import { TooltipProvider } from 'lago-ui/tooltip'
@@ -435,4 +435,130 @@ it('does not rescan currency options when only the amount changes', () => {
   rerender(<AmountInputV2 {...props} value="123" />)
   expect(screen.getByRole('textbox')).toHaveValue('123')
   expect(readCurrency).toHaveBeenCalledTimes(initialReads)
+})
+
+it.each([
+  [CurrencyEnum.Jpy, undefined, '0'],
+  [CurrencyEnum.Usd, 'positiveNumber' as const, '-'],
+])('maps removed leading characters for %s', async (currency, beforeChangeFormatter, key) => {
+  const user = userEvent.setup()
+  render(
+    <Controlled value="15" currency={currency} beforeChangeFormatter={beforeChangeFormatter} />,
+  )
+  const input = screen.getByRole('textbox') as HTMLInputElement
+  await user.click(input)
+  input.setSelectionRange(0, 0)
+  await user.keyboard(key)
+  expect(input.selectionStart).toBe(0)
+  await user.keyboard('2')
+  expect(input).toHaveValue('215')
+})
+
+it('restores a selected range after a rejected paste', async () => {
+  const user = userEvent.setup()
+  render(<Controlled value="123.45" />)
+  const input = screen.getByRole('textbox') as HTMLInputElement
+  await user.click(input)
+  input.setSelectionRange(1, 3)
+  await user.paste('x')
+  expect(input).toHaveValue('123.45')
+  expect(input.selectionStart).toBe(1)
+  expect(input.selectionEnd).toBe(3)
+  await user.keyboard('9')
+  expect(input).toHaveValue('19.45')
+})
+
+it('ignores further IME changes after an external reset until composition ends', () => {
+  const change = jest.fn()
+  const props = { currency: CurrencyEnum.Usd, onChange: change }
+  const { rerender } = render(<AmountInputV2 {...props} value="12" />)
+  const input = screen.getByRole('textbox')
+  fireEvent.compositionStart(input)
+  fireEvent.change(input, { target: { value: '123' } })
+  rerender(<AmountInputV2 {...props} value="0" />)
+  fireEvent.change(input, { target: { value: '1234' } })
+  expect(change).not.toHaveBeenCalled()
+  expect(input).toHaveValue('0')
+  fireEvent.compositionEnd(input, { target: { value: '1234' } })
+  fireEvent.change(input, { target: { value: '1234' } })
+  expect(change).not.toHaveBeenCalled()
+  fireEvent.keyDown(input, { key: '5' })
+  fireEvent.change(input, { target: { value: '5' } })
+  expect(change).toHaveBeenCalledWith('5', expect.anything())
+})
+
+it('does not swallow a new edit matching an old composition after currency changes', () => {
+  const change = jest.fn()
+  const { rerender } = render(<Controlled onChange={change} />)
+  const input = screen.getByRole('textbox')
+  fireEvent.compositionStart(input)
+  fireEvent.change(input, { target: { value: '1.239' } })
+  fireEvent.compositionEnd(input)
+  rerender(<Controlled currency={CurrencyEnum.Clf} onChange={change} />)
+  fireEvent.change(input, { target: { value: '1.239' } })
+  expect(input).toHaveValue('1.239')
+  expect(change).toHaveBeenCalledTimes(2)
+})
+
+it('accepts a leading decimal typed one character at a time', async () => {
+  const user = userEvent.setup()
+  render(<Controlled />)
+  const input = screen.getByRole('textbox')
+  await user.type(input, '.5')
+  expect(input).toHaveValue('0.5')
+})
+
+it('expires final-input suppression when composition has no trailing input', () => {
+  jest.useFakeTimers()
+  try {
+    const change = jest.fn()
+    render(<Controlled onChange={change} />)
+    const input = screen.getByRole('textbox')
+    fireEvent.compositionStart(input)
+    fireEvent.change(input, { target: { value: '1.239' } })
+    fireEvent.compositionEnd(input)
+    expect(change).toHaveBeenCalledTimes(1)
+    act(() => jest.runOnlyPendingTimers())
+    fireEvent.change(input, { target: { value: '1.239' } })
+    expect(change).toHaveBeenCalledTimes(2)
+  } finally {
+    jest.useRealTimers()
+  }
+})
+
+it('allows a new keyboard edit at the composition boundary', () => {
+  const change = jest.fn()
+  render(<Controlled onChange={change} />)
+  const input = screen.getByRole('textbox')
+  fireEvent.compositionStart(input)
+  fireEvent.change(input, { target: { value: '1.239' } })
+  fireEvent.compositionEnd(input)
+  fireEvent.keyDown(input, { key: '9' })
+  fireEvent.change(input, { target: { value: '1.239' } })
+  expect(change).toHaveBeenCalledTimes(2)
+})
+
+it('deduplicates final composition input with an inline formatter array', () => {
+  function InlineFormatter(): JSX.Element {
+    const [value, setValue] = useState('')
+    return (
+      <AmountInputV2
+        currency={CurrencyEnum.Usd}
+        value={value}
+        beforeChangeFormatter={['positiveNumber']}
+        onChange={(next) => {
+          changed(next)
+          setValue(next)
+        }}
+      />
+    )
+  }
+  const changed = jest.fn()
+  render(<InlineFormatter />)
+  const input = screen.getByRole('textbox')
+  fireEvent.compositionStart(input)
+  fireEvent.change(input, { target: { value: '1.239' } })
+  fireEvent.compositionEnd(input)
+  fireEvent.change(input, { target: { value: '1.239' } })
+  expect(changed).toHaveBeenCalledTimes(1)
 })
