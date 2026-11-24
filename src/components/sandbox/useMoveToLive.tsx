@@ -76,8 +76,14 @@ const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, str
   [MoveToLiveBlockingReasonEnum.MoveToLiveItemInactive]: 'text_1795431906433ulcrysmgdpl',
   [MoveToLiveBlockingReasonEnum.MoveToLiveTargetDeleted]: 'text_1795431906433ctng1qj5wb8',
   [MoveToLiveBlockingReasonEnum.MoveToLiveFilterMissing]: 'text_17954319064332x9rxogcy3c',
+  [MoveToLiveBlockingReasonEnum.MoveToLiveMetricMismatch]: 'text_1795519357323iuwdw2rfp07',
   [MoveToLiveBlockingReasonEnum.MoveToLiveItemUnsupported]: 'text_1795431906433m4kipo8c27k',
   [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: 'text_1795431906433m4kipo8c27k',
+}
+
+// Reasons the API answers for catalog plans, which this build's schema does not type yet.
+const UNTYPED_BLOCKING_REASON_TRANSLATION_KEYS: Record<string, string> = {
+  currency_does_not_match: 'text_17955199987175qsul4nkfxe',
 }
 
 const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
@@ -91,7 +97,8 @@ const getItemTypeKey = (itemType: MoveToLiveItemTypeEnum): string => {
 }
 
 const getBlockingReasonKey = (reason: MoveToLiveBlockingReasonEnum): string => {
-  const key: string | undefined = BLOCKING_REASON_TRANSLATION_KEYS[reason]
+  const key: string | undefined =
+    BLOCKING_REASON_TRANSLATION_KEYS[reason] ?? UNTYPED_BLOCKING_REASON_TRANSLATION_KEYS[reason]
 
   return key ?? UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY
 }

@@ -5620,7 +5620,7 @@
   "text_1795431906433pfg3dttjin2": "Only admins can move items to live mode.",
   "text_1795431906433mautyr4e7ta": "Your production account is waiting for a card. Add one to activate it, then move items to live mode.",
   "text_1795431906433ulcrysmgdpl": "The {{itemType}} {{code}} is terminated or expired, so it can't be moved to live mode.",
-  "text_1795431906433ctng1qj5wb8": "Every item the {{itemType}} {{code}} applies to is deleted, so it can't be moved to live mode.",
+  "text_1795431906433ctng1qj5wb8": "The {{itemType}} {{code}} relies on deleted items, so it can't be moved to live mode.",
   "text_17954319064332x9rxogcy3c": "The live billable metric of the {{itemType}} {{code}} lacks a filter it uses. Add the filter in production first.",
   "text_1795431906433m4kipo8c27k": "The {{itemType}} {{code}} can't be moved to live mode.",
   "text_1795431906433n4atjiccd3h": "billable metric",
@@ -5632,5 +5632,7 @@
   "text_17954319064341xdvy2c5ckl": "rate card",
   "text_1795431906434krghsz7ups4": "tax",
   "text_17954414475352pip2ykpd9z": "item",
-  "text_1795441447536k9lkdhz1ect": "This item can't be moved to live mode."
+  "text_1795441447536k9lkdhz1ect": "This item can't be moved to live mode.",
+  "text_1795519357323iuwdw2rfp07": "The {{itemType}} {{code}} is prorated, which the live billable metric it bills doesn't support. Use a recurring metric that isn't a weighted sum in production first.",
+  "text_17955199987175qsul4nkfxe": "The {{itemType}} {{code}} doesn't use the currency of its live plan."
 }

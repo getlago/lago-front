@@ -59,6 +59,8 @@ const PARENT_MISSING_KEY = 'text_1795431906433wbhymkx79qb'
 const ADMIN_ONLY_KEY = 'text_1795431906433pfg3dttjin2'
 const ORGANIZATION_INACTIVE_KEY = 'text_1795431906433mautyr4e7ta'
 const UNSUPPORTED_KEY = 'text_1795431906433m4kipo8c27k'
+const METRIC_MISMATCH_KEY = 'text_1795519357323iuwdw2rfp07'
+const CURRENCY_MISMATCH_KEY = 'text_17955199987175qsul4nkfxe'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
 const SUCCESS_KEY = 'text_1795431906433hn8hins2pus'
@@ -226,6 +228,14 @@ describe('useMoveToLive', () => {
           `${ALREADY_EXISTS_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
         ],
         [
+          'a prorated rate card would bill a live metric that cannot prorate',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveMetricMismatch,
+            refusedItem: RATE_CARD,
+          },
+          `${METRIC_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
           'the item cannot be moved',
           { blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemUnsupported },
           `${UNSUPPORTED_KEY}|${PRODUCT_LABEL_KEY}|storage`,
@@ -293,6 +303,22 @@ describe('useMoveToLive', () => {
         expect(addToast).toHaveBeenCalledWith({
           severity: 'info',
           message: `${PARENT_MISSING_KEY}|${UNKNOWN_ITEM_TYPE_KEY}|starter`,
+        })
+      })
+
+      it('WHEN the currency does not match THEN the toast uses its message before the schema types it', async () => {
+        mockGetPreview.mockResolvedValue(
+          buildPreview({
+            blockingReason: 'currency_does_not_match' as MoveToLiveBlockingReasonEnum,
+            refusedItem: RATE_CARD,
+          }),
+        )
+
+        await moveToLive()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          message: `${CURRENCY_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         })
       })
 

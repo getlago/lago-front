@@ -6399,9 +6399,11 @@ export enum MoveToLiveBlockingReasonEnum {
   MoveToLiveItemInactive = 'move_to_live_item_inactive',
   /** This item cannot be moved to live mode */
   MoveToLiveItemUnsupported = 'move_to_live_item_unsupported',
+  /** A live billable metric to reuse cannot bill a prorated rate card */
+  MoveToLiveMetricMismatch = 'move_to_live_metric_mismatch',
   /** The item's parent must be moved to live mode first */
   MoveToLiveParentMissing = 'move_to_live_parent_missing',
-  /** Every item the item applies to is deleted */
+  /** Every item the item applies to, or the metric it bills, is deleted */
   MoveToLiveTargetDeleted = 'move_to_live_target_deleted',
   /** The item applies to items that cannot be moved to live mode */
   MoveToLiveUnsupportedTarget = 'move_to_live_unsupported_target',
