@@ -5,12 +5,7 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import {
-  INTEGRATIONS_ROUTE,
-  QUICKBOOKS_INTEGRATION_DETAILS_ROUTE,
-  QUICKBOOKS_INTEGRATION_ROUTE,
-  useNavigate,
-} from '~/core/router'
+import { QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteQuickbooksIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
@@ -23,8 +18,11 @@ import { usePermissions } from '~/hooks/usePermissions'
 import { QuickbooksIntegrationDetailsTabs } from '~/pages/settings/QuickbooksIntegrationDetails'
 
 import { useAddQuickbooksDialog } from './AddQuickbooksDialog'
-
-const PROVIDER_CONNECTION_LIMIT = 2
+import { ALWAYS_SYNCED_OBJECT_KEYS, OPTIONAL_SYNCED_OBJECTS } from './quickbooksIntegrationForm'
+import {
+  QUICKBOOKS_CONNECTION_COUNT_LIMIT,
+  useQuickbooksAfterDeleteRedirect,
+} from './useQuickbooksAfterDeleteRedirect'
 
 gql`
   fragment QuickbooksIntegrationSettings on QuickbooksIntegration {
@@ -67,27 +65,12 @@ gql`
   ${QuickbooksForCreateDialogFragmentDoc}
 `
 
-const buildEnabledSynchronizedLabelKeys = (integration?: QuickbooksIntegrationSettingsFragment) => {
-  const labels = [
-    'text_661ff6e56ef7e1b7c542b2a6',
-    'text_661ff6e56ef7e1b7c542b2c2',
-    'text_661ff6e56ef7e1b7c542b2d7',
-  ]
-
-  if (integration?.syncInvoices) {
-    labels.push('text_661ff6e56ef7e1b7c542b2ff')
-  }
-
-  if (integration?.syncCreditNotes) {
-    labels.push('text_661ff6e56ef7e1b7c542b2e9')
-  }
-
-  if (integration?.syncPayments) {
-    labels.push('text_661ff6e56ef7e1b7c542b311')
-  }
-
-  return labels
-}
+const buildEnabledSynchronizedLabelKeys = (integration?: QuickbooksIntegrationSettingsFragment) => [
+  ...ALWAYS_SYNCED_OBJECT_KEYS,
+  ...OPTIONAL_SYNCED_OBJECTS.filter(({ name }) => integration?.[name]).map(
+    ({ objectKey }) => objectKey,
+  ),
+]
 
 const QuickbooksIntegrationSettings = () => {
   const navigate = useNavigate()
@@ -97,7 +80,7 @@ const QuickbooksIntegrationSettings = () => {
   const { data, loading } = useGetQuickbooksIntegrationsSettingsQuery({
     variables: {
       id: integrationId,
-      limit: PROVIDER_CONNECTION_LIMIT,
+      limit: QUICKBOOKS_CONNECTION_COUNT_LIMIT,
       integrationsType: [IntegrationTypeEnum.Quickbooks],
     },
     skip: !integrationId,
@@ -107,19 +90,9 @@ const QuickbooksIntegrationSettings = () => {
   const isFirstLoad = loading && !data
   const { hasPermissions } = usePermissions()
   const canEditIntegration = hasPermissions(['organizationIntegrationsUpdate'])
-  const deleteDialogCallback = () => {
-    if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(
-        generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
-          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-        }),
-      )
-    } else {
-      navigate(
-        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
-      )
-    }
-  }
+  const deleteDialogCallback = useQuickbooksAfterDeleteRedirect(
+    data?.integrations?.collection.length ?? 0,
+  )
 
   return (
     <IntegrationsPage.Container className="my-4 md:my-8">

@@ -29,6 +29,12 @@ import Integrations, {
 } from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
@@ -518,6 +524,8 @@ describe('Integrations', () => {
   })
 
   describe('QuickBooks card', () => {
+    beforeEach(() => mockHasPermissions.mockReturnValue(true))
+
     it('is hidden when the organization has no QuickBooks premium integration', async () => {
       await prepare()
 
@@ -538,6 +546,17 @@ describe('Integrations', () => {
       await userEvent.click(card)
 
       expect(mockOpenAddQuickbooksDialog).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not open the connect dialog without the permission to create integrations', async () => {
+      mockOrganizationData = { premiumIntegrations: [PremiumIntegrationTypeEnum.Quickbooks] }
+      mockHasPermissions.mockReturnValue(false)
+
+      await prepare()
+
+      await userEvent.click(await screen.findByTestId(INTEGRATIONS_QUICKBOOKS_TEST_ID))
+
+      expect(mockOpenAddQuickbooksDialog).not.toHaveBeenCalled()
     })
 
     it('is hidden for product catalog organizations', async () => {
