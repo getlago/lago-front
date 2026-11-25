@@ -29,6 +29,8 @@ gql`
   query moveToLivePreview($itemType: MoveToLiveMovableItemTypeEnum!, $id: ID!) {
     moveToLivePreview(itemType: $itemType, id: $id) {
       blockingReason
+      refusalCode
+      refusalField
       copiedItems {
         ...MoveToLiveItem
       }
@@ -69,28 +71,41 @@ const ITEM_TYPE_TRANSLATION_KEYS: Record<MoveToLiveItemTypeEnum, string> = {
   [MoveToLiveItemTypeEnum.Tax]: 'text_1795431906434krghsz7ups4',
 }
 
+const ITEM_UNSUPPORTED_TRANSLATION_KEY = 'text_1795431906433m4kipo8c27k'
+const REFUSED_FIELD_TRANSLATION_KEY = 'text_1795619366911qby577vnvkn'
+const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
+const UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY = 'text_1795441447536k9lkdhz1ect'
+
 const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, string> = {
   [MoveToLiveBlockingReasonEnum.ValueAlreadyExist]: 'text_1795431906433xcd1rme3cdx',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveCodeConflict]: 'text_17955393256589pupqccgr1x',
   [MoveToLiveBlockingReasonEnum.MoveToLiveParentMissing]: 'text_1795431906433wbhymkx79qb',
   [MoveToLiveBlockingReasonEnum.MoveToLiveAdminOnly]: 'text_1795431906433pfg3dttjin2',
   [MoveToLiveBlockingReasonEnum.OrganizationInactive]: 'text_1795431906433mautyr4e7ta',
   [MoveToLiveBlockingReasonEnum.MoveToLiveItemInactive]: 'text_1795431906433ulcrysmgdpl',
   [MoveToLiveBlockingReasonEnum.MoveToLiveTargetDeleted]: 'text_1795431906433ctng1qj5wb8',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveFilterMissing]: 'text_17954319064332x9rxogcy3c',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveMetricMismatch]: 'text_1795519357323iuwdw2rfp07',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveRateMismatch]: 'text_1795597376102tkbcu8a4f52',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveItemUnsupported]: 'text_1795431906433m4kipo8c27k',
-  [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: 'text_1795431906433m4kipo8c27k',
+  [MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused]: ITEM_UNSUPPORTED_TRANSLATION_KEY,
+  [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: ITEM_UNSUPPORTED_TRANSLATION_KEY,
 }
 
-// Reasons the API answers for catalog plans, which this build's schema does not type yet.
-const UNTYPED_BLOCKING_REASON_TRANSLATION_KEYS: Record<string, string> = {
+// Codes of the create services, keyed by `code` or `code:field` when the field tells cases apart.
+const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
+  'value_already_exist:code': 'text_17955393256589pupqccgr1x',
+  feature_unavailable: 'text_1795619366911o3vnwd5udy6',
   currency_does_not_match: 'text_17955199987175qsul4nkfxe',
+  'requires_recurring_metric:proration': 'text_1795519357323iuwdw2rfp07',
+  'not_allowed_for_aggregation_type:proration': 'text_1795519357323iuwdw2rfp07',
+  'not_allowed_for_product:rateModel': 'text_1795597376102tkbcu8a4f52',
+  'not_allowed_for_aggregation_type:rateModel': 'text_1795597376102tkbcu8a4f52',
+  'not_allowed_for_billing_timing:rateModel': 'text_1795597376102tkbcu8a4f52',
+  'not_found:productFilter': 'text_1795619366911a8sk62vg94f',
 }
 
-const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
-const UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY = 'text_1795441447536k9lkdhz1ect'
+type MoveToLivePreview = MoveToLivePreviewQuery['moveToLivePreview']
+
+type MoveToLiveTarget = {
+  itemType: MoveToLiveMovableItemTypeEnum
+  id: string
+}
 
 // The API can answer item types and blocking reasons added after this build was deployed.
 const getItemTypeKey = (itemType: MoveToLiveItemTypeEnum): string => {
@@ -100,22 +115,62 @@ const getItemTypeKey = (itemType: MoveToLiveItemTypeEnum): string => {
 }
 
 const getBlockingReasonKey = (reason: MoveToLiveBlockingReasonEnum): string => {
-  const key: string | undefined =
-    BLOCKING_REASON_TRANSLATION_KEYS[reason] ?? UNTYPED_BLOCKING_REASON_TRANSLATION_KEYS[reason]
+  const key: string | undefined = BLOCKING_REASON_TRANSLATION_KEYS[reason]
 
   return key ?? UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY
 }
 
-// The item was deleted from the sandbox after the list that offered it was loaded.
-const isNotFound = (errors?: readonly GraphQLFormattedError[]): boolean =>
-  !!errors?.some((error) => error.extensions?.code === 'not_found')
-
-type MoveToLivePreview = MoveToLivePreviewQuery['moveToLivePreview']
-
-type MoveToLiveTarget = {
-  itemType: MoveToLiveMovableItemTypeEnum
-  id: string
+type Refusal = {
+  code: string
+  field?: string | null
 }
+
+const getRefusalKey = ({ code, field }: Refusal): string | undefined =>
+  REFUSAL_TRANSLATION_KEYS[`${code}:${field}`] ?? REFUSAL_TRANSLATION_KEYS[code]
+
+const toCamelCase = (value: string): string =>
+  value.replace(/_(\w)/g, (_, letter: string) => letter.toUpperCase())
+
+// Validation details nest codes in arrays and objects: `{ field: ['code'] }`, `{ field: { 0: ['code'] } }`.
+const getFirstCode = (value: unknown): string | undefined => {
+  if (typeof value === 'string') return value
+  if (Array.isArray(value)) return getFirstCode(value[0])
+  if (value && typeof value === 'object') return getFirstCode(Object.values(value)[0])
+
+  return undefined
+}
+
+// The move answers the create service's own error: a validation, a resource not found, or a forbidden code.
+const getRefusalFromErrors = (errors?: readonly GraphQLFormattedError[]): Refusal | null => {
+  const extensions = errors?.[0]?.extensions
+  const code = extensions?.code
+
+  if (typeof code !== 'string') return null
+
+  const [field, codes] = Object.entries((extensions?.details as object | undefined) ?? {})[0] ?? []
+
+  if (code === 'unprocessable_entity') {
+    const validationCode = getFirstCode(codes)
+
+    return validationCode ? { code: validationCode, field } : null
+  }
+
+  return { code, field: code === 'not_found' ? field : null }
+}
+
+// The moved item was deleted from the sandbox after the list that offered it was loaded. A resource
+// a create service did not find in production is a refusal instead.
+const isTargetNotFound = (
+  target: MoveToLiveTarget,
+  errors?: readonly GraphQLFormattedError[],
+): boolean =>
+  !!errors?.some((error) => {
+    if (error.extensions?.code !== 'not_found') return false
+
+    const details = error.extensions.details as object | undefined
+
+    return !details || toCamelCase(target.itemType) in details
+  })
 
 type UseMoveToLive = () => {
   canMoveToLive: boolean
@@ -136,11 +191,39 @@ export const useMoveToLive: UseMoveToLive = () => {
   })
   const [moveToLiveMode] = useMoveToLiveModeMutation({ context: { silentError: true } })
 
-  const translateItem = (key: string, item?: MoveToLiveItemFragment | null): string =>
+  const translateItem = (
+    key: string,
+    item?: MoveToLiveItemFragment | null,
+    field?: string | null,
+  ): string =>
     translate(key, {
       itemType: item ? translate(getItemTypeKey(item.itemType)) : '',
       code: item?.code ?? '',
+      ...(field && { field }),
     })
+
+  const translateRefusal = (refusal: Refusal, item: MoveToLiveItemFragment): string | null => {
+    const key =
+      getRefusalKey(refusal) ??
+      BLOCKING_REASON_TRANSLATION_KEYS[refusal.code as MoveToLiveBlockingReasonEnum]
+
+    if (key) return translateItem(key, item)
+    if (!refusal.field) return null
+
+    return translateItem(REFUSED_FIELD_TRANSLATION_KEY, item, refusal.field)
+  }
+
+  // A live moved item is neither copied nor named by the preview, so its type stands in for it.
+  const getMovedItem = (
+    preview: MoveToLivePreview | null,
+    target: MoveToLiveTarget,
+  ): MoveToLiveItemFragment =>
+    preview?.copiedItems.find((item) => item.id === target.id) ?? {
+      id: target.id,
+      itemType: target.itemType as string as MoveToLiveItemTypeEnum,
+      code: null,
+      name: null,
+    }
 
   const showError = (): void => {
     addToast({ severity: 'danger', translateKey: ERROR_TRANSLATION_KEY })
@@ -158,7 +241,7 @@ export const useMoveToLive: UseMoveToLive = () => {
     try {
       const { data, error } = await getPreview({ variables: target })
 
-      if (isNotFound(error?.graphQLErrors)) return 'not_found'
+      if (isTargetNotFound(target, error?.graphQLErrors)) return 'not_found'
       if (error || !data) return null
 
       return data.moveToLivePreview
@@ -170,14 +253,16 @@ export const useMoveToLive: UseMoveToLive = () => {
   const showBlockingReason = (preview: MoveToLivePreview, target: MoveToLiveTarget): boolean => {
     if (!preview.blockingReason) return false
 
-    const movedItem = preview.copiedItems.find((item) => item.id === target.id)
+    const item = preview.refusedItem ?? preview.missingParent ?? getMovedItem(preview, target)
+    const refusalMessage =
+      preview.blockingReason === MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused &&
+      preview.refusalCode
+        ? translateRefusal({ code: preview.refusalCode, field: preview.refusalField }, item)
+        : null
 
     addToast({
       severity: 'info',
-      message: translateItem(
-        getBlockingReasonKey(preview.blockingReason),
-        preview.refusedItem ?? preview.missingParent ?? movedItem,
-      ),
+      message: refusalMessage ?? translateItem(getBlockingReasonKey(preview.blockingReason), item),
     })
 
     return true
@@ -209,11 +294,14 @@ export const useMoveToLive: UseMoveToLive = () => {
     )
   }
 
-  const runMove = async (target: MoveToLiveTarget): Promise<void> => {
+  const runMove = async (
+    target: MoveToLiveTarget,
+    previewedItem: MoveToLiveItemFragment,
+  ): Promise<void> => {
     const { data, errors } = await moveToLiveMode({ variables: { input: target } })
     const movedItem = data?.moveToLiveMode
 
-    if (isNotFound(errors)) return showNotFound()
+    if (isTargetNotFound(target, errors)) return showNotFound()
 
     if (movedItem && !errors?.length) {
       addToast({
@@ -224,11 +312,18 @@ export const useMoveToLive: UseMoveToLive = () => {
       return
     }
 
-    // The preview passed, so production changed meanwhile: its blocking reason names the item.
+    // The preview passed, so production changed meanwhile: its blocking reason names the refused item.
     const preview = await fetchPreview(target)
 
     if (preview === 'not_found') return showNotFound()
-    if (!preview || !showBlockingReason(preview, target)) showError()
+    if (preview && showBlockingReason(preview, target)) return
+
+    const refusal = getRefusalFromErrors(errors)
+    const message = refusal ? translateRefusal(refusal, previewedItem) : null
+
+    if (!message) return showError()
+
+    addToast({ severity: 'info', message })
   }
 
   const previewAndConfirm = async (target: MoveToLiveTarget): Promise<void> => {
@@ -269,7 +364,7 @@ export const useMoveToLive: UseMoveToLive = () => {
       cancelOrCloseText: 'cancel',
       closeOnError: false,
       onError: showError,
-      onAction: () => withPendingGuard(() => runMove(target)),
+      onAction: () => withPendingGuard(() => runMove(target, getMovedItem(preview, target))),
     })
   }
 

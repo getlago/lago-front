@@ -5621,7 +5621,6 @@
   "text_1795431906433mautyr4e7ta": "Your production account is waiting for a card. Add one to activate it, then move items to live mode.",
   "text_1795431906433ulcrysmgdpl": "The {{itemType}} {{code}} is terminated or expired, so it can't be moved to live mode.",
   "text_1795431906433ctng1qj5wb8": "The {{itemType}} {{code}} relies on deleted items, so it can't be moved to live mode.",
-  "text_17954319064332x9rxogcy3c": "The live billable metric of the {{itemType}} {{code}} lacks a filter it uses. Add the filter in production first.",
   "text_1795431906433m4kipo8c27k": "The {{itemType}} {{code}} can't be moved to live mode.",
   "text_1795431906433n4atjiccd3h": "billable metric",
   "text_17954319064331bw3yqfc0t2": "coupon",
@@ -5637,5 +5636,8 @@
   "text_17955199987175qsul4nkfxe": "The {{itemType}} {{code}} doesn't use the currency of its live plan.",
   "text_17955393256589pupqccgr1x": "Production already uses the code {{code}} for another {{itemType}}. Change the code in your sandbox first.",
   "text_1795539325659cdyvy8085m1": "This item was deleted from your sandbox, so it can't be moved to live mode.",
-  "text_1795597376102tkbcu8a4f52": "The {{itemType}} {{code}} uses a pricing model that its live product or billable metric doesn't support. Change it in your sandbox first."
+  "text_1795597376102tkbcu8a4f52": "The {{itemType}} {{code}} uses a pricing model that its live product or billable metric doesn't support. Change it in your sandbox first.",
+  "text_1795619366911o3vnwd5udy6": "The {{itemType}} {{code}} needs a premium license that your production account doesn't have.",
+  "text_1795619366911a8sk62vg94f": "A live product of the {{itemType}} {{code}} lacks a product filter it uses. Add the filter in production first.",
+  "text_1795619366911qby577vnvkn": "The {{itemType}} {{code}} can't be moved to live mode: production refuses its {{field}}."
 }

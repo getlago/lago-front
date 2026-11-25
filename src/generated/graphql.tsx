@@ -6391,20 +6391,12 @@ export type MoneyhashProvider = {
 export enum MoveToLiveBlockingReasonEnum {
   /** The user is not an admin of production */
   MoveToLiveAdminOnly = 'move_to_live_admin_only',
-  /** An item to copy along has a code that another live item uses */
-  MoveToLiveCodeConflict = 'move_to_live_code_conflict',
-  /** A live item to reuse lacks a filter key or value the item uses */
-  MoveToLiveFilterMissing = 'move_to_live_filter_missing',
   /** The item is terminated or expired */
   MoveToLiveItemInactive = 'move_to_live_item_inactive',
-  /** This item cannot be moved to live mode */
-  MoveToLiveItemUnsupported = 'move_to_live_item_unsupported',
-  /** A live billable metric to reuse cannot bill a prorated rate card */
-  MoveToLiveMetricMismatch = 'move_to_live_metric_mismatch',
+  /** A create service refuses an item to copy, as refusalCode tells */
+  MoveToLiveItemRefused = 'move_to_live_item_refused',
   /** The item's parent must be moved to live mode first */
   MoveToLiveParentMissing = 'move_to_live_parent_missing',
-  /** A rate of the item cannot price the live product or rate card it lands on */
-  MoveToLiveRateMismatch = 'move_to_live_rate_mismatch',
   /** Every item the item applies to, or the metric it bills, is deleted */
   MoveToLiveTargetDeleted = 'move_to_live_target_deleted',
   /** The item applies to items that cannot be moved to live mode */
@@ -6462,6 +6454,10 @@ export type MoveToLivePreview = {
   copiedItems: Array<MoveToLiveItem>;
   /** Sandbox parent to move to live mode first */
   missingParent?: Maybe<MoveToLiveItem>;
+  /** With move_to_live_item_refused, the error code the move would answer for the refused item */
+  refusalCode?: Maybe<Scalars['String']['output']>;
+  /** With move_to_live_item_refused, the field of a validation error or the resource not found */
+  refusalField?: Maybe<Scalars['String']['output']>;
   /** Sandbox item to copy that refuses the move */
   refusedItem?: Maybe<MoveToLiveItem>;
   /** Production items reused by code */
@@ -16115,7 +16111,7 @@ export type MoveToLivePreviewQueryVariables = Exact<{
 }>;
 
 
-export type MoveToLivePreviewQuery = { __typename?: 'Query', moveToLivePreview: { __typename?: 'MoveToLivePreview', blockingReason?: MoveToLiveBlockingReasonEnum | null, copiedItems: Array<{ __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null }>, reusedItems: Array<{ __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null }>, missingParent?: { __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null } | null, refusedItem?: { __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null } | null } };
+export type MoveToLivePreviewQuery = { __typename?: 'Query', moveToLivePreview: { __typename?: 'MoveToLivePreview', blockingReason?: MoveToLiveBlockingReasonEnum | null, refusalCode?: string | null, refusalField?: string | null, copiedItems: Array<{ __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null }>, reusedItems: Array<{ __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null }>, missingParent?: { __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null } | null, refusedItem?: { __typename?: 'MoveToLiveItem', id: string, itemType: MoveToLiveItemTypeEnum, code?: string | null, name?: string | null } | null } };
 
 export type MoveToLiveModeMutationVariables = Exact<{
   input: MoveToLiveModeInput;
@@ -37762,6 +37758,8 @@ export const MoveToLivePreviewDocument = gql`
     query moveToLivePreview($itemType: MoveToLiveMovableItemTypeEnum!, $id: ID!) {
   moveToLivePreview(itemType: $itemType, id: $id) {
     blockingReason
+    refusalCode
+    refusalField
     copiedItems {
       ...MoveToLiveItem
     }

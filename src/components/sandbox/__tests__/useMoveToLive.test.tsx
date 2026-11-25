@@ -70,6 +70,9 @@ const UNSUPPORTED_KEY = 'text_1795431906433m4kipo8c27k'
 const METRIC_MISMATCH_KEY = 'text_1795519357323iuwdw2rfp07'
 const RATE_MISMATCH_KEY = 'text_1795597376102tkbcu8a4f52'
 const CURRENCY_MISMATCH_KEY = 'text_17955199987175qsul4nkfxe'
+const FEATURE_UNAVAILABLE_KEY = 'text_1795619366911o3vnwd5udy6'
+const FILTER_NOT_FOUND_KEY = 'text_1795619366911a8sk62vg94f'
+const REFUSED_FIELD_KEY = 'text_1795619366911qby577vnvkn'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
 const SUCCESS_KEY = 'text_1795431906433hn8hins2pus'
@@ -234,31 +237,100 @@ describe('useMoveToLive', () => {
         [
           'an item copied along takes a live code',
           {
-            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveCodeConflict,
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
             refusedItem: METRIC,
+            refusalCode: 'value_already_exist',
+            refusalField: 'code',
           },
           `${CODE_CONFLICT_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
         ],
         [
           'a prorated rate card would bill a live metric that cannot prorate',
           {
-            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveMetricMismatch,
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
             refusedItem: RATE_CARD,
+            refusalCode: 'requires_recurring_metric',
+            refusalField: 'proration',
+          },
+          `${METRIC_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'a prorated rate card would bill a live metric whose aggregation cannot prorate',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'not_allowed_for_aggregation_type',
+            refusalField: 'proration',
           },
           `${METRIC_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
           'a rate would land on a live product or metric that cannot price it',
           {
-            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveRateMismatch,
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
             refusedItem: RATE_CARD,
+            refusalCode: 'not_allowed_for_aggregation_type',
+            refusalField: 'rateModel',
           },
           `${RATE_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
-          'the item cannot be moved',
-          { blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemUnsupported },
+          'an item copied along needs a premium license',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: METRIC,
+            refusalCode: 'feature_unavailable',
+          },
+          `${FEATURE_UNAVAILABLE_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+        ],
+        [
+          'a live product lacks the filter of a rate card',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'not_found',
+            refusalField: 'productFilter',
+          },
+          `${FILTER_NOT_FOUND_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'the rate card currency differs from the plan',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'currency_does_not_match',
+            refusalField: 'currency',
+          },
+          `${CURRENCY_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'production refuses a field without a message of its own',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'value_is_invalid',
+            refusalField: 'appliedPricingUnitCode',
+          },
+          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|appliedPricingUnitCode`,
+        ],
+        [
+          'production refuses an item without a field',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: METRIC,
+            refusalCode: 'some_future_code',
+          },
+          `${UNSUPPORTED_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+        ],
+        [
+          'the item applies to items that cannot be moved',
+          { blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget },
           `${UNSUPPORTED_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+        [
+          'the moved item is already live',
+          { blockingReason: MoveToLiveBlockingReasonEnum.ValueAlreadyExist, copiedItems: [] },
+          `${ALREADY_EXISTS_KEY}|${PRODUCT_LABEL_KEY}|`,
         ],
         [
           'the user is not a production admin',
@@ -266,7 +338,7 @@ describe('useMoveToLive', () => {
             blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveAdminOnly,
             copiedItems: [],
           },
-          `${ADMIN_ONLY_KEY}||`,
+          `${ADMIN_ONLY_KEY}|${PRODUCT_LABEL_KEY}|`,
         ],
         [
           'production waits for a card',
@@ -274,7 +346,7 @@ describe('useMoveToLive', () => {
             blockingReason: MoveToLiveBlockingReasonEnum.OrganizationInactive,
             copiedItems: [],
           },
-          `${ORGANIZATION_INACTIVE_KEY}||`,
+          `${ORGANIZATION_INACTIVE_KEY}|${PRODUCT_LABEL_KEY}|`,
         ],
       ])(
         'WHEN %s THEN it shows the info toast and opens no dialog',
@@ -323,22 +395,6 @@ describe('useMoveToLive', () => {
         expect(addToast).toHaveBeenCalledWith({
           severity: 'info',
           message: `${PARENT_MISSING_KEY}|${UNKNOWN_ITEM_TYPE_KEY}|starter`,
-        })
-      })
-
-      it('WHEN the currency does not match THEN the toast uses its message before the schema types it', async () => {
-        mockGetPreview.mockResolvedValue(
-          buildPreview({
-            blockingReason: 'currency_does_not_match' as MoveToLiveBlockingReasonEnum,
-            refusedItem: RATE_CARD,
-          }),
-        )
-
-        await moveToLive()
-
-        expect(addToast).toHaveBeenCalledWith({
-          severity: 'info',
-          message: `${CURRENCY_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         })
       })
 
@@ -489,6 +545,73 @@ describe('useMoveToLive', () => {
 
         expect(addToast).toHaveBeenCalledTimes(1)
         expect(addToast).toHaveBeenCalledWith({ severity: 'danger', translateKey: ERROR_KEY })
+      })
+
+      it.each([
+        [
+          'a validation',
+          {
+            code: 'unprocessable_entity',
+            details: { proration: ['requires_recurring_metric'] },
+          },
+          `${METRIC_MISMATCH_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+        [
+          'a nested validation without a message of its own',
+          {
+            code: 'unprocessable_entity',
+            details: { appliesTo: { include: ['value_is_invalid'] } },
+          },
+          `${REFUSED_FIELD_KEY}|${PRODUCT_LABEL_KEY}|storage|appliesTo`,
+        ],
+        [
+          'a production resource not found',
+          { code: 'not_found', details: { productFilter: ['not_found'] } },
+          `${FILTER_NOT_FOUND_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+        [
+          'a forbidden code',
+          { code: 'feature_unavailable' },
+          `${FEATURE_UNAVAILABLE_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+        [
+          'a move refusal',
+          { code: 'organization_inactive' },
+          `${ORGANIZATION_INACTIVE_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+      ])(
+        'GIVEN the move answers %s and the preview does not block THEN it shows that refusal',
+        async (_, extensions, message) => {
+          mockGetPreview.mockResolvedValue(buildPreview())
+          mockMoveToLiveMode.mockResolvedValue({
+            data: { moveToLiveMode: null },
+            errors: [{ message: 'Refused', extensions }],
+          })
+
+          await confirm()
+
+          expect(addToast).toHaveBeenCalledTimes(1)
+          expect(addToast).toHaveBeenCalledWith({ severity: 'info', message })
+          expect(mockRefetchQueries).not.toHaveBeenCalled()
+        },
+      )
+
+      it('GIVEN the move answers the moved item not found THEN it says so and refetches the lists', async () => {
+        mockGetPreview.mockResolvedValue(buildPreview())
+        mockMoveToLiveMode.mockResolvedValue({
+          data: { moveToLiveMode: null },
+          errors: [
+            {
+              message: 'Not found',
+              extensions: { code: 'not_found', details: { product: ['not_found'] } },
+            },
+          ],
+        })
+
+        await confirm()
+
+        expect(addToast).toHaveBeenCalledWith({ severity: 'info', translateKey: NOT_FOUND_KEY })
+        expect(mockRefetchQueries).toHaveBeenCalledWith({ include: 'active' })
       })
 
       it('GIVEN a double click on confirm THEN it moves once', async () => {
