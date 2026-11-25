@@ -7,6 +7,7 @@ import { generatePath } from 'react-router'
 import { dialogFormProps } from '~/components/dialogs/dialogFormProps'
 import { useFormDialog } from '~/components/dialogs/FormDialog'
 import { focusFirstInput } from '~/components/drawers/useFocusTrap'
+import { getEnabledX402Environment } from '~/components/settings/integrations/x402Connection'
 import {
   mapFromApiToForm,
   mapFromFormToApi,
@@ -23,6 +24,7 @@ import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate, X402_INTEGRATION_DETAILS_ROUTE } from '~/core/router'
 import {
   AddX402ConnectionDialogFragment,
+  FeatureFlagEnum,
   LagoApiError,
   useCreateX402ConnectionMutation,
   useUpdateX402ConnectionMutation,
@@ -30,6 +32,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
 gql`
   fragment AddX402ConnectionDialog on X402ConnectionObject {
@@ -85,6 +88,8 @@ export const useAddX402Dialog = (): {
   const formDialog = useFormDialog()
   const { translate } = useInternationalization()
   const navigate = useNavigate()
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const enabledEnvironment = getEnabledX402Environment(hasFeatureFlag(FeatureFlagEnum.X402Mainnet))
 
   const dataRef = useRef<OpenAddX402DialogData | null>(null)
 
@@ -123,7 +128,7 @@ export const useAddX402Dialog = (): {
     formApi: AnyFormApi,
     errors?: readonly GraphQLFormattedError[],
   ): void => {
-    const fields = getX402ServerFieldErrors(errors)
+    const fields = getX402ServerFieldErrors(errors, enabledEnvironment)
 
     if (Object.keys(fields).length) {
       formApi.setErrorMap({ onDynamic: { fields } })
@@ -179,15 +184,24 @@ export const useAddX402Dialog = (): {
     const connection = data?.connection
     const isEdition = !!connection
 
-    form.reset(connection ? mapFromApiToForm(connection) : x402DefaultValues, {
-      keepDefaultValues: true,
-    })
+    form.reset(
+      connection
+        ? mapFromApiToForm(connection)
+        : { ...x402DefaultValues, environment: enabledEnvironment },
+      { keepDefaultValues: true },
+    )
 
     void formDialog
       .open({
         title: translate('text_1793132394868hpkrqknydw1'),
         description: translate('text_17931323948682jmdiz5751d'),
-        children: <X402ConnectionFields form={form} isEdition={isEdition} />,
+        children: (
+          <X402ConnectionFields
+            form={form}
+            isEdition={isEdition}
+            enabledEnvironment={enabledEnvironment}
+          />
+        ),
         closeOnError: false,
         onEntered: focusFirstInput,
         mainAction: (

@@ -1,9 +1,11 @@
 import { Typography } from '~/components/designSystem/Typography'
 import { TextInput } from '~/components/form'
+import { BasicComboBoxData } from '~/components/form/ComboBox/types'
 import { BasicMultipleComboBoxData } from '~/components/form/MultipleComboBox/types'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import {
   getX402Environment,
+  X402_ENVIRONMENT_NOT_ENABLED_TRANSLATIONS,
   X402_ENVIRONMENT_TRANSLATIONS,
   X402_NETWORKS,
   X402EnvironmentEnum,
@@ -15,9 +17,25 @@ import { x402DefaultValues } from './validationSchema'
 
 const X402ConnectionFields = withForm({
   defaultValues: x402DefaultValues,
-  props: { isEdition: false },
-  render: function Render({ form, isEdition }) {
+  props: { isEdition: false, enabledEnvironment: X402EnvironmentEnum.Testnet },
+  render: function Render({ form, isEdition, enabledEnvironment }) {
     const { translate } = useInternationalization()
+
+    const environmentOption = (
+      environment: X402EnvironmentEnum,
+      descriptionKey: string,
+    ): BasicComboBoxData => {
+      const isEnabled = environment === enabledEnvironment
+
+      return {
+        value: environment,
+        label: translate(X402_ENVIRONMENT_TRANSLATIONS[environment]),
+        description: translate(
+          isEnabled ? descriptionKey : X402_ENVIRONMENT_NOT_ENABLED_TRANSLATIONS[environment],
+        ),
+        disabled: !isEnabled,
+      }
+    }
 
     const networkOptions = (environment: string): BasicMultipleComboBoxData[] =>
       X402_NETWORKS.filter((network) => network.environment === environment).map((network) => ({
@@ -97,16 +115,8 @@ const X402ConnectionFields = withForm({
               label={translate('text_1793132394869v0rsl99wkms')}
               placeholder={translate('text_179313239486959hb2v39qfq')}
               data={[
-                {
-                  value: X402EnvironmentEnum.Testnet,
-                  label: translate(X402_ENVIRONMENT_TRANSLATIONS[X402EnvironmentEnum.Testnet]),
-                  description: translate('text_1793132394869g990pgm13dz'),
-                },
-                {
-                  value: X402EnvironmentEnum.Mainnet,
-                  label: translate(X402_ENVIRONMENT_TRANSLATIONS[X402EnvironmentEnum.Mainnet]),
-                  description: translate('text_1793132394869g0lp95omsra'),
-                },
+                environmentOption(X402EnvironmentEnum.Testnet, 'text_1793132394869g990pgm13dz'),
+                environmentOption(X402EnvironmentEnum.Mainnet, 'text_1793132394869g0lp95omsra'),
               ]}
             />
           )}

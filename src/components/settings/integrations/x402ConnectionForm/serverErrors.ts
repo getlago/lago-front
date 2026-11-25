@@ -1,5 +1,9 @@
 import { GraphQLFormattedError } from 'graphql'
 
+import {
+  X402_ENVIRONMENT_NOT_ENABLED_TRANSLATIONS,
+  X402EnvironmentEnum,
+} from '~/components/settings/integrations/x402Connection'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 
 import { INVALID_ORIGIN_ERROR, REQUIRED_ERROR, TOO_MANY_ORIGINS_ERROR } from './validationSchema'
@@ -57,9 +61,15 @@ const messageFor = (field: string, codes: string[]): string | undefined => {
   return SERVER_ERROR_MESSAGES[code]
 }
 
+const disabledEnvironmentOf = (enabledEnvironment: X402EnvironmentEnum): X402EnvironmentEnum =>
+  enabledEnvironment === X402EnvironmentEnum.Mainnet
+    ? X402EnvironmentEnum.Testnet
+    : X402EnvironmentEnum.Mainnet
+
 /** The field errors an x402 connection mutation returned, keyed by form field. */
 export const getX402ServerFieldErrors = (
-  errors?: readonly GraphQLFormattedError[],
+  errors: readonly GraphQLFormattedError[] | undefined,
+  enabledEnvironment: X402EnvironmentEnum,
 ): X402FieldErrors => {
   const details = errors?.[0]?.extensions?.details
   const fieldErrors: X402FieldErrors = {}
@@ -76,6 +86,15 @@ export const getX402ServerFieldErrors = (
       Object.entries(PAYOUT_ADDRESS_FIELDS).forEach(([family, field]) => {
         addError(field, toCodes(value[family]))
       })
+      return
+    }
+
+    if (key === 'networks' && toCodes(value)[0] === 'environment_not_enabled') {
+      fieldErrors.environment = {
+        message:
+          X402_ENVIRONMENT_NOT_ENABLED_TRANSLATIONS[disabledEnvironmentOf(enabledEnvironment)],
+        path: ['environment'],
+      }
       return
     }
 

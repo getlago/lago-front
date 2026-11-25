@@ -12,6 +12,7 @@ import {
   AddX402ConnectionDialogFragment,
   CreateX402ConnectionMutation,
   CreateX402ConnectionMutationOptions,
+  FeatureFlagEnum,
   LagoApiError,
   UpdateX402ConnectionMutation,
   UpdateX402ConnectionMutationOptions,
@@ -28,16 +29,23 @@ const ENVIRONMENT_PLACEHOLDER = 'Select an environment'
 const NETWORK_PLACEHOLDER = 'Select one or multiple networks'
 const MAINNET_LABEL = 'Mainnet'
 const DEVNET_LABEL = 'Devnet'
+const MAINNET_NOT_ENABLED = 'Real payments on live networks are not enabled on your organization'
+const DEVNET_NOT_ENABLED = 'Devnet is not enabled on your organization'
 
 const mockDialogOpen = jest.fn()
 const mockCreateConnection = jest.fn()
 const mockUpdateConnection = jest.fn()
+const mockHasFeatureFlag = jest.fn()
 
 let mockCreateOptions: CreateX402ConnectionMutationOptions | undefined
 let mockUpdateOptions: UpdateX402ConnectionMutationOptions | undefined
 
 jest.mock('~/components/dialogs/FormDialog', () => ({
   useFormDialog: () => ({ open: mockDialogOpen, close: jest.fn() }),
+}))
+
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
 }))
 
 jest.mock('~/core/form/scrollToFirstInputError', () => ({
@@ -133,6 +141,16 @@ const pickOption = async (input: HTMLElement, option: string): Promise<void> => 
   fireEvent.click(await screen.findByText(option))
 }
 
+const environmentOption = async (label: string): Promise<HTMLElement> => {
+  fireEvent.mouseDown(screen.getByPlaceholderText(ENVIRONMENT_PLACEHOLDER))
+
+  const option = (await screen.findByText(label)).closest('[role="option"]')
+
+  if (!(option instanceof HTMLElement)) throw new Error(`No option for ${label}`)
+
+  return option
+}
+
 const unprocessable = (details: Record<string, unknown>) => ({
   errors: [
     { message: 'Unprocessable Entity', extensions: { code: 'unprocessable_entity', details } },
@@ -148,6 +166,7 @@ describe('useAddX402Dialog', () => {
 
   beforeEach(() => {
     jest.clearAllMocks()
+    mockHasFeatureFlag.mockReturnValue(false)
     mockDialogOpen.mockImplementation(() => new Promise(() => {}))
     mockCreateConnection.mockImplementation(async () => {
       const data: CreateX402ConnectionMutation = {
@@ -233,6 +252,33 @@ describe('useAddX402Dialog', () => {
             integrationGroup: IntegrationsTabsOptionsEnum.Lago,
           }),
         )
+      })
+    })
+    describe('WHEN the organization runs on testnet', () => {
+      it('THEN preselects Devnet and says why Mainnet cannot be picked', async () => {
+        await openDialog()
+
+        expect(screen.getByPlaceholderText(ENVIRONMENT_PLACEHOLDER)).toHaveValue(DEVNET_LABEL)
+
+        const mainnet = await environmentOption(MAINNET_LABEL)
+
+        expect(mainnet).toHaveAttribute('aria-disabled', 'true')
+        expect(within(mainnet).getByText(MAINNET_NOT_ENABLED)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization runs on mainnet', () => {
+      it('THEN preselects Mainnet and says why Devnet cannot be picked', async () => {
+        mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Mainnet)
+
+        await openDialog()
+
+        expect(screen.getByPlaceholderText(ENVIRONMENT_PLACEHOLDER)).toHaveValue(MAINNET_LABEL)
+
+        const devnet = await environmentOption(DEVNET_LABEL)
+
+        expect(devnet).toHaveAttribute('aria-disabled', 'true')
+        expect(within(devnet).getByText(DEVNET_NOT_ENABLED)).toBeInTheDocument()
       })
     })
   })
@@ -349,6 +395,21 @@ describe('useAddX402Dialog', () => {
         expect(screen.getByText('Coinbase refused this API key')).toBeInTheDocument()
         expect(screen.getByText('Code already existing, please type a new one')).toBeInTheDocument()
         expect(screen.getByText('Add at most 10 origins')).toBeInTheDocument()
+        expect(addToast).not.toHaveBeenCalled()
+      })
+    })
+
+    describe('WHEN the API refuses an environment the organization does not run on', () => {
+      it('THEN says so on the environment field', async () => {
+        mockUpdateConnection.mockResolvedValueOnce(
+          unprocessable({ networks: ['environment_not_enabled'] }),
+        )
+        const dialogProps = await openDialog({ connection })
+
+        expect(await submit(dialogProps)).toBe('failure')
+        expect(
+          within(fieldOf(screen.getByDisplayValue(MAINNET_LABEL))).getByText(MAINNET_NOT_ENABLED),
+        ).toBeInTheDocument()
         expect(addToast).not.toHaveBeenCalled()
       })
     })

@@ -23,6 +23,10 @@ jest.mock('~/core/apolloClient', () => ({
 
 // Identity translate so the surfaced error renders as its message key and can be
 // asserted through the exported constant (never a raw translation literal).
+jest.mock('~/hooks/useOrganizationInfos', () => ({
+  useOrganizationInfos: () => ({ hasFeatureFlag: () => false }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))

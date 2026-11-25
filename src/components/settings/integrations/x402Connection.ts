@@ -50,6 +50,16 @@ export const X402_ENVIRONMENT_TRANSLATIONS: Record<X402EnvironmentEnum, string> 
   [X402EnvironmentEnum.Mainnet]: 'text_1793132394869qwdol6ok2cm',
 }
 
+export const X402_ENVIRONMENT_NOT_ENABLED_TRANSLATIONS: Record<X402EnvironmentEnum, string> = {
+  [X402EnvironmentEnum.Testnet]: 'text_1795597424592pjv44j8d3fz',
+  [X402EnvironmentEnum.Mainnet]: 'text_1795597424592poag3pnfzfm',
+}
+
+// `X402::Connection#validate_networks`: an organization runs on mainnet with `x402_mainnet`, on
+// testnet without it, never both.
+export const getEnabledX402Environment = (isMainnetEnabled: boolean): X402EnvironmentEnum =>
+  isMainnetEnabled ? X402EnvironmentEnum.Mainnet : X402EnvironmentEnum.Testnet
+
 export const X402_SETTLEMENT_KIND_TRANSLATIONS: Record<X402SettlementKindEnum, string> = {
   [X402SettlementKindEnum.CreditPurchase]: 'text_1793137178565p638pj01m11',
   [X402SettlementKindEnum.InvoicePayment]: 'text_1793137178565lnwwik8dvve',

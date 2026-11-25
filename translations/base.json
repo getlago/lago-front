@@ -5552,5 +5552,7 @@
   "text_1791907940203tazkwmcw016": "Shared payment token",
   "text_1795454086814mzvn73ebgux": "Contract wallet created",
   "text_1795454086814j2ad501cmlx": "Contract wallet deleted",
-  "text_1795454086814egs32zmws65": "Contract wallet updated"
+  "text_1795454086814egs32zmws65": "Contract wallet updated",
+  "text_1795597424592pjv44j8d3fz": "Devnet is not enabled on your organization",
+  "text_1795597424592poag3pnfzfm": "Real payments on live networks are not enabled on your organization"
 }
