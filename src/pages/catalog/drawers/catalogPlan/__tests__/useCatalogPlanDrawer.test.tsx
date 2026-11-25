@@ -72,6 +72,10 @@ const existingPlan: CatalogPlanForCatalogPlanDrawerFragment = {
   invoiceDisplayName: 'Cards',
   appliedRateCardsCount: 0,
   attachedToContracts: false,
+  metadata: [
+    { __typename: 'ItemMetadata', key: 'region', value: 'eu' },
+    { __typename: 'ItemMetadata', key: 'segment', value: null },
+  ],
 }
 
 let openDrawer: (plan?: CatalogPlanForCatalogPlanDrawerFragment) => void
@@ -87,6 +91,20 @@ const mountHost = (): void => {
 }
 
 const lastOpenPayload = () => mockOpen.mock.calls.at(-1)?.[0]
+
+const submit = async (): Promise<void> => {
+  await act(async () => {
+    await lastOpenPayload().form.submit()
+  })
+}
+
+const setMetadata = (metadata: Array<{ key: string; value: string }>): void => {
+  const { form } = lastOpenPayload().children.props
+
+  act(() => {
+    form.setFieldValue('metadata', metadata)
+  })
+}
 
 const fillValidCreateValues = (): void => {
   const { form } = lastOpenPayload().children.props
@@ -155,6 +173,27 @@ describe('useCatalogPlanDrawer', () => {
           message: 'text_1789030049529bjp3ly202fr',
         }),
       )
+    })
+
+    it('GIVEN no metadata THEN omits it from the create input', async () => {
+      mountHost()
+      act(() => openDrawer())
+      fillValidCreateValues()
+      await submit()
+
+      expect(mockCreate.mock.calls[0][0].variables.input.metadata).toBeUndefined()
+    })
+
+    it('GIVEN added metadata THEN creates the plan with the pairs', async () => {
+      mountHost()
+      act(() => openDrawer())
+      fillValidCreateValues()
+      setMetadata([{ key: 'tier', value: 'gold' }])
+      await submit()
+
+      expect(mockCreate.mock.calls[0][0].variables.input.metadata).toEqual([
+        { key: 'tier', value: 'gold' },
+      ])
     })
 
     it('GIVEN create more is enabled THEN keeps the drawer open and links the new plan with the slug prepended', async () => {
@@ -314,6 +353,49 @@ describe('useCatalogPlanDrawer', () => {
           }),
         }),
       )
+    })
+
+    it('GIVEN stored metadata THEN seeds the form with it', () => {
+      mountHost()
+      act(() => openDrawer(existingPlan))
+
+      expect(lastOpenPayload().children.props.form.state.values.metadata).toEqual([
+        { key: 'region', value: 'eu' },
+        { key: 'segment', value: '' },
+      ])
+    })
+
+    it('GIVEN untouched metadata THEN omits it so the stored pairs stay as they are', async () => {
+      mountHost()
+      act(() => openDrawer(existingPlan))
+      await submit()
+
+      expect(mockUpdate.mock.calls[0][0].variables.input.metadata).toBeUndefined()
+    })
+
+    it('GIVEN edited metadata THEN sends the full edited list', async () => {
+      mountHost()
+      act(() => openDrawer(existingPlan))
+      setMetadata([
+        { key: 'region', value: 'us' },
+        { key: 'tier', value: 'gold' },
+      ])
+      await submit()
+
+      expect(mockUpdate.mock.calls[0][0].variables.input.metadata).toEqual([
+        { key: 'region', value: 'us' },
+        { key: 'tier', value: 'gold' },
+      ])
+    })
+
+    // `metadata: null` deletes every pair on the backend, so emptying must send [].
+    it('GIVEN every pair removed THEN sends an empty list, never null', async () => {
+      mountHost()
+      act(() => openDrawer(existingPlan))
+      setMetadata([])
+      await submit()
+
+      expect(mockUpdate.mock.calls[0][0].variables.input.metadata).toEqual([])
     })
 
     it('GIVEN a rejection with no plan THEN raises a danger toast instead of failing silently', async () => {

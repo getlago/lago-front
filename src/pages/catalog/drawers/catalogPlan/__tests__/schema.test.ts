@@ -47,4 +47,11 @@ describe('catalogPlanSchema', () => {
         .success,
     ).toBe(true)
   })
+
+  it('GIVEN a stored metadata pair with an empty value THEN still accepts it', () => {
+    expect(
+      catalogPlanSchema.safeParse({ ...validValues, metadata: [{ key: 'region', value: '' }] })
+        .success,
+    ).toBe(true)
+  })
 })

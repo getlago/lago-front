@@ -6,6 +6,7 @@ import { AllTheProviders } from '~/test-utils'
 
 import {
   CATALOG_PLAN_OVERVIEW_EDIT_TEST_ID,
+  CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID,
   CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID,
   CatalogPlanOverviewSection,
 } from '../CatalogPlanOverviewSection'
@@ -34,12 +35,14 @@ type PlanOverrides = {
   appliedRateCardsCount?: number
   description?: string | null
   invoiceDisplayName?: string | null
+  metadata?: Array<{ __typename: 'ItemMetadata'; key: string; value: string | null }> | null
 }
 
 const buildMock = ({
   appliedRateCardsCount = 0,
   description = 'A description',
   invoiceDisplayName = 'Cards',
+  metadata = null,
 }: PlanOverrides) => ({
   request: {
     query: GetCatalogPlanForDetailsOverviewDocument,
@@ -56,6 +59,8 @@ const buildMock = ({
         description,
         invoiceDisplayName,
         appliedRateCardsCount,
+        attachedToContracts: false,
+        metadata,
       },
     },
   },
@@ -173,5 +178,38 @@ describe('CatalogPlanOverviewSection', () => {
       screen.queryByTestId(CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID),
     ).not.toBeInTheDocument()
     expect(screen.queryByText('text_17890300495307orirxcvgn8')).not.toBeInTheDocument()
+  })
+
+  it('GIVEN stored metadata THEN shows the read-only metadata section', async () => {
+    renderSection({ metadata: [{ __typename: 'ItemMetadata', key: 'region', value: 'eu' }] })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID)).toBeInTheDocument(),
+    )
+    expect(screen.getByText('text_1784536360268d9fpetpsrej')).toBeInTheDocument()
+    expect(
+      screen.queryByTestId(`${CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID}-actions`),
+    ).not.toBeInTheDocument()
+  })
+
+  it('GIVEN an expanded metadata section THEN lists each pair', async () => {
+    renderSection({ metadata: [{ __typename: 'ItemMetadata', key: 'region', value: 'eu' }] })
+
+    await waitFor(() =>
+      expect(screen.getByTestId(CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID)).toBeInTheDocument(),
+    )
+    await userEvent.click(
+      screen.getAllByText('text_63fcc3218d35b9377840f59b').at(-1) as HTMLElement,
+    )
+
+    expect(screen.getByText('region')).toBeInTheDocument()
+    expect(screen.getByText('eu')).toBeInTheDocument()
+  })
+
+  it('GIVEN no metadata THEN hides the metadata section', async () => {
+    renderSection({ metadata: [] })
+
+    await waitFor(() => expect(screen.getByText('Premium')).toBeInTheDocument())
+    expect(screen.queryByTestId(CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID)).not.toBeInTheDocument()
   })
 })

@@ -1,14 +1,14 @@
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import {
+  ADD_METADATA_TEST_ID,
+  METADATA_ACCORDION_TEST_ID,
+} from '~/components/metadata/MetadataFormSection'
 import type { PlanFormType } from '~/hooks/plans/usePlanForm'
 import { render } from '~/test-utils'
 
-import {
-  ADD_PLAN_METADATA_TEST_ID,
-  PLAN_METADATA_ACCORDION_TEST_ID,
-  PlanMetadataSection,
-} from '../PlanMetadataSection'
+import { PlanMetadataSection } from '../PlanMetadataSection'
 
 type MetadataPair = { key: string; value?: string | null }
 
@@ -65,13 +65,13 @@ describe('PlanMetadataSection', () => {
     it('THEN should render the metadata accordion', () => {
       render(<PlanMetadataSection form={mockForm} />)
 
-      expect(screen.getByTestId(PLAN_METADATA_ACCORDION_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(METADATA_ACCORDION_TEST_ID)).toBeInTheDocument()
     })
 
     it('THEN should render the header add button', () => {
       render(<PlanMetadataSection form={mockForm} />)
 
-      expect(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(ADD_METADATA_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -79,13 +79,13 @@ describe('PlanMetadataSection', () => {
     it('THEN should not render the accordion', () => {
       render(<PlanMetadataSection form={mockForm} />)
 
-      expect(screen.queryByTestId(PLAN_METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
     })
 
     it('THEN should render the inline add button', () => {
       render(<PlanMetadataSection form={mockForm} />)
 
-      expect(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID)).toBeInTheDocument()
+      expect(screen.getByTestId(ADD_METADATA_TEST_ID)).toBeInTheDocument()
     })
   })
 
@@ -98,7 +98,7 @@ describe('PlanMetadataSection', () => {
 
         render(<PlanMetadataSection form={mockForm} />)
 
-        await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
+        await user.click(screen.getByTestId(ADD_METADATA_TEST_ID))
 
         expect(mockOpenDrawer).toHaveBeenCalledWith(
           { metadata: [{ key: 'product_group', value: 'Premium Suite' }] },
@@ -113,7 +113,7 @@ describe('PlanMetadataSection', () => {
 
         render(<PlanMetadataSection form={mockForm} />)
 
-        await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
+        await user.click(screen.getByTestId(ADD_METADATA_TEST_ID))
 
         expect(mockOpenDrawer).toHaveBeenCalledWith(
           { metadata: [{ key: 'product_group', value: '' }] },
@@ -128,7 +128,7 @@ describe('PlanMetadataSection', () => {
 
         render(<PlanMetadataSection form={mockForm} />)
 
-        await user.click(screen.getByTestId(ADD_PLAN_METADATA_TEST_ID))
+        await user.click(screen.getByTestId(ADD_METADATA_TEST_ID))
 
         expect(mockOpenDrawer).toHaveBeenCalledWith({ metadata: [] }, { appendEmptyRow: true })
       })

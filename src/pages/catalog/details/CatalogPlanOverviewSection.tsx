@@ -10,6 +10,8 @@ import {
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { MetadataInfo } from '~/components/metadata/MetadataInfo'
+import { SectionAccordion } from '~/components/plans/details-v2/shared/SectionAccordion'
 import {
   CatalogPlanForCatalogPlanDrawerFragmentDoc,
   LagoApiError,
@@ -22,6 +24,7 @@ import { useCatalogPlanDrawer } from '../drawers/catalogPlan/useCatalogPlanDrawe
 
 export const CATALOG_PLAN_OVERVIEW_EDIT_TEST_ID = 'catalog-plan-overview-edit'
 export const CATALOG_PLAN_QUICK_ACTION_RATE_CARDS_TEST_ID = 'catalog-plan-quick-action-rate-cards'
+export const CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID = 'catalog-plan-overview-metadata'
 
 gql`
   fragment CatalogPlanForCatalogPlanDetailsOverview on CatalogPlan {
@@ -32,6 +35,10 @@ gql`
     description
     invoiceDisplayName
     appliedRateCardsCount
+    metadata {
+      key
+      value
+    }
     ...CatalogPlanForCatalogPlanDrawer
   }
 
@@ -69,6 +76,7 @@ export const CatalogPlanOverviewSection = ({
   }
 
   const hasNoRateCard = catalogPlan?.appliedRateCardsCount === 0
+  const metadata = catalogPlan?.metadata ?? []
 
   return (
     <div className="flex flex-col gap-12">
@@ -134,6 +142,24 @@ export const CatalogPlanOverviewSection = ({
           />
         </div>
       </section>
+
+      {metadata.length > 0 && (
+        <section>
+          <PageSectionTitle
+            title={translate('text_63fcc3218d35b9377840f59b')}
+            subtitle={translate('text_1784536360268d9fpetpsrej')}
+          />
+
+          <SectionAccordion
+            icon="brackets"
+            title={translate('text_63fcc3218d35b9377840f59b')}
+            noContentMargin
+            dataTest={CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID}
+          >
+            <MetadataInfo metadata={metadata} />
+          </SectionAccordion>
+        </section>
+      )}
 
       {hasNoRateCard && (
         <section>

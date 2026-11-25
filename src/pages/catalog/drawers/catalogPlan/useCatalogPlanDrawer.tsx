@@ -1,5 +1,6 @@
 import { FetchResult, gql } from '@apollo/client'
 import { revalidateLogic } from '@tanstack/react-form'
+import { isEqual } from 'lodash'
 import { useRef } from 'react'
 import { generatePath, useParams } from 'react-router'
 
@@ -43,6 +44,10 @@ gql`
     invoiceDisplayName
     appliedRateCardsCount
     attachedToContracts
+    metadata {
+      key
+      value
+    }
   }
 
   mutation createCatalogPlan($input: CreateCatalogPlanInput!) {
@@ -68,6 +73,7 @@ const mapCatalogPlanToFormValues = (
   currency: catalogPlan.currency,
   description: catalogPlan.description || '',
   invoiceDisplayName: catalogPlan.invoiceDisplayName || '',
+  metadata: catalogPlan.metadata?.map(({ key, value }) => ({ key, value: value || '' })) || [],
 })
 
 type CatalogPlanFormSuccess = {
@@ -106,6 +112,8 @@ const useCatalogPlanForm = ({
       // Update sends cleared optionals as null (undefined is stripped, so the old
       // value would never clear); create omits them instead.
       if (editedCatalogPlan) {
+        const loadedMetadata = mapCatalogPlanToFormValues(editedCatalogPlan).metadata
+
         const result = await updateCatalogPlan({
           variables: {
             input: {
@@ -117,6 +125,8 @@ const useCatalogPlanForm = ({
               currency: value.currency as CurrencyEnum,
               description: value.description || null,
               invoiceDisplayName: value.invoiceDisplayName || null,
+              // Omitted when unchanged, never null like the optionals above: null deletes every pair.
+              metadata: isEqual(value.metadata, loadedMetadata) ? undefined : value.metadata,
             },
           },
         })
@@ -132,6 +142,7 @@ const useCatalogPlanForm = ({
               currency: value.currency as CurrencyEnum,
               description: value.description || undefined,
               invoiceDisplayName: value.invoiceDisplayName || undefined,
+              metadata: value.metadata.length ? value.metadata : undefined,
             },
           },
         })

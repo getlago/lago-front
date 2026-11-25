@@ -10,4 +10,5 @@ export const catalogPlanSchema = z.object({
   currency: z.enum(CurrencyEnum, { message: VALUE_REQUIRED_KEY }),
   description: z.string(),
   invoiceDisplayName: z.string(),
+  metadata: z.array(z.object({ key: z.string(), value: z.string() })),
 })

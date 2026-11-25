@@ -1,3 +1,4 @@
+import { ItemMetadataFormValues } from '~/components/metadata/constants'
 import { CurrencyEnum } from '~/generated/graphql'
 
 export const CATALOG_PLAN_FORM_ID = 'catalog-plan-drawer-form'
@@ -17,6 +18,7 @@ export interface CatalogPlanFormValues {
   currency: CurrencyEnum | undefined
   description: string
   invoiceDisplayName: string
+  metadata: ItemMetadataFormValues['metadata']
 }
 
 export const CATALOG_PLAN_FORM_DEFAULTS: CatalogPlanFormValues = {
@@ -25,4 +27,5 @@ export const CATALOG_PLAN_FORM_DEFAULTS: CatalogPlanFormValues = {
   currency: undefined,
   description: '',
   invoiceDisplayName: '',
+  metadata: [],
 }

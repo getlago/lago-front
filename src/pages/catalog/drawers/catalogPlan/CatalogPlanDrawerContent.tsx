@@ -1,3 +1,4 @@
+import { useStore } from '@tanstack/react-form'
 import { useMemo, useState } from 'react'
 
 import { Button } from '~/components/designSystem/Button'
@@ -7,6 +8,7 @@ import { CreateMoreResetBoundary } from '~/components/drawers/createMore/CreateM
 import { CreateMoreResetSignal } from '~/components/drawers/createMore/useCreateMore'
 import NameAndCodeGroup from '~/components/form/NameAndCodeGroup/NameAndCodeGroup'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
+import { MetadataFormSection } from '~/components/metadata/MetadataFormSection'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
@@ -44,6 +46,7 @@ const CatalogPlanDrawerFormSections = withForm({
     const [shouldDisplayDescription, setShouldDisplayDescription] = useState(
       () => !!form.state.values.description,
     )
+    const metadata = useStore(form.store, (state) => state.values.metadata)
 
     const currencyComboboxData = useMemo(
       () => Object.values(CurrencyEnum).map((currency) => ({ value: currency, label: currency })),
@@ -160,6 +163,12 @@ const CatalogPlanDrawerFormSections = withForm({
               )}
             </form.AppField>
           </CenteredPage.PageSection>
+
+          <MetadataFormSection
+            metadata={metadata}
+            description={translate('text_1784536360268d9fpetpsrej')}
+            onChange={(nextMetadata) => form.setFieldValue('metadata', nextMetadata)}
+          />
         </CenteredPage.SubsectionWrapper>
       </>
     )

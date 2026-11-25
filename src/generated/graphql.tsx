@@ -1184,6 +1184,7 @@ export type CatalogPlan = {
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   invoiceDisplayName?: Maybe<Scalars['String']['output']>;
+  metadata?: Maybe<Array<ItemMetadata>>;
   name: Scalars['String']['output'];
   organization?: Maybe<Organization>;
   taxes: Array<Tax>;
@@ -2299,6 +2300,8 @@ export type CreateCatalogPlanInput = {
   currency: CurrencyEnum;
   description?: InputMaybe<Scalars['String']['input']>;
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  /** Omit or null for none, [] to store an empty set. */
+  metadata?: InputMaybe<Array<MetadataInput>>;
   name: Scalars['String']['input'];
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
@@ -12687,6 +12690,8 @@ export type UpdateCatalogPlanInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
   invoiceDisplayName?: InputMaybe<Scalars['String']['input']>;
+  /** Replaces all pairs. Omit to keep them, [] to empty, null to remove. */
+  metadata?: InputMaybe<Array<MetadataInput>>;
   name?: InputMaybe<Scalars['String']['input']>;
   taxCodes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
@@ -18408,7 +18413,7 @@ export type ConfirmSignupEmailMutationVariables = Exact<{
 
 export type ConfirmSignupEmailMutation = { __typename?: 'Mutation', confirmSignupEmail?: { __typename?: 'LoginUser', token: string } | null };
 
-export type CatalogPlanForListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean };
+export type CatalogPlanForListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type CatalogPlansQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -18417,7 +18422,7 @@ export type CatalogPlansQueryVariables = Exact<{
 }>;
 
 
-export type CatalogPlansQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean }> } };
+export type CatalogPlansQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null }> } };
 
 export type ProductCategoryListItemFragment = { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null, productsCount: number, createdAt: any, description?: string | null, attachedToPlanOrSubscription: boolean };
 
@@ -18491,23 +18496,23 @@ export type GetCatalogPlanContractsQueryVariables = Exact<{
 
 export type GetCatalogPlanContractsQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null }> } };
 
-export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
+export type CatalogPlanForCatalogPlanDetailsFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type GetCatalogPlanForDetailsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCatalogPlanForDetailsQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+export type GetCatalogPlanForDetailsQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
 
-export type CatalogPlanForCatalogPlanDetailsOverviewFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
+export type CatalogPlanForCatalogPlanDetailsOverviewFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type GetCatalogPlanForDetailsOverviewQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+export type GetCatalogPlanForDetailsOverviewQuery = { __typename?: 'Query', catalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
 
 export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
   planId: Scalars['ID']['input'];
@@ -18526,7 +18531,7 @@ export type GetPlanAppliedRateCardsForRateCardsSectionQueryVariables = Exact<{
 
 export type GetPlanAppliedRateCardsForRateCardsSectionQuery = { __typename?: 'Query', planAppliedRateCards: { __typename?: 'PlanAppliedRateCardCollection', collection: Array<{ __typename?: 'PlanAppliedRateCard', id: string, ratePhasesCount: number, product: { __typename?: 'Product', id: string, name: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, name: string, code: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, invoiceDisplayName?: string | null } | null } }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
-export type CatalogPlanForCatalogPlansTabListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean };
+export type CatalogPlanForCatalogPlansTabListFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type GetCatalogPlansForCatalogObjectDetailsQueryVariables = Exact<{
   productIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
@@ -18539,7 +18544,7 @@ export type GetCatalogPlansForCatalogObjectDetailsQueryVariables = Exact<{
 }>;
 
 
-export type GetCatalogPlansForCatalogObjectDetailsQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean }> } };
+export type GetCatalogPlansForCatalogObjectDetailsQuery = { __typename?: 'Query', catalogPlans: { __typename?: 'CatalogPlanCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'CatalogPlan', id: string, name: string, code: string, invoiceDisplayName?: string | null, createdAt: any, appliedRateCardsCount: number, contractsCount: number, currency: CurrencyEnum, description?: string | null, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null }> } };
 
 export type ProductCategoryForCatalogRelationsFragment = { __typename?: 'ProductCategory', id: string, name: string, invoiceDisplayName?: string | null };
 
@@ -18776,21 +18781,21 @@ export type DestroyRateCardRateMutationVariables = Exact<{
 
 export type DestroyRateCardRateMutation = { __typename?: 'Mutation', destroyRateCardRate?: { __typename?: 'DestroyRateCardRatePayload', id?: string | null } | null };
 
-export type CatalogPlanForCatalogPlanDrawerFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean };
+export type CatalogPlanForCatalogPlanDrawerFragment = { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null };
 
 export type CreateCatalogPlanMutationVariables = Exact<{
   input: CreateCatalogPlanInput;
 }>;
 
 
-export type CreateCatalogPlanMutation = { __typename?: 'Mutation', createCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+export type CreateCatalogPlanMutation = { __typename?: 'Mutation', createCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
 
 export type UpdateCatalogPlanMutationVariables = Exact<{
   input: UpdateCatalogPlanInput;
 }>;
 
 
-export type UpdateCatalogPlanMutation = { __typename?: 'Mutation', updateCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean } | null };
+export type UpdateCatalogPlanMutation = { __typename?: 'Mutation', updateCatalogPlan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string, currency: CurrencyEnum, description?: string | null, invoiceDisplayName?: string | null, appliedRateCardsCount: number, attachedToContracts: boolean, metadata?: Array<{ __typename?: 'ItemMetadata', key: string, value?: string | null }> | null } | null };
 
 export type GetProductCategoriesForProductDrawerQueryVariables = Exact<{
   page?: InputMaybe<Scalars['Int']['input']>;
@@ -26265,6 +26270,10 @@ export const CatalogPlanForCatalogPlanDrawerFragmentDoc = gql`
   invoiceDisplayName
   appliedRateCardsCount
   attachedToContracts
+  metadata {
+    key
+    value
+  }
 }
     `;
 export const CatalogPlanForDeleteCatalogPlanDialogFragmentDoc = gql`
@@ -26444,6 +26453,10 @@ export const CatalogPlanForCatalogPlanDetailsOverviewFragmentDoc = gql`
   description
   invoiceDisplayName
   appliedRateCardsCount
+  metadata {
+    key
+    value
+  }
   ...CatalogPlanForCatalogPlanDrawer
 }
     ${CatalogPlanForCatalogPlanDrawerFragmentDoc}`;

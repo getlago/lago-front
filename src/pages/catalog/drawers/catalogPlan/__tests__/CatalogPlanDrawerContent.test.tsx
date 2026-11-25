@@ -1,7 +1,12 @@
 import { revalidateLogic } from '@tanstack/react-form'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { ItemMetadataFormValues } from '~/components/metadata/ItemMetadataDrawer'
+import {
+  ADD_METADATA_TEST_ID,
+  METADATA_ACCORDION_TEST_ID,
+} from '~/components/metadata/MetadataFormSection'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders } from '~/test-utils'
@@ -19,6 +24,29 @@ import { catalogPlanSchema } from '../schema'
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (key: string) => key }),
 }))
+
+const mockOpenMetadataDrawer = jest.fn()
+let capturedMetadataDrawerProps: {
+  onSave: (values: ItemMetadataFormValues) => void
+  onDelete?: () => void
+}
+
+jest.mock('~/components/metadata/ItemMetadataDrawer', () => {
+  const { forwardRef, useImperativeHandle } = jest.requireActual('react')
+
+  const ItemMetadataDrawer = forwardRef(
+    (props: typeof capturedMetadataDrawerProps, ref: unknown) => {
+      capturedMetadataDrawerProps = props
+      useImperativeHandle(ref, () => ({
+        openDrawer: mockOpenMetadataDrawer,
+        closeDrawer: jest.fn(),
+      }))
+      return null
+    },
+  )
+
+  return { __esModule: true, ItemMetadataDrawer }
+})
 
 const NAME_LABEL_KEY = 'text_629728388c4d2300e2d38091'
 const CODE_LABEL_KEY = 'text_629728388c4d2300e2d380b7'
@@ -147,5 +175,47 @@ describe('CatalogPlanDrawerContent', () => {
     renderHost({ isEdit: true, values: { name: 'Premium', currency: CurrencyEnum.Usd } })
 
     expect(screen.getByText(CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY)).toBeInTheDocument()
+  })
+
+  describe('metadata', () => {
+    it('GIVEN stored pairs THEN shows the metadata accordion', () => {
+      renderHost({ isEdit: true, values: { metadata: [{ key: 'region', value: 'eu' }] } })
+
+      expect(screen.getByTestId(METADATA_ACCORDION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('GIVEN no pairs THEN offers to add metadata without an accordion', () => {
+      renderHost()
+
+      expect(screen.getByTestId(ADD_METADATA_TEST_ID)).toBeInTheDocument()
+      expect(screen.queryByTestId(METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('GIVEN a click on add metadata THEN opens the metadata drawer with the stored pairs', async () => {
+      renderHost({ isEdit: true, values: { metadata: [{ key: 'region', value: 'eu' }] } })
+
+      await userEvent.click(screen.getByTestId(ADD_METADATA_TEST_ID))
+
+      expect(mockOpenMetadataDrawer).toHaveBeenCalledWith(
+        { metadata: [{ key: 'region', value: 'eu' }] },
+        { appendEmptyRow: true },
+      )
+    })
+
+    it('GIVEN the metadata drawer saves THEN shows the metadata accordion', () => {
+      renderHost()
+
+      act(() => capturedMetadataDrawerProps.onSave({ metadata: [{ key: 'tier', value: 'gold' }] }))
+
+      expect(screen.getByTestId(METADATA_ACCORDION_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('GIVEN the metadata drawer deletes every pair THEN removes the accordion', () => {
+      renderHost({ isEdit: true, values: { metadata: [{ key: 'region', value: 'eu' }] } })
+
+      act(() => capturedMetadataDrawerProps.onDelete?.())
+
+      expect(screen.queryByTestId(METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })
