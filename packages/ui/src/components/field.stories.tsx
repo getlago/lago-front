@@ -18,6 +18,9 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from './input-group'
 import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
 
+import { AmountFieldStates } from '../stories/amount-input-field-examples'
+import { ComboboxFieldStates } from '../stories/combobox-field-examples'
+
 const meta = {
   title: 'Components/Field',
   component: Field,
@@ -208,3 +211,17 @@ const FieldStates = ({
 export const WithInput: Story = { render: () => <FieldStates control="input" /> }
 export const WithInputGroup: Story = { render: () => <FieldStates control="input-group" /> }
 export const WithTextarea: Story = { render: () => <FieldStates control="textarea" /> }
+
+export const WithCombobox: Story = { render: () => <ComboboxFieldStates kind="single" /> }
+export const WithComboboxChipsInside: Story = {
+  render: () => <ComboboxFieldStates kind="inside" />,
+}
+export const WithComboboxChipsAbove: Story = { render: () => <ComboboxFieldStates kind="above" /> }
+export const WithFreeTextInside: Story = {
+  render: () => <ComboboxFieldStates kind="free-inside" />,
+}
+export const WithFreeTextAbove: Story = { render: () => <ComboboxFieldStates kind="free-above" /> }
+export const WithComboboxPopup: Story = { render: () => <ComboboxFieldStates kind="popup" /> }
+
+export const WithAmountInput: Story = { render: () => <AmountFieldStates selectable={false} /> }
+export const WithSelectableAmountInput: Story = { render: () => <AmountFieldStates selectable /> }

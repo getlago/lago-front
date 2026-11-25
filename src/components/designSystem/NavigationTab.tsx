@@ -41,6 +41,7 @@ type NavigationTabProps = {
   children?: ReactNode
   onChange?: (index: number) => void
   currentTab?: number
+  showSingleTab?: boolean
 }
 
 interface TabPanelProps {
@@ -83,9 +84,11 @@ export const NavigationTab = ({
   children,
   onChange,
   currentTab,
+  showSingleTab = false,
 }: NavigationTabProps) => {
   const { strippedPathname: pathname } = useLocation()
   const nonHiddenTabs = tabs.filter((t) => !t.hidden)
+  const shouldRenderTabs = nonHiddenTabs.length > 1 || (showSingleTab && nonHiddenTabs.length > 0)
 
   // Default value is not 0 to prevent useEffect value udpate to flash first component
   const [value, setValue] = useState<number | null>(currentTab || null)
@@ -205,7 +208,7 @@ export const NavigationTab = ({
       <div className={tw('flex flex-row shadow-b', className)}>
         <Tabs
           className={tw('min-h-0 w-full flex-1 items-center overflow-visible', {
-            'min-h-13': nonHiddenTabs.length > 1,
+            'min-h-13': shouldRenderTabs,
           })}
           variant="scrollable"
           role="navigation"
@@ -214,9 +217,7 @@ export const NavigationTab = ({
           onChange={handleChange}
           value={value}
         >
-          {nonHiddenTabs.length >= 2
-            ? nonHiddenTabs.map((tab, tabIndex) => renderTab(tab, tabIndex))
-            : null}
+          {shouldRenderTabs ? nonHiddenTabs.map((tab, tabIndex) => renderTab(tab, tabIndex)) : null}
         </Tabs>
         {children && (
           <div className="flex flex-row flex-nowrap items-center justify-end gap-3 bg-white pl-4 shadow-b">

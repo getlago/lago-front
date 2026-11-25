@@ -26,6 +26,7 @@ import { AllTheProviders, testMockNavigateFn, TestMocksType } from '~/test-utils
 import Integrations, {
   INTEGRATIONS_HUBSPOT_TEST_ID,
   INTEGRATIONS_NETSUITE_TEST_ID,
+  INTEGRATIONS_QUICKBOOKS_TEST_ID,
   INTEGRATIONS_SALESFORCE_TEST_ID,
   INTEGRATIONS_SEGMENT_TEST_ID,
   INTEGRATIONS_STRIPE_TEST_ID,
@@ -33,6 +34,12 @@ import Integrations, {
 } from '../Integrations'
 
 // Mock dialog components that transitively import @nangohq/frontend (ESM)
+const mockHasPermissions = jest.fn()
+
+jest.mock('~/hooks/usePermissions', () => ({
+  usePermissions: () => ({ hasPermissions: mockHasPermissions }),
+}))
+
 jest.mock('~/components/settings/integrations/AddAnrokDialog', () => ({
   useAddAnrokDialog: () => ({ openAddAnrokDialog: jest.fn() }),
 }))
@@ -46,6 +53,11 @@ jest.mock('~/components/settings/integrations/AddNetsuiteDialog', () => ({
 }))
 jest.mock('~/components/settings/integrations/AddXeroDialog', () => ({
   useAddXeroDialog: () => ({ openAddXeroDialog: jest.fn() }),
+}))
+const mockOpenAddQuickbooksDialog = jest.fn()
+
+jest.mock('~/components/settings/integrations/AddQuickbooksDialog', () => ({
+  useAddQuickbooksDialog: () => ({ openAddQuickbooksDialog: mockOpenAddQuickbooksDialog }),
 }))
 jest.mock('~/components/settings/integrations/AddHubspotDialog', () => ({
   useAddHubspotDialog: () => ({ openAddHubspotDialog: jest.fn() }),
@@ -656,6 +668,56 @@ describe('Integrations', () => {
       expect(screen.getByTestId(INTEGRATIONS_NETSUITE_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(INTEGRATIONS_SALESFORCE_TEST_ID)).toBeInTheDocument()
       expect(screen.getByTestId(INTEGRATIONS_SEGMENT_TEST_ID)).toBeInTheDocument()
+    })
+  })
+
+  describe('QuickBooks card', () => {
+    beforeEach(() => mockHasPermissions.mockReturnValue(true))
+
+    it('is hidden when the organization has no QuickBooks premium integration', async () => {
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(screen.queryByTestId(INTEGRATIONS_QUICKBOOKS_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('opens the connect dialog when the organization has the QuickBooks premium integration', async () => {
+      mockOrganizationData = { premiumIntegrations: [PremiumIntegrationTypeEnum.Quickbooks] }
+
+      await prepare()
+
+      const card = await screen.findByTestId(INTEGRATIONS_QUICKBOOKS_TEST_ID)
+
+      await userEvent.click(card)
+
+      expect(mockOpenAddQuickbooksDialog).toHaveBeenCalledTimes(1)
+    })
+
+    it('does not open the connect dialog without the permission to create integrations', async () => {
+      mockOrganizationData = { premiumIntegrations: [PremiumIntegrationTypeEnum.Quickbooks] }
+      mockHasPermissions.mockReturnValue(false)
+
+      await prepare()
+
+      await userEvent.click(await screen.findByTestId(INTEGRATIONS_QUICKBOOKS_TEST_ID))
+
+      expect(mockOpenAddQuickbooksDialog).not.toHaveBeenCalled()
+    })
+
+    it('is hidden for product catalog organizations', async () => {
+      mockOrganizationData = { premiumIntegrations: [PremiumIntegrationTypeEnum.Quickbooks] }
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.ProductCatalog)
+
+      await prepare()
+
+      await waitFor(() => {
+        expect(screen.getByTestId(INTEGRATIONS_STRIPE_TEST_ID)).toBeInTheDocument()
+      })
+
+      expect(screen.queryByTestId(INTEGRATIONS_QUICKBOOKS_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })

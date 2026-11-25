@@ -94,6 +94,10 @@ const GocardlessIntegrationDetails = lazyLoad(
 const TaxManagementIntegration = lazyLoad(
   () => import('~/pages/settings/LagoTaxManagementIntegration'),
 )
+const QuickbooksIntegrations = lazyLoad(() => import('~/pages/settings/QuickbooksIntegrations'))
+const QuickbooksIntegrationDetails = lazyLoad(
+  () => import('~/pages/settings/QuickbooksIntegrationDetails'),
+)
 const XeroIntegrations = lazyLoad(() => import('~/pages/settings/XeroIntegrations'))
 const XeroIntegrationDetails = lazyLoad(() => import('~/pages/settings/XeroIntegrationDetails'))
 const DunningsSettings = lazyLoad(() => import('~/pages/settings/Dunnings/Dunnings'))
@@ -157,6 +161,8 @@ const GOCARDLESS_INTEGRATION_OAUTH_CALLBACK_ROUTE = `${ROOT_INTEGRATIONS_ROUTE}/
 export const GOCARDLESS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/gocardless/:integrationId`
 export const TAX_MANAGEMENT_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/lago-tax-management`
 
+export const QUICKBOOKS_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/quickbooks`
+export const QUICKBOOKS_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/quickbooks/:integrationId/:tab`
 export const XERO_INTEGRATION_ROUTE = `${INTEGRATIONS_ROUTE}/xero`
 export const XERO_INTEGRATION_DETAILS_ROUTE = `${INTEGRATIONS_ROUTE}/xero/:integrationId/:tab`
 export const DUNNINGS_SETTINGS_ROUTE = `${SETTINGS_ROUTE}/dunnings`
@@ -454,6 +460,20 @@ export const settingRoutes: CustomRouteObject[] = [
         private: true,
         element: <TaxManagementIntegration />,
         permissions: ['organizationIntegrationsView'],
+      },
+      {
+        path: QUICKBOOKS_INTEGRATION_DETAILS_ROUTE,
+        private: true,
+        element: <QuickbooksIntegrationDetails />,
+        permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
+      },
+      {
+        path: QUICKBOOKS_INTEGRATION_ROUTE,
+        private: true,
+        element: <QuickbooksIntegrations />,
+        permissions: ['organizationIntegrationsView'],
+        hiddenWithFeatureFlag: FeatureFlagEnum.ProductCatalog,
       },
       {
         path: XERO_INTEGRATION_DETAILS_ROUTE,

@@ -86,7 +86,13 @@ export const useFinalizeInvoiceDialog = () => {
         client.refetchQueries({
           include: isClosed
             ? ['getCustomerInvoices']
-            : ['getCustomerInvoices', 'getInvoiceDetails'],
+            : [
+                'getCustomerInvoices',
+                'getInvoiceDetails',
+                'getInvoiceFees',
+                'getInvoiceProductCatalogContracts',
+                'getInvoiceProductFees',
+              ],
         })
 
         if (finalizeInvoiceRes?.id) {
