@@ -1,6 +1,6 @@
 # Tooltip
 
-Short, non-interactive hint shown on hover or keyboard focus, built on Radix Tooltip.
+Short, non-interactive hint shown on hover or keyboard focus, built on Base UI Tooltip.
 
 ## When to use
 
@@ -22,7 +22,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'lago-u
 | `TooltipProvider` | Mount one around the toolbar or v2 region, not around each trigger. Sets the timings below |
 | `Tooltip` | Root of one tooltip |
 | `TooltipTrigger asChild` | Wrap the control that shows the tooltip |
-| `TooltipContent` | The text. Accepts Radix `side` / `align`; `sideOffset` defaults to 8, `collisionPadding` to 8 |
+| `TooltipContent` | The text. Accepts `side` / `align`; `sideOffset` defaults to 8, `collisionPadding` to 8 |
 
 Timings: the first hover waits 300ms; after a tooltip closes, another trigger in the same provider opens instantly for 500ms. Keyboard focus opens immediately. Do not override timings per tooltip.
 

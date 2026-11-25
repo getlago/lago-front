@@ -23,8 +23,8 @@
 # Current pins: build lago-packages b24fd68 (20261023-r69, Node 24 since
 # lago-packages#33), runtime e2374ae (20261023-r68). Both ship
 # ca-certificates-bundle 20260909-r3, without the eMudhra/emSign roots.
-ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261112-r1772@sha256:f16ee96853d7f937ca5b0b49214c5be5b5baca67fbf721aeb2f0f2548cefc4fc
-ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261111-r1727@sha256:40f1134c639ed6a101be50cee6f93191e9504f8f5a4a1f16412c5d32bb0684dc
+ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261125-r2446@sha256:130289be2caa7a6c7b9a3b90cf5ede21f1f6a8a455f5f72afa623e6881f14e83
+ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261125-r2445@sha256:612b5711c1828cb8aa28ae4e2d3908e7f72ae860b13ad6b305dc1e03a0fc2803
 
 # --- deps stage --------------------------------------------------------------
 FROM ${BUILD_IMAGE} AS deps
@@ -32,6 +32,7 @@ FROM ${BUILD_IMAGE} AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/ui/package.json             ./packages/ui/
 

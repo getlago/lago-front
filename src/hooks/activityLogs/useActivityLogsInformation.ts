@@ -19,12 +19,16 @@ const exhaustiveCheck = (value: never): never => {
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractCreated]: 'text_1791921842761by5ureagbe9',
   [ActivityTypeEnum.ContractUpdated]: 'text_1791921974802th7lzdwh96w',
+  [ActivityTypeEnum.ContractPublished]: 'text_1795463201390brdh9tn75s0',
   [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
   [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
   [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
   [ActivityTypeEnum.ContractRateCardCreated]: 'text_17919219748028qs8slf9r4r',
   [ActivityTypeEnum.ContractRateCardDeleted]: 'text_1791921974802buml62fqqaz',
   [ActivityTypeEnum.ContractRateCardUpdated]: 'text_1791921974802geeg4bwwkvk',
+  [ActivityTypeEnum.ContractWalletCreated]: 'text_1795454086814mzvn73ebgux',
+  [ActivityTypeEnum.ContractWalletDeleted]: 'text_1795454086814j2ad501cmlx',
+  [ActivityTypeEnum.ContractWalletUpdated]: 'text_1795454086814egs32zmws65',
   [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
   [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
   [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
@@ -197,12 +201,16 @@ export const useActivityLogsInformation = () => {
         break
       case ActivityTypeEnum.ContractCreated:
       case ActivityTypeEnum.ContractUpdated:
+      case ActivityTypeEnum.ContractPublished:
       case ActivityTypeEnum.ContractStarted:
       case ActivityTypeEnum.ContractTerminated:
       case ActivityTypeEnum.ContractCanceled:
       case ActivityTypeEnum.ContractRateCardCreated:
       case ActivityTypeEnum.ContractRateCardDeleted:
       case ActivityTypeEnum.ContractRateCardUpdated:
+      case ActivityTypeEnum.ContractWalletCreated:
+      case ActivityTypeEnum.ContractWalletDeleted:
+      case ActivityTypeEnum.ContractWalletUpdated:
       case ActivityTypeEnum.PlanRateCardCreated:
       case ActivityTypeEnum.PlanRateCardDeleted:
       case ActivityTypeEnum.PlanRateCardUpdated:

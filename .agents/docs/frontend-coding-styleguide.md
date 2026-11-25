@@ -28,6 +28,13 @@ with a type guard as the last resort. `value as SomeType` in production code is 
 shapes that replace it: `Pick<...>` on a prop type, an exhaustive `Record<Source, Target>` between
 two enums).
 
+Repository-specific exception: the `AmountInput` export in
+`packages/ui/src/components/amount-input.tsx` may assert its generic callable signature.
+React 18's `forwardRef` typing erases the currency generic; this assertion restores it while
+preserving the native input ref and narrow currency callbacks. Keep the signature tied to
+`AmountInputProps<Currency>` and `RefAttributes<HTMLInputElement>`. This exception applies only
+to that export, not to casts in its implementation or callers; revisit it when ref typing changes.
+
 ### GraphQL operations are colocated with their consumer
 
 Every hook or component that uses a generated query/mutation hook defines the operation with `gql`

@@ -6,6 +6,10 @@ import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTa
 import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useDeleteQuickbooksIntegrationDialog } from '~/components/settings/integrations/DeleteQuickbooksIntegrationDialog'
 import QuickbooksIntegrationSettings from '~/components/settings/integrations/QuickbooksIntegrationSettings'
+import {
+  QUICKBOOKS_CONNECTION_COUNT_LIMIT,
+  useQuickbooksAfterDeleteRedirect,
+} from '~/components/settings/integrations/useQuickbooksAfterDeleteRedirect'
 import { authorizeQuickbooksConnection } from '~/components/settings/integrations/utils'
 import { addToast } from '~/core/apolloClient'
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -13,7 +17,6 @@ import {
   INTEGRATIONS_ROUTE,
   QUICKBOOKS_INTEGRATION_DETAILS_ROUTE,
   QUICKBOOKS_INTEGRATION_ROUTE,
-  useNavigate,
 } from '~/core/router'
 import {
   DeleteQuickbooksIntegrationDialogFragmentDoc,
@@ -24,8 +27,6 @@ import {
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import Quickbooks from '~/public/images/quickbooks.svg'
-
-const PROVIDER_CONNECTION_LIMIT = 2
 
 export enum QuickbooksIntegrationDetailsTabs {
   Settings = 'settings',
@@ -67,7 +68,6 @@ gql`
 `
 
 const QuickbooksIntegrationDetails = () => {
-  const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
   const { openDeleteQuickbooksIntegrationDialog } = useDeleteQuickbooksIntegrationDialog()
@@ -78,7 +78,7 @@ const QuickbooksIntegrationDetails = () => {
   const { data, loading } = useGetQuickbooksIntegrationsDetailsQuery({
     variables: {
       id: integrationId,
-      limit: PROVIDER_CONNECTION_LIMIT,
+      limit: QUICKBOOKS_CONNECTION_COUNT_LIMIT,
       integrationsType: [IntegrationTypeEnum.Quickbooks],
     },
     skip: !integrationId,
@@ -87,19 +87,10 @@ const QuickbooksIntegrationDetails = () => {
     data?.integration?.__typename === 'QuickbooksIntegration' ? data.integration : undefined
   const isFirstLoad = loading && !data
   const activeTabContent = useMainHeaderTabContent()
-  const deleteDialogCallback = () => {
-    if ((data?.integrations?.collection.length || 0) >= PROVIDER_CONNECTION_LIMIT) {
-      navigate(
-        generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
-          integrationGroup: IntegrationsTabsOptionsEnum.Lago,
-        }),
-      )
-    } else {
-      navigate(
-        generatePath(INTEGRATIONS_ROUTE, { integrationGroup: IntegrationsTabsOptionsEnum.Lago }),
-      )
-    }
-  }
+  const deleteDialogCallback = useQuickbooksAfterDeleteRedirect(
+    data?.integrations?.collection.length ?? 0,
+  )
+
   const openDeleteDialog = () => {
     openDeleteQuickbooksIntegrationDialog({
       provider: quickbooksIntegration ?? null,

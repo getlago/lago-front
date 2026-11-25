@@ -3,11 +3,8 @@ packages:
   - 'packages/ui/'
 
 catalog:
-  '@radix-ui/react-dropdown-menu': 2.2.1
-  '@radix-ui/react-separator': 1.2.0
-  '@radix-ui/react-slot': 1.5.0
-  '@radix-ui/react-tabs': 1.2.1
-  '@radix-ui/react-tooltip': 1.4.1
+  '@base-ui/react': 1.9.0
+  '@tanstack/react-virtual': 3.14.26
   '@testing-library/dom': 10.4.2
   '@testing-library/jest-dom': 7.0.1
   '@testing-library/react': 16.3.3
@@ -42,3 +39,7 @@ minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   # Renovate security update: sanitize-html@2.18.1
   - sanitize-html@2.18.1
+
+# Patch maintenance and removal criteria: patches/README.md
+patchedDependencies:
+  '@base-ui/react@1.9.0': patches/@base-ui__react@1.9.0.patch

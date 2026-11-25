@@ -22,6 +22,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { usePermissions } from '~/hooks/usePermissions'
 import { QuickbooksIntegrationDetailsTabs } from '~/pages/settings/QuickbooksIntegrationDetails'
 
 import {
@@ -74,6 +75,8 @@ type OpenAddQuickbooksDialogData = {
 
 export const useAddQuickbooksDialog = () => {
   const { translate } = useInternationalization()
+  const { hasPermissions } = usePermissions()
+  const canDeleteIntegration = hasPermissions(['organizationIntegrationsDelete'])
   const navigate = useNavigate()
   const formDialogOpeningDialog = useFormDialogOpeningDialog()
   const client = useApolloClient()
@@ -230,7 +233,7 @@ export const useAddQuickbooksDialog = () => {
           id: ADD_QUICKBOOKS_FORM_ID,
           submit: handleSubmit,
         },
-        canOpenDialog: isEdition,
+        canOpenDialog: isEdition && canDeleteIntegration,
         openDialogText: translate('text_65845f35d7d69c3ab4793dad'),
         otherDialogProps: {
           title: translate('text_658461066530343fe1808cd7', { name: quickbooksProvider?.name }),
