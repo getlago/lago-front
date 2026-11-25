@@ -1,10 +1,10 @@
-import { getSubsidiaryLabel } from '../getSubsidiaryLabel'
+import { getIntegrationItemLabel } from '../getIntegrationItemLabel'
 
-describe('getSubsidiaryLabel', () => {
+describe('getIntegrationItemLabel', () => {
   describe('GIVEN a subsidiary with an external name', () => {
     describe('WHEN building the label', () => {
       it('THEN should combine the name with the id in parentheses', () => {
-        expect(getSubsidiaryLabel({ externalName: 'Sub EU', externalId: 'SUB-1' })).toBe(
+        expect(getIntegrationItemLabel({ externalName: 'Sub EU', externalId: 'SUB-1' })).toBe(
           'Sub EU (SUB-1)',
         )
       })
@@ -18,7 +18,7 @@ describe('getSubsidiaryLabel', () => {
         ['undefined name', undefined],
         ['empty name', ''],
       ])('THEN should fall back to the id alone for a %s', (_, externalName) => {
-        expect(getSubsidiaryLabel({ externalName, externalId: 'SUB-1' })).toBe('SUB-1')
+        expect(getIntegrationItemLabel({ externalName, externalId: 'SUB-1' })).toBe('SUB-1')
       })
     })
   })

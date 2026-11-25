@@ -23,6 +23,7 @@ import {
   buildAvalaraCustomerUrl,
   buildHubspotObjectUrl,
   buildNetsuiteCustomerUrl,
+  buildQuickbooksCustomerUrl,
   buildSalesforceUrl,
   buildStripeCustomerUrl,
   buildXeroCustomerUrl,
@@ -232,6 +233,17 @@ export const ConnectionDetailsPanel = ({
         }
         case IntegrationTypeEnum.Xero:
           return buildXeroCustomerUrl(externalCustomerId)
+        case IntegrationTypeEnum.Quickbooks: {
+          const quickbooks = getConnectedIntegrations(
+            integrationsData,
+            'QuickbooksIntegration',
+            integrationId,
+          )
+
+          return quickbooks
+            ? buildQuickbooksCustomerUrl(externalCustomerId, quickbooks.sandbox)
+            : undefined
+        }
         case IntegrationTypeEnum.Anrok: {
           const anrok = getConnectedIntegrations(
             integrationsData,
