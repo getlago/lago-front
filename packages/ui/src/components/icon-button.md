@@ -17,12 +17,14 @@ import { TooltipProvider } from 'lago-ui/tooltip'
 
 ## API
 
-| Prop | Values | Default |
-| --- | --- | --- |
-| `label` | required, non-empty, localized action label | |
-| `size` | `icon-sm` (32px), `icon` (36px), `icon-lg` (40px) | `icon` |
-| `variant` | any [`Button`](./button.md) variant | `ghost` |
-| `loading`, `disabled` | same as Button | `false` |
+`size="icon-xs"` is 20×20px for compact chip actions, available in every variant.
+
+| Prop                  | Values                                            | Default |
+| --------------------- | ------------------------------------------------- | ------- |
+| `label`               | required, non-empty, localized action label       |         |
+| `size`                | `icon-xs` (20px), `icon-sm` (32px), `icon` (36px), `icon-lg` (40px) | `icon`  |
+| `variant`             | any [`Button`](./button.md) variant               | `ghost` |
+| `loading`, `disabled` | same as Button                                    | `false` |
 
 Forwards its ref, event handlers and form props to a native button. `aria-label`, `aria-labelledby`, `asChild` and text sizes are not accepted.
 
@@ -31,7 +33,7 @@ Forwards its ref, event handlers and form props to a native button. `aria-label`
 ```tsx
 import { Copy } from 'lucide-react'
 
-<TooltipProvider>
+;<TooltipProvider>
   <IconButton label="Copy invoice number" size="icon-sm" onClick={copyInvoiceNumber}>
     <Copy aria-hidden="true" />
   </IconButton>

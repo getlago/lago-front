@@ -32,6 +32,7 @@ FROM ${BUILD_IMAGE} AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ ./patches/
 COPY packages/configs/package.json        ./packages/configs/
 COPY packages/ui/package.json             ./packages/ui/
 

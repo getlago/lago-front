@@ -228,3 +228,16 @@ describe('Text input formatValue', () => {
     expect(specificCode).toBe('cus-1234')
   })
 })
+
+it.each(['decimal', 'triDecimal', 'quadDecimal', 'sextDecimal', 'chargeDecimal'] as const)(
+  'normalizes leading decimals with %s',
+  (formatter) => {
+    expect(formatValue('.', formatter)).toBe('0.')
+    expect(formatValue('.5', formatter)).toBe('0.5')
+    expect(formatValue('-.5', formatter)).toBe('-0.5')
+    expect(formatValue('--.5', ['positiveNumber', formatter])).toBe('0.5')
+  },
+)
+it('removes all pasted minus signs for positive numbers', () => {
+  expect(formatValue('--5', ['positiveNumber', 'decimal'])).toBe('5')
+})

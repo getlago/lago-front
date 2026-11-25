@@ -26,6 +26,7 @@ export enum CreditNoteDetailsTabsOptionsEnum {
 }
 
 export enum CustomerInvoiceDetailsTabsOptionsEnum {
+  metadata = 'metadata',
   activityLogs = 'activity-logs',
   creditNotes = 'credit-notes',
   overview = 'overview',
