@@ -13,6 +13,8 @@ export const MRR_BREAKDOWN_PLANS_FILTER_PREFIX = 'mbp'
 
 export const INVOICE_LIST_FILTER_PREFIX = 'in'
 
+export const INVOICE_PRODUCT_FEES_FILTER_PREFIX = 'ipf'
+
 export const CREDIT_NOTE_LIST_FILTER_PREFIX = 'cn'
 
 export const CUSTOMER_LIST_FILTER_PREFIX = 'cu'

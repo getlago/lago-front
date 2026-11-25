@@ -25,6 +25,7 @@ import { useAddHubspotDialog } from '~/components/settings/integrations/AddHubsp
 import { useAddLagoTaxManagementDialog } from '~/components/settings/integrations/AddLagoTaxManagementDialog'
 import { useAddMoneyhashDialog } from '~/components/settings/integrations/AddMoneyhashDialog'
 import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNetsuiteDialog'
+import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
 import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
 import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
@@ -48,6 +49,7 @@ import {
   INTEGRATIONS_ROUTE,
   MONEYHASH_INTEGRATION_ROUTE,
   NETSUITE_INTEGRATION_ROUTE,
+  QUICKBOOKS_INTEGRATION_ROUTE,
   SALESFORCE_INTEGRATION_ROUTE,
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
@@ -78,6 +80,7 @@ import LagoTaxManagement from '~/public/images/lago-tax-management.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Netsuite from '~/public/images/netsuite.svg'
 import Oso from '~/public/images/oso.svg'
+import Quickbooks from '~/public/images/quickbooks.svg'
 import Salesforce from '~/public/images/salesforce.svg'
 import Segment from '~/public/images/segment.svg'
 import Stripe from '~/public/images/stripe.svg'
@@ -89,6 +92,7 @@ export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
 export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
 export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
 export const INTEGRATIONS_AGENT_STOREFRONT_TEST_ID = 'integrations-agent-storefront'
+export const INTEGRATIONS_QUICKBOOKS_TEST_ID = 'integrations-quickbooks'
 
 gql`
   query integrationsSetting($limit: Int) {
@@ -134,6 +138,9 @@ gql`
         ... on XeroIntegration {
           id
         }
+        ... on QuickbooksIntegration {
+          id
+        }
         ... on HubspotIntegration {
           id
         }
@@ -155,8 +162,6 @@ const Integrations = () => {
   const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const isAgentStorefrontEnabled = hasFeatureFlag(FeatureFlagEnum.AgentStorefront)
-  const { hasPermissions } = usePermissions()
-  const canCreateAgentStorefront = hasPermissions(['organizationIntegrationsCreate'])
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -169,6 +174,9 @@ const Integrations = () => {
   const { openAddNetsuiteDialog } = useAddNetsuiteDialog()
   const { openAddSalesforceDialog } = useAddSalesforceDialog()
   const { openAddXeroDialog } = useAddXeroDialog()
+  const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
+  const { hasPermissions } = usePermissions()
+  const canCreateIntegration = hasPermissions(['organizationIntegrationsCreate'])
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
@@ -214,6 +222,9 @@ const Integrations = () => {
   const hasAccessToXeroPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Xero,
   )
+  const hasAccessToQuickbooksPremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.Quickbooks,
+  )
   const hasAccessToHubspotPremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Hubspot,
   )
@@ -234,6 +245,9 @@ const Integrations = () => {
   )
   const hasXeroIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'XeroIntegration',
+  )
+  const hasQuickbooksIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'QuickbooksIntegration',
   )
   const hasHubspotIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'HubspotIntegration',
@@ -550,7 +564,7 @@ const Integrations = () => {
                                 mailtoSubject: translate('text_1795083825205440vn60teym'),
                                 mailtoBody: translate('text_1795083825206u05enrn2opg'),
                               })
-                            } else if (hasAgentStorefrontIntegration || !canCreateAgentStorefront) {
+                            } else if (hasAgentStorefrontIntegration || !canCreateIntegration) {
                               navigate(
                                 generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
                                   integrationGroup: IntegrationsTabsOptionsEnum.Lago,
@@ -732,6 +746,40 @@ const Integrations = () => {
                             } else {
                               openAddXeroDialog()
                             }
+                          }}
+                        />
+                      )}
+                      {!isProductCatalogEnabled && hasAccessToQuickbooksPremiumIntegration && (
+                        <Selector
+                          data-test={INTEGRATIONS_QUICKBOOKS_TEST_ID}
+                          fullWidth
+                          title={translate('text_179543424168937zditnx1d9')}
+                          subtitle={translate('text_661ff6e56ef7e1b7c542b245')}
+                          endContent={getEndContent({
+                            showConnectedBadge: hasQuickbooksIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasQuickbooksIntegration,
+                            generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              <Quickbooks />
+                            </Avatar>
+                          }
+                          onClick={() => {
+                            if (!hasQuickbooksIntegration && canCreateIntegration) {
+                              openAddQuickbooksDialog()
+                              return
+                            }
+
+                            navigate(
+                              generatePath(QUICKBOOKS_INTEGRATION_ROUTE, {
+                                integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                              }),
+                            )
                           }}
                         />
                       )}

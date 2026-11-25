@@ -27,6 +27,14 @@ gql`
           integrationType
           isDefault
         }
+        ... on QuickbooksCustomer {
+          __typename
+          id
+          code
+          integrationCode
+          integrationType
+          isDefault
+        }
         ... on AnrokCustomer {
           __typename
           id
