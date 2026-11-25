@@ -22,6 +22,7 @@ import { AmountFieldStates } from '../stories/amount-input-field-examples'
 import {
   CheckboxFields,
   CheckboxGroupFields,
+  ChoiceFormReset,
   RadioFields,
   SelectAllCheckboxes,
   verifyChoiceLayout,
@@ -243,3 +244,5 @@ export const WithRadioGroup: Story = {
   render: () => <RadioFields />,
   play: ({ canvasElement }) => verifyChoiceLayout(canvasElement),
 }
+
+export const WithChoiceReset: Story = { render: () => <ChoiceFormReset /> }

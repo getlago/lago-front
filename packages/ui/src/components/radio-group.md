@@ -17,7 +17,7 @@ import { RadioGroup, RadioGroupItem } from 'lago-ui/radio-group'
 
 RadioGroup owns value/defaultValue/onValueChange, name, disabled and readOnly. Values may be strings, numbers or booleans; null represents no controlled selection. RadioGroupItem requires value and supports item-level disabled/readOnly, refs and ARIA. The group ref targets its div; the item ref targets its visible button. className is a string. Item rendering and indicator children are owned by the wrapper.
 
-Validation is caller-owned: set aria-invalid and aria-describedby, then render FieldError. No internal validation/error state, translation, or label props. Native form serialization is handled by Base UI's hidden input. Native reset restores uncontrolled defaults; controlled values remain the caller's responsibility. These components do not change v1 or its Formik/TanStack adapters.
+Validation is caller-owned: set aria-invalid and aria-describedby, then render FieldError. No internal validation/error state, translation, or label props. Native form serialization is handled by Base UI's hidden input. Native reset restores uncontrolled defaults in both the visible control and submitted values, including an external form linked with `form`. Cancelled resets leave the selection unchanged. Controlled values remain the caller's responsibility. These components do not change v1 or its Formik/TanStack adapters.
 
 ## Examples
 
@@ -54,3 +54,5 @@ Field keeps 8px between control and label/content, 4px between label and descrip
 - [Base UI](https://base-ui.com/react/components/radio-group)
 - [Field](./field.md)
 - Storybook: Components / RadioGroup (standalone states), Components / Field (compositions)
+
+The Field / With Choice Reset story demonstrates changing and resetting both controls.

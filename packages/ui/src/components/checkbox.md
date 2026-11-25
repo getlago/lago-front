@@ -17,7 +17,7 @@ import { Field, FieldContent, FieldDescription, FieldLabel } from 'lago-ui/field
 
 Base UI checked/defaultChecked/onCheckedChange, indeterminate, disabled, readOnly, name/value, inputRef and ARIA props pass through. The forwarded ref points to the visible button. className is a string. Rendering, children and nativeButton are owned by the wrapper. Use indeterminate separately from the boolean checked value; undefined does not mean mixed.
 
-Validation is caller-owned: set aria-invalid and aria-describedby, then render FieldError. No internal validation/error state, translation, or label props. Native form serialization is handled by Base UI's hidden input. Native reset restores uncontrolled defaults; controlled values remain the caller's responsibility. These components do not change v1 or its Formik/TanStack adapters.
+Validation is caller-owned: set aria-invalid and aria-describedby, then render FieldError. No internal validation/error state, translation, or label props. Native form serialization is handled by Base UI's hidden input. Native reset restores uncontrolled defaults in both the visible control and submitted values, including an external form linked with `form`. Cancelled resets leave the selection unchanged. Controlled values remain the caller's responsibility. These components do not change v1 or its Formik/TanStack adapters.
 
 ## Examples
 
@@ -51,3 +51,5 @@ Field keeps 8px between control and label/content, 4px between label and descrip
 - [Base UI](https://base-ui.com/react/components/checkbox)
 - [Field](./field.md)
 - Storybook: Components / Checkbox (standalone states), Components / Field (compositions)
+
+The Field / With Choice Reset story demonstrates changing and resetting both controls.

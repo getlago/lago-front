@@ -126,4 +126,37 @@ it('submits the selected value and restores the default on native reset', async 
   expect(new FormData(form).get('collection')).toBe('manual')
   await user.click(screen.getByText('Reset'))
   expect(new FormData(form).get('collection')).toBe('automatic')
+  expect(screen.getByRole('radio', { name: 'Automatic' })).toBeChecked()
+  expect(screen.getByRole('radio', { name: 'Manual' })).not.toBeChecked()
+})
+
+it('returns to no selection on reset and honors cancellation of changes', async () => {
+  const user = userEvent.setup()
+  const change = jest.fn()
+  const inputRef = createRef<HTMLInputElement>()
+  const { rerender } = render(
+    <form>
+      <RadioGroup inputRef={inputRef} onValueChange={change}>
+        <RadioGroupItem value="auto" aria-label="Automatic" />
+      </RadioGroup>
+      <button type="reset">Reset</button>
+    </form>,
+  )
+
+  await user.click(screen.getByRole('radio'))
+  expect(inputRef.current?.checked).toBe(true)
+  await user.click(screen.getByText('Reset'))
+  expect(screen.getByRole('radio')).not.toBeChecked()
+  expect(inputRef.current?.checked).toBe(false)
+  expect(change).toHaveBeenCalledTimes(1)
+  rerender(
+    <form>
+      <RadioGroup onValueChange={(_, details) => details.cancel()}>
+        <RadioGroupItem value="auto" aria-label="Automatic" />
+      </RadioGroup>
+      <button type="reset">Reset</button>
+    </form>,
+  )
+  await user.click(screen.getByRole('radio'))
+  expect(screen.getByRole('radio')).not.toBeChecked()
 })

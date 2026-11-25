@@ -1,5 +1,6 @@
 import { type ReactElement, useId, useState } from 'react'
 
+import { Button } from '../components/button'
 import { Checkbox } from '../components/checkbox'
 import {
   Field,
@@ -199,7 +200,7 @@ export function RadioFields(): ReactElement {
   return (
     <FieldGroup>
       {['Basic', ...states, 'One disabled option'].map((state) => {
-        const groupId = `${id}-${state}`
+        const groupId = `${id}-${state.replaceAll(' ', '-')}`
 
         return (
           <FieldSet key={state} disabled={state === 'Disabled'}>
@@ -303,4 +304,31 @@ export function verifyChoiceLayout(canvas: HTMLElement): void {
         throw new Error('Error must span the Field with a 4px gap')
     }
   }
+}
+
+export function ChoiceFormReset(): ReactElement {
+  const id = useId()
+
+  return (
+    <form>
+      <FieldGroup>
+        <Field orientation="horizontal">
+          <Checkbox id={`${id}-email`} name="email" defaultChecked />
+          <FieldLabel htmlFor={`${id}-email`}>Email notifications</FieldLabel>
+        </Field>
+        <FieldSet>
+          <FieldLegend id={`${id}-legend`}>Payment collection</FieldLegend>
+          <RadioGroup name="collection" defaultValue="automatic" aria-labelledby={`${id}-legend`}>
+            {collectionMethods.map((option) => (
+              <Field key={option.value} orientation="horizontal">
+                <RadioGroupItem id={`${id}-${option.value}`} value={option.value} />
+                <FieldLabel htmlFor={`${id}-${option.value}`}>{option.label}</FieldLabel>
+              </Field>
+            ))}
+          </RadioGroup>
+        </FieldSet>
+        <Button type="reset">Reset choices</Button>
+      </FieldGroup>
+    </form>
+  )
 }

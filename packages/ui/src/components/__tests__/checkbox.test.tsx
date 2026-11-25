@@ -108,6 +108,8 @@ it('submits checked values, omits disabled fields, resets and never submits on t
   expect(submit).not.toHaveBeenCalled()
   await user.click(screen.getByText('Reset'))
   expect(new FormData(form).getAll('notifications')).toEqual(['email'])
+  expect(screen.getByRole('checkbox', { name: 'Email' })).toBeChecked()
+  expect(screen.getByRole('checkbox', { name: 'Receipts' })).not.toBeChecked()
 })
 
 it('supports a disabled native fieldset without making its labels interactive', async () => {
@@ -134,4 +136,48 @@ it('honors cancellation without duplicating state', async () => {
   render(<Checkbox aria-label="Approval" onCheckedChange={(_, details) => details.cancel()} />)
   await user.click(screen.getByRole('checkbox'))
   expect(screen.getByRole('checkbox')).not.toBeChecked()
+})
+
+it('resets an externally associated form, preserves input refs and respects canceled resets', async () => {
+  const user = userEvent.setup()
+  const inputRef = createRef<HTMLInputElement>()
+  const { rerender } = render(
+    <>
+      <form id="external" onReset={(event) => event.preventDefault()}>
+        <button type="reset">Reset</button>
+      </form>
+      <Checkbox form="external" inputRef={inputRef} defaultChecked aria-label="External" />
+    </>,
+  )
+
+  await user.click(screen.getByRole('checkbox'))
+  await user.click(screen.getByText('Reset'))
+  expect(screen.getByRole('checkbox')).not.toBeChecked()
+  expect(inputRef.current?.checked).toBe(false)
+  rerender(
+    <>
+      <form id="external">
+        <button type="reset">Reset</button>
+      </form>
+      <Checkbox form="external" inputRef={inputRef} defaultChecked aria-label="External" />
+    </>,
+  )
+  await user.click(screen.getByText('Reset'))
+  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(inputRef.current?.checked).toBe(true)
+})
+
+it('leaves controlled selection with the caller when resetting', async () => {
+  const user = userEvent.setup()
+  const change = jest.fn()
+
+  render(
+    <form>
+      <Checkbox checked onCheckedChange={change} aria-label="Controlled" />
+      <button type="reset">Reset</button>
+    </form>,
+  )
+  await user.click(screen.getByText('Reset'))
+  expect(screen.getByRole('checkbox')).toBeChecked()
+  expect(change).not.toHaveBeenCalled()
 })

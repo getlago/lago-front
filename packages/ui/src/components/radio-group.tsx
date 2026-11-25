@@ -4,6 +4,7 @@ import * as React from 'react'
 
 import './choice-control.css'
 
+import { useFormResetValue } from '../lib/use-form-reset-value'
 import { cn } from '../lib/utils'
 
 export type RadioGroupProps = Omit<
@@ -14,11 +15,22 @@ export type RadioGroupProps = Omit<
 }
 
 export const RadioGroup = React.forwardRef<HTMLDivElement, RadioGroupProps>(
-  ({ className, ...props }, ref): React.ReactElement => {
+  (
+    { className, value, defaultValue = null, onValueChange, inputRef, ...props },
+    ref,
+  ): React.ReactElement => {
+    const selection = useFormResetValue(value, defaultValue, inputRef, props.form)
+
     return (
       <GroupPrimitive
         {...props}
         ref={ref}
+        value={selection.value}
+        inputRef={selection.inputRef}
+        onValueChange={(nextValue, details): void => {
+          onValueChange?.(nextValue, details)
+          if (!details.isCanceled) selection.setValue(nextValue)
+        }}
         data-slot="radio-group"
         className={cn('flex min-w-0 flex-col gap-2', className)}
       />

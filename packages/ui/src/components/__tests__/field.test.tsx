@@ -1,6 +1,7 @@
 import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { RadioFields } from '../../stories/choice-field-examples'
 import { Field, FieldContent, FieldDescription, FieldError, FieldHelp, FieldLabel } from '../field'
 import { Input } from '../input'
 import { TooltipProvider } from '../tooltip'
@@ -41,4 +42,14 @@ it('opens help with keyboard focus and dismisses with Escape', async () => {
   await user.keyboard('{Escape}')
   expect(screen.queryByRole('tooltip')).not.toBeInTheDocument()
   expect(screen.getByRole('button')).toHaveFocus()
+})
+
+it('connects the radio example with one disabled option to its heading and descriptions', () => {
+  render(<RadioFields />)
+  const group = screen.getByRole('radiogroup', { name: 'Payment collection · One disabled option' })
+
+  expect(group).toHaveAccessibleDescription('Choose how to collect invoice payments.')
+  expect(group.querySelector('[aria-describedby]')).toHaveAccessibleDescription(
+    'Charge the saved payment method.',
+  )
 })
