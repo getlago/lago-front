@@ -6,8 +6,8 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 const mockUpdateIntlLocale = jest.fn()
 let mockUseInternationalizationVar = {}
 
-jest.mock('~/core/apolloClient', () => ({
-  ...jest.requireActual('~/core/apolloClient'),
+jest.mock('~/core/apolloClient/reactiveVars/internationalizationVar', () => ({
+  ...jest.requireActual('~/core/apolloClient/reactiveVars/internationalizationVar'),
   useInternationalizationVar: () => mockUseInternationalizationVar,
   updateIntlLocale: () => mockUpdateIntlLocale,
 }))

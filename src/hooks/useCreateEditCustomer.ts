@@ -86,6 +86,17 @@ gql`
         isDefault
         syncWithProvider
       }
+      ... on QuickbooksCustomer {
+        __typename
+        id
+        integrationId
+        externalCustomerId
+        integrationCode
+        code
+        integrationType
+        isDefault
+        syncWithProvider
+      }
       ... on HubspotCustomer {
         __typename
         id

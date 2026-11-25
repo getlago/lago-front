@@ -31,6 +31,10 @@ gql`
         id
         isDefault
       }
+      ... on QuickbooksCustomer {
+        id
+        isDefault
+      }
       ... on AnrokCustomer {
         id
         isDefault

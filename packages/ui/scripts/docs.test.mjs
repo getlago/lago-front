@@ -21,9 +21,12 @@ const REQUIRED_SECTIONS = [
 ]
 const STALE_REFERENCES = ['/design-system/', 'src/components/ui', 'styles/v2', "from '~/"]
 
-const components = readdirSync(componentsDir)
-  .filter((file) => file.endsWith('.tsx') && !file.endsWith('.stories.tsx'))
-  .map((file) => file.replace(/\.tsx$/, ''))
+const components = readdirSync(componentsDir, { recursive: true })
+  .filter(
+    (file) =>
+      file.endsWith('.tsx') && !file.endsWith('.stories.tsx') && !file.includes('__tests__/'),
+  )
+  .map((file) => (file.includes('/') ? file.split('/')[0] : file.replace(/\.tsx$/, '')))
 
 const markdownFiles = guidePaths().map((guide) => join(root, guide))
 
@@ -126,4 +129,9 @@ test('the published AI docs keep every guide, its links and an llms.txt entry', 
       )
     }
   }
+})
+
+test('Combobox implementation subpaths stay private', () => {
+  const manifest = JSON.parse(read(join(root, 'package.json')))
+  assert.equal(manifest.exports['./combobox/*'], null)
 })

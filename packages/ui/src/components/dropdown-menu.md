@@ -1,6 +1,6 @@
 # Dropdown menu
 
-Menu of actions, toggles or choices opened from a trigger, built on Radix Dropdown Menu.
+Menu of actions, toggles or choices opened from a trigger, built on Base UI Menu.
 
 ## When to use
 
@@ -59,7 +59,7 @@ import { Pencil } from 'lucide-react'
 
 ## Accessibility
 
-- Radix handles focus, typeahead, arrow keys, collision and Escape.
+- Base UI handles focus, typeahead, arrow keys, collision and Escape.
 - Leading icons are decorative: `aria-hidden="true"`.
 - An item with a description: set `textValue` and `aria-label` to the action label, and link the description with a unique `aria-describedby` id.
 - Shortcut text is decorative: register keyboard shortcuts separately in the application.
@@ -71,9 +71,11 @@ import { Pencil } from 'lucide-react'
 - Content: width follows content, 132px minimum and 240px maximum, both capped to the available viewport width (8px collision padding). Main menus and submenus share these rules; override with `className`. 12px radius, 4px padding, `surface-floating`, `shadow-v2-floating`, `border-divider`. Constrained to the viewport and scrolls vertically.
 - Plain-text item labels and group headings truncate to one line with an ellipsis; icons, shortcuts and indicators keep their space. Full text stays available to assistive technology and typeahead. For custom label/description markup, use a `min-w-0` wrapper and `truncate` on each text line.
 - `DropdownMenuItem asChild` (and the checkbox, radio and sub-trigger items) keeps its single child, so a router link renders and activates.
+- Group headings: 28px high with 8px padding, using `v2-text-caption` and `text-text-muted`, matching the Figma label row.
 - Rows: minimum 36px high, 8px padding, gap and radius. Hover uses `interactive-hover`, press uses `interactive-pressed`.
 - Checkbox and radio indicators sit on the right. Leading Lucide icons use `icon-muted`, 14px, stroke 2.
 - `DropdownMenuSeparator` spans the inner menu width; do not put the standalone `Separator` inside a menu.
+- Use flex/grid `gap` for trigger layouts; Base UI inserts invisible focus guards while open, which participate in sibling-based `space-*` selectors.
 - Layer 2100: above dialogs (2000), below toasts (2200) and tooltips (2400).
 - Wrap the region in [`ColorTheme`](./color-theme.md); the menu and submenu portals inherit it through `ColorThemePortal`.
 

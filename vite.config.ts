@@ -8,6 +8,7 @@ import topLevelAwait from 'vite-plugin-top-level-await'
 import wasm from 'vite-plugin-wasm'
 
 import { version } from './package.json'
+import { versionStampPlugin } from './src/core/appVersion/versionStampPlugin'
 
 const icons: Record<string, string> = {
   development: '/favicon-local.svg',
@@ -59,6 +60,8 @@ export default defineConfig(({ mode }) => {
         },
       },
     }),
+
+    versionStampPlugin(),
   ]
 
   // Add Sentry plugin only in production builds with required env vars

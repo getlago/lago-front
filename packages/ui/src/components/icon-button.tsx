@@ -8,7 +8,7 @@ export interface IconButtonProps extends Omit<
   'size' | 'asChild' | 'aria-label' | 'aria-labelledby'
 > {
   label: string
-  size?: 'icon-sm' | 'icon' | 'icon-lg'
+  size?: 'icon-xs' | 'icon-sm' | 'icon' | 'icon-lg'
 }
 
 /** Requires a shared TooltipProvider around the containing shadcn region. */

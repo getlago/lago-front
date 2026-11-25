@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useState } from 'react'
 
@@ -257,4 +257,180 @@ describe('Shadcn DropdownMenu', () => {
     await userEvent.click(screen.getByRole('menuitemcheckbox'))
     await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
   })
+})
+
+it.each(['pointer', 'keyboard'])(
+  'keeps a canceled checkbox selection open while updating its value via %s',
+  async (interaction) => {
+    const onCheckedChange = jest.fn()
+    const onSelect = jest.fn((event: Event) => event.preventDefault())
+    const user = userEvent.setup()
+
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuCheckboxItem
+            checked="indeterminate"
+            closeOnSelect
+            onSelect={onSelect}
+            onCheckedChange={onCheckedChange}
+          >
+            Columns
+          </DropdownMenuCheckboxItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Options' }))
+    const item = await screen.findByRole('menuitemcheckbox', { name: 'Columns' })
+
+    expect(item).toHaveAttribute('aria-checked', 'mixed')
+    if (interaction === 'pointer') await user.click(item)
+    else {
+      act(() => item.focus())
+      await user.keyboard('{Enter}')
+    }
+    expect(onSelect).toHaveBeenCalledTimes(1)
+    expect(onCheckedChange).toHaveBeenCalledTimes(1)
+    expect(onCheckedChange).toHaveBeenCalledWith(true)
+    expect(screen.getByRole('menu')).toBeVisible()
+  },
+)
+
+it('keeps a canceled action open without blocking its slotted link semantics', async () => {
+  const user = userEvent.setup()
+  const onSelect = jest.fn((event: Event) => event.preventDefault())
+
+  render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem asChild onSelect={onSelect}>
+          <a href="#details">Details</a>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Options' }))
+  const item = await screen.findByRole('menuitem', { name: 'Details' })
+
+  await user.click(item)
+  expect(onSelect).toHaveBeenCalledTimes(1)
+  expect(item).toHaveAttribute('href', '#details')
+  expect(screen.getByRole('menu')).toBeVisible()
+})
+
+it('closes the full menu from a submenu on Escape and restores the root trigger', async () => {
+  render(<Example />)
+  const user = await openKeyboard()
+
+  await user.keyboard('{End}{ArrowRight}')
+  await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Finance' })).toHaveFocus())
+  await user.keyboard('{Escape}')
+  await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument())
+  expect(screen.getByRole('button', { name: 'Actions' })).toHaveFocus()
+})
+
+it('skips a disabled first item when opening from the keyboard', async () => {
+  render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem disabled>Unavailable</DropdownMenuItem>
+        <DropdownMenuItem>Available</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  )
+  const user = userEvent.setup()
+
+  await user.tab()
+  await user.keyboard('{Enter}')
+  await waitFor(() => expect(screen.getByRole('menuitem', { name: 'Available' })).toHaveFocus())
+})
+
+it('honors click cancellation before selection or checkbox changes', async () => {
+  const user = userEvent.setup()
+  const onSelect = jest.fn()
+  const onCheckedChange = jest.fn()
+
+  render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuCheckboxItem
+          onClick={(event) => event.preventDefault()}
+          onSelect={onSelect}
+          onCheckedChange={onCheckedChange}
+        >
+          Columns
+        </DropdownMenuCheckboxItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Options' }))
+  const item = await screen.findByRole('menuitemcheckbox', { name: 'Columns' })
+
+  expect(item).toHaveAttribute('aria-checked', 'false')
+  await user.click(item)
+  expect(onSelect).not.toHaveBeenCalled()
+  expect(onCheckedChange).not.toHaveBeenCalled()
+  expect(screen.getByRole('menu')).toBeVisible()
+})
+
+it.each(['ArrowDown', 'ArrowUp', 'Home', 'End'])(
+  'keeps %s inside a portalled submenu with disabled root boundaries',
+  async (key) => {
+    const user = userEvent.setup()
+
+    render(
+      <DropdownMenu>
+        <DropdownMenuTrigger>Root</DropdownMenuTrigger>
+        <DropdownMenuContent>
+          <DropdownMenuItem disabled>First disabled</DropdownMenuItem>
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>More</DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem>Child one</DropdownMenuItem>
+              <DropdownMenuItem>Child two</DropdownMenuItem>
+              <DropdownMenuItem>Child three</DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+          <DropdownMenuItem disabled>Last disabled</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>,
+    )
+    await user.click(screen.getByRole('button', { name: 'Root' }))
+    const more = await screen.findByRole('menuitem', { name: 'More' })
+
+    act(() => more.focus())
+    await user.keyboard('{ArrowRight}')
+    const second = await screen.findByRole('menuitem', { name: 'Child two' })
+
+    act(() => second.focus())
+    await user.keyboard(`{${key}}`)
+    const expected = key === 'Home' || key === 'ArrowUp' ? 'Child one' : 'Child three'
+
+    await waitFor(() => expect(screen.getByRole('menuitem', { name: expected })).toHaveFocus())
+  },
+)
+
+it('skips a disabled last item on ArrowUp from a mouse-opened popup', async () => {
+  const user = userEvent.setup()
+
+  render(
+    <DropdownMenu>
+      <DropdownMenuTrigger>Options</DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem>First</DropdownMenuItem>
+        <DropdownMenuItem>Last enabled</DropdownMenuItem>
+        <DropdownMenuItem disabled>Unavailable</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  )
+  await user.click(screen.getByRole('button', { name: 'Options' }))
+  const menu = await screen.findByRole('menu')
+
+  await waitFor(() => expect(menu).toHaveFocus())
+  await user.keyboard('{ArrowUp}')
+  expect(screen.getByRole('menuitem', { name: 'Last enabled' })).toHaveFocus()
 })

@@ -31,7 +31,7 @@ const CustomerActionsMenu = ({ icon = false }: { icon?: boolean }): JSX.Element 
   const [action, setAction] = useState('No action selected')
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col items-start gap-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           {icon ? (

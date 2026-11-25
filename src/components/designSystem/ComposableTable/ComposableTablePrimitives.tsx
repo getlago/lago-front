@@ -63,6 +63,8 @@ export const ComposableTableRoot = ({
   'data-test'?: string
 }): JSX.Element => (
   <div className="w-full overflow-x-auto" data-test={dataTest}>
-    <table className="w-full border-separate border-spacing-0">{children}</table>
+    <table className="w-full border-separate border-spacing-0 [&_tr>*:first-child]:pl-1 [&_tr>*:last-child]:pr-1">
+      {children}
+    </table>
   </div>
 )

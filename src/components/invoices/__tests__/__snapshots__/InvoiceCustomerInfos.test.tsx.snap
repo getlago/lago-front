@@ -3,107 +3,67 @@
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted customer 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        Deleted Corporation
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          Deleted Corporation
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Email
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          deleted@example.com
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-DELETED
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC±0:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC±0:00
+            deleted@example.com
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-DELETED
           </div>
         </div>
       </div>
@@ -111,36 +71,83 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted c
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC±0:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC±0:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Finalized
+            Net 30 days
           </div>
         </div>
       </div>
@@ -148,20 +155,49 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted c
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
@@ -173,181 +209,49 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for deleted c
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for draft invoice 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/customer-1"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Acme Corporation
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/customer-1"
+          >
+            Acme Corporation
+          </a>
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Legal name
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Acme Corporation Legal
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Legal number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          LN-123456
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Email
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          billing@acme.com
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Address
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          123 Main Street
-Suite 100
-San Francisco, CA 94102
-United States of America
-
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Tax ID number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          TAX-789
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-DRAFT
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC-8:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC-8:00
+            Acme Corporation Legal
           </div>
         </div>
       </div>
@@ -355,36 +259,191 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Legal number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            LN-123456
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Email
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            billing@acme.com
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Address
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            123 Main Street
+Suite 100
+San Francisco, CA 94102
+United States of America
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Tax ID number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            TAX-789
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-DRAFT
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC-8:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC-8:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-white outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Draft
+            Net 30 days
           </div>
         </div>
       </div>
@@ -392,16 +451,45 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-white outline-grey-400"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Draft
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          -
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
         </div>
       </div>
     </div>
@@ -412,181 +500,49 @@ United States of America
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice with full customer information 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/customer-1"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Acme Corporation
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/customer-1"
+          >
+            Acme Corporation
+          </a>
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Legal name
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Acme Corporation Legal
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Legal number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          LN-123456
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Email
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          billing@acme.com
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Address
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          123 Main Street
-Suite 100
-San Francisco, CA 94102
-United States of America
-
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Tax ID number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          TAX-789
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-001
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC-8:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC-8:00
+            Acme Corporation Legal
           </div>
         </div>
       </div>
@@ -594,36 +550,191 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Legal number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            LN-123456
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Email
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            billing@acme.com
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Address
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            123 Main Street
+Suite 100
+San Francisco, CA 94102
+United States of America
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Tax ID number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            TAX-789
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-001
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC-8:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC-8:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Finalized
+            Net 30 days
           </div>
         </div>
       </div>
@@ -631,20 +742,49 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
@@ -656,97 +796,53 @@ United States of America
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice with minimal customer information 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/customer-minimal"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Minimal Customer
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/customer-minimal"
+          >
+            Minimal Customer
+          </a>
+        </div>
       </div>
     </div>
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Invoice number
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-MINIMAL
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC±0:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC±0:00
+            INV-MINIMAL
           </div>
         </div>
       </div>
@@ -754,36 +850,83 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC±0:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC±0:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Finalized
+            Net 30 days
           </div>
         </div>
       </div>
@@ -791,20 +934,49 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
@@ -816,181 +988,49 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice w
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for invoice with payment dispute lost 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/customer-1"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Acme Corporation
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/customer-1"
+          >
+            Acme Corporation
+          </a>
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Legal name
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Acme Corporation Legal
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Legal number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          LN-123456
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Email
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          billing@acme.com
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Address
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          123 Main Street
-Suite 100
-San Francisco, CA 94102
-United States of America
-
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Tax ID number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          TAX-789
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-DISPUTE
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC-8:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC-8:00
+            Acme Corporation Legal
           </div>
         </div>
       </div>
@@ -998,36 +1038,216 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Legal number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            LN-123456
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Email
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            billing@acme.com
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Address
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            123 Main Street
+Suite 100
+San Francisco, CA 94102
+United States of America
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Tax ID number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            TAX-789
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-DISPUTE
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC-8:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC-8:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Net 30 days
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Net 30 days
+          </div>
         </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Invoice status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
           >
-            Finalized
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
           </div>
         </div>
       </div>
@@ -1035,20 +1255,24 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
@@ -1056,21 +1280,25 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Disputed
         </div>
         <div
-          class="flex flex-wrap items-center gap-2"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          <svg
-            class="text-yellow-600 size-4 min-w-4"
-            data-filename="warning-filled.svg"
-            data-test="warning-filled/medium"
-            title="warning-filled/medium"
-          />
-          Dispute lost on Jan 20, 2024
+          <div
+            class="flex flex-wrap items-center gap-2"
+          >
+            <svg
+              class="text-yellow-600 size-4 min-w-4"
+              data-filename="warning-filled.svg"
+              data-test="warning-filled/medium"
+              title="warning-filled/medium"
+            />
+            Dispute lost on Jan 20, 2024
+          </div>
         </div>
       </div>
     </div>
@@ -1081,28 +1309,32 @@ United States of America
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for null invoice 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     />
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          -
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
         </div>
       </div>
     </div>
@@ -1113,191 +1345,231 @@ exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for null invo
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for overdue invoice 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Customer name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/customer-1"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Acme Corporation
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/customer-1"
+          >
+            Acme Corporation
+          </a>
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Legal name
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Acme Corporation Legal
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Legal number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          LN-123456
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Email
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          billing@acme.com
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Address
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          123 Main Street
-Suite 100
-San Francisco, CA 94102
-United States of America
-
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Tax ID number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          TAX-789
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-OVERDUE
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC-8:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Jan 1, 2024 UTC-8:00
+            Acme Corporation Legal
           </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Legal number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
           <div
-            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-red-100 outline-red-200"
-            data-test="status"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            LN-123456
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Email
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            billing@acme.com
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Address
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            123 Main Street
+Suite 100
+San Francisco, CA 94102
+United States of America
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Tax ID number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            TAX-789
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-OVERDUE
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC-8:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
           >
             <div
-              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-              data-test="captionHl"
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
             >
-              Overdue
+              Jan 1, 2024 UTC-8:00
+            </div>
+            <div
+              class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-red-100 outline-red-200"
+              data-test="status"
+            >
+              <div
+                class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+                data-test="captionHl"
+              >
+                Overdue
+              </div>
             </div>
           </div>
         </div>
@@ -1306,36 +1578,19 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Finalized
+            Net 30 days
           </div>
         </div>
       </div>
@@ -1343,20 +1598,49 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
@@ -1368,180 +1652,49 @@ United States of America
 exports[`InvoiceCustomerInfos Snapshot Tests should match snapshot for partner customer 1`] = `
 <div>
   <div
-    class="flex flex-row gap-8 py-6"
+    class="flex flex-row flex-wrap gap-x-8 gap-y-2 py-6"
   >
     <div
-      class="flex flex-1 flex-col gap-2"
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
     >
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Partner name
         </div>
-        <a
-          class="*:text-blue-600"
-          data-discover="true"
-          href="/customer/partner-customer"
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
-          Partner Corporation
-        </a>
+          <a
+            class="*:text-blue-600"
+            data-discover="true"
+            href="/customer/partner-customer"
+          >
+            Partner Corporation
+          </a>
+        </div>
       </div>
       <div
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Legal name
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Partner Corp Legal
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Legal number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          PARTNER-001
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Email
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          partner@example.com
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Address
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          456 Partner Ave
-New York City, NY 10001
-United States of America
-
-        </div>
-      </div>
-    </div>
-    <div
-      class="flex flex-1 flex-col gap-2"
-    >
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Tax ID number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          PARTNER-TAX
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          INV-PARTNER
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          PO number
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          -
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Issuing date
-        </div>
-        <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Jan 15, 2024 UTC-5:00
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Due date
-        </div>
-        <div
-          class="flex flex-wrap items-baseline gap-3"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
             class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
             data-test="body"
           >
-            Feb 15, 2024 UTC-5:00
+            Partner Corp Legal
           </div>
         </div>
       </div>
@@ -1549,36 +1702,190 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Legal number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            PARTNER-001
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Email
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            partner@example.com
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Address
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            456 Partner Ave
+New York City, NY 10001
+United States of America
+
+          </div>
+        </div>
+      </div>
+    </div>
+    <div
+      class="flex min-w-0 flex-1 basis-80 flex-col gap-2"
+    >
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Tax ID number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            PARTNER-TAX
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            INV-PARTNER
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          PO number
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            -
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Issuing date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
+          >
+            Jan 15, 2024 UTC-5:00
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Due date
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex flex-wrap items-baseline gap-3"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+              data-test="body"
+            >
+              Feb 15, 2024 UTC-5:00
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment term
         </div>
         <div
-          class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
-          data-test="body"
-        >
-          Net 30 days
-        </div>
-      </div>
-      <div
-        class="flex items-start gap-2"
-      >
-        <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
-          data-test="caption"
-        >
-          Invoice status
-        </div>
-        <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class=MuiTypography-root MuiTypography-body whitespace-pre-line css-hash-MuiTypography-root
+            data-test="body"
           >
-            Finalized
+            Net 30 days
           </div>
         </div>
       </div>
@@ -1586,20 +1893,49 @@ United States of America
         class="flex items-start gap-2"
       >
         <div
-          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 css-hash-MuiTypography-root
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
+          data-test="caption"
+        >
+          Invoice status
+        </div>
+        <div
+          class="min-w-0 [overflow-wrap:anywhere]"
+        >
+          <div
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-green-100 outline-green-200"
+            data-test="status"
+          >
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Finalized
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="flex items-start gap-2"
+      >
+        <div
+          class=MuiTypography-root MuiTypography-caption MuiTypography-noWrap min-w-35 shrink-0 css-hash-MuiTypography-root
           data-test="caption"
         >
           Payment status
         </div>
         <div
-          class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
-          data-test="status"
+          class="min-w-0 [overflow-wrap:anywhere]"
         >
           <div
-            class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
-            data-test="captionHl"
+            class="flex h-fit min-h-8 w-fit items-center gap-2 rounded-lg px-2 outline outline-1 -outline-offset-1 bg-grey-100 outline-grey-400"
+            data-test="status"
           >
-            Pending
+            <div
+              class=MuiTypography-root MuiTypography-captionHl MuiTypography-noWrap css-hash-MuiTypography-root
+              data-test="captionHl"
+            >
+              Pending
+            </div>
           </div>
         </div>
       </div>
