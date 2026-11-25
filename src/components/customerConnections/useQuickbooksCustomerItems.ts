@@ -1,9 +1,12 @@
-import { ApolloClient, gql, useApolloClient } from '@apollo/client'
+import { ApolloClient, gql, LazyQueryExecFunction, useApolloClient } from '@apollo/client'
 import { useCallback, useMemo, useReducer, useRef } from 'react'
 
+import { getIntegrationItemLabel } from '~/components/customerConnections/getIntegrationItemLabel'
 import { BasicComboBoxData, ComboBoxProps } from '~/components/form'
 import { addToast, isSilencedGQLError } from '~/core/apolloClient'
 import {
+  GetQuickbooksCustomerItemsQuery,
+  GetQuickbooksCustomerItemsQueryVariables,
   IntegrationItemTypeEnum,
   LagoApiError,
   QuickbooksCustomerItemFragment,
@@ -13,6 +16,7 @@ import {
 } from '~/generated/graphql'
 import { usePermissions } from '~/hooks/usePermissions'
 
+// The sync mutation selects ids only: its errors are read, and refetchQueries reloads the list.
 gql`
   fragment QuickbooksCustomerItem on IntegrationItem {
     id
@@ -51,7 +55,7 @@ gql`
   mutation fetchQuickbooksCustomerItems($input: FetchIntegrationCustomersInput!) {
     fetchIntegrationCustomers(input: $input) {
       collection {
-        ...QuickbooksCustomerItem
+        id
       }
     }
   }
@@ -76,7 +80,7 @@ export const toQuickbooksCustomerOption = ({
   externalName,
 }: QuickbooksCustomerItemFragment): BasicComboBoxData => ({
   value: externalId,
-  label: externalName ? `${externalName} (${externalId})` : externalId,
+  label: getIntegrationItemLabel({ externalId, externalName }),
 })
 
 type UseQuickbooksCustomerItemsReturn = {
@@ -104,7 +108,7 @@ export const useQuickbooksCustomerItems = (
 
   const { data: countData, loading: countLoading } = useGetQuickbooksCustomerItemsCountQuery({
     variables: {
-      integrationId: integrationId as string,
+      integrationId: integrationId ?? '',
       itemType: IntegrationItemTypeEnum.Customer,
     },
     skip: !integrationId || !canListCustomers,
@@ -126,20 +130,19 @@ export const useQuickbooksCustomerItems = (
 
   integrationIdRef.current = integrationId
 
-  const search = useCallback(
-    (...args: Parameters<typeof getItems>): ReturnType<typeof getItems> | undefined => {
-      if (!integrationIdRef.current) return undefined
-
-      return getItems({
-        ...args[0],
+  const search = useCallback<
+    LazyQueryExecFunction<GetQuickbooksCustomerItemsQuery, GetQuickbooksCustomerItemsQueryVariables>
+  >(
+    (options) =>
+      getItems({
+        ...options,
         variables: {
-          ...args[0]?.variables,
-          integrationId: integrationIdRef.current,
+          ...options?.variables,
+          integrationId: integrationIdRef.current ?? '',
           itemType: IntegrationItemTypeEnum.Customer,
           limit: QUICKBOOKS_CUSTOMER_ITEMS_LIMIT,
         },
-      })
-    },
+      }),
     [getItems],
   )
 
@@ -164,8 +167,8 @@ export const useQuickbooksCustomerItems = (
   )
 
   const sync = useCallback(
-    (notifyOnError: boolean): void => {
-      if (!integrationId || !canRefresh || isRefreshingRef.current) return
+    (notifyOnError: boolean): boolean => {
+      if (!integrationId || !canRefresh || isRefreshingRef.current) return false
 
       isRefreshingRef.current = true
 
@@ -204,26 +207,35 @@ export const useQuickbooksCustomerItems = (
               : 'text_62b31e1f6a5b8b1b745ece48',
           })
         })
-        .catch(() => undefined)
+        // The error link only toasts GraphQL errors: a network failure needs its own toast
+        .catch(() => {
+          if (notifyOnError) {
+            addToast({ severity: 'danger', translateKey: 'text_62b31e1f6a5b8b1b745ece48' })
+          }
+        })
         .finally(() => {
           isRefreshingRef.current = false
         })
+
+      return true
     },
     [canRefresh, fetchCustomers, integrationId, setListTooLarge],
   )
 
-  const refresh = useCallback((): void => sync(true), [sync])
+  const refresh = useCallback((): void => {
+    sync(true)
+  }, [sync])
 
   // Nango syncs asynchronously: sync each integration once per session, so StrictMode's double
   // effect and every reopened drawer leave later syncs to the reload button.
   const refreshOnce = useCallback((): void => {
     const synced = syncedIntegrations.get(client) ?? new Set<string>()
 
-    if (!integrationId || !canRefresh || synced.has(integrationId)) return
+    if (!integrationId || synced.has(integrationId)) return
 
-    syncedIntegrations.set(client, synced.add(integrationId))
-    sync(false)
-  }, [canRefresh, client, integrationId, sync])
+    // Marked only once its sync starts: one skipped behind another integration's sync runs later
+    if (sync(false)) syncedIntegrations.set(client, synced.add(integrationId))
+  }, [client, integrationId, sync])
 
   const options = useMemo(
     () => (data?.integrationItems?.collection || []).map(toQuickbooksCustomerOption),
@@ -237,7 +249,7 @@ export const useQuickbooksCustomerItems = (
     isRefreshing,
     isListTooLarge,
     canRefresh,
-    search: search as unknown as ComboBoxProps['searchQuery'],
+    search,
     refresh,
     refreshOnce,
   }

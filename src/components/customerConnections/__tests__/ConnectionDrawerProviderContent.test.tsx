@@ -31,11 +31,21 @@ const ACCOUNTING_PROVIDER_BY_CODE: Record<string, string> = {
   'netsuite-conn': 'netsuite',
   'xero-conn': 'xero',
   'quickbooks-conn': 'quickbooks',
+  'quickbooks-conn-2': 'quickbooks',
+}
+
+const mockAccountingProviders = {
+  integrations: {
+    collection: [
+      { __typename: 'QuickbooksIntegration', id: 'qbo-a', code: 'quickbooks-conn', name: 'A' },
+      { __typename: 'QuickbooksIntegration', id: 'qbo-b', code: 'quickbooks-conn-2', name: 'B' },
+    ],
+  },
 }
 
 jest.mock('~/components/customerConnections/useAccountingProviders', () => ({
   useAccountingProviders: () => ({
-    accountingProviders: undefined,
+    accountingProviders: mockAccountingProviders,
     isLoadingAccountProviders: false,
     getAccountingProviderFromCode: (code?: string) =>
       code ? (ACCOUNTING_PROVIDER_BY_CODE[code] ?? null) : null,
@@ -58,10 +68,23 @@ jest.mock('~/components/customerConnections/useCrmProviders', () => ({
   }),
 }))
 
-// The picker queries the stored QuickBooks customers: covered by its own tests
-jest.mock('~/components/customerConnections/QuickbooksCustomerIdField', () => ({
-  QuickbooksCustomerIdField: () => <div data-test="quickbooks-customer-id-field" />,
-}))
+// The picker queries the stored QuickBooks customers: covered by its own tests. Each mount is
+// recorded with its integration, to check the picker remounts per integration.
+const mockPickerMounts = jest.fn()
+
+jest.mock('~/components/customerConnections/QuickbooksCustomerIdField', () => {
+  const { useEffect: useMockEffect } = jest.requireActual('react')
+
+  return {
+    QuickbooksCustomerIdField: ({ integrationId }: { integrationId?: string }) => {
+      useMockEffect(() => {
+        mockPickerMounts(integrationId)
+      }, [])
+
+      return <div data-test="quickbooks-customer-id-field" />
+    },
+  }
+})
 
 // The NetSuite subsidiaries query hook needs an ApolloProvider — inert here
 jest.mock('~/components/customerConnections/useAccountingProvidersSubsidaries', () => ({
@@ -416,6 +439,26 @@ describe('ConnectionDrawerProviderContent — QuickBooks customer picker', () =>
         expect(picker(container)).not.toBeInTheDocument()
         expect(externalIdInput(container)).toBeDisabled()
         expect(infoAlert(container)).toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN two QuickBooks integrations', () => {
+    describe('WHEN the user switches from A to B and back to A', () => {
+      it('THEN should remount the picker for each integration, so no list carries over', () => {
+        mockPickerMounts.mockClear()
+
+        const { rerender } = render(
+          <Harness category={ConnectionCategory.Accounting} openedValues={quickbooksValues()} />,
+        )
+        const otherValues = quickbooksValues({ providerCode: 'quickbooks-conn-2' })
+
+        rerender(<Harness category={ConnectionCategory.Accounting} openedValues={otherValues} />)
+        rerender(
+          <Harness category={ConnectionCategory.Accounting} openedValues={quickbooksValues()} />,
+        )
+
+        expect(mockPickerMounts.mock.calls).toEqual([['qbo-a'], ['qbo-b'], ['qbo-a']])
       })
     })
   })

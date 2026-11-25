@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { StrictMode } from 'react'
 
 import { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
@@ -190,15 +190,19 @@ describe('QuickbooksCustomerIdField', () => {
   })
 
   describe('GIVEN a member who cannot update integrations', () => {
-    describe('WHEN the field renders', () => {
-      it('THEN should hide the refresh button', async () => {
+    describe('WHEN customers are stored', () => {
+      it('THEN should show the id input, since the list cannot be refreshed, and no refresh button', async () => {
         mockHasPermissions.mockImplementation(
           (permissions: string[]) => !permissions.includes('organizationIntegrationsUpdate'),
         )
 
-        const { container } = renderField([buildCountMock(2)])
+        const { container } = renderField([buildCountMock(2), buildCountMock(2)])
 
-        expect(await screen.findByRole('combobox')).toBeInTheDocument()
+        // Let the count resolve: with update rights it would swap in the picker
+        await act(() => new Promise((resolve) => setTimeout(resolve, 50)))
+
+        expect(externalIdInput(container)).toBeInTheDocument()
+        expect(screen.queryByRole('combobox')).not.toBeInTheDocument()
         expect(container.querySelector('[data-test^="reload"]')).not.toBeInTheDocument()
       })
     })

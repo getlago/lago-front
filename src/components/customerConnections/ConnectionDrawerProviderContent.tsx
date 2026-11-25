@@ -24,7 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { getSubsidiaryLabel } from './getSubsidiaryLabel'
+import { getIntegrationItemLabel } from './getIntegrationItemLabel'
 import StripePaymentProviderContent from './StripePaymentProviderContent'
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
@@ -159,7 +159,7 @@ export const ConnectionDrawerProviderContent = ({
 
     return subsidiariesData.integrationSubsidiaries.collection.map((integrationSubsidiary) => ({
       value: integrationSubsidiary.externalId,
-      label: getSubsidiaryLabel(integrationSubsidiary),
+      label: getIntegrationItemLabel(integrationSubsidiary),
       labelNode: (
         <ConnectionComboBoxLabel
           label={integrationSubsidiary.externalName ?? ''}
@@ -245,6 +245,8 @@ export const ConnectionDrawerProviderContent = ({
             <>
               {isQuickbooksPickerVisible ? (
                 <QuickbooksCustomerIdField
+                  // Remounted per integration, so its list and sync state never carry over
+                  key={selectedIntegration?.id}
                   form={form}
                   integrationId={selectedIntegration?.id}
                   connectionName={connectionName}

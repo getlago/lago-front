@@ -25,7 +25,7 @@ const withSelectedOption = (
 }
 
 // External id of a QuickBooks connection: a picker of the stored QuickBooks customers, or the
-// plain id input while none is stored or the list is too large to load.
+// plain id input while none is stored, the list is too large to load or cannot be refreshed.
 export const QuickbooksCustomerIdField = ({
   form,
   integrationId,
@@ -53,12 +53,15 @@ export const QuickbooksCustomerIdField = ({
 
   const data = useMemo(() => withSelectedOption(options, selectedValue), [options, selectedValue])
 
+  // A stored list can miss the customer: the picker shows only while it can be refreshed and loads
+  const isPickerVisible = hasStoredCustomers && canRefresh && !isListTooLarge
+
   return (
     <div className="flex flex-row items-end gap-3">
       <div className="flex-1">
         <form.AppField name="externalCustomerId">
           {(field) =>
-            hasStoredCustomers && !isListTooLarge ? (
+            isPickerVisible ? (
               <field.ComboBoxField
                 data={data}
                 loading={isLoading || isRefreshing}

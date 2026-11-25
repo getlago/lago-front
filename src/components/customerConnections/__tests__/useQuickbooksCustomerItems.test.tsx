@@ -100,6 +100,19 @@ const buildFetchMock = (
   },
 })
 
+const buildNetworkErrorMock = (onCall: jest.Mock) => ({
+  request: {
+    query: FetchQuickbooksCustomerItemsDocument,
+    variables: { input: { integrationId: INTEGRATION_ID } },
+  },
+  delay: 0,
+  get error() {
+    onCall()
+
+    return new Error('Network request failed')
+  },
+})
+
 const createWrapper =
   (mocks: TestMocksType) =>
   ({ children }: { children: ReactNode }) =>
@@ -400,6 +413,103 @@ describe('useQuickbooksCustomerItems', () => {
         }),
       )
       expect(mockAddToast).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  describe('GIVEN the sync fails on the network', () => {
+    describe.each([
+      ['a clicked refresh', 'refresh', 1],
+      ['the automatic sync', 'refreshOnce', 0],
+    ] as const)('WHEN it was %s', (_, method, toastCount) => {
+      it(`THEN should add ${toastCount} fallback toast(s)`, async () => {
+        const onFetch = jest.fn()
+        const { result } = renderHook(() => useQuickbooksCustomerItems(INTEGRATION_ID), {
+          wrapper: createWrapper([buildCountMock(0), buildNetworkErrorMock(onFetch)]),
+        })
+
+        act(() => {
+          result.current[method]()
+        })
+
+        await waitFor(() => expect(onFetch).toHaveBeenCalled())
+        await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+        expect(mockAddToast).toHaveBeenCalledTimes(toastCount)
+      })
+    })
+  })
+
+  describe('GIVEN a sync running for another integration', () => {
+    describe('WHEN the automatic sync of a second integration is skipped', () => {
+      it('THEN should run it on the next call, once the first sync ended', async () => {
+        const OTHER_ID = 'qbo-integration-2'
+        const onFetch = jest.fn()
+        const onOtherFetch = jest.fn()
+        const { result, rerender } = renderHook(
+          ({ integrationId }) => useQuickbooksCustomerItems(integrationId),
+          {
+            initialProps: { integrationId: INTEGRATION_ID },
+            wrapper: createWrapper([
+              buildCountMock(0),
+              buildFetchMock(onFetch),
+              buildCountMock(0),
+              {
+                request: {
+                  query: GetQuickbooksCustomerItemsCountDocument,
+                  variables: {
+                    integrationId: OTHER_ID,
+                    itemType: IntegrationItemTypeEnum.Customer,
+                  },
+                },
+                result: {
+                  data: {
+                    integrationItems: {
+                      __typename: 'IntegrationItemCollection',
+                      metadata: { __typename: 'CollectionMetadata', totalCount: 0 },
+                    },
+                  },
+                },
+                maxUsageCount: 5,
+              },
+              {
+                request: {
+                  query: FetchQuickbooksCustomerItemsDocument,
+                  variables: { input: { integrationId: OTHER_ID } },
+                },
+                result: () => {
+                  onOtherFetch()
+
+                  return {
+                    data: {
+                      fetchIntegrationCustomers: {
+                        __typename: 'IntegrationItemCollection',
+                        collection: [],
+                      },
+                    },
+                  }
+                },
+              },
+            ]),
+          },
+        )
+
+        act(() => {
+          result.current.refresh()
+        })
+        rerender({ integrationId: OTHER_ID })
+        act(() => {
+          result.current.refreshOnce()
+        })
+
+        await waitFor(() => expect(onFetch).toHaveBeenCalledTimes(1))
+        await waitFor(() => expect(result.current.isRefreshing).toBe(false))
+        expect(onOtherFetch).not.toHaveBeenCalled()
+
+        act(() => {
+          result.current.refreshOnce()
+        })
+
+        await waitFor(() => expect(onOtherFetch).toHaveBeenCalledTimes(1))
+      })
     })
   })
 

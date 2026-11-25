@@ -27,7 +27,6 @@ gql`
           id
           code
           name
-          sandbox
         }
       }
     }
