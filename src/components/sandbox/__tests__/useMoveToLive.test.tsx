@@ -72,6 +72,7 @@ const RATE_MISMATCH_KEY = 'text_1795597376102tkbcu8a4f52'
 const CURRENCY_MISMATCH_KEY = 'text_17955199987175qsul4nkfxe'
 const FEATURE_UNAVAILABLE_KEY = 'text_1795619366911o3vnwd5udy6'
 const FILTER_NOT_FOUND_KEY = 'text_1795619366911a8sk62vg94f'
+const FILTER_VALUE_MISSING_KEY = 'text_1795630961583o318oscsu8g'
 const REFUSED_FIELD_KEY = 'text_1795619366911qby577vnvkn'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
@@ -275,6 +276,36 @@ describe('useMoveToLive', () => {
           `${RATE_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
+          'a rate of a list would land on a live product or metric that cannot price it',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'not_allowed_for_aggregation_type',
+            refusalField: 'rates[0].rateModel',
+          },
+          `${RATE_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'a reused live metric lacks a filter value of the product',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: PRODUCT,
+            refusalCode: 'value_is_invalid',
+            refusalField: 'values[0].value',
+          },
+          `${FILTER_VALUE_MISSING_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        ],
+        [
+          'production refuses a field of a list without a message of its own',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'not_allowed_for_billing_timing',
+            refusalField: 'rates[0].minAmountCents',
+          },
+          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|min amount cents`,
+        ],
+        [
           'an item copied along needs a premium license',
           {
             blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
@@ -311,7 +342,7 @@ describe('useMoveToLive', () => {
             refusalCode: 'value_is_invalid',
             refusalField: 'appliedPricingUnitCode',
           },
-          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|appliedPricingUnitCode`,
+          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|applied pricing unit code`,
         ],
         [
           'production refuses an item without a field',
@@ -534,6 +565,26 @@ describe('useMoveToLive', () => {
         })
       })
 
+      it('GIVEN the move fails because the item went live meanwhile THEN the toast keeps its code', async () => {
+        mockGetPreview.mockResolvedValueOnce(buildPreview()).mockResolvedValueOnce(
+          buildPreview({
+            blockingReason: MoveToLiveBlockingReasonEnum.ValueAlreadyExist,
+            copiedItems: [],
+          }),
+        )
+        mockMoveToLiveMode.mockResolvedValue({
+          data: { moveToLiveMode: null },
+          errors: [{ message: 'Unprocessable Entity' }],
+        })
+
+        await confirm()
+
+        expect(addToast).toHaveBeenCalledWith({
+          severity: 'info',
+          message: `${ALREADY_EXISTS_KEY}|${PRODUCT_LABEL_KEY}|storage`,
+        })
+      })
+
       it('GIVEN the move fails and the preview does not block THEN it shows the error toast', async () => {
         mockGetPreview.mockResolvedValue(buildPreview())
         mockMoveToLiveMode.mockResolvedValue({
@@ -562,7 +613,7 @@ describe('useMoveToLive', () => {
             code: 'unprocessable_entity',
             details: { appliesTo: { include: ['value_is_invalid'] } },
           },
-          `${REFUSED_FIELD_KEY}|${PRODUCT_LABEL_KEY}|storage|appliesTo`,
+          `${REFUSED_FIELD_KEY}|${PRODUCT_LABEL_KEY}|storage|applies to`,
         ],
         [
           'a production resource not found',
