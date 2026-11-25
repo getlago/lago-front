@@ -29,6 +29,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 
 | Component    | Import                  | Guide                                               |
 | ------------ | ----------------------- | --------------------------------------------------- |
+| AmountInput  | `lago-ui/amount-input`  | [amount-input.md](src/components/amount-input.md) |
 | Badge        | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
 | Breadcrumb   | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
 | Button       | `lago-ui/button`        | [button.md](src/components/button.md)               |

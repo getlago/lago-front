@@ -4,9 +4,9 @@ import userEvent, { UserEvent } from '@testing-library/user-event'
 import { FormDrawerProps } from '~/components/drawers/FormDrawer'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { MappableTypeEnum } from '~/generated/graphql'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 import { render } from '~/test-utils'
 
-import { stringifyOptionValue } from '../stringifyOptionValue'
 import { XeroIntegrationMapItemDrawerProps } from '../types'
 import { useXeroIntegrationMapItemDrawer } from '../useXeroIntegrationMapItemDrawer'
 

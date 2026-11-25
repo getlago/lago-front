@@ -21,6 +21,7 @@ export const getMappingInfos = (
     IntegrationTypeEnum.Anrok,
     IntegrationTypeEnum.Avalara,
     IntegrationTypeEnum.Netsuite,
+    IntegrationTypeEnum.Quickbooks,
     IntegrationTypeEnum.Xero,
   ]
 

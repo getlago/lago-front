@@ -112,6 +112,10 @@ jest.mock('~/layouts/PendingOrganizationShell', () => ({
   },
 }))
 
+jest.mock('~/layouts/useActivatePendingProductionOrganizations', () => ({
+  useActivatePendingProductionOrganizations: jest.fn(),
+}))
+
 jest.mock('~/pages/Error404', () => ({
   __esModule: true,
   default: () => <div data-test="error-404" />,
@@ -440,12 +444,11 @@ describe('OrganizationLayout', () => {
       expect(mockUseSandbox).not.toHaveBeenCalled()
     })
 
-    it('THEN should pass the organization and an add payment method callback to the shell', () => {
+    it('THEN should pass the organization to the shell', () => {
       render(<OrganizationLayout />)
 
       expect(mockPendingOrganizationShell).toHaveBeenCalledWith({
         organization: pendingOrganization,
-        onAddPaymentMethod: expect.any(Function),
       })
     })
 

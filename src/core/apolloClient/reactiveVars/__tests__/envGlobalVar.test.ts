@@ -5,6 +5,7 @@ type SignUpEnvKey =
   | 'LAGO_US_FRONT_URL'
   | 'LAGO_EU_FRONT_URL'
   | 'LAGO_RECAPTCHA_SITE_KEY'
+  | 'LAGO_BILLING_ACCOUNTS_URL'
 
 const ORIGINAL_SIGN_UP_ENV: Record<SignUpEnvKey, string> = {
   LAGO_SELF_SERVE_ENABLED: window.LAGO_SELF_SERVE_ENABLED,
@@ -12,6 +13,7 @@ const ORIGINAL_SIGN_UP_ENV: Record<SignUpEnvKey, string> = {
   LAGO_US_FRONT_URL: window.LAGO_US_FRONT_URL,
   LAGO_EU_FRONT_URL: window.LAGO_EU_FRONT_URL,
   LAGO_RECAPTCHA_SITE_KEY: window.LAGO_RECAPTCHA_SITE_KEY,
+  LAGO_BILLING_ACCOUNTS_URL: window.LAGO_BILLING_ACCOUNTS_URL,
 }
 
 const setEnvValue = (key: SignUpEnvKey, value: string | undefined): void => {
@@ -144,6 +146,11 @@ describe('envGlobalVar', () => {
     { envKey: 'LAGO_US_FRONT_URL', field: 'usFrontUrl', setting: 'https://app.getlago.com' },
     { envKey: 'LAGO_EU_FRONT_URL', field: 'euFrontUrl', setting: 'https://app.eu.getlago.com' },
     { envKey: 'LAGO_RECAPTCHA_SITE_KEY', field: 'recaptchaSiteKey', setting: '6LcSiteKey-123_abc' },
+    {
+      envKey: 'LAGO_BILLING_ACCOUNTS_URL',
+      field: 'billingAccountsUrl',
+      setting: 'https://billing-accounts.example.com',
+    },
   ] as const)('GIVEN $envKey', ({ envKey, field, setting }) => {
     describe('WHEN it is set with surrounding whitespace', () => {
       it(`THEN should expose the trimmed value as ${field}`, async () => {

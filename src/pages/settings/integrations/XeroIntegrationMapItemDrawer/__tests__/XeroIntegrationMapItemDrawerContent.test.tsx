@@ -7,8 +7,8 @@ import { COMBOBOX_LOADING_TEST_ID } from '~/components/form/ComboBox/ComboBoxInp
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { MappableTypeEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 
-import { stringifyOptionValue } from '../stringifyOptionValue'
 import { xeroMappingDefaultValues } from '../validationSchema'
 import { XeroIntegrationMapItemDrawerContent } from '../XeroIntegrationMapItemDrawerContent'
 
