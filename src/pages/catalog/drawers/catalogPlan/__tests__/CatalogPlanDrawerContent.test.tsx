@@ -2,11 +2,9 @@ import { revalidateLogic } from '@tanstack/react-form'
 import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
+import { MAX_ITEM_METADATA_COUNT } from '~/components/metadata/constants'
 import { ItemMetadataFormValues } from '~/components/metadata/ItemMetadataDrawer'
-import {
-  ADD_METADATA_TEST_ID,
-  METADATA_ACCORDION_TEST_ID,
-} from '~/components/metadata/MetadataFormSection'
+import { metadataFormSectionTestIds } from '~/components/metadata/MetadataFormSection'
 import { CurrencyEnum } from '~/generated/graphql'
 import { useAppForm } from '~/hooks/forms/useAppform'
 import { AllTheProviders } from '~/test-utils'
@@ -17,6 +15,7 @@ import {
   CATALOG_PLAN_DRAWER_SHOW_DESCRIPTION_TEST_ID,
   CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY,
   CATALOG_PLAN_FORM_DEFAULTS,
+  CATALOG_PLAN_METADATA_TEST_ID,
   CatalogPlanFormValues,
 } from '../constants'
 import { catalogPlanSchema } from '../schema'
@@ -48,6 +47,19 @@ jest.mock('~/components/metadata/ItemMetadataDrawer', () => {
   return { __esModule: true, ItemMetadataDrawer }
 })
 
+jest.mock('~/components/metadata/useDeleteAllMetadataDialog', () => ({
+  useDeleteAllMetadataDialog: () => ({
+    openDeleteAllMetadataDialog: ({ onConfirm }: { onConfirm: () => void }) => onConfirm(),
+  }),
+}))
+
+const { add: ADD_METADATA_TEST_ID, accordion: METADATA_ACCORDION_TEST_ID } =
+  metadataFormSectionTestIds(CATALOG_PLAN_METADATA_TEST_ID)
+const EDIT_METADATA_ACTION_KEY = 'text_63e51ef4985f0ebd75c212fc'
+const DELETE_ALL_METADATA_ACTION_KEY = 'text_1784637373017e1som6d92em'
+
+let hostForm: { state: { values: CatalogPlanFormValues } }
+
 const NAME_LABEL_KEY = 'text_629728388c4d2300e2d38091'
 const CODE_LABEL_KEY = 'text_629728388c4d2300e2d380b7'
 const DESCRIPTION_LABEL_KEY = 'text_6388b923e514213fed58331c'
@@ -73,6 +85,8 @@ const Host = ({
     validators: { onDynamic: catalogPlanSchema },
     onSubmit: async () => undefined,
   })
+
+  hostForm = form
 
   return (
     <CatalogPlanDrawerContent
@@ -210,11 +224,47 @@ describe('CatalogPlanDrawerContent', () => {
       expect(screen.getByTestId(METADATA_ACCORDION_TEST_ID)).toBeInTheDocument()
     })
 
+    it('GIVEN the edit action on two pairs THEN opens the drawer with both and no empty row', async () => {
+      const pairs = [
+        { key: 'region', value: 'eu' },
+        { key: 'tier', value: 'gold' },
+      ]
+
+      renderHost({ isEdit: true, values: { metadata: pairs } })
+
+      await userEvent.click(screen.getByTestId(`${METADATA_ACCORDION_TEST_ID}-actions`))
+      await userEvent.click(screen.getByText(EDIT_METADATA_ACTION_KEY))
+
+      expect(mockOpenMetadataDrawer).toHaveBeenCalledWith({ metadata: pairs })
+    })
+
+    it('GIVEN the accordion delete-all action confirmed THEN empties the form metadata', async () => {
+      renderHost({ isEdit: true, values: { metadata: [{ key: 'region', value: 'eu' }] } })
+
+      await userEvent.click(screen.getByTestId(`${METADATA_ACCORDION_TEST_ID}-actions`))
+      await userEvent.click(screen.getByText(DELETE_ALL_METADATA_ACTION_KEY))
+
+      expect(hostForm.state.values.metadata).toEqual([])
+      expect(screen.queryByTestId(METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('GIVEN the max count of pairs THEN disables adding metadata', () => {
+      const maxedOut = Array.from({ length: MAX_ITEM_METADATA_COUNT }, (_, index) => ({
+        key: `key_${index}`,
+        value: `value_${index}`,
+      }))
+
+      renderHost({ isEdit: true, values: { metadata: maxedOut } })
+
+      expect(screen.getByTestId(ADD_METADATA_TEST_ID)).toBeDisabled()
+    })
+
     it('GIVEN the metadata drawer deletes every pair THEN removes the accordion', () => {
       renderHost({ isEdit: true, values: { metadata: [{ key: 'region', value: 'eu' }] } })
 
       act(() => capturedMetadataDrawerProps.onDelete?.())
 
+      expect(hostForm.state.values.metadata).toEqual([])
       expect(screen.queryByTestId(METADATA_ACCORDION_TEST_ID)).not.toBeInTheDocument()
     })
   })

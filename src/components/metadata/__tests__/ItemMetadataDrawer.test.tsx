@@ -4,6 +4,11 @@ import { createRef, ReactNode } from 'react'
 
 import { render } from '~/test-utils'
 
+import {
+  ITEM_METADATA_KEY_MAX_LENGTH,
+  ITEM_METADATA_VALUE_MAX_LENGTH,
+  MAX_ITEM_METADATA_COUNT,
+} from '../constants'
 import { ItemMetadataDrawer, ItemMetadataDrawerRef } from '../ItemMetadataDrawer'
 
 const SAVE_BUTTON_TEST_ID = 'item-metadata-drawer-save'
@@ -295,6 +300,83 @@ describe('ItemMetadataDrawer', () => {
         })
       })
       expect(mockClose).toHaveBeenCalled()
+    })
+  })
+
+  describe('GIVEN the server-side limits', () => {
+    const saveWith = async (metadata: Array<{ key: string; value: string }>) => {
+      const user = userEvent.setup()
+      const { ref, onSave } = renderDrawer({ onSave: jest.fn() })
+
+      act(() => ref.current?.openDrawer({ metadata }))
+      render(<CapturedDrawer />)
+
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      return onSave
+    }
+
+    it.each([
+      [
+        'a key over the max length',
+        [{ key: 'k'.repeat(ITEM_METADATA_KEY_MAX_LENGTH + 1), value: 'v' }],
+      ],
+      [
+        'a value over the max length',
+        [{ key: 'k', value: 'v'.repeat(ITEM_METADATA_VALUE_MAX_LENGTH + 1) }],
+      ],
+      [
+        'a duplicated key',
+        [
+          { key: 'region', value: 'eu' },
+          { key: 'region', value: 'us' },
+        ],
+      ],
+    ])('WHEN a pair has %s THEN should block the save', async (_, metadata) => {
+      const onSave = await saveWith(metadata)
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(mockClose).not.toHaveBeenCalled()
+    })
+
+    it('WHEN key and value are exactly at the max length THEN should save', async () => {
+      const metadata = [
+        {
+          key: 'k'.repeat(ITEM_METADATA_KEY_MAX_LENGTH),
+          value: 'v'.repeat(ITEM_METADATA_VALUE_MAX_LENGTH),
+        },
+      ]
+      const onSave = await saveWith(metadata)
+
+      await waitFor(() => expect(onSave).toHaveBeenCalledWith({ metadata }))
+    })
+
+    const maxedOut = Array.from({ length: MAX_ITEM_METADATA_COUNT }, (_, index) => ({
+      key: `key_${index}`,
+      value: `value_${index}`,
+    }))
+
+    it('WHEN the max count of pairs is saved THEN should save', async () => {
+      const onSave = await saveWith(maxedOut)
+
+      await waitFor(() => expect(onSave).toHaveBeenCalledWith({ metadata: maxedOut }))
+    })
+
+    it('WHEN a filled row is appended past the max count THEN should block the save', async () => {
+      const user = userEvent.setup()
+      const { ref, onSave } = renderDrawer({ onSave: jest.fn() })
+
+      act(() => ref.current?.openDrawer({ metadata: maxedOut }, { appendEmptyRow: true }))
+      render(<CapturedDrawer />)
+
+      const textboxes = screen.getAllByRole('textbox')
+
+      await user.type(textboxes[textboxes.length - 2], 'one_too_many')
+      await user.type(textboxes[textboxes.length - 1], 'value')
+      await user.click(screen.getByTestId(SAVE_BUTTON_TEST_ID))
+
+      expect(onSave).not.toHaveBeenCalled()
+      expect(mockClose).not.toHaveBeenCalled()
     })
   })
 

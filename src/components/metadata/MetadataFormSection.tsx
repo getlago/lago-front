@@ -6,6 +6,7 @@ import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { SectionAccordion } from '~/components/plans/details-v2/shared/SectionAccordion'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { MAX_ITEM_METADATA_COUNT } from './constants'
 import {
   ItemMetadataDrawer,
   ItemMetadataDrawerRef,
@@ -14,25 +15,33 @@ import {
 import { MetadataInfo } from './MetadataInfo'
 import { useDeleteAllMetadataDialog } from './useDeleteAllMetadataDialog'
 
-export const ADD_METADATA_TEST_ID = 'add-metadata'
-export const METADATA_ACCORDION_TEST_ID = 'metadata-accordion'
+export const metadataFormSectionTestIds = (
+  dataTest: string,
+): { add: string; accordion: string } => ({
+  add: `add-${dataTest}`,
+  accordion: `${dataTest}-accordion`,
+})
 
 type MetadataFormSectionProps = {
   metadata: Array<{ key: string; value?: string | null }>
   description: string
+  dataTest: string
   onChange: (metadata: ItemMetadataFormValues['metadata']) => void
 }
 
 export const MetadataFormSection = ({
   metadata,
   description,
+  dataTest,
   onChange,
 }: MetadataFormSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { openDeleteAllMetadataDialog } = useDeleteAllMetadataDialog()
   const metadataDrawerRef = useRef<ItemMetadataDrawerRef>(null)
 
+  const testIds = metadataFormSectionTestIds(dataTest)
   const hasMetadata = metadata.length > 0
+  const isAtMaxCount = metadata.length >= MAX_ITEM_METADATA_COUNT
 
   const currentDrawerValues = (): ItemMetadataFormValues => ({
     metadata: metadata.map(({ key, value }) => ({ key, value: value || '' })),
@@ -58,7 +67,8 @@ export const MetadataFormSection = ({
               fitContent
               variant="inline"
               startIcon="plus"
-              data-test={ADD_METADATA_TEST_ID}
+              disabled={isAtMaxCount}
+              data-test={testIds.add}
               onClick={openAddMetadataDrawer}
             >
               {translate('text_6405cac5c833dcf18cad0196')}
@@ -80,7 +90,7 @@ export const MetadataFormSection = ({
           icon="brackets"
           title={translate('text_63fcc3218d35b9377840f59b')}
           noContentMargin
-          dataTest={METADATA_ACCORDION_TEST_ID}
+          dataTest={testIds.accordion}
           actions={[
             {
               label: translate('text_63e51ef4985f0ebd75c212fc'),
@@ -103,7 +113,7 @@ export const MetadataFormSection = ({
           fitContent
           variant="inline"
           startIcon="plus"
-          data-test={ADD_METADATA_TEST_ID}
+          data-test={testIds.add}
           onClick={openAddMetadataDrawer}
         >
           {translate('text_6405cac5c833dcf18cad0196')}

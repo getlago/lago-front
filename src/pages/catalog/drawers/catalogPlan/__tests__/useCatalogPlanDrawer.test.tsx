@@ -218,6 +218,23 @@ describe('useCatalogPlanDrawer', () => {
       )
     })
 
+    it('GIVEN create more after a plan with metadata THEN resets the form metadata to empty', async () => {
+      mountHost()
+      act(() => openDrawer())
+
+      render(<>{lastOpenPayload().secondaryAction}</>, { wrapper: AllTheProviders })
+      await userEvent.click(screen.getByTestId(CREATE_MORE_SWITCH_TEST_ID))
+
+      fillValidCreateValues()
+      setMetadata([{ key: 'tier', value: 'gold' }])
+      await submit()
+
+      expect(mockCreate.mock.calls[0][0].variables.input.metadata).toEqual([
+        { key: 'tier', value: 'gold' },
+      ])
+      expect(lastOpenPayload().children.props.form.state.values.metadata).toEqual([])
+    })
+
     it('GIVEN a duplicate code THEN surfaces the existing-code error and keeps the drawer open', async () => {
       mockCreate.mockResolvedValue({
         data: undefined,
@@ -368,6 +385,19 @@ describe('useCatalogPlanDrawer', () => {
     it('GIVEN untouched metadata THEN omits it so the stored pairs stay as they are', async () => {
       mountHost()
       act(() => openDrawer(existingPlan))
+      await submit()
+
+      expect(mockUpdate.mock.calls[0][0].variables.input.metadata).toBeUndefined()
+    })
+
+    it('GIVEN metadata edited then restored to the stored list THEN still omits it', async () => {
+      mountHost()
+      act(() => openDrawer(existingPlan))
+      setMetadata([{ key: 'tier', value: 'gold' }])
+      setMetadata([
+        { key: 'region', value: 'eu' },
+        { key: 'segment', value: '' },
+      ])
       await submit()
 
       expect(mockUpdate.mock.calls[0][0].variables.input.metadata).toBeUndefined()

@@ -13,6 +13,7 @@ import {
   ITEM_METADATA_KEY_MAX_LENGTH,
   ITEM_METADATA_VALUE_MAX_LENGTH,
   type ItemMetadataFormValues,
+  MAX_ITEM_METADATA_COUNT,
 } from './constants'
 import { ItemMetadataDrawerContent } from './ItemMetadataDrawerContent'
 import { useDeleteAllMetadataDialog } from './useDeleteAllMetadataDialog'
@@ -22,7 +23,9 @@ export { type ItemMetadataFormValues } from './constants'
 const ITEM_METADATA_FORM_ID = 'item-metadata-drawer-form'
 
 const itemMetadataSchema = z.object({
-  metadata: zodMetadataSchema(ITEM_METADATA_VALUE_MAX_LENGTH, ITEM_METADATA_KEY_MAX_LENGTH),
+  metadata: zodMetadataSchema(ITEM_METADATA_VALUE_MAX_LENGTH, ITEM_METADATA_KEY_MAX_LENGTH).max(
+    MAX_ITEM_METADATA_COUNT,
+  ),
 })
 
 export interface ItemMetadataDrawerRef {

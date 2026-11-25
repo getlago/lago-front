@@ -192,8 +192,13 @@ describe('CatalogPlanOverviewSection', () => {
     ).not.toBeInTheDocument()
   })
 
-  it('GIVEN an expanded metadata section THEN lists each pair', async () => {
-    renderSection({ metadata: [{ __typename: 'ItemMetadata', key: 'region', value: 'eu' }] })
+  it('GIVEN an expanded metadata section with two pairs THEN lists both', async () => {
+    renderSection({
+      metadata: [
+        { __typename: 'ItemMetadata', key: 'region', value: 'eu' },
+        { __typename: 'ItemMetadata', key: 'tier', value: 'gold' },
+      ],
+    })
 
     await waitFor(() =>
       expect(screen.getByTestId(CATALOG_PLAN_OVERVIEW_METADATA_TEST_ID)).toBeInTheDocument(),
@@ -204,6 +209,8 @@ describe('CatalogPlanOverviewSection', () => {
 
     expect(screen.getByText('region')).toBeInTheDocument()
     expect(screen.getByText('eu')).toBeInTheDocument()
+    expect(screen.getByText('tier')).toBeInTheDocument()
+    expect(screen.getByText('gold')).toBeInTheDocument()
   })
 
   it('GIVEN no metadata THEN hides the metadata section', async () => {

@@ -19,6 +19,7 @@ import {
   CATALOG_PLAN_DRAWER_TITLE_CREATE_KEY,
   CATALOG_PLAN_DRAWER_TITLE_EDIT_KEY,
   CATALOG_PLAN_FORM_DEFAULTS,
+  CATALOG_PLAN_METADATA_TEST_ID,
 } from './constants'
 
 type CatalogPlanDrawerSectionsExtraProps = {
@@ -167,6 +168,7 @@ const CatalogPlanDrawerFormSections = withForm({
           <MetadataFormSection
             metadata={metadata}
             description={translate('text_1784536360268d9fpetpsrej')}
+            dataTest={CATALOG_PLAN_METADATA_TEST_ID}
             onChange={(nextMetadata) => form.setFieldValue('metadata', nextMetadata)}
           />
         </CenteredPage.SubsectionWrapper>
