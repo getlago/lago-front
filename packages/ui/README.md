@@ -29,11 +29,13 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 
 | Component    | Import                  | Guide                                               |
 | ------------ | ----------------------- | --------------------------------------------------- |
-| AmountInput  | `lago-ui/amount-input`  | [amount-input.md](src/components/amount-input.md) |
+| AmountInput  | `lago-ui/amount-input`  | [amount-input.md](src/components/amount-input.md)   |
 | Badge        | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
 | Breadcrumb   | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
 | Button       | `lago-ui/button`        | [button.md](src/components/button.md)               |
 | ColorTheme   | `lago-ui/color-theme`   | [color-theme.md](src/components/color-theme.md)     |
+| Checkbox     | `lago-ui/checkbox`      | [checkbox.md](src/components/checkbox.md)           |
+| RadioGroup   | `lago-ui/radio-group`   | [radio-group.md](src/components/radio-group.md)     |
 | Combobox     | `lago-ui/combobox`      | [combobox.md](src/components/combobox.md)           |
 | DropdownMenu | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
 | Field        | `lago-ui/field`         | [field.md](src/components/field.md)                 |

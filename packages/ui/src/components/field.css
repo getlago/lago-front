@@ -1,7 +1,7 @@
-.v2-field > * + * {
+.v2-field[data-orientation='vertical'] > * + * {
   margin-block-start: 0.5rem;
 }
-.v2-field > * + [data-slot='field-error'] {
+.v2-field[data-orientation='vertical'] > * + [data-slot='field-error'] {
   margin-block-start: 0.25rem;
 }
 .v2-field[data-disabled='true'] [data-slot='field-label'],
@@ -24,4 +24,42 @@
   .v2-field-help:focus-visible {
     outline: 2px solid Highlight;
   }
+}
+
+.v2-field[data-orientation='horizontal'] {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.5rem;
+  align-items: start;
+}
+.v2-field[data-orientation='horizontal']
+  > :is([data-slot='checkbox'], [data-slot='radio-group-item']) {
+  margin-block-start: 2px;
+  grid-column: 1;
+  grid-row: 1;
+}
+.v2-field[data-orientation='horizontal']
+  > :is([data-slot='field-label'], [data-slot='field-content']) {
+  grid-column: 2;
+  grid-row: 1;
+}
+.v2-field[data-orientation='horizontal'] > [data-slot='field-error'] {
+  grid-column: 1 / -1;
+  margin-block-start: 0.25rem;
+}
+.v2-field[data-orientation='horizontal']:has(> .v2-choice-control[data-disabled])
+  > [data-slot='field-label'],
+.v2-field[data-orientation='horizontal']:has(> .v2-choice-control[data-disabled])
+  > [data-slot='field-content']
+  > :is([data-slot='field-label'], [data-slot='field-description']),
+.v2-field-set:disabled
+  :is([data-slot='field-legend'], [data-slot='field-label'], [data-slot='field-description']) {
+  color: var(--color-disabled-foreground);
+}
+.v2-field-set > * + * {
+  margin-block-start: 0.5rem;
+}
+.v2-field-set > [data-slot='field-legend'] + [data-slot='field-description'],
+.v2-field-set > [data-slot='field-error'] {
+  margin-block-start: 0.25rem;
 }
