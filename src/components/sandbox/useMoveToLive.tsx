@@ -79,6 +79,7 @@ const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, str
   [MoveToLiveBlockingReasonEnum.MoveToLiveTargetDeleted]: 'text_1795431906433ctng1qj5wb8',
   [MoveToLiveBlockingReasonEnum.MoveToLiveFilterMissing]: 'text_17954319064332x9rxogcy3c',
   [MoveToLiveBlockingReasonEnum.MoveToLiveMetricMismatch]: 'text_1795519357323iuwdw2rfp07',
+  [MoveToLiveBlockingReasonEnum.MoveToLiveRateMismatch]: 'text_1795597376102tkbcu8a4f52',
   [MoveToLiveBlockingReasonEnum.MoveToLiveItemUnsupported]: 'text_1795431906433m4kipo8c27k',
   [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: 'text_1795431906433m4kipo8c27k',
 }

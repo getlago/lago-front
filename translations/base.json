@@ -5636,5 +5636,6 @@
   "text_1795519357323iuwdw2rfp07": "The {{itemType}} {{code}} is prorated, which the live billable metric it bills doesn't support. Use a recurring metric that isn't a weighted sum in production first.",
   "text_17955199987175qsul4nkfxe": "The {{itemType}} {{code}} doesn't use the currency of its live plan.",
   "text_17955393256589pupqccgr1x": "Production already uses the code {{code}} for another {{itemType}}. Change the code in your sandbox first.",
-  "text_1795539325659cdyvy8085m1": "This item was deleted from your sandbox, so it can't be moved to live mode."
+  "text_1795539325659cdyvy8085m1": "This item was deleted from your sandbox, so it can't be moved to live mode.",
+  "text_1795597376102tkbcu8a4f52": "The {{itemType}} {{code}} uses a pricing model that its live product or billable metric doesn't support. Change it in your sandbox first."
 }

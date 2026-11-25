@@ -68,6 +68,7 @@ const ADMIN_ONLY_KEY = 'text_1795431906433pfg3dttjin2'
 const ORGANIZATION_INACTIVE_KEY = 'text_1795431906433mautyr4e7ta'
 const UNSUPPORTED_KEY = 'text_1795431906433m4kipo8c27k'
 const METRIC_MISMATCH_KEY = 'text_1795519357323iuwdw2rfp07'
+const RATE_MISMATCH_KEY = 'text_1795597376102tkbcu8a4f52'
 const CURRENCY_MISMATCH_KEY = 'text_17955199987175qsul4nkfxe'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
@@ -245,6 +246,14 @@ describe('useMoveToLive', () => {
             refusedItem: RATE_CARD,
           },
           `${METRIC_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'a rate would land on a live product or metric that cannot price it',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveRateMismatch,
+            refusedItem: RATE_CARD,
+          },
+          `${RATE_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
           'the item cannot be moved',

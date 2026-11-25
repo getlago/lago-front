@@ -6403,6 +6403,8 @@ export enum MoveToLiveBlockingReasonEnum {
   MoveToLiveMetricMismatch = 'move_to_live_metric_mismatch',
   /** The item's parent must be moved to live mode first */
   MoveToLiveParentMissing = 'move_to_live_parent_missing',
+  /** A rate of the item cannot price the live product or rate card it lands on */
+  MoveToLiveRateMismatch = 'move_to_live_rate_mismatch',
   /** Every item the item applies to, or the metric it bills, is deleted */
   MoveToLiveTargetDeleted = 'move_to_live_target_deleted',
   /** The item applies to items that cannot be moved to live mode */
