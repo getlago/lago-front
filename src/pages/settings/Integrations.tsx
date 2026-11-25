@@ -153,10 +153,13 @@ gql`
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { isPremium } = useCurrentUser()
-  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const { currentUser, isPremium, loading: isCurrentUserLoading } = useCurrentUser()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const premiumIntegrations = organization?.premiumIntegrations
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const isX402Enabled = isPremium && hasFeatureFlag(FeatureFlagEnum.X402Payments)
+  // `withX402` reads the license and the flag: query once both are known, not once per answer.
+  const isWaitingForX402Access = !organization || (isCurrentUserLoading && !currentUser)
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -176,10 +179,12 @@ const Integrations = () => {
 
   const { data, loading } = useIntegrationsSettingQuery({
     variables: { limit: 1000, withX402: isX402Enabled },
+    skip: isWaitingForX402Access,
     nextFetchPolicy: 'cache-and-network',
   })
+  const isLoading = loading || isWaitingForX402Access
   const hasX402Integration = !!data?.x402Connections?.collection.length
-  const isLagoTabLoading = loading && !data
+  const isLagoTabLoading = isLoading && !data
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -295,9 +300,9 @@ const Integrations = () => {
       <MainHeader.Configure
         entity={{
           viewName: translate('text_62b1edddbf5f461ab9712750'),
-          viewNameLoading: loading,
+          viewNameLoading: isLoading,
           metadata: translate('text_62b1edddbf5f461ab9712765'),
-          metadataLoading: loading,
+          metadataLoading: isLoading,
         }}
         tabs={[
           {
@@ -754,7 +759,7 @@ const Integrations = () => {
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
                   <Alert type="warning">{translate('text_1736764955395763x9k5gqkj')}</Alert>
-                  {!!loading ? (
+                  {isLoading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>

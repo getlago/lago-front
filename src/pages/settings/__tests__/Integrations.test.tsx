@@ -94,9 +94,11 @@ jest.mock('~/components/settings/integrations/AddX402Dialog', () => ({
 const mockRefetch = jest.fn()
 let mockIsPremium = true
 
-let mockOrganizationData: {
-  premiumIntegrations?: PremiumIntegrationTypeEnum[]
-} = {
+let mockOrganizationData:
+  | {
+      premiumIntegrations?: PremiumIntegrationTypeEnum[]
+    }
+  | undefined = {
   premiumIntegrations: [
     PremiumIntegrationTypeEnum.Netsuite,
     PremiumIntegrationTypeEnum.Xero,
@@ -109,6 +111,7 @@ let mockOrganizationData: {
 const mockHasFeatureFlag = jest.fn()
 
 let mockIntegrationsSetting: { data: IntegrationsSettingQuery; loading: boolean } | undefined
+let mockIntegrationsSettingOptions: unknown
 
 jest.mock('~/generated/graphql', () => {
   const actual = jest.requireActual('~/generated/graphql')
@@ -116,6 +119,7 @@ jest.mock('~/generated/graphql', () => {
   return {
     ...actual,
     useIntegrationsSettingQuery: (...args: unknown[]) => {
+      mockIntegrationsSettingOptions = args[0]
       const result = actual.useIntegrationsSettingQuery(...args)
 
       return mockIntegrationsSetting ?? result
@@ -534,6 +538,16 @@ describe('Integrations', () => {
   })
 
   describe('Coinbase x402', () => {
+    it('waits for the organization before asking for the integrations', async () => {
+      mockOrganizationData = undefined
+      mockHasFeatureFlag.mockImplementation((flag) => flag === FeatureFlagEnum.X402Payments)
+
+      await prepare()
+
+      expect(mockIntegrationsSettingOptions).toEqual(expect.objectContaining({ skip: true }))
+      expect(screen.queryByTestId(INTEGRATIONS_STRIPE_TEST_ID)).not.toBeInTheDocument()
+    })
+
     it('is hidden when the organization does not have the x402_payments flag', async () => {
       await prepare()
 
