@@ -168,7 +168,7 @@
     "decimal.js": "10.6.0",
     "formik": "2.4.9",
     "graphql": "16.15.0",
-    "html-react-parser": "6.1.9",
+    "html-react-parser": "6.1.10",
     "lago-configs": "workspace:*",
     "lago-expression": "0.2.0",
     "lago-ui": "workspace:*",
