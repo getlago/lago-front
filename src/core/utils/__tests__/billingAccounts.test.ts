@@ -1,3 +1,5 @@
+import { SelfServeApiError } from '~/core/selfServe/client'
+
 import { activateBillingAccount, startBillingAccount } from '../billingAccounts'
 
 const mockEnvGlobalVar = jest.fn()
@@ -85,81 +87,6 @@ describe('billingAccounts', () => {
         expect(result).toEqual({ checkoutUrl: null })
       })
     })
-
-    describe('GIVEN there is no session token', () => {
-      it('THEN should send no authorization header', async () => {
-        mockGetItemFromLS.mockReturnValue(null)
-        mockFetch.mockResolvedValue(
-          buildResponse(200, { ...billingAccountBody('active'), checkout_url: null }),
-        )
-
-        await startBillingAccount(PAIR)
-
-        expect(mockFetch).toHaveBeenCalledWith(
-          expect.any(String),
-          expect.objectContaining({ headers: { 'Content-Type': 'application/json' } }),
-        )
-      })
-    })
-
-    describe('GIVEN the setting is empty', () => {
-      it('THEN should reject without calling billing-accounts', async () => {
-        mockEnvGlobalVar.mockReturnValue({ billingAccountsUrl: '' })
-
-        await expect(startBillingAccount(PAIR)).rejects.toThrow(
-          'billing-accounts URL is not configured',
-        )
-        expect(mockFetch).not.toHaveBeenCalled()
-      })
-    })
-
-    describe.each([
-      [401, { status: 401, code: 'unauthorized' }],
-      [403, { status: 403, code: 'not_organization_admin' }],
-      [422, { status: 422, code: 'validation_errors' }],
-    ])('GIVEN billing-accounts answers %s', (status, body) => {
-      it('THEN should reject', async () => {
-        mockFetch.mockResolvedValue(buildResponse(status, body))
-
-        await expect(startBillingAccount(PAIR)).rejects.toThrow(
-          `billing-accounts answered ${status}`,
-        )
-      })
-    })
-
-    describe('GIVEN billing-accounts does not answer within 15 seconds', () => {
-      it('THEN should abort the request and reject', async () => {
-        let requestSignal: AbortSignal | undefined
-
-        jest.useFakeTimers()
-        mockFetch.mockImplementation(
-          (_url: string, init: { signal?: AbortSignal }) =>
-            new Promise((_resolve, reject) => {
-              requestSignal = init.signal
-              init.signal?.addEventListener('abort', () => reject(init.signal?.reason))
-            }),
-        )
-
-        const result = startBillingAccount(PAIR)
-
-        jest.advanceTimersByTime(14_999)
-        expect(requestSignal?.aborted).toBe(false)
-
-        jest.advanceTimersByTime(1)
-
-        await expect(result).rejects.toThrow()
-        expect(requestSignal?.aborted).toBe(true)
-        jest.useRealTimers()
-      })
-    })
-
-    describe('GIVEN the network fails', () => {
-      it('THEN should reject', async () => {
-        mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
-
-        await expect(startBillingAccount(PAIR)).rejects.toThrow('Failed to fetch')
-      })
-    })
   })
 
   describe('activateBillingAccount', () => {
@@ -200,13 +127,24 @@ describe('billingAccounts', () => {
       })
     })
 
-    describe('GIVEN billing-accounts answers 404', () => {
-      it('THEN should reject', async () => {
-        mockFetch.mockResolvedValue(buildResponse(404, { status: 404, code: 'not_found' }))
-
-        await expect(activateBillingAccount('production-id')).rejects.toThrow(
-          'billing-accounts answered 404',
+    describe('GIVEN billing-accounts answers an error', () => {
+      it('THEN should reject with the self-serve API error', async () => {
+        mockFetch.mockResolvedValue(
+          buildResponse(404, {
+            status: 404,
+            error: 'Not Found',
+            code: 'billing_account_not_found',
+          }),
         )
+
+        const error = await activateBillingAccount('production-id').catch((reason) => reason)
+
+        expect(error).toBeInstanceOf(SelfServeApiError)
+        expect(error).toMatchObject({
+          message: 'billing-accounts answered 404',
+          status: 404,
+          code: 'billing_account_not_found',
+        })
       })
     })
   })

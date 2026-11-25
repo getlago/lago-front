@@ -1,29 +1,12 @@
-import { AUTH_TOKEN_LS_KEY, envGlobalVar } from '~/core/apolloClient/reactiveVars'
-import { getItemFromLS } from '~/core/utils/localStorage'
+import { envGlobalVar } from '~/core/apolloClient/reactiveVars'
+import { postToSelfServe } from '~/core/selfServe/client'
 
-const BILLING_ACCOUNTS_TIMEOUT_MS = 15_000
-
-const postToBillingAccounts = async (path: string, body?: unknown): Promise<unknown> => {
-  const { billingAccountsUrl } = envGlobalVar()
-
-  if (!billingAccountsUrl) throw new Error('billing-accounts URL is not configured')
-
-  const token = getItemFromLS(AUTH_TOKEN_LS_KEY)
-  const response = await fetch(`${billingAccountsUrl}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: body === undefined ? undefined : JSON.stringify(body),
-    // A request left hanging would keep the activation loader on screen with no way out.
-    signal: AbortSignal.timeout(BILLING_ACCOUNTS_TIMEOUT_MS),
-  })
-
-  if (!response.ok) throw new Error(`billing-accounts answered ${response.status}`)
-
-  return response.json()
-}
+const postToBillingAccounts = (path: string, body?: unknown): Promise<unknown> =>
+  postToSelfServe(
+    { name: 'billing-accounts', baseUrl: envGlobalVar().billingAccountsUrl },
+    path,
+    body,
+  )
 
 export const startBillingAccount = async ({
   organizationId,
