@@ -4,10 +4,12 @@ import {
   useGetAddOnsForAnrokItemsListLazyQuery,
   useGetAddOnsForAvalaraItemsListLazyQuery,
   useGetAddOnsForNetsuiteItemsListLazyQuery,
+  useGetAddOnsForQuickbooksItemsListLazyQuery,
   useGetAddOnsForXeroItemsListLazyQuery,
   useGetBillableMetricsForAnrokItemsListLazyQuery,
   useGetBillableMetricsForAvalaraItemsListLazyQuery,
   useGetBillableMetricsForNetsuiteItemsListLazyQuery,
+  useGetBillableMetricsForQuickbooksItemsListLazyQuery,
   useGetBillableMetricsForXeroItemsListLazyQuery,
   useGetProductsForAnrokItemsListLazyQuery,
   useGetProductsForAvalaraItemsListLazyQuery,
@@ -30,6 +32,8 @@ export type FetchMoreFunction = ReturnType<
   | typeof useGetBillableMetricsForAvalaraItemsListLazyQuery
   | typeof useGetAddOnsForXeroItemsListLazyQuery
   | typeof useGetBillableMetricsForXeroItemsListLazyQuery
+  | typeof useGetAddOnsForQuickbooksItemsListLazyQuery
+  | typeof useGetBillableMetricsForQuickbooksItemsListLazyQuery
   | typeof useGetProductsForAnrokItemsListLazyQuery
   | typeof useGetProductsForAvalaraItemsListLazyQuery
 >[1]['fetchMore']

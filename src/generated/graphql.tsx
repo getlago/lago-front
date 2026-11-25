@@ -16465,7 +16465,42 @@ export type GetNetsuiteIntegrationsSettingsQuery = { __typename?: 'Query', integ
       | { __typename?: 'XeroIntegration' }
     > } | null };
 
-export type QuickbooksIntegrationSettingsFragment = { __typename?: 'QuickbooksIntegration', id: string, code: string, connectionId: string, name: string, realmId?: string | null, sandbox: boolean, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
+export type QuickbooksIntegrationItemsFragment = { __typename?: 'QuickbooksIntegration', id: string };
+
+export type GetQuickbooksIntegrationCollectionMappingsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetQuickbooksIntegrationCollectionMappingsQuery = { __typename?: 'Query', integrationCollectionMappings?: { __typename?: 'CollectionMappingCollection', collection: Array<{ __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null }> } | null };
+
+export type GetAddOnsForQuickbooksItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetAddOnsForQuickbooksItemsListQuery = { __typename?: 'Query', addOns: { __typename?: 'AddOnCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
+
+export type GetBillableMetricsForQuickbooksItemsListQueryVariables = Exact<{
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+  integrationId: Scalars['ID']['input'];
+}>;
+
+
+export type GetBillableMetricsForQuickbooksItemsListQuery = { __typename?: 'Query', billableMetrics: { __typename?: 'BillableMetricCollection', metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number }, collection: Array<{ __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null }> } };
+
+export type QuickbooksIntegrationItemsListAddonsFragment = { __typename?: 'AddOn', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null };
+
+export type QuickbooksIntegrationItemsListBillableMetricsFragment = { __typename?: 'BillableMetric', id: string, name: string, code: string, integrationMappings?: Array<{ __typename?: 'Mapping', id: string, externalId: string, externalAccountCode?: string | null, externalName?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string }> | null };
+
+export type QuickbooksIntegrationItemsListDefaultFragment = { __typename?: 'CollectionMapping', id: string, mappingType: MappingTypeEnum, externalId?: string | null, externalAccountCode?: string | null, externalName?: string | null, billingEntityId?: string | null };
+
+export type QuickbooksIntegrationSettingsFragment = { __typename?: 'QuickbooksIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, realmId?: string | null, sandbox: boolean, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null };
 
 export type GetQuickbooksIntegrationsSettingsQueryVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -16481,7 +16516,7 @@ export type GetQuickbooksIntegrationsSettingsQuery = { __typename?: 'Query', int
     | { __typename?: 'HubspotIntegration' }
     | { __typename?: 'NetsuiteIntegration' }
     | { __typename?: 'OktaIntegration' }
-    | { __typename?: 'QuickbooksIntegration', id: string, code: string, connectionId: string, name: string, realmId?: string | null, sandbox: boolean, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
+    | { __typename?: 'QuickbooksIntegration', id: string, code: string, connectionId: string, hasMappingsConfigured?: boolean | null, name: string, realmId?: string | null, sandbox: boolean, syncCreditNotes?: boolean | null, syncInvoices?: boolean | null, syncPayments?: boolean | null }
     | { __typename?: 'SalesforceIntegration' }
     | { __typename?: 'XeroIntegration' }
    | null, integrations?: { __typename?: 'IntegrationCollection', collection: Array<
@@ -20547,6 +20582,83 @@ export type SeedDeleteMappingFragment = { __typename?: 'Mapping', id: string, ma
 
 export type ReadEvictedFragment = { __typename?: 'Mapping', id: string };
 
+export type QuickbooksIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
+
+export type QuickbooksIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
+
+export type QuickbooksIntegrationMapItemDrawerCollectionItemFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null };
+
+export type GetQuickbooksIntegrationItemsQueryVariables = Exact<{
+  integrationId: Scalars['ID']['input'];
+  itemType?: InputMaybe<IntegrationItemTypeEnum>;
+  page?: InputMaybe<Scalars['Int']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  searchTerm?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type GetQuickbooksIntegrationItemsQuery = { __typename?: 'Query', integrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+
+export type TriggerQuickbooksIntegrationAccountsRefetchMutationVariables = Exact<{
+  input: FetchIntegrationAccountsInput;
+}>;
+
+
+export type TriggerQuickbooksIntegrationAccountsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationAccounts: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
+
+export type TriggerQuickbooksIntegrationItemsRefetchMutationVariables = Exact<{
+  input: FetchIntegrationItemsInput;
+}>;
+
+
+export type TriggerQuickbooksIntegrationItemsRefetchMutation = { __typename?: 'Mutation', fetchIntegrationItems: { __typename?: 'IntegrationItemCollection', collection: Array<{ __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum }> } };
+
+export type CreateQuickbooksIntegrationCollectionMappingMutationVariables = Exact<{
+  input: CreateIntegrationCollectionMappingInput;
+}>;
+
+
+export type CreateQuickbooksIntegrationCollectionMappingMutation = { __typename?: 'Mutation', createIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type CreateQuickbooksIntegrationMappingMutationVariables = Exact<{
+  input: CreateIntegrationMappingInput;
+}>;
+
+
+export type CreateQuickbooksIntegrationMappingMutation = { __typename?: 'Mutation', createIntegrationMapping?: { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null } | null };
+
+export type UpdateQuickbooksIntegrationCollectionMappingMutationVariables = Exact<{
+  input: UpdateIntegrationCollectionMappingInput;
+}>;
+
+
+export type UpdateQuickbooksIntegrationCollectionMappingMutation = { __typename?: 'Mutation', updateIntegrationCollectionMapping?: { __typename?: 'CollectionMapping', id: string } | null };
+
+export type UpdateQuickbooksIntegrationMappingMutationVariables = Exact<{
+  input: UpdateIntegrationMappingInput;
+}>;
+
+
+export type UpdateQuickbooksIntegrationMappingMutation = { __typename?: 'Mutation', updateIntegrationMapping?: { __typename?: 'Mapping', id: string } | null };
+
+export type DeleteQuickbooksIntegrationCollectionMappingMutationVariables = Exact<{
+  input: DestroyIntegrationCollectionMappingInput;
+}>;
+
+
+export type DeleteQuickbooksIntegrationCollectionMappingMutation = { __typename?: 'Mutation', destroyIntegrationCollectionMapping?: { __typename?: 'DestroyIntegrationCollectionMappingPayload', id?: string | null } | null };
+
+export type DeleteQuickbooksIntegrationMappingMutationVariables = Exact<{
+  input: DestroyIntegrationMappingInput;
+}>;
+
+
+export type DeleteQuickbooksIntegrationMappingMutation = { __typename?: 'Mutation', destroyIntegrationMapping?: { __typename?: 'DestroyIntegrationMappingPayload', id?: string | null } | null };
+
+export type QuickbooksMappingCacheFieldsFragment = { __typename?: 'Mapping', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, mappableType: MappableTypeEnum, billingEntityId?: string | null, mappableId: string };
+
+export type QuickbooksMappingParentIdFragment = { __typename?: 'Mapping', mappableId: string };
+
 export type XeroIntegrationMapItemDrawerFragment = { __typename?: 'IntegrationItem', id: string, externalId: string, externalName?: string | null, externalAccountCode?: string | null, itemType: IntegrationItemTypeEnum };
 
 export type XeroIntegrationMapItemDrawerCollectionMappingItemFragment = { __typename?: 'CollectionMapping', id: string, externalId?: string | null, externalName?: string | null, externalAccountCode?: string | null };
@@ -24055,11 +24167,54 @@ export const NetsuiteIntegrationSettingsFragmentDoc = gql`
   syncPayments
 }
     `;
+export const QuickbooksIntegrationItemsListAddonsFragmentDoc = gql`
+    fragment QuickbooksIntegrationItemsListAddons on AddOn {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+    billingEntityId
+    mappableId
+  }
+}
+    `;
+export const QuickbooksIntegrationItemsListBillableMetricsFragmentDoc = gql`
+    fragment QuickbooksIntegrationItemsListBillableMetrics on BillableMetric {
+  id
+  name
+  code
+  integrationMappings(integrationId: $integrationId) {
+    id
+    externalId
+    externalAccountCode
+    externalName
+    mappableType
+    billingEntityId
+    mappableId
+  }
+}
+    `;
+export const QuickbooksIntegrationItemsListDefaultFragmentDoc = gql`
+    fragment QuickbooksIntegrationItemsListDefault on CollectionMapping {
+  id
+  mappingType
+  externalId
+  externalAccountCode
+  externalName
+  billingEntityId
+}
+    `;
 export const QuickbooksIntegrationSettingsFragmentDoc = gql`
     fragment QuickbooksIntegrationSettings on QuickbooksIntegration {
   id
   code
   connectionId
+  hasMappingsConfigured
   name
   realmId
   sandbox
@@ -27669,6 +27824,11 @@ export const QuickbooksForCreateDialogFragmentDoc = gql`
   syncPayments
 }
     `;
+export const QuickbooksIntegrationItemsFragmentDoc = gql`
+    fragment QuickbooksIntegrationItems on QuickbooksIntegration {
+  id
+}
+    `;
 export const QuickbooksIntegrationDetailsFragmentDoc = gql`
     fragment QuickbooksIntegrationDetails on QuickbooksIntegration {
   id
@@ -27677,9 +27837,11 @@ export const QuickbooksIntegrationDetailsFragmentDoc = gql`
   sandbox
   ...DeleteQuickbooksIntegrationDialog
   ...QuickbooksForCreateDialog
+  ...QuickbooksIntegrationItems
 }
     ${DeleteQuickbooksIntegrationDialogFragmentDoc}
-${QuickbooksForCreateDialogFragmentDoc}`;
+${QuickbooksForCreateDialogFragmentDoc}
+${QuickbooksIntegrationItemsFragmentDoc}`;
 export const QuickbooksIntegrationsFragmentDoc = gql`
     fragment QuickbooksIntegrations on QuickbooksIntegration {
   id
@@ -27914,6 +28076,47 @@ export const SeedDeleteMappingFragmentDoc = gql`
 export const ReadEvictedFragmentDoc = gql`
     fragment ReadEvicted on Mapping {
   id
+}
+    `;
+export const QuickbooksIntegrationMapItemDrawerFragmentDoc = gql`
+    fragment QuickbooksIntegrationMapItemDrawer on IntegrationItem {
+  id
+  externalId
+  externalName
+  externalAccountCode
+  itemType
+}
+    `;
+export const QuickbooksIntegrationMapItemDrawerCollectionMappingItemFragmentDoc = gql`
+    fragment QuickbooksIntegrationMapItemDrawerCollectionMappingItem on CollectionMapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const QuickbooksIntegrationMapItemDrawerCollectionItemFragmentDoc = gql`
+    fragment QuickbooksIntegrationMapItemDrawerCollectionItem on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+}
+    `;
+export const QuickbooksMappingCacheFieldsFragmentDoc = gql`
+    fragment QuickbooksMappingCacheFields on Mapping {
+  id
+  externalId
+  externalName
+  externalAccountCode
+  mappableType
+  billingEntityId
+  mappableId
+}
+    `;
+export const QuickbooksMappingParentIdFragmentDoc = gql`
+    fragment QuickbooksMappingParentId on Mapping {
+  mappableId
 }
     `;
 export const XeroIntegrationMapItemDrawerFragmentDoc = gql`
@@ -39537,6 +39740,160 @@ export type GetNetsuiteIntegrationsSettingsQueryHookResult = ReturnType<typeof u
 export type GetNetsuiteIntegrationsSettingsLazyQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsLazyQuery>;
 export type GetNetsuiteIntegrationsSettingsSuspenseQueryHookResult = ReturnType<typeof useGetNetsuiteIntegrationsSettingsSuspenseQuery>;
 export type GetNetsuiteIntegrationsSettingsQueryResult = Apollo.QueryResult<GetNetsuiteIntegrationsSettingsQuery, GetNetsuiteIntegrationsSettingsQueryVariables>;
+export const GetQuickbooksIntegrationCollectionMappingsDocument = gql`
+    query getQuickbooksIntegrationCollectionMappings($integrationId: ID!) {
+  integrationCollectionMappings(integrationId: $integrationId) {
+    collection {
+      id
+      ...QuickbooksIntegrationItemsListDefault
+    }
+  }
+}
+    ${QuickbooksIntegrationItemsListDefaultFragmentDoc}`;
+
+/**
+ * __useGetQuickbooksIntegrationCollectionMappingsQuery__
+ *
+ * To run a query within a React component, call `useGetQuickbooksIntegrationCollectionMappingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetQuickbooksIntegrationCollectionMappingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQuickbooksIntegrationCollectionMappingsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetQuickbooksIntegrationCollectionMappingsQuery(baseOptions: Apollo.QueryHookOptions<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables> & ({ variables: GetQuickbooksIntegrationCollectionMappingsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>(GetQuickbooksIntegrationCollectionMappingsDocument, options);
+      }
+export function useGetQuickbooksIntegrationCollectionMappingsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>(GetQuickbooksIntegrationCollectionMappingsDocument, options);
+        }
+// @ts-ignore
+export function useGetQuickbooksIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>;
+export function useGetQuickbooksIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuickbooksIntegrationCollectionMappingsQuery | undefined, GetQuickbooksIntegrationCollectionMappingsQueryVariables>;
+export function useGetQuickbooksIntegrationCollectionMappingsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>(GetQuickbooksIntegrationCollectionMappingsDocument, options);
+        }
+export type GetQuickbooksIntegrationCollectionMappingsQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationCollectionMappingsQuery>;
+export type GetQuickbooksIntegrationCollectionMappingsLazyQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationCollectionMappingsLazyQuery>;
+export type GetQuickbooksIntegrationCollectionMappingsSuspenseQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationCollectionMappingsSuspenseQuery>;
+export type GetQuickbooksIntegrationCollectionMappingsQueryResult = Apollo.QueryResult<GetQuickbooksIntegrationCollectionMappingsQuery, GetQuickbooksIntegrationCollectionMappingsQueryVariables>;
+export const GetAddOnsForQuickbooksItemsListDocument = gql`
+    query getAddOnsForQuickbooksItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  addOns(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...QuickbooksIntegrationItemsListAddons
+    }
+  }
+}
+    ${QuickbooksIntegrationItemsListAddonsFragmentDoc}`;
+
+/**
+ * __useGetAddOnsForQuickbooksItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetAddOnsForQuickbooksItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAddOnsForQuickbooksItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAddOnsForQuickbooksItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetAddOnsForQuickbooksItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables> & ({ variables: GetAddOnsForQuickbooksItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>(GetAddOnsForQuickbooksItemsListDocument, options);
+      }
+export function useGetAddOnsForQuickbooksItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>(GetAddOnsForQuickbooksItemsListDocument, options);
+        }
+// @ts-ignore
+export function useGetAddOnsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>;
+export function useGetAddOnsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetAddOnsForQuickbooksItemsListQuery | undefined, GetAddOnsForQuickbooksItemsListQueryVariables>;
+export function useGetAddOnsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>(GetAddOnsForQuickbooksItemsListDocument, options);
+        }
+export type GetAddOnsForQuickbooksItemsListQueryHookResult = ReturnType<typeof useGetAddOnsForQuickbooksItemsListQuery>;
+export type GetAddOnsForQuickbooksItemsListLazyQueryHookResult = ReturnType<typeof useGetAddOnsForQuickbooksItemsListLazyQuery>;
+export type GetAddOnsForQuickbooksItemsListSuspenseQueryHookResult = ReturnType<typeof useGetAddOnsForQuickbooksItemsListSuspenseQuery>;
+export type GetAddOnsForQuickbooksItemsListQueryResult = Apollo.QueryResult<GetAddOnsForQuickbooksItemsListQuery, GetAddOnsForQuickbooksItemsListQueryVariables>;
+export const GetBillableMetricsForQuickbooksItemsListDocument = gql`
+    query getBillableMetricsForQuickbooksItemsList($page: Int, $limit: Int, $searchTerm: String, $integrationId: ID!) {
+  billableMetrics(page: $page, limit: $limit, searchTerm: $searchTerm) {
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+    collection {
+      id
+      ...QuickbooksIntegrationItemsListBillableMetrics
+    }
+  }
+}
+    ${QuickbooksIntegrationItemsListBillableMetricsFragmentDoc}`;
+
+/**
+ * __useGetBillableMetricsForQuickbooksItemsListQuery__
+ *
+ * To run a query within a React component, call `useGetBillableMetricsForQuickbooksItemsListQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBillableMetricsForQuickbooksItemsListQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBillableMetricsForQuickbooksItemsListQuery({
+ *   variables: {
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *      integrationId: // value for 'integrationId'
+ *   },
+ * });
+ */
+export function useGetBillableMetricsForQuickbooksItemsListQuery(baseOptions: Apollo.QueryHookOptions<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables> & ({ variables: GetBillableMetricsForQuickbooksItemsListQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>(GetBillableMetricsForQuickbooksItemsListDocument, options);
+      }
+export function useGetBillableMetricsForQuickbooksItemsListLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>(GetBillableMetricsForQuickbooksItemsListDocument, options);
+        }
+// @ts-ignore
+export function useGetBillableMetricsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>;
+export function useGetBillableMetricsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>): Apollo.UseSuspenseQueryResult<GetBillableMetricsForQuickbooksItemsListQuery | undefined, GetBillableMetricsForQuickbooksItemsListQueryVariables>;
+export function useGetBillableMetricsForQuickbooksItemsListSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>(GetBillableMetricsForQuickbooksItemsListDocument, options);
+        }
+export type GetBillableMetricsForQuickbooksItemsListQueryHookResult = ReturnType<typeof useGetBillableMetricsForQuickbooksItemsListQuery>;
+export type GetBillableMetricsForQuickbooksItemsListLazyQueryHookResult = ReturnType<typeof useGetBillableMetricsForQuickbooksItemsListLazyQuery>;
+export type GetBillableMetricsForQuickbooksItemsListSuspenseQueryHookResult = ReturnType<typeof useGetBillableMetricsForQuickbooksItemsListSuspenseQuery>;
+export type GetBillableMetricsForQuickbooksItemsListQueryResult = Apollo.QueryResult<GetBillableMetricsForQuickbooksItemsListQuery, GetBillableMetricsForQuickbooksItemsListQueryVariables>;
 export const GetQuickbooksIntegrationsSettingsDocument = gql`
     query getQuickbooksIntegrationsSettings($id: ID!, $limit: Int, $integrationsType: [IntegrationTypeEnum!]) {
   integration(id: $id) {
@@ -57612,6 +57969,336 @@ export function useDeleteNetsuiteIntegrationMappingMutation(baseOptions?: Apollo
 export type DeleteNetsuiteIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteNetsuiteIntegrationMappingMutation>;
 export type DeleteNetsuiteIntegrationMappingMutationResult = Apollo.MutationResult<DeleteNetsuiteIntegrationMappingMutation>;
 export type DeleteNetsuiteIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteNetsuiteIntegrationMappingMutation, DeleteNetsuiteIntegrationMappingMutationVariables>;
+export const GetQuickbooksIntegrationItemsDocument = gql`
+    query getQuickbooksIntegrationItems($integrationId: ID!, $itemType: IntegrationItemTypeEnum, $page: Int, $limit: Int, $searchTerm: String) {
+  integrationItems(
+    integrationId: $integrationId
+    itemType: $itemType
+    page: $page
+    limit: $limit
+    searchTerm: $searchTerm
+  ) {
+    collection {
+      ...QuickbooksIntegrationMapItemDrawer
+    }
+    metadata {
+      currentPage
+      totalPages
+      totalCount
+    }
+  }
+}
+    ${QuickbooksIntegrationMapItemDrawerFragmentDoc}`;
+
+/**
+ * __useGetQuickbooksIntegrationItemsQuery__
+ *
+ * To run a query within a React component, call `useGetQuickbooksIntegrationItemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetQuickbooksIntegrationItemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetQuickbooksIntegrationItemsQuery({
+ *   variables: {
+ *      integrationId: // value for 'integrationId'
+ *      itemType: // value for 'itemType'
+ *      page: // value for 'page'
+ *      limit: // value for 'limit'
+ *      searchTerm: // value for 'searchTerm'
+ *   },
+ * });
+ */
+export function useGetQuickbooksIntegrationItemsQuery(baseOptions: Apollo.QueryHookOptions<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables> & ({ variables: GetQuickbooksIntegrationItemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>(GetQuickbooksIntegrationItemsDocument, options);
+      }
+export function useGetQuickbooksIntegrationItemsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>(GetQuickbooksIntegrationItemsDocument, options);
+        }
+// @ts-ignore
+export function useGetQuickbooksIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>;
+export function useGetQuickbooksIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>): Apollo.UseSuspenseQueryResult<GetQuickbooksIntegrationItemsQuery | undefined, GetQuickbooksIntegrationItemsQueryVariables>;
+export function useGetQuickbooksIntegrationItemsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>(GetQuickbooksIntegrationItemsDocument, options);
+        }
+export type GetQuickbooksIntegrationItemsQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationItemsQuery>;
+export type GetQuickbooksIntegrationItemsLazyQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationItemsLazyQuery>;
+export type GetQuickbooksIntegrationItemsSuspenseQueryHookResult = ReturnType<typeof useGetQuickbooksIntegrationItemsSuspenseQuery>;
+export type GetQuickbooksIntegrationItemsQueryResult = Apollo.QueryResult<GetQuickbooksIntegrationItemsQuery, GetQuickbooksIntegrationItemsQueryVariables>;
+export const TriggerQuickbooksIntegrationAccountsRefetchDocument = gql`
+    mutation triggerQuickbooksIntegrationAccountsRefetch($input: FetchIntegrationAccountsInput!) {
+  fetchIntegrationAccounts(input: $input) {
+    collection {
+      ...QuickbooksIntegrationMapItemDrawer
+    }
+  }
+}
+    ${QuickbooksIntegrationMapItemDrawerFragmentDoc}`;
+export type TriggerQuickbooksIntegrationAccountsRefetchMutationFn = Apollo.MutationFunction<TriggerQuickbooksIntegrationAccountsRefetchMutation, TriggerQuickbooksIntegrationAccountsRefetchMutationVariables>;
+
+/**
+ * __useTriggerQuickbooksIntegrationAccountsRefetchMutation__
+ *
+ * To run a mutation, you first call `useTriggerQuickbooksIntegrationAccountsRefetchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTriggerQuickbooksIntegrationAccountsRefetchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [triggerQuickbooksIntegrationAccountsRefetchMutation, { data, loading, error }] = useTriggerQuickbooksIntegrationAccountsRefetchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTriggerQuickbooksIntegrationAccountsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerQuickbooksIntegrationAccountsRefetchMutation, TriggerQuickbooksIntegrationAccountsRefetchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TriggerQuickbooksIntegrationAccountsRefetchMutation, TriggerQuickbooksIntegrationAccountsRefetchMutationVariables>(TriggerQuickbooksIntegrationAccountsRefetchDocument, options);
+      }
+export type TriggerQuickbooksIntegrationAccountsRefetchMutationHookResult = ReturnType<typeof useTriggerQuickbooksIntegrationAccountsRefetchMutation>;
+export type TriggerQuickbooksIntegrationAccountsRefetchMutationResult = Apollo.MutationResult<TriggerQuickbooksIntegrationAccountsRefetchMutation>;
+export type TriggerQuickbooksIntegrationAccountsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerQuickbooksIntegrationAccountsRefetchMutation, TriggerQuickbooksIntegrationAccountsRefetchMutationVariables>;
+export const TriggerQuickbooksIntegrationItemsRefetchDocument = gql`
+    mutation triggerQuickbooksIntegrationItemsRefetch($input: FetchIntegrationItemsInput!) {
+  fetchIntegrationItems(input: $input) {
+    collection {
+      ...QuickbooksIntegrationMapItemDrawer
+    }
+  }
+}
+    ${QuickbooksIntegrationMapItemDrawerFragmentDoc}`;
+export type TriggerQuickbooksIntegrationItemsRefetchMutationFn = Apollo.MutationFunction<TriggerQuickbooksIntegrationItemsRefetchMutation, TriggerQuickbooksIntegrationItemsRefetchMutationVariables>;
+
+/**
+ * __useTriggerQuickbooksIntegrationItemsRefetchMutation__
+ *
+ * To run a mutation, you first call `useTriggerQuickbooksIntegrationItemsRefetchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTriggerQuickbooksIntegrationItemsRefetchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [triggerQuickbooksIntegrationItemsRefetchMutation, { data, loading, error }] = useTriggerQuickbooksIntegrationItemsRefetchMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTriggerQuickbooksIntegrationItemsRefetchMutation(baseOptions?: Apollo.MutationHookOptions<TriggerQuickbooksIntegrationItemsRefetchMutation, TriggerQuickbooksIntegrationItemsRefetchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<TriggerQuickbooksIntegrationItemsRefetchMutation, TriggerQuickbooksIntegrationItemsRefetchMutationVariables>(TriggerQuickbooksIntegrationItemsRefetchDocument, options);
+      }
+export type TriggerQuickbooksIntegrationItemsRefetchMutationHookResult = ReturnType<typeof useTriggerQuickbooksIntegrationItemsRefetchMutation>;
+export type TriggerQuickbooksIntegrationItemsRefetchMutationResult = Apollo.MutationResult<TriggerQuickbooksIntegrationItemsRefetchMutation>;
+export type TriggerQuickbooksIntegrationItemsRefetchMutationOptions = Apollo.BaseMutationOptions<TriggerQuickbooksIntegrationItemsRefetchMutation, TriggerQuickbooksIntegrationItemsRefetchMutationVariables>;
+export const CreateQuickbooksIntegrationCollectionMappingDocument = gql`
+    mutation createQuickbooksIntegrationCollectionMapping($input: CreateIntegrationCollectionMappingInput!) {
+  createIntegrationCollectionMapping(input: $input) {
+    id
+    ...QuickbooksIntegrationMapItemDrawerCollectionMappingItem
+  }
+}
+    ${QuickbooksIntegrationMapItemDrawerCollectionMappingItemFragmentDoc}`;
+export type CreateQuickbooksIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<CreateQuickbooksIntegrationCollectionMappingMutation, CreateQuickbooksIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useCreateQuickbooksIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateQuickbooksIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateQuickbooksIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createQuickbooksIntegrationCollectionMappingMutation, { data, loading, error }] = useCreateQuickbooksIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateQuickbooksIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateQuickbooksIntegrationCollectionMappingMutation, CreateQuickbooksIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateQuickbooksIntegrationCollectionMappingMutation, CreateQuickbooksIntegrationCollectionMappingMutationVariables>(CreateQuickbooksIntegrationCollectionMappingDocument, options);
+      }
+export type CreateQuickbooksIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useCreateQuickbooksIntegrationCollectionMappingMutation>;
+export type CreateQuickbooksIntegrationCollectionMappingMutationResult = Apollo.MutationResult<CreateQuickbooksIntegrationCollectionMappingMutation>;
+export type CreateQuickbooksIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<CreateQuickbooksIntegrationCollectionMappingMutation, CreateQuickbooksIntegrationCollectionMappingMutationVariables>;
+export const CreateQuickbooksIntegrationMappingDocument = gql`
+    mutation createQuickbooksIntegrationMapping($input: CreateIntegrationMappingInput!) {
+  createIntegrationMapping(input: $input) {
+    id
+    ...QuickbooksIntegrationMapItemDrawerCollectionItem
+  }
+}
+    ${QuickbooksIntegrationMapItemDrawerCollectionItemFragmentDoc}`;
+export type CreateQuickbooksIntegrationMappingMutationFn = Apollo.MutationFunction<CreateQuickbooksIntegrationMappingMutation, CreateQuickbooksIntegrationMappingMutationVariables>;
+
+/**
+ * __useCreateQuickbooksIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useCreateQuickbooksIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateQuickbooksIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createQuickbooksIntegrationMappingMutation, { data, loading, error }] = useCreateQuickbooksIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateQuickbooksIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<CreateQuickbooksIntegrationMappingMutation, CreateQuickbooksIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateQuickbooksIntegrationMappingMutation, CreateQuickbooksIntegrationMappingMutationVariables>(CreateQuickbooksIntegrationMappingDocument, options);
+      }
+export type CreateQuickbooksIntegrationMappingMutationHookResult = ReturnType<typeof useCreateQuickbooksIntegrationMappingMutation>;
+export type CreateQuickbooksIntegrationMappingMutationResult = Apollo.MutationResult<CreateQuickbooksIntegrationMappingMutation>;
+export type CreateQuickbooksIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<CreateQuickbooksIntegrationMappingMutation, CreateQuickbooksIntegrationMappingMutationVariables>;
+export const UpdateQuickbooksIntegrationCollectionMappingDocument = gql`
+    mutation updateQuickbooksIntegrationCollectionMapping($input: UpdateIntegrationCollectionMappingInput!) {
+  updateIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateQuickbooksIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<UpdateQuickbooksIntegrationCollectionMappingMutation, UpdateQuickbooksIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useUpdateQuickbooksIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuickbooksIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuickbooksIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuickbooksIntegrationCollectionMappingMutation, { data, loading, error }] = useUpdateQuickbooksIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuickbooksIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuickbooksIntegrationCollectionMappingMutation, UpdateQuickbooksIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuickbooksIntegrationCollectionMappingMutation, UpdateQuickbooksIntegrationCollectionMappingMutationVariables>(UpdateQuickbooksIntegrationCollectionMappingDocument, options);
+      }
+export type UpdateQuickbooksIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useUpdateQuickbooksIntegrationCollectionMappingMutation>;
+export type UpdateQuickbooksIntegrationCollectionMappingMutationResult = Apollo.MutationResult<UpdateQuickbooksIntegrationCollectionMappingMutation>;
+export type UpdateQuickbooksIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<UpdateQuickbooksIntegrationCollectionMappingMutation, UpdateQuickbooksIntegrationCollectionMappingMutationVariables>;
+export const UpdateQuickbooksIntegrationMappingDocument = gql`
+    mutation updateQuickbooksIntegrationMapping($input: UpdateIntegrationMappingInput!) {
+  updateIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type UpdateQuickbooksIntegrationMappingMutationFn = Apollo.MutationFunction<UpdateQuickbooksIntegrationMappingMutation, UpdateQuickbooksIntegrationMappingMutationVariables>;
+
+/**
+ * __useUpdateQuickbooksIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useUpdateQuickbooksIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateQuickbooksIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateQuickbooksIntegrationMappingMutation, { data, loading, error }] = useUpdateQuickbooksIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateQuickbooksIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<UpdateQuickbooksIntegrationMappingMutation, UpdateQuickbooksIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateQuickbooksIntegrationMappingMutation, UpdateQuickbooksIntegrationMappingMutationVariables>(UpdateQuickbooksIntegrationMappingDocument, options);
+      }
+export type UpdateQuickbooksIntegrationMappingMutationHookResult = ReturnType<typeof useUpdateQuickbooksIntegrationMappingMutation>;
+export type UpdateQuickbooksIntegrationMappingMutationResult = Apollo.MutationResult<UpdateQuickbooksIntegrationMappingMutation>;
+export type UpdateQuickbooksIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<UpdateQuickbooksIntegrationMappingMutation, UpdateQuickbooksIntegrationMappingMutationVariables>;
+export const DeleteQuickbooksIntegrationCollectionMappingDocument = gql`
+    mutation deleteQuickbooksIntegrationCollectionMapping($input: DestroyIntegrationCollectionMappingInput!) {
+  destroyIntegrationCollectionMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteQuickbooksIntegrationCollectionMappingMutationFn = Apollo.MutationFunction<DeleteQuickbooksIntegrationCollectionMappingMutation, DeleteQuickbooksIntegrationCollectionMappingMutationVariables>;
+
+/**
+ * __useDeleteQuickbooksIntegrationCollectionMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteQuickbooksIntegrationCollectionMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteQuickbooksIntegrationCollectionMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteQuickbooksIntegrationCollectionMappingMutation, { data, loading, error }] = useDeleteQuickbooksIntegrationCollectionMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteQuickbooksIntegrationCollectionMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteQuickbooksIntegrationCollectionMappingMutation, DeleteQuickbooksIntegrationCollectionMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteQuickbooksIntegrationCollectionMappingMutation, DeleteQuickbooksIntegrationCollectionMappingMutationVariables>(DeleteQuickbooksIntegrationCollectionMappingDocument, options);
+      }
+export type DeleteQuickbooksIntegrationCollectionMappingMutationHookResult = ReturnType<typeof useDeleteQuickbooksIntegrationCollectionMappingMutation>;
+export type DeleteQuickbooksIntegrationCollectionMappingMutationResult = Apollo.MutationResult<DeleteQuickbooksIntegrationCollectionMappingMutation>;
+export type DeleteQuickbooksIntegrationCollectionMappingMutationOptions = Apollo.BaseMutationOptions<DeleteQuickbooksIntegrationCollectionMappingMutation, DeleteQuickbooksIntegrationCollectionMappingMutationVariables>;
+export const DeleteQuickbooksIntegrationMappingDocument = gql`
+    mutation deleteQuickbooksIntegrationMapping($input: DestroyIntegrationMappingInput!) {
+  destroyIntegrationMapping(input: $input) {
+    id
+  }
+}
+    `;
+export type DeleteQuickbooksIntegrationMappingMutationFn = Apollo.MutationFunction<DeleteQuickbooksIntegrationMappingMutation, DeleteQuickbooksIntegrationMappingMutationVariables>;
+
+/**
+ * __useDeleteQuickbooksIntegrationMappingMutation__
+ *
+ * To run a mutation, you first call `useDeleteQuickbooksIntegrationMappingMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteQuickbooksIntegrationMappingMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteQuickbooksIntegrationMappingMutation, { data, loading, error }] = useDeleteQuickbooksIntegrationMappingMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDeleteQuickbooksIntegrationMappingMutation(baseOptions?: Apollo.MutationHookOptions<DeleteQuickbooksIntegrationMappingMutation, DeleteQuickbooksIntegrationMappingMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteQuickbooksIntegrationMappingMutation, DeleteQuickbooksIntegrationMappingMutationVariables>(DeleteQuickbooksIntegrationMappingDocument, options);
+      }
+export type DeleteQuickbooksIntegrationMappingMutationHookResult = ReturnType<typeof useDeleteQuickbooksIntegrationMappingMutation>;
+export type DeleteQuickbooksIntegrationMappingMutationResult = Apollo.MutationResult<DeleteQuickbooksIntegrationMappingMutation>;
+export type DeleteQuickbooksIntegrationMappingMutationOptions = Apollo.BaseMutationOptions<DeleteQuickbooksIntegrationMappingMutation, DeleteQuickbooksIntegrationMappingMutationVariables>;
 export const GetXeroIntegrationItemsDocument = gql`
     query getXeroIntegrationItems($integrationId: ID!, $itemType: IntegrationItemTypeEnum, $page: Int, $limit: Int, $searchTerm: String) {
   integrationItems(
