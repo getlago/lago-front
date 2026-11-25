@@ -16,7 +16,7 @@ catalog:
   autoprefixer: 10.6.2
   babel-jest: 30.5.2
   class-variance-authority: 0.7.1
-  eslint: 9.39.5
+  eslint: 10.15.0
   jest: 30.5.2
   jest-environment-jsdom: 30.5.2
   lucide-react: 1.66.0
