@@ -73,7 +73,7 @@ const CURRENCY_MISMATCH_KEY = 'text_17955199987175qsul4nkfxe'
 const FEATURE_UNAVAILABLE_KEY = 'text_1795619366911o3vnwd5udy6'
 const FILTER_NOT_FOUND_KEY = 'text_1795619366911a8sk62vg94f'
 const FILTER_VALUE_MISSING_KEY = 'text_1795630961583o318oscsu8g'
-const REFUSED_FIELD_KEY = 'text_1795619366911qby577vnvkn'
+const CUSTOM_AGGREGATION_KEY = 'text_1795632118353nbberbjhk7i'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_KEY = 'text_1795441447536k9lkdhz1ect'
 const SUCCESS_KEY = 'text_1795431906433hn8hins2pus'
@@ -81,6 +81,7 @@ const ERROR_KEY = 'text_17954319064335ads00pkxh8'
 const BILLABLE_METRIC_LABEL_KEY = 'text_1795431906433n4atjiccd3h'
 const PRODUCT_LABEL_KEY = 'text_1795431906434ld1peo7t04a'
 const PRODUCT_CATEGORY_LABEL_KEY = 'text_1795431906434cs56t3kl5lh'
+const PRICING_UNIT_LABEL_KEY = 'text_1795431906433676fmxuhwig'
 const RATE_CARD_LABEL_KEY = 'text_17954319064341xdvy2c5ckl'
 
 const TARGET = { itemType: MoveToLiveMovableItemTypeEnum.Product, id: 'product-1' }
@@ -106,6 +107,12 @@ const RATE_CARD = buildItem({
   itemType: MoveToLiveItemTypeEnum.RateCard,
   code: 'storage_rate',
   name: null,
+})
+const PRICING_UNIT = buildItem({
+  id: 'pricing-unit-1',
+  itemType: MoveToLiveItemTypeEnum.PricingUnit,
+  code: 'credits',
+  name: 'Credits',
 })
 const CATEGORY = buildItem({
   id: 'category-1',
@@ -303,16 +310,45 @@ describe('useMoveToLive', () => {
             refusalCode: 'not_allowed_for_billing_timing',
             refusalField: 'rates[0].minAmountCents',
           },
-          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|min amount cents`,
+          `${UNSUPPORTED_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
-          'an item copied along needs a premium license',
+          'a rate of a prorated card uses a model that cannot prorate',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: RATE_CARD,
+            refusalCode: 'not_allowed_with_proration',
+            refusalField: 'ratePhases[0].rateOverride.rateModel',
+          },
+          `${RATE_MISMATCH_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
+        ],
+        [
+          'a metric with a custom aggregation production cannot run',
           {
             blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
             refusedItem: METRIC,
             refusalCode: 'feature_unavailable',
           },
-          `${FEATURE_UNAVAILABLE_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+          `${CUSTOM_AGGREGATION_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+        ],
+        [
+          'a metric with a custom aggregation that the copy cannot carry',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: METRIC,
+            refusalCode: 'value_is_mandatory',
+            refusalField: 'customAggregator',
+          },
+          `${CUSTOM_AGGREGATION_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`,
+        ],
+        [
+          'an item copied along needs a premium license',
+          {
+            blockingReason: MoveToLiveBlockingReasonEnum.MoveToLiveItemRefused,
+            refusedItem: PRICING_UNIT,
+            refusalCode: 'feature_unavailable',
+          },
+          `${FEATURE_UNAVAILABLE_KEY}|${PRICING_UNIT_LABEL_KEY}|credits`,
         ],
         [
           'a live product lacks the filter of a rate card',
@@ -342,7 +378,7 @@ describe('useMoveToLive', () => {
             refusalCode: 'value_is_invalid',
             refusalField: 'appliedPricingUnitCode',
           },
-          `${REFUSED_FIELD_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}|applied pricing unit code`,
+          `${UNSUPPORTED_KEY}|${RATE_CARD_LABEL_KEY}|${RATE_CARD.code}`,
         ],
         [
           'production refuses an item without a field',
@@ -613,7 +649,7 @@ describe('useMoveToLive', () => {
             code: 'unprocessable_entity',
             details: { appliesTo: { include: ['value_is_invalid'] } },
           },
-          `${REFUSED_FIELD_KEY}|${PRODUCT_LABEL_KEY}|storage|applies to`,
+          `${UNSUPPORTED_KEY}|${PRODUCT_LABEL_KEY}|storage`,
         ],
         [
           'a production resource not found',

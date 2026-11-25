@@ -72,7 +72,7 @@ const ITEM_TYPE_TRANSLATION_KEYS: Record<MoveToLiveItemTypeEnum, string> = {
 }
 
 const ITEM_UNSUPPORTED_TRANSLATION_KEY = 'text_1795431906433m4kipo8c27k'
-const REFUSED_FIELD_TRANSLATION_KEY = 'text_1795619366911qby577vnvkn'
+const CUSTOM_AGGREGATION_TRANSLATION_KEY = 'text_1795632118353nbberbjhk7i'
 const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
 const UNKNOWN_BLOCKING_REASON_TRANSLATION_KEY = 'text_1795441447536k9lkdhz1ect'
 
@@ -87,10 +87,13 @@ const BLOCKING_REASON_TRANSLATION_KEYS: Record<MoveToLiveBlockingReasonEnum, str
   [MoveToLiveBlockingReasonEnum.MoveToLiveUnsupportedTarget]: ITEM_UNSUPPORTED_TRANSLATION_KEY,
 }
 
-// Codes of the create services, keyed by `code` or `code:field` when the field tells cases apart. A field
-// is the request path without list indices (`values.value`), or its last key (`rateModel`).
+// Create-service codes, keyed by `code`, `itemType/code` or `code:field`, where a field is its path without
+// list indices (`values.value`) or its last key (`rateModel`). Other codes read "can't be moved".
 const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
   'value_already_exist:code': 'text_17955393256589pupqccgr1x',
+  [`${MoveToLiveItemTypeEnum.BillableMetric}/feature_unavailable`]:
+    CUSTOM_AGGREGATION_TRANSLATION_KEY,
+  'value_is_mandatory:customAggregator': CUSTOM_AGGREGATION_TRANSLATION_KEY,
   feature_unavailable: 'text_1795619366911o3vnwd5udy6',
   currency_does_not_match: 'text_17955199987175qsul4nkfxe',
   'requires_recurring_metric:proration': 'text_1795519357323iuwdw2rfp07',
@@ -98,6 +101,7 @@ const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
   'not_allowed_for_product:rateModel': 'text_1795597376102tkbcu8a4f52',
   'not_allowed_for_aggregation_type:rateModel': 'text_1795597376102tkbcu8a4f52',
   'not_allowed_for_billing_timing:rateModel': 'text_1795597376102tkbcu8a4f52',
+  'not_allowed_with_proration:rateModel': 'text_1795597376102tkbcu8a4f52',
   'not_found:productFilter': 'text_1795619366911a8sk62vg94f',
   'value_is_invalid:values.value': 'text_1795630961583o318oscsu8g',
 }
@@ -132,21 +136,14 @@ const getFieldPath = (field: string): string => field.replace(/\[\d+\]/g, '')
 
 const getLastFieldKey = (field: string): string => getFieldPath(field).split('.').pop() ?? field
 
-const getRefusalKey = ({ code, field }: Refusal): string | undefined => {
-  if (!field) return REFUSAL_TRANSLATION_KEYS[code]
-
-  return (
-    REFUSAL_TRANSLATION_KEYS[`${code}:${getFieldPath(field)}`] ??
-    REFUSAL_TRANSLATION_KEYS[`${code}:${getLastFieldKey(field)}`] ??
-    REFUSAL_TRANSLATION_KEYS[code]
-  )
-}
-
-// `rateModel` reads "rate model" in a message.
-const toFieldLabel = (field: string): string =>
-  getLastFieldKey(field)
-    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
-    .toLowerCase()
+const getRefusalKey = (
+  { code, field }: Refusal,
+  itemType: MoveToLiveItemTypeEnum,
+): string | undefined =>
+  REFUSAL_TRANSLATION_KEYS[`${itemType}/${code}`] ??
+  (field && REFUSAL_TRANSLATION_KEYS[`${code}:${getFieldPath(field)}`]) ??
+  (field && REFUSAL_TRANSLATION_KEYS[`${code}:${getLastFieldKey(field)}`]) ??
+  REFUSAL_TRANSLATION_KEYS[code]
 
 const toCamelCase = (value: string): string =>
   value.replace(/_(\w)/g, (_, letter: string) => letter.toUpperCase())
@@ -211,27 +208,19 @@ export const useMoveToLive: UseMoveToLive = () => {
   })
   const [moveToLiveMode] = useMoveToLiveModeMutation({ context: { silentError: true } })
 
-  const translateItem = (
-    key: string,
-    item?: MoveToLiveItemFragment | null,
-    field?: string | null,
-  ): string =>
+  const translateItem = (key: string, item?: MoveToLiveItemFragment | null): string =>
     translate(key, {
       itemType: item ? translate(getItemTypeKey(item.itemType)) : '',
       code: item?.code ?? '',
-      ...(field && { field }),
     })
 
-  const translateRefusal = (refusal: Refusal, item: MoveToLiveItemFragment): string | null => {
-    const key =
-      getRefusalKey(refusal) ??
-      BLOCKING_REASON_TRANSLATION_KEYS[refusal.code as MoveToLiveBlockingReasonEnum]
-
-    if (key) return translateItem(key, item)
-    if (!refusal.field) return null
-
-    return translateItem(REFUSED_FIELD_TRANSLATION_KEY, item, toFieldLabel(refusal.field))
-  }
+  const translateRefusal = (refusal: Refusal, item: MoveToLiveItemFragment): string =>
+    translateItem(
+      getRefusalKey(refusal, item.itemType) ??
+        BLOCKING_REASON_TRANSLATION_KEYS[refusal.code as MoveToLiveBlockingReasonEnum] ??
+        ITEM_UNSUPPORTED_TRANSLATION_KEY,
+      item,
+    )
 
   // A live moved item is neither copied nor named by the preview, so the item an earlier preview named
   // stands in for it, or else its type.
@@ -347,11 +336,10 @@ export const useMoveToLive: UseMoveToLive = () => {
     if (preview && showBlockingReason(preview, target, previewedItem)) return
 
     const refusal = getRefusalFromErrors(errors)
-    const message = refusal ? translateRefusal(refusal, previewedItem) : null
 
-    if (!message) return showError()
+    if (!refusal) return showError()
 
-    addToast({ severity: 'info', message })
+    addToast({ severity: 'info', message: translateRefusal(refusal, previewedItem) })
   }
 
   const previewAndConfirm = async (target: MoveToLiveTarget): Promise<void> => {

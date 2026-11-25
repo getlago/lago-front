@@ -5639,6 +5639,6 @@
   "text_1795597376102tkbcu8a4f52": "The {{itemType}} {{code}} uses a pricing model that its live product or billable metric doesn't support. Change it in your sandbox first.",
   "text_1795619366911o3vnwd5udy6": "The {{itemType}} {{code}} needs a premium license that your production account doesn't have.",
   "text_1795619366911a8sk62vg94f": "A live product of the {{itemType}} {{code}} lacks a product filter it uses. Add the filter in production first.",
-  "text_1795619366911qby577vnvkn": "The {{itemType}} {{code}} can't be moved to live mode: production refuses its {{field}}.",
-  "text_1795630961583o318oscsu8g": "The live billable metric of the {{itemType}} {{code}} lacks a filter value it uses. Add the value in production first."
+  "text_1795630961583o318oscsu8g": "The live billable metric of the {{itemType}} {{code}} lacks a filter value it uses. Add the value in production first.",
+  "text_1795632118353nbberbjhk7i": "The {{itemType}} {{code}} uses a custom aggregation, which can't be moved to live mode. Set it up in production instead."
 }
