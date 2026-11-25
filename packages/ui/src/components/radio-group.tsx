@@ -44,7 +44,7 @@ export const RadioGroupItem = React.forwardRef<HTMLElement, RadioGroupItemProps>
         data-slot="radio-group-item"
         className={cn('v2-choice-control v2-radio', className)}
       >
-        <Primitive.Indicator className="bg-current pointer-events-none size-2 rounded-full" />
+        <Primitive.Indicator className="v2-radio-indicator pointer-events-none size-2 rounded-full" />
       </Primitive.Root>
     )
   },

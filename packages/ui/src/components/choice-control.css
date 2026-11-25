@@ -18,6 +18,9 @@
 .v2-checkbox {
   border-radius: 6px;
 }
+.v2-radio-indicator {
+  background: currentColor;
+}
 .v2-radio {
   border-radius: 50%;
 }

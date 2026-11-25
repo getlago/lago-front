@@ -256,6 +256,13 @@ export function RadioFields(): ReactElement {
 }
 
 export function verifyChoiceLayout(canvas: HTMLElement): void {
+  for (const indicator of canvas.querySelectorAll<HTMLElement>('.v2-radio-indicator')) {
+    const style = getComputedStyle(indicator)
+
+    if (style.width !== '8px' || style.height !== '8px' || style.backgroundColor !== style.color)
+      throw new Error('Selected radio must render an 8px dot using the indicator color')
+  }
+
   for (const field of canvas.querySelectorAll<HTMLElement>('[data-orientation="horizontal"]')) {
     const control = field.querySelector<HTMLElement>('.v2-choice-control')
     const content = field.querySelector<HTMLElement>(
