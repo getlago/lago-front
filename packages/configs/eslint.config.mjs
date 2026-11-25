@@ -155,7 +155,12 @@ export default [
     },
   },
   {
-    files: ['vite.config.ts', 'scripts/**/*.js', '**/eslint-rules/__tests__/*.js'],
+    files: [
+      'vite.config.ts',
+      'src/core/appVersion/versionStampPlugin.ts',
+      'scripts/**/*.js',
+      '**/eslint-rules/__tests__/*.js',
+    ],
     rules: {
       'import/order': 'off',
     },

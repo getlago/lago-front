@@ -37,6 +37,8 @@ All wrapper className props accept strings; use data attributes for state styles
 
 Free-text validate(query, values) is a pure caller function that can reject duplicates by semantic value, even when createItem generates IDs. createItem runs once per accepted commit. The caller owns error state through onValidationChange and passes aria-invalid/aria-describedby to ComboboxInput. onInputValueChange receives (value, details), including a cancellable input-clear event with the original native event after a typed commit. Object suggestions should provide itemToStringLabel for the same validation contract.
 
+Popup search uses `<ComboboxInput render={<SearchInput />} />` from `lago-ui/input`, followed by `ComboboxSeparator`. Do not wrap this search in ComboboxControl: SearchInput owns its search icon, background and focus styling. ComboboxInput retains filtering, keyboard navigation and the native input ref.
+
 ## Examples
 
 ```tsx
@@ -87,3 +89,7 @@ Enter in an empty normalized free-text query keeps normal form submission behavi
 **Base UI selection patch**
 
 Base UI 1.9.0 retains a filtered highlight index when an outside input clears after selecting an item while a controlled multiple popup stays open. The pinned pnpm patch clears that index using Base UI's own index update path. It changes both CommonJS and ESM builds and preserves popup-search behavior. Keep the pointer/keyboard repeated-Enter regressions when upgrading Base UI; remove the patch once an upstream version passes them without it.
+
+### Popup search and attached controls
+
+`ComboboxSearch` composes SearchInput with an optional 20px clear-query IconButton. Supply `showClear`, `clearLabel` and `onClear`; keep the query controlled on Root. It is followed by ComboboxSeparator, without a ComboboxControl shell. `ComboboxTrigger variant="input"` supplies a 36px bordered trigger with text and chevron for an attached input composition. Keep it outside InputGroup's decorative addons and anchor the menu to the full composition. Numeric/currency behavior belongs in the app, not these primitives.

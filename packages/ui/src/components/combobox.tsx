@@ -10,7 +10,7 @@ import './combobox.css'
 import { ComboboxContext, FreeTextContext } from './combobox/context'
 import { ComboboxText } from './combobox/text'
 import { IconButton } from './icon-button'
-import { Input } from './input'
+import { Input, SearchInput } from './input'
 
 import { cn } from '../lib/utils'
 
@@ -90,7 +90,7 @@ export const ComboboxControl = React.forwardRef<
 ComboboxControl.displayName = 'ComboboxControl'
 
 export const ComboboxInput = React.forwardRef<HTMLInputElement, StyledProps<Primitive.Input.Props>>(
-  ({ className, onKeyDown, ...props }, ref) => {
+  ({ className, onKeyDown, render = <Input />, ...props }, ref) => {
     const freeText = React.useContext(FreeTextContext)
     const composing = React.useRef(false)
 
@@ -98,7 +98,7 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, StyledProps<Prim
       <Primitive.Input
         {...props}
         ref={ref}
-        render={<Input />}
+        render={render}
         className={cn('v2-combobox-input', className)}
         onCompositionStart={(event) => {
           composing.current = true
@@ -133,22 +133,61 @@ export const ComboboxInput = React.forwardRef<HTMLInputElement, StyledProps<Prim
 )
 ComboboxInput.displayName = 'ComboboxInput'
 
-export const ComboboxTrigger = React.forwardRef<
-  HTMLButtonElement,
-  StyledProps<Primitive.Trigger.Props>
->(({ className, children, ...props }, ref) => (
-  <Primitive.Trigger
-    {...props}
-    ref={ref}
-    className={cn(
-      'v2-combobox-trigger flex shrink-0 items-center justify-center text-icon-default disabled:text-disabled-foreground',
-      className,
-    )}
-  >
-    {children || <ChevronsUpDown aria-hidden="true" size={14} />}
-  </Primitive.Trigger>
-))
+export interface ComboboxTriggerProps extends StyledProps<Primitive.Trigger.Props> {
+  variant?: 'icon' | 'input'
+}
+
+export const ComboboxTrigger = React.forwardRef<HTMLButtonElement, ComboboxTriggerProps>(
+  ({ className, children, variant = 'icon', ...props }, ref): React.ReactElement => (
+    <Primitive.Trigger
+      {...props}
+      ref={ref}
+      data-variant={variant}
+      className={cn(
+        'v2-combobox-trigger flex shrink-0 items-center justify-center text-icon-default disabled:text-disabled-foreground',
+        variant === 'input' &&
+          'v2-text-body h-9 justify-between gap-2 rounded-lg border border-border-control bg-surface px-3 text-text-default focus-visible:border-focus-border focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-focus-ring hover:enabled:bg-surface-subtle disabled:cursor-not-allowed disabled:border-disabled-border disabled:bg-disabled disabled:text-disabled-foreground',
+        className,
+      )}
+    >
+      {children}
+      {(variant === 'input' || !children) && <ChevronsUpDown aria-hidden="true" size={14} />}
+    </Primitive.Trigger>
+  ),
+)
 ComboboxTrigger.displayName = 'ComboboxTrigger'
+
+export interface ComboboxSearchProps extends Omit<StyledProps<Primitive.Input.Props>, 'render'> {
+  clearLabel: string
+  onClear: () => void
+  showClear: boolean
+}
+
+export const ComboboxSearch = React.forwardRef<HTMLInputElement, ComboboxSearchProps>(
+  ({ clearLabel, onClear, showClear, className, ...props }, ref): React.ReactElement => (
+    <div className="relative min-w-0">
+      <ComboboxInput
+        {...props}
+        ref={ref}
+        render={<SearchInput />}
+        className={cn('pr-10', className)}
+      />
+      {showClear && (
+        <IconButton
+          label={clearLabel}
+          size="icon-xs"
+          className="absolute right-3 top-1/2 -translate-y-1/2"
+          onMouseDown={(event) => event.preventDefault()}
+          onClick={onClear}
+        >
+          <X aria-hidden="true" />
+        </IconButton>
+      )}
+    </div>
+  ),
+)
+ComboboxSearch.displayName = 'ComboboxSearch'
+
 export const ComboboxValue = Primitive.Value
 
 export const ComboboxClear = React.forwardRef<

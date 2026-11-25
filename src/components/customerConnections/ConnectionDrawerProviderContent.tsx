@@ -6,6 +6,7 @@ import { ConnectionDrawerSection } from '~/components/customerConnections/Connec
 import type { CustomerConnectionDrawerFormApi } from '~/components/customerConnections/CustomerConnectionDrawer'
 import { PROVIDERS_WITHOUT_CUSTOMER_MAPPING } from '~/components/customerConnections/customerIntegrationConst'
 import { getAllIntegrationForAnIntegrationType } from '~/components/customerConnections/getAllIntegrationForAnIntegrationType'
+import { QuickbooksCustomerIdField } from '~/components/customerConnections/QuickbooksCustomerIdField'
 import { ConnectionCategory } from '~/components/customerConnections/types'
 import { useAccountingProviders } from '~/components/customerConnections/useAccountingProviders'
 import { useCrmProviders } from '~/components/customerConnections/useCrmProviders'
@@ -23,7 +24,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
-import { getSubsidiaryLabel } from './getSubsidiaryLabel'
+import { getIntegrationItemLabel } from './getIntegrationItemLabel'
 import StripePaymentProviderContent from './StripePaymentProviderContent'
 import { useAccountingProvidersSubsidaries } from './useAccountingProvidersSubsidaries'
 
@@ -158,7 +159,7 @@ export const ConnectionDrawerProviderContent = ({
 
     return subsidiariesData.integrationSubsidiaries.collection.map((integrationSubsidiary) => ({
       value: integrationSubsidiary.externalId,
-      label: getSubsidiaryLabel(integrationSubsidiary),
+      label: getIntegrationItemLabel(integrationSubsidiary),
       labelNode: (
         <ConnectionComboBoxLabel
           label={integrationSubsidiary.externalName ?? ''}
@@ -178,6 +179,12 @@ export const ConnectionDrawerProviderContent = ({
 
   const isIdAndSyncVisible =
     resolvedProviderType !== IntegrationTypeEnum.Hubspot || !!targetedObject
+
+  // A linked connection keeps the locked id input, which shows the stored id as is
+  const isQuickbooksPickerVisible =
+    resolvedProviderType === IntegrationTypeEnum.Quickbooks &&
+    !syncWithProvider &&
+    !hadInitialConnection
 
   const isMappingSupported = !(
     category === ConnectionCategory.Payment &&
@@ -236,16 +243,26 @@ export const ConnectionDrawerProviderContent = ({
           {/* Hubspot: the id/sync pair only makes sense once a targeted object is chosen */}
           {isIdAndSyncVisible && (
             <>
-              <form.AppField name="externalCustomerId">
-                {(field) => (
-                  <field.TextInputField
-                    disabled={!!syncWithProvider || hadInitialConnection}
-                    label={translate('text_1784649473978u6kmffzlw0b', { connectionName })}
-                    description={translate('text_1784649473978uuc3oggbf1r', { connectionName })}
-                    placeholder={translate('text_1784649473978i3wq11ccip3')}
-                  />
-                )}
-              </form.AppField>
+              {isQuickbooksPickerVisible ? (
+                <QuickbooksCustomerIdField
+                  // Remounted per integration, so its list and sync state never carry over
+                  key={selectedIntegration?.id}
+                  form={form}
+                  integrationId={selectedIntegration?.id}
+                  connectionName={connectionName}
+                />
+              ) : (
+                <form.AppField name="externalCustomerId">
+                  {(field) => (
+                    <field.TextInputField
+                      disabled={!!syncWithProvider || hadInitialConnection}
+                      label={translate('text_1784649473978u6kmffzlw0b', { connectionName })}
+                      description={translate('text_1784649473978uuc3oggbf1r', { connectionName })}
+                      placeholder={translate('text_1784649473978i3wq11ccip3')}
+                    />
+                  )}
+                </form.AppField>
+              )}
 
               <form.AppField
                 name="syncWithProvider"
@@ -292,6 +309,9 @@ export const ConnectionDrawerProviderContent = ({
               )}
               {resolvedProviderType === IntegrationTypeEnum.Xero && (
                 <Alert type="info">{translate('text_667d39dc1a765800d28d0607')}</Alert>
+              )}
+              {resolvedProviderType === IntegrationTypeEnum.Quickbooks && (
+                <Alert type="info">{translate('text_1795450153419vz36ur4xxqt')}</Alert>
               )}
               {resolvedProviderType === IntegrationTypeEnum.Hubspot && (
                 <Alert type="info">{translate('text_1729067791880abj1lzd7dn9')}</Alert>
