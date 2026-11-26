@@ -125,6 +125,7 @@ const resourceTypeTranslations: Record<string, string> = {
   RateCardRate: 'text_17919219748033tsf7k2uaro',
   BillableMetric: 'text_64352657267c3d916f962757',
   BillingEntity: 'text_1743077296189ms0shds6g53',
+  CatalogPlan: 'text_63d3a658c6d84a5843032145',
   Coupon: 'text_628b8c693e464200e00e4677',
   CreditNote: 'text_1748341883774iypsrgem3hr',
   Customer: 'text_65201c5a175a4b0238abf29a',

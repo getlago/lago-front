@@ -28,6 +28,7 @@ describe('useActivityLogsInformation', () => {
       ['ContractAppliedRateCard', 'text_1791921974803pyof8qcdfk5'],
       ['PlanAppliedRateCard', 'text_1791921974803v4u3b2dekrv'],
       ['RateCardRate', 'text_17919219748033tsf7k2uaro'],
+      ['CatalogPlan', 'text_63d3a658c6d84a5843032145'],
     ])('should return translation key for %s', (resourceType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
