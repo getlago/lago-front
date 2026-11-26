@@ -139,7 +139,7 @@ type InvoiceDetailsTableBodyLineBaseProps = {
 
 type RegenerateModeProps = {
   onAdd: OnRegeneratedFeeAdd
-  onDelete: (id: string) => void
+  onDelete: (id: string) => void | Promise<void>
   invoiceSubscriptionId: string
   localFees: FeeForCreateFeeDrawerFragment[]
 }
@@ -155,7 +155,7 @@ type InvoiceDetailsTableBodyLineProps =
 
 export const getRegenerateModeProps = (
   onAdd: OnRegeneratedFeeAdd | undefined,
-  onDelete: ((id: string) => void) | undefined,
+  onDelete: ((id: string) => void | Promise<void>) | undefined,
   localFees: FeeForCreateFeeDrawerFragment[] | undefined,
   invoiceSubscriptionId: string,
 ): RegenerateModeProps | Record<string, never> => {
