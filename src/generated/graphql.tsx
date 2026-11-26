@@ -214,6 +214,12 @@ export enum ActivityTypeEnum {
   PlanCreated = 'plan_created',
   /** plan.deleted */
   PlanDeleted = 'plan_deleted',
+  /** plan_entitlement.created */
+  PlanEntitlementCreated = 'plan_entitlement_created',
+  /** plan_entitlement.deleted */
+  PlanEntitlementDeleted = 'plan_entitlement_deleted',
+  /** plan_entitlement.updated */
+  PlanEntitlementUpdated = 'plan_entitlement_updated',
   /** plan_rate_card.created */
   PlanRateCardCreated = 'plan_rate_card_created',
   /** plan_rate_card.deleted */
