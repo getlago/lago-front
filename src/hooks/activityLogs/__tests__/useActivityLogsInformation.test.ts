@@ -71,6 +71,9 @@ describe('useActivityLogsInformation', () => {
 
   describe('getActivityDescription', () => {
     it.each([
+      [ActivityTypeEnum.ContractEntitlementCreated, 'text_1795681244641o5k04d8p5bn'],
+      [ActivityTypeEnum.ContractEntitlementDeleted, 'text_1795681244641oqqrptwqj9s'],
+      [ActivityTypeEnum.ContractEntitlementUpdated, 'text_17956812446425r8x6i3ttiq'],
       [ActivityTypeEnum.ContractPublished, 'text_1795463201390brdh9tn75s0'],
       [ActivityTypeEnum.ContractStarted, 'text_1791921974802xc0m2b09axm'],
       [ActivityTypeEnum.ContractRateCardUpdated, 'text_1791921974802geeg4bwwkvk'],

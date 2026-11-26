@@ -23,6 +23,9 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
   [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
   [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
+  [ActivityTypeEnum.ContractEntitlementCreated]: 'text_1795681244641o5k04d8p5bn',
+  [ActivityTypeEnum.ContractEntitlementDeleted]: 'text_1795681244641oqqrptwqj9s',
+  [ActivityTypeEnum.ContractEntitlementUpdated]: 'text_17956812446425r8x6i3ttiq',
   [ActivityTypeEnum.ContractRateCardCreated]: 'text_17919219748028qs8slf9r4r',
   [ActivityTypeEnum.ContractRateCardDeleted]: 'text_1791921974802buml62fqqaz',
   [ActivityTypeEnum.ContractRateCardUpdated]: 'text_1791921974802geeg4bwwkvk',
@@ -209,6 +212,9 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ContractStarted:
       case ActivityTypeEnum.ContractTerminated:
       case ActivityTypeEnum.ContractCanceled:
+      case ActivityTypeEnum.ContractEntitlementCreated:
+      case ActivityTypeEnum.ContractEntitlementDeleted:
+      case ActivityTypeEnum.ContractEntitlementUpdated:
       case ActivityTypeEnum.ContractRateCardCreated:
       case ActivityTypeEnum.ContractRateCardDeleted:
       case ActivityTypeEnum.ContractRateCardUpdated:

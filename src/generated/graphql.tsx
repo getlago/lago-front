@@ -116,6 +116,12 @@ export enum ActivityTypeEnum {
   ContractCanceled = 'contract_canceled',
   /** contract.created */
   ContractCreated = 'contract_created',
+  /** contract_entitlement.created */
+  ContractEntitlementCreated = 'contract_entitlement_created',
+  /** contract_entitlement.deleted */
+  ContractEntitlementDeleted = 'contract_entitlement_deleted',
+  /** contract_entitlement.updated */
+  ContractEntitlementUpdated = 'contract_entitlement_updated',
   /** contract.published */
   ContractPublished = 'contract_published',
   /** contract_rate_card.created */
