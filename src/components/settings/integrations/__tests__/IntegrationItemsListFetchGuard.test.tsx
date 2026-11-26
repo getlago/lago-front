@@ -5,6 +5,7 @@ import { render } from '~/test-utils'
 import AnrokIntegrationItemsList from '../AnrokIntegrationItemsList'
 import AvalaraIntegrationItemsList from '../AvalaraIntegrationItemsList'
 import NetsuiteIntegrationItemsList from '../NetsuiteIntegrationItemsList'
+import QuickbooksIntegrationItemsList from '../QuickbooksIntegrationItemsList'
 import XeroIntegrationItemsList from '../XeroIntegrationItemsList'
 
 type ProviderExecs = {
@@ -19,10 +20,11 @@ const createExecs = (): ProviderExecs => ({
   getBillableMetricsList: jest.fn(),
 })
 
-const mockExecs: Record<'anrok' | 'avalara' | 'netsuite' | 'xero', ProviderExecs> = {
+const mockExecs: Record<'anrok' | 'avalara' | 'netsuite' | 'quickbooks' | 'xero', ProviderExecs> = {
   anrok: createExecs(),
   avalara: createExecs(),
   netsuite: createExecs(),
+  quickbooks: createExecs(),
   xero: createExecs(),
 }
 
@@ -78,6 +80,18 @@ jest.mock('~/generated/graphql', () => ({
     mockExecs.netsuite.getBillableMetricsList,
     mockQueryResult,
   ]),
+  useGetQuickbooksIntegrationCollectionMappingsLazyQuery: jest.fn(() => [
+    mockExecs.quickbooks.getDefaultItems,
+    mockQueryResult,
+  ]),
+  useGetAddOnsForQuickbooksItemsListLazyQuery: jest.fn(() => [
+    mockExecs.quickbooks.getAddonList,
+    mockQueryResult,
+  ]),
+  useGetBillableMetricsForQuickbooksItemsListLazyQuery: jest.fn(() => [
+    mockExecs.quickbooks.getBillableMetricsList,
+    mockQueryResult,
+  ]),
   useGetXeroIntegrationCollectionMappingsLazyQuery: jest.fn(() => [
     mockExecs.xero.getDefaultItems,
     mockQueryResult,
@@ -104,6 +118,10 @@ jest.mock('~/components/settings/integrations/NetsuiteIntegrationItemsListDefaul
   __esModule: true,
   default: () => null,
 }))
+jest.mock('~/components/settings/integrations/QuickbooksIntegrationItemsListDefault', () => ({
+  __esModule: true,
+  default: () => null,
+}))
 jest.mock('~/components/settings/integrations/XeroIntegrationItemsListDefault', () => ({
   __esModule: true,
   default: () => null,
@@ -118,6 +136,12 @@ jest.mock('~/pages/settings/integrations/AvalaraIntegrationMapItemDrawer', () =>
 jest.mock('~/pages/settings/integrations/NetsuiteIntegrationMapItemDrawer', () => ({
   useNetsuiteIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
+jest.mock(
+  '~/pages/settings/integrations/QuickbooksIntegrationMapItemDrawer/useQuickbooksIntegrationMapItemDrawer',
+  () => ({
+    useQuickbooksIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
+  }),
+)
 jest.mock('~/pages/settings/integrations/XeroIntegrationMapItemDrawer', () => ({
   useXeroIntegrationMapItemDrawer: () => ({ openDrawer: jest.fn() }),
 }))
@@ -132,6 +156,7 @@ const PROVIDER_CASES: ProviderCase[] = [
   { provider: 'Anrok', Component: AnrokIntegrationItemsList, key: 'anrok' },
   { provider: 'Avalara', Component: AvalaraIntegrationItemsList, key: 'avalara' },
   { provider: 'Netsuite', Component: NetsuiteIntegrationItemsList, key: 'netsuite' },
+  { provider: 'QuickBooks', Component: QuickbooksIntegrationItemsList, key: 'quickbooks' },
   { provider: 'Xero', Component: XeroIntegrationItemsList, key: 'xero' },
 ]
 

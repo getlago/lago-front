@@ -20,6 +20,13 @@ describe('getAllIntegrationForAnIntegrationType', () => {
             name: 'Xero Integration',
           },
           {
+            __typename: 'QuickbooksIntegration' as const,
+            id: '5',
+            code: 'quickbooks-1',
+            name: 'QuickBooks',
+            sandbox: true,
+          },
+          {
             __typename: 'AnrokIntegration' as const,
             id: '3',
             code: 'anrok-1',
@@ -69,6 +76,23 @@ describe('getAllIntegrationForAnIntegrationType', () => {
           id: '2',
           code: 'xero-1',
           name: 'Xero Integration',
+        },
+      ])
+    })
+
+    it('should return all QuickBooks integrations when filtering by QuickBooks type', () => {
+      const result = getAllIntegrationForAnIntegrationType({
+        integrationType: IntegrationTypeEnum.Quickbooks,
+        allIntegrationsData: mockAccountingIntegrationsData,
+      })
+
+      expect(result).toEqual([
+        {
+          __typename: 'QuickbooksIntegration',
+          id: '5',
+          code: 'quickbooks-1',
+          name: 'QuickBooks',
+          sandbox: true,
         },
       ])
     })

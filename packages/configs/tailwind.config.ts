@@ -215,11 +215,17 @@ const config: Config = {
           '0%': { opacity: '0' },
           '100%': { opacity: '1' },
         },
+
+        shimmer: {
+          '0%': { backgroundPosition: '100% 0' },
+          '100%': { backgroundPosition: '-100% 0' },
+        },
       },
       animation: {
         enter: 'enter 250ms cubic-bezier(0.4, 0, 0.2, 1) 1',
         'fade-in-right': 'fadeInRight 300ms ease-out 1',
         'pulse-speed': 'pulseSpeed 500ms ease-out infinite',
+        shimmer: 'shimmer 2s linear infinite',
       },
     },
   },

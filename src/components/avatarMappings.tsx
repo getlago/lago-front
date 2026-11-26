@@ -10,6 +10,7 @@ import GoCardless from '~/public/images/gocardless.svg'
 import Hubspot from '~/public/images/hubspot.svg'
 import Moneyhash from '~/public/images/moneyhash.svg'
 import Netsuite from '~/public/images/netsuite.svg'
+import Quickbooks from '~/public/images/quickbooks.svg'
 import Salesforce from '~/public/images/salesforce.svg'
 import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
@@ -26,6 +27,7 @@ export const paymentAvatarMapping: Record<ProviderTypeEnum, ReactNode> = {
 export const integrationAvatarMapping: Partial<Record<IntegrationTypeEnum, ReactNode>> = {
   [IntegrationTypeEnum.Netsuite]: <Netsuite />,
   [IntegrationTypeEnum.Xero]: <Xero />,
+  [IntegrationTypeEnum.Quickbooks]: <Quickbooks />,
   [IntegrationTypeEnum.Anrok]: <Anrok />,
   [IntegrationTypeEnum.Avalara]: <Avalara />,
   [IntegrationTypeEnum.Hubspot]: <Hubspot />,

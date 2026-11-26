@@ -75,6 +75,12 @@ gql`
           id
           name
         }
+        ... on QuickbooksIntegration {
+          __typename
+          id
+          name
+          sandbox
+        }
         ... on HubspotIntegration {
           __typename
           id

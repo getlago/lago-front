@@ -35,7 +35,7 @@ type StatusLabelDanger =
 
 type StatusLabelDisabled = 'voided'
 
-type StatusLabel =
+export type StatusLabel =
   | StatusLabelSuccess
   | StatusLabelWarning
   | StatusLabelOutline

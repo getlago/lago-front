@@ -18,6 +18,7 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from './input-group'
 import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
 
+import { AmountFieldStates } from '../stories/amount-input-field-examples'
 import { ComboboxFieldStates } from '../stories/combobox-field-examples'
 
 const meta = {
@@ -221,3 +222,6 @@ export const WithFreeTextInside: Story = {
 }
 export const WithFreeTextAbove: Story = { render: () => <ComboboxFieldStates kind="free-above" /> }
 export const WithComboboxPopup: Story = { render: () => <ComboboxFieldStates kind="popup" /> }
+
+export const WithAmountInput: Story = { render: () => <AmountFieldStates selectable={false} /> }
+export const WithSelectableAmountInput: Story = { render: () => <AmountFieldStates selectable /> }

@@ -95,7 +95,7 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
   // `useParams()` can return undefined outside a Router context (e.g. some tests).
   const params = useParams<{ organizationSlug?: string }>()
   const organizationSlug = params?.organizationSlug
-  const { loading: isCurrentUserLoading } = useCurrentUser()
+  const { isPremium, loading: isCurrentUserLoading } = useCurrentUser()
   const { hasPermissions, hasPermissionsOr } = usePermissions()
   const { hasFeatureFlag, organization, loading: isOrganizationLoading } = useOrganizationInfos()
   const isWaitingForOrganization = isOrganizationLoading && !organization
@@ -132,9 +132,12 @@ export const useLocationHistory: UseLocationHistoryReturn = () => {
 
     if (isRouteGated(routeConfig) && isWaitingForOrganization) return
 
-    if (!isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization })) {
+    if (
+      !isRouteUnlocked({ route: routeConfig, hasFeatureFlag, organization }) ||
+      (routeConfig.premium && !isPremium)
+    ) {
       /**
-       * In case of navigation to a route its feature flags or capabilities make unavailable
+       * In case of navigation to a route its feature flags, license or capabilities make unavailable
        * Redirect to home page
        */
       navigate(HOME_ROUTE, { replace: true })

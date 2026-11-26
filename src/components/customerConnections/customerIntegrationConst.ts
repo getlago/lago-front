@@ -18,6 +18,7 @@ export const INTEGRATION_TYPE_TO_CATEGORY: Partial<
 > = {
   [IntegrationTypeEnum.Netsuite]: ConnectionCategory.Accounting,
   [IntegrationTypeEnum.Xero]: ConnectionCategory.Accounting,
+  [IntegrationTypeEnum.Quickbooks]: ConnectionCategory.Accounting,
   [IntegrationTypeEnum.Anrok]: ConnectionCategory.Tax,
   [IntegrationTypeEnum.Avalara]: ConnectionCategory.Tax,
   [IntegrationTypeEnum.Hubspot]: ConnectionCategory.Crm,
@@ -38,6 +39,7 @@ export const integrationTypeToTypename: Partial<Record<IntegrationTypeEnum, stri
   // Account integrations
   [IntegrationTypeEnum.Netsuite]: 'NetsuiteIntegration',
   [IntegrationTypeEnum.Xero]: 'XeroIntegration',
+  [IntegrationTypeEnum.Quickbooks]: 'QuickbooksIntegration',
   // Tax integrations
   [IntegrationTypeEnum.Anrok]: 'AnrokIntegration',
   [IntegrationTypeEnum.Avalara]: 'AvalaraIntegration',

@@ -19,6 +19,7 @@ const exhaustiveCheck = (value: never): never => {
 const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractCreated]: 'text_1791921842761by5ureagbe9',
   [ActivityTypeEnum.ContractUpdated]: 'text_1791921974802th7lzdwh96w',
+  [ActivityTypeEnum.ContractPublished]: 'text_1795463201390brdh9tn75s0',
   [ActivityTypeEnum.ContractStarted]: 'text_1791921974802xc0m2b09axm',
   [ActivityTypeEnum.ContractTerminated]: 'text_1791921974802gn196zpm2rp',
   [ActivityTypeEnum.ContractCanceled]: 'text_1791921974802vliv1zlrf36',
@@ -28,6 +29,9 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ContractWalletCreated]: 'text_1795454086814mzvn73ebgux',
   [ActivityTypeEnum.ContractWalletDeleted]: 'text_1795454086814j2ad501cmlx',
   [ActivityTypeEnum.ContractWalletUpdated]: 'text_1795454086814egs32zmws65',
+  [ActivityTypeEnum.PlanEntitlementCreated]: 'text_1795681244642hq1kpnc87as',
+  [ActivityTypeEnum.PlanEntitlementDeleted]: 'text_1795681244642pqdx58sovxo',
+  [ActivityTypeEnum.PlanEntitlementUpdated]: 'text_1795681244642rjqw91vilsx',
   [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
   [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
   [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
@@ -121,6 +125,7 @@ const resourceTypeTranslations: Record<string, string> = {
   RateCardRate: 'text_17919219748033tsf7k2uaro',
   BillableMetric: 'text_64352657267c3d916f962757',
   BillingEntity: 'text_1743077296189ms0shds6g53',
+  CatalogPlan: 'text_63d3a658c6d84a5843032145',
   Coupon: 'text_628b8c693e464200e00e4677',
   CreditNote: 'text_1748341883774iypsrgem3hr',
   Customer: 'text_65201c5a175a4b0238abf29a',
@@ -200,6 +205,7 @@ export const useActivityLogsInformation = () => {
         break
       case ActivityTypeEnum.ContractCreated:
       case ActivityTypeEnum.ContractUpdated:
+      case ActivityTypeEnum.ContractPublished:
       case ActivityTypeEnum.ContractStarted:
       case ActivityTypeEnum.ContractTerminated:
       case ActivityTypeEnum.ContractCanceled:
@@ -209,6 +215,9 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ContractWalletCreated:
       case ActivityTypeEnum.ContractWalletDeleted:
       case ActivityTypeEnum.ContractWalletUpdated:
+      case ActivityTypeEnum.PlanEntitlementCreated:
+      case ActivityTypeEnum.PlanEntitlementDeleted:
+      case ActivityTypeEnum.PlanEntitlementUpdated:
       case ActivityTypeEnum.PlanRateCardCreated:
       case ActivityTypeEnum.PlanRateCardDeleted:
       case ActivityTypeEnum.PlanRateCardUpdated:

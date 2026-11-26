@@ -1,8 +1,11 @@
 import { gql } from '@apollo/client'
-import { useParams } from 'react-router'
+import { generatePath, useParams } from 'react-router'
 
+import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { IntegrationsPage } from '~/components/layouts/Integrations'
+import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
+import { QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
   DeleteQuickbooksIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
@@ -12,6 +15,7 @@ import {
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
+import { QuickbooksIntegrationDetailsTabs } from '~/pages/settings/QuickbooksIntegrationDetails'
 
 import { useAddQuickbooksDialog } from './AddQuickbooksDialog'
 import { ALWAYS_SYNCED_OBJECT_KEYS, OPTIONAL_SYNCED_OBJECTS } from './quickbooksIntegrationForm'
@@ -25,6 +29,7 @@ gql`
     id
     code
     connectionId
+    hasMappingsConfigured
     name
     realmId
     sandbox
@@ -68,6 +73,7 @@ const buildEnabledSynchronizedLabelKeys = (integration?: QuickbooksIntegrationSe
 ]
 
 const QuickbooksIntegrationSettings = () => {
+  const navigate = useNavigate()
   const { integrationId = '' } = useParams()
   const { openAddQuickbooksDialog } = useAddQuickbooksDialog()
   const { translate } = useInternationalization()
@@ -90,6 +96,26 @@ const QuickbooksIntegrationSettings = () => {
 
   return (
     <IntegrationsPage.Container className="my-4 md:my-8">
+      {!isFirstLoad && !!quickbooksIntegration && !quickbooksIntegration.hasMappingsConfigured && (
+        <Alert
+          type="warning"
+          ButtonProps={{
+            label: translate('text_661ff6e56ef7e1b7c542b20a'),
+            onClick: () => {
+              navigate(
+                generatePath(QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, {
+                  integrationId,
+                  tab: QuickbooksIntegrationDetailsTabs.Items,
+                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                }),
+              )
+            },
+          }}
+        >
+          {translate('text_17954348915439shx44q9w6e')}
+        </Alert>
+      )}
+
       <section>
         <IntegrationsPage.Headline label={translate('text_661ff6e56ef7e1b7c542b232')}>
           {canEditIntegration && (

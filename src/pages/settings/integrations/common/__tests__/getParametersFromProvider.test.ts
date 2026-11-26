@@ -3,12 +3,12 @@ import { IntegrationTypeEnum } from '~/generated/graphql'
 import { getParametersFromProvider } from '../getParametersFromProvider'
 
 // Mock the extractOptionValue function
-jest.mock('~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue', () => ({
+jest.mock('~/pages/settings/integrations/common/extractOptionValue', () => ({
   extractOptionValue: jest.fn(),
 }))
 
 const mockExtractOptionValue = jest.requireMock(
-  '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue',
+  '~/pages/settings/integrations/common/extractOptionValue',
 ).extractOptionValue
 
 describe('getParametersFromProvider', () => {
@@ -357,6 +357,35 @@ describe('getParametersFromProvider', () => {
         success: false,
         parameters: undefined,
       })
+    })
+  })
+
+  describe('QuickBooks provider', () => {
+    it('should return the id and name without an account code', () => {
+      mockExtractOptionValue.mockReturnValue({
+        externalId: 'qb-1',
+        externalAccountCode: '',
+        externalName: 'Consulting',
+      })
+
+      const result = getParametersFromProvider(
+        { selectedElementValue: 'qb-1::::::Consulting' },
+        IntegrationTypeEnum.Quickbooks,
+      )
+
+      expect(result).toEqual({
+        success: true,
+        parameters: { externalId: 'qb-1', externalName: 'Consulting' },
+      })
+    })
+
+    it('should return failure when selectedElementValue is missing', () => {
+      const result = getParametersFromProvider(
+        { otherField: 'value' },
+        IntegrationTypeEnum.Quickbooks,
+      )
+
+      expect(result).toEqual({ success: false, parameters: undefined })
     })
   })
 

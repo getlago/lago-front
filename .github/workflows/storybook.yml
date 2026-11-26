@@ -7,7 +7,7 @@ on:
     paths:
       - "packages/ui/**"
       - "patches/**"
-      - "src/components/form/AmountInputV2/**"
+      - "src/stories/v2/**"
       - "src/components/form/AmountInput/formatting.ts"
       - "src/components/form/TextInput/formatValue.ts"
       - "translations/base.json"

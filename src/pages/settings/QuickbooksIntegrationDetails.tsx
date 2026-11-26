@@ -5,6 +5,7 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useDeleteQuickbooksIntegrationDialog } from '~/components/settings/integrations/DeleteQuickbooksIntegrationDialog'
+import QuickbooksIntegrationItemsList from '~/components/settings/integrations/QuickbooksIntegrationItemsList'
 import QuickbooksIntegrationSettings from '~/components/settings/integrations/QuickbooksIntegrationSettings'
 import {
   QUICKBOOKS_CONNECTION_COUNT_LIMIT,
@@ -22,6 +23,7 @@ import {
   DeleteQuickbooksIntegrationDialogFragmentDoc,
   IntegrationTypeEnum,
   QuickbooksForCreateDialogFragmentDoc,
+  QuickbooksIntegrationItemsFragmentDoc,
   useGetQuickbooksIntegrationsDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -30,6 +32,7 @@ import Quickbooks from '~/public/images/quickbooks.svg'
 
 export enum QuickbooksIntegrationDetailsTabs {
   Settings = 'settings',
+  Items = 'items',
 }
 
 gql`
@@ -40,6 +43,7 @@ gql`
     sandbox
     ...DeleteQuickbooksIntegrationDialog
     ...QuickbooksForCreateDialog
+    ...QuickbooksIntegrationItems
   }
 
   query getQuickbooksIntegrationsDetails(
@@ -65,6 +69,7 @@ gql`
 
   ${DeleteQuickbooksIntegrationDialogFragmentDoc}
   ${QuickbooksForCreateDialogFragmentDoc}
+  ${QuickbooksIntegrationItemsFragmentDoc}
 `
 
 const QuickbooksIntegrationDetails = () => {
@@ -184,6 +189,15 @@ const QuickbooksIntegrationDetails = () => {
               integrationGroup: IntegrationsTabsOptionsEnum.Lago,
             }),
             content: <QuickbooksIntegrationSettings />,
+          },
+          {
+            title: translate('text_1761319649394ft46yvka31r'),
+            link: generatePath(QUICKBOOKS_INTEGRATION_DETAILS_ROUTE, {
+              integrationId,
+              tab: QuickbooksIntegrationDetailsTabs.Items,
+              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+            }),
+            content: <QuickbooksIntegrationItemsList integrationId={integrationId} />,
           },
         ]}
       />
