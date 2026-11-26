@@ -3,7 +3,11 @@ import { screen } from '@testing-library/react'
 import { CustomerConnectionRow } from '~/components/customerConnections/CustomerConnectionsList'
 import { MANUAL_CONNECTION_CODE } from '~/components/customerConnections/customerIntegrationConst'
 import { ConnectionCategory } from '~/components/customerConnections/types'
-import { buildNetsuiteCustomerUrl, buildStripeCustomerUrl } from '~/core/constants/externalUrls'
+import {
+  buildNetsuiteCustomerUrl,
+  buildQuickbooksCustomerUrl,
+  buildStripeCustomerUrl,
+} from '~/core/constants/externalUrls'
 import {
   CustomerDetailsFragment,
   HubspotTargetedObjectsEnum,
@@ -254,6 +258,53 @@ describe('ConnectionDetailsPanel', () => {
         )
 
         expect(screen.queryByText('ns_cus_1')).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a QuickBooks accounting connection', () => {
+    const quickbooksCustomer = buildCustomer({
+      integrationCustomers: [
+        {
+          __typename: 'QuickbooksCustomer',
+          id: 'qc-1',
+          integrationId: 'int-qbo',
+          integrationCode: 'qbo-1',
+          integrationType: IntegrationTypeEnum.Quickbooks,
+          externalCustomerId: '58',
+          syncWithProvider: false,
+        },
+      ],
+    })
+
+    const buildQuickbooksData = (sandbox: boolean) =>
+      ({
+        integrations: {
+          collection: [
+            { __typename: 'QuickbooksIntegration', id: 'int-qbo', name: 'QuickBooks', sandbox },
+          ],
+        },
+      }) as unknown as IntegrationsListForCustomerMainInfosQuery
+
+    describe.each([
+      [false, 'https://app.qbo.intuit.com'],
+      [true, 'https://app.sandbox.qbo.intuit.com'],
+    ])('WHEN it is selected on a sandbox=%s integration', (sandbox, origin) => {
+      it('THEN should deep-link the external customer id to that QuickBooks app', () => {
+        render(
+          <ConnectionDetailsPanel
+            row={{ ...ACCOUNTING_ROW, code: 'qbo-1', name: 'QuickBooks' }}
+            customer={quickbooksCustomer}
+            integrationsData={buildQuickbooksData(sandbox)}
+            integrationsLoading={false}
+          />,
+        )
+
+        const link = screen.getByTestId(CONNECTION_EXTERNAL_LINK_TEST_ID)
+
+        expect(link).toHaveAttribute('href', buildQuickbooksCustomerUrl('58', sandbox))
+        expect(link).toHaveProperty('origin', origin)
+        expect(link).toHaveAttribute('href', `${origin}/app/customerdetail?nameId=58`)
       })
     })
   })

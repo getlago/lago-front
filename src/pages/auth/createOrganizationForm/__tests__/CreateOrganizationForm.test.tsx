@@ -3,12 +3,13 @@ import userEvent, { UserEvent } from '@testing-library/user-event'
 import { GraphQLFormattedError } from 'graphql'
 import { ComponentProps } from 'react'
 
-import { initializeTranslations } from '~/core/apolloClient'
+import { envGlobalVar, initializeTranslations } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import {
   CreateSelfServeOrganizationMutation,
   CreateSelfServeOrganizationMutationVariables,
   LagoApiError,
+  OrganizationActivationStatusEnum,
   SignupRoleEnum,
   SignupSourceEnum,
 } from '~/generated/graphql'
@@ -36,6 +37,12 @@ const mockCreateOrganization = jest.fn<
 const mockUseCreateSelfServeOrganizationMutation = jest.fn()
 const mockOnUserNotEligible = jest.fn<Promise<void>, []>()
 const mockNavigate = jest.fn()
+
+jest.mock('~/core/apolloClient', () => {
+  const actual = jest.requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient')
+
+  return { ...actual, envGlobalVar: jest.fn(actual.envGlobalVar) }
+})
 
 jest.mock('~/core/router', () => ({
   ...jest.requireActual('~/core/router'),
@@ -70,6 +77,8 @@ jest.mock('@tanstack/react-virtual', () => ({
 const EMAIL = 'raffi@hooli.com'
 const PREFILLED_NAME = 'Hooli'
 const LANDING_SLUG = 'hooli-sandbox'
+const PRODUCTION_SLUG = 'hooli'
+const BILLING_ACCOUNTS_URL = 'https://billing-accounts.example.com'
 
 const ROLE_LABELS = [
   'Engineering',
@@ -104,9 +113,35 @@ const SUCCESS_RESULT: MutationResult = {
   data: {
     createSelfServeOrganization: {
       landingOrganization: { id: 'org-sandbox', slug: LANDING_SLUG },
+      productionOrganization: {
+        id: 'org-production',
+        slug: PRODUCTION_SLUG,
+        activationStatus: OrganizationActivationStatusEnum.Active,
+      },
       user: { id: 'user-1', email: EMAIL, premium: false, csAdmin: false, memberships: [] },
     },
   },
+}
+
+const buildSuccessResult = (
+  activationStatus: OrganizationActivationStatusEnum | null,
+): MutationResult => ({
+  data: {
+    createSelfServeOrganization: {
+      landingOrganization: { id: 'org-sandbox', slug: LANDING_SLUG },
+      productionOrganization: { id: 'org-production', slug: PRODUCTION_SLUG, activationStatus },
+      user: { id: 'user-1', email: EMAIL, premium: false, csAdmin: false, memberships: [] },
+    },
+  },
+})
+
+const mockedEnvGlobalVar = jest.mocked(envGlobalVar)
+
+const getRealEnv = (): ReturnType<typeof envGlobalVar> =>
+  jest.requireActual<typeof import('~/core/apolloClient')>('~/core/apolloClient').envGlobalVar()
+
+const mockBillingAccountsUrl = (billingAccountsUrl: string): void => {
+  mockedEnvGlobalVar.mockReturnValue({ ...getRealEnv(), billingAccountsUrl })
 }
 
 const buildError = (extensions: Record<string, unknown>): MutationResult => ({
@@ -179,6 +214,7 @@ describe('CreateOrganizationForm', () => {
     mockUseCreateSelfServeOrganizationMutation.mockReturnValue([mockCreateOrganization])
     mockCreateOrganization.mockResolvedValue(SUCCESS_RESULT)
     mockOnUserNotEligible.mockResolvedValue(undefined)
+    mockBillingAccountsUrl('')
   })
 
   describe('GIVEN the form is rendered', () => {
@@ -398,6 +434,60 @@ describe('CreateOrganizationForm', () => {
         expect(
           screen.queryByTestId(SELF_SERVE_CREATE_ORGANIZATION_ERROR_ALERT_TEST_ID),
         ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN billing-accounts is configured and the production organization waits for a card', () => {
+      it('THEN should open the production organization to start the checkout, without the sandbox', async () => {
+        const user = userEvent.setup()
+
+        mockBillingAccountsUrl(BILLING_ACCOUNTS_URL)
+        mockCreateOrganization.mockResolvedValue(
+          buildSuccessResult(OrganizationActivationStatusEnum.PendingPaymentMethod),
+        )
+
+        await submitValidForm(user)
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(`/${PRODUCTION_SLUG}`, {
+            replace: true,
+            skipSlugPrepend: true,
+            state: { startCheckout: true },
+          })
+        })
+        expect(mockNavigate).toHaveBeenCalledTimes(1)
+        expect(mockNavigate).not.toHaveBeenCalledWith(`/${LANDING_SLUG}`, expect.anything())
+      })
+    })
+
+    describe.each([
+      [
+        'billing-accounts is not configured',
+        '',
+        OrganizationActivationStatusEnum.PendingPaymentMethod,
+      ],
+      [
+        'the production organization is already active',
+        BILLING_ACCOUNTS_URL,
+        OrganizationActivationStatusEnum.Active,
+      ],
+      ['the production organization has no activation status', BILLING_ACCOUNTS_URL, null],
+    ])('WHEN %s', (_, billingAccountsUrl, activationStatus) => {
+      it('THEN should land in the landing organization as before', async () => {
+        const user = userEvent.setup()
+
+        mockBillingAccountsUrl(billingAccountsUrl)
+        mockCreateOrganization.mockResolvedValue(buildSuccessResult(activationStatus))
+
+        await submitValidForm(user)
+
+        await waitFor(() => {
+          expect(mockNavigate).toHaveBeenCalledWith(`/${LANDING_SLUG}`, {
+            replace: true,
+            skipSlugPrepend: true,
+          })
+        })
+        expect(mockNavigate).not.toHaveBeenCalledWith(`/${PRODUCTION_SLUG}`, expect.anything())
       })
     })
 

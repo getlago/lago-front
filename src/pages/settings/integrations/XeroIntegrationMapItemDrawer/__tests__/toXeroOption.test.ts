@@ -1,5 +1,6 @@
-import { extractOptionValue } from '../extractOptionValue'
-import { stringifyOptionValue } from '../stringifyOptionValue'
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
+
 import { toXeroOption } from '../toXeroOption'
 
 const ITEM = { externalId: 'ext-1', externalName: 'Sales', externalAccountCode: '200' }

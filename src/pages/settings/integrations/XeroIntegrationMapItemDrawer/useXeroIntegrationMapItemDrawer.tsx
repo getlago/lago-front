@@ -12,9 +12,9 @@ import {
   DEFAULT_MAPPING_KEY,
   isItemMappingForKeyNotForCurrenciesMapping,
 } from '~/pages/settings/integrations/common'
+import { stringifyOptionValue } from '~/pages/settings/integrations/common/stringifyOptionValue'
 import { submitIntegrationMapItemMappings } from '~/pages/settings/integrations/IntegrationMapItemDrawer'
 
-import { stringifyOptionValue } from './stringifyOptionValue'
 import { XeroIntegrationMapItemDrawerProps } from './types'
 import { useXeroIntegrationMappingCRUD } from './useXeroIntegrationMappingCRUD'
 import { useXeroIntegrationTitleAndDescriptionMapping } from './useXeroIntegrationTitleAndDescriptionMapping'
