@@ -3,12 +3,13 @@ import { revalidateLogic, useStore } from '@tanstack/react-form'
 import { useState } from 'react'
 
 import { Alert } from '~/components/designSystem/Alert'
-import { getGraphQLErrorCode } from '~/core/apolloClient'
+import { envGlobalVar, getGraphQLErrorCode } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { useNavigate } from '~/core/router'
 import {
   CurrentUserInfosFragmentDoc,
   LagoApiError,
+  OrganizationActivationStatusEnum,
   SignupRoleEnum,
   SignupSourceEnum,
   useCreateSelfServeOrganizationMutation,
@@ -37,6 +38,11 @@ gql`
       landingOrganization {
         id
         slug
+      }
+      productionOrganization {
+        id
+        slug
+        activationStatus
       }
       user {
         id
@@ -123,7 +129,23 @@ export const CreateOrganizationForm = ({
           },
         })
 
-        const landingSlug = result.data?.createSelfServeOrganization?.landingOrganization.slug
+        const createdOrganizations = result.data?.createSelfServeOrganization
+        const productionOrganization = createdOrganizations?.productionOrganization
+        const landingSlug = createdOrganizations?.landingOrganization.slug
+
+        if (
+          envGlobalVar().billingAccountsUrl &&
+          productionOrganization?.activationStatus ===
+            OrganizationActivationStatusEnum.PendingPaymentMethod
+        ) {
+          navigate(`/${productionOrganization.slug}`, {
+            replace: true,
+            skipSlugPrepend: true,
+            state: { startCheckout: true },
+          })
+
+          return
+        }
 
         if (landingSlug) {
           navigate(`/${landingSlug}`, { replace: true, skipSlugPrepend: true })

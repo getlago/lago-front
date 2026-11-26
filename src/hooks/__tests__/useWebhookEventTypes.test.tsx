@@ -83,6 +83,7 @@ const planEventKeys = [EventTypeEnum.PlanCreated, EventTypeEnum.PlanRateCardUpda
 
 const contractEventKeys = [
   EventTypeEnum.ContractRateCardCreated,
+  EventTypeEnum.ContractPublished,
   EventTypeEnum.ContractStarted,
   EventTypeEnum.ContractTerminated,
 ]

@@ -9,13 +9,17 @@ import type { CustomRouteObject } from '../types'
 configure({ testIdAttribute: 'data-test' })
 
 type AuthRoutesModule = typeof import('../AuthRoutes')
-type SignUpFlags = Pick<ReturnType<typeof envGlobalVar>, 'disableSignUp' | 'selfServeEnabled'>
+type SignUpFlags = Pick<ReturnType<typeof envGlobalVar>, 'disableSignUp' | 'selfServeEnabled'> &
+  Partial<Pick<ReturnType<typeof envGlobalVar>, 'billingAccountsUrl'>>
 
 const MOCK_SIGN_UP_PAGE_TEST_ID = 'legacy-sign-up-page'
 const MOCK_SELF_SERVE_SIGN_UP_PAGE_TEST_ID = 'self-serve-sign-up-page'
 const MOCK_VERIFY_EMAIL_PAGE_TEST_ID = 'verify-email-page'
 const MOCK_CREATE_ORGANIZATION_PAGE_TEST_ID = 'create-organization-page'
+const MOCK_ACTIVATE_PRODUCTION_PAGE_TEST_ID = 'activate-production-page'
 const VERIFY_EMAIL_ROUTE = '/verify-email'
+const ACTIVATE_PRODUCTION_ROUTE = '/activate-production'
+const BILLING_ACCOUNTS_URL = 'https://billing-accounts.example.com'
 
 const mockEnvGlobalVar = jest.fn<SignUpFlags, []>()
 
@@ -41,6 +45,11 @@ jest.mock('~/pages/auth/VerifyEmail', () => ({
 jest.mock('~/pages/auth/CreateOrganization', () => ({
   __esModule: true,
   default: () => <div data-test={MOCK_CREATE_ORGANIZATION_PAGE_TEST_ID} />,
+}))
+
+jest.mock('~/pages/auth/ActivateProduction', () => ({
+  __esModule: true,
+  default: () => <div data-test={MOCK_ACTIVATE_PRODUCTION_PAGE_TEST_ID} />,
 }))
 
 const loadAuthRoutes = async (flags: SignUpFlags): Promise<AuthRoutesModule> => {
@@ -220,6 +229,51 @@ describe('authRoutes', () => {
         const { authRoutes } = await loadAuthRoutes({ disableSignUp, selfServeEnabled: false })
 
         expect(findRoute(authRoutes, CREATE_ORGANIZATION_ROUTE)).toBeUndefined()
+      })
+    })
+  })
+
+  describe('GIVEN Stripe sends the user back to the activate production route', () => {
+    describe('WHEN the self-serve flag is on and billing-accounts is configured', () => {
+      it('THEN should register the route as private', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: true,
+          billingAccountsUrl: BILLING_ACCOUNTS_URL,
+        })
+
+        expect(findRoute(authRoutes, ACTIVATE_PRODUCTION_ROUTE)).toMatchObject({ private: true })
+      })
+
+      it('THEN should render the activate production page', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled: true,
+          billingAccountsUrl: BILLING_ACCOUNTS_URL,
+        })
+
+        render(
+          <Suspense fallback={null}>
+            {findRoute(authRoutes, ACTIVATE_PRODUCTION_ROUTE)?.element}
+          </Suspense>,
+        )
+
+        expect(await screen.findByTestId(MOCK_ACTIVATE_PRODUCTION_PAGE_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe.each([
+      ['billing-accounts is not configured', true, ''],
+      ['the self-serve flag is off', false, BILLING_ACCOUNTS_URL],
+    ])('WHEN %s', (_, selfServeEnabled, billingAccountsUrl) => {
+      it('THEN should not register the route', async () => {
+        const { authRoutes } = await loadAuthRoutes({
+          disableSignUp: false,
+          selfServeEnabled,
+          billingAccountsUrl,
+        })
+
+        expect(findRoute(authRoutes, ACTIVATE_PRODUCTION_ROUTE)).toBeUndefined()
       })
     })
   })

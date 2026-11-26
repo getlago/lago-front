@@ -1,5 +1,5 @@
 import { IntegrationTypeEnum } from '~/generated/graphql'
-import { extractOptionValue } from '~/pages/settings/integrations/XeroIntegrationMapItemDrawer/extractOptionValue'
+import { extractOptionValue } from '~/pages/settings/integrations/common/extractOptionValue'
 
 import {
   AvalaraAndAnrokParameters,
@@ -173,6 +173,29 @@ export const getParametersFromProvider = <FormValues>(
         success: true,
         parameters: {
           externalAccountCode,
+          externalId,
+          externalName,
+        },
+      }
+    }
+
+    case IntegrationTypeEnum.Quickbooks: {
+      if (
+        !('selectedElementValue' in inputValues) ||
+        typeof inputValues.selectedElementValue !== 'string'
+      ) {
+        return {
+          success: false,
+          parameters: undefined,
+        }
+      }
+
+      // QuickBooks items and accounts carry no account code
+      const { externalId, externalName } = extractOptionValue(inputValues.selectedElementValue)
+
+      return {
+        success: true,
+        parameters: {
           externalId,
           externalName,
         },

@@ -8,10 +8,12 @@ import {
   GetAddOnsForAnrokItemsListQuery,
   GetAddOnsForAvalaraItemsListQuery,
   GetAddOnsForNetsuiteItemsListQuery,
+  GetAddOnsForQuickbooksItemsListQuery,
   GetAddOnsForXeroItemsListQuery,
   GetBillableMetricsForAnrokItemsListQuery,
   GetBillableMetricsForAvalaraItemsListQuery,
   GetBillableMetricsForNetsuiteItemsListQuery,
+  GetBillableMetricsForQuickbooksItemsListQuery,
   GetBillableMetricsForXeroItemsListQuery,
   GetProductsForAnrokItemsListQuery,
   GetProductsForAvalaraItemsListQuery,
@@ -20,12 +22,15 @@ import {
   MappingTypeEnum,
   NetsuiteIntegrationAdditionalItemsListFragment,
   NetsuiteIntegrationItemsListDefaultFragment,
+  QuickbooksIntegrationItemsListDefaultFragment,
   useCreateAnrokIntegrationCollectionMappingMutation,
   useCreateAnrokIntegrationMappingMutation,
   useCreateAvalaraIntegrationCollectionMappingMutation,
   useCreateAvalaraIntegrationMappingMutation,
   useCreateNetsuiteIntegrationCollectionMappingMutation,
   useCreateNetsuiteIntegrationMappingMutation,
+  useCreateQuickbooksIntegrationCollectionMappingMutation,
+  useCreateQuickbooksIntegrationMappingMutation,
   useCreateXeroIntegrationCollectionMappingMutation,
   useCreateXeroIntegrationMappingMutation,
   useDeleteAnrokIntegrationCollectionMappingMutation,
@@ -34,6 +39,8 @@ import {
   useDeleteAvalaraIntegrationMappingMutation,
   useDeleteNetsuiteIntegrationCollectionMappingMutation,
   useDeleteNetsuiteIntegrationMappingMutation,
+  useDeleteQuickbooksIntegrationCollectionMappingMutation,
+  useDeleteQuickbooksIntegrationMappingMutation,
   useDeleteXeroIntegrationCollectionMappingMutation,
   useDeleteXeroIntegrationMappingMutation,
   useUpdateAnrokIntegrationCollectionMappingMutation,
@@ -42,6 +49,8 @@ import {
   useUpdateAvalaraIntegrationMappingMutation,
   useUpdateNetsuiteIntegrationCollectionMappingMutation,
   useUpdateNetsuiteIntegrationMappingMutation,
+  useUpdateQuickbooksIntegrationCollectionMappingMutation,
+  useUpdateQuickbooksIntegrationMappingMutation,
   useUpdateXeroIntegrationCollectionMappingMutation,
   useUpdateXeroIntegrationMappingMutation,
   XeroIntegrationItemsListDefaultFragment,
@@ -56,6 +65,8 @@ export type FetchableIntegrationItemsListData =
   | GetBillableMetricsForAvalaraItemsListQuery['billableMetrics']
   | GetAddOnsForXeroItemsListQuery['addOns']
   | GetBillableMetricsForXeroItemsListQuery['billableMetrics']
+  | GetAddOnsForQuickbooksItemsListQuery['addOns']
+  | GetBillableMetricsForQuickbooksItemsListQuery['billableMetrics']
   | GetProductsForAnrokItemsListQuery['products']
   | GetProductsForAvalaraItemsListQuery['products']
   | undefined
@@ -65,6 +76,7 @@ export type MappableIntegrationProvider = PickEnum<
   | IntegrationTypeEnum.Anrok
   | IntegrationTypeEnum.Avalara
   | IntegrationTypeEnum.Netsuite
+  | IntegrationTypeEnum.Quickbooks
   | IntegrationTypeEnum.Xero
 >
 
@@ -76,6 +88,7 @@ export type ItemMapping =
   | NetsuiteIntegrationItemsListDefaultFragment
   | AvalaraIntegrationItemsListDefaultFragment
   | XeroIntegrationItemsListDefaultFragment
+  | QuickbooksIntegrationItemsListDefaultFragment
   | NetsuiteIntegrationAdditionalItemsListFragment
 
 export type BillingEntityForIntegrationMapping = {
@@ -149,31 +162,37 @@ export type CreateUpdateDeleteFunctions = {
     | ReturnType<typeof useCreateAvalaraIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useCreateNetsuiteIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useCreateXeroIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useCreateQuickbooksIntegrationCollectionMappingMutation>[0]
   createMapping:
     | ReturnType<typeof useCreateAnrokIntegrationMappingMutation>[0]
     | ReturnType<typeof useCreateAvalaraIntegrationMappingMutation>[0]
     | ReturnType<typeof useCreateNetsuiteIntegrationMappingMutation>[0]
     | ReturnType<typeof useCreateXeroIntegrationMappingMutation>[0]
+    | ReturnType<typeof useCreateQuickbooksIntegrationMappingMutation>[0]
   deleteCollectionMapping:
     | ReturnType<typeof useDeleteAnrokIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useDeleteAvalaraIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useDeleteNetsuiteIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useDeleteXeroIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useDeleteQuickbooksIntegrationCollectionMappingMutation>[0]
   deleteMapping:
     | ReturnType<typeof useDeleteAnrokIntegrationMappingMutation>[0]
     | ReturnType<typeof useDeleteAvalaraIntegrationMappingMutation>[0]
     | ReturnType<typeof useDeleteNetsuiteIntegrationMappingMutation>[0]
     | ReturnType<typeof useDeleteXeroIntegrationMappingMutation>[0]
+    | ReturnType<typeof useDeleteQuickbooksIntegrationMappingMutation>[0]
   updateCollectionMapping:
     | ReturnType<typeof useUpdateAnrokIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useUpdateAvalaraIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useUpdateNetsuiteIntegrationCollectionMappingMutation>[0]
     | ReturnType<typeof useUpdateXeroIntegrationCollectionMappingMutation>[0]
+    | ReturnType<typeof useUpdateQuickbooksIntegrationCollectionMappingMutation>[0]
   updateMapping:
     | ReturnType<typeof useUpdateAnrokIntegrationMappingMutation>[0]
     | ReturnType<typeof useUpdateAvalaraIntegrationMappingMutation>[0]
     | ReturnType<typeof useUpdateNetsuiteIntegrationMappingMutation>[0]
     | ReturnType<typeof useUpdateXeroIntegrationMappingMutation>[0]
+    | ReturnType<typeof useUpdateQuickbooksIntegrationMappingMutation>[0]
 }
 
 export type AvalaraAndAnrokParameters = {
