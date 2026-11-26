@@ -566,6 +566,30 @@ describe('buildPlanOverrides with a catalog plan baseline', () => {
     expect(result).toEqual({ amountCents: 90000 })
   })
 
+  it('emits a zero subscription fee when the fee is waived below the catalog price', () => {
+    const result = buildPlanOverrides(
+      { ...fullyConfiguredPlan, amountCents: '0' },
+      fullyConfiguredPlan,
+    )
+
+    expect(result).toEqual({ amountCents: 0 })
+  })
+
+  it('does not emit a zero subscription fee when the catalog plan is already free', () => {
+    const freePlan = { ...fullyConfiguredPlan, amountCents: '0' as PlanFormInput['amountCents'] }
+
+    expect(buildPlanOverrides(freePlan, freePlan)).toEqual({})
+  })
+
+  it('does not treat a cleared fee field as a waived fee', () => {
+    const result = buildPlanOverrides(
+      { ...fullyConfiguredPlan, amountCents: '' },
+      fullyConfiguredPlan,
+    )
+
+    expect(result).not.toHaveProperty('amountCents')
+  })
+
   it('emits only the invoice display name when only that changed', () => {
     const result = buildPlanOverrides(
       { ...fullyConfiguredPlan, invoiceDisplayName: 'Acme platform fee' },
