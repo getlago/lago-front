@@ -28,6 +28,7 @@ describe('useActivityLogsInformation', () => {
       ['ContractAppliedRateCard', 'text_1791921974803pyof8qcdfk5'],
       ['PlanAppliedRateCard', 'text_1791921974803v4u3b2dekrv'],
       ['RateCardRate', 'text_17919219748033tsf7k2uaro'],
+      ['CatalogPlan', 'text_63d3a658c6d84a5843032145'],
     ])('should return translation key for %s', (resourceType, key) => {
       const { result } = renderHook(() => useActivityLogsInformation())
 
@@ -76,6 +77,9 @@ describe('useActivityLogsInformation', () => {
       [ActivityTypeEnum.ContractWalletCreated, 'text_1795454086814mzvn73ebgux'],
       [ActivityTypeEnum.ContractWalletDeleted, 'text_1795454086814j2ad501cmlx'],
       [ActivityTypeEnum.ContractWalletUpdated, 'text_1795454086814egs32zmws65'],
+      [ActivityTypeEnum.PlanEntitlementCreated, 'text_1795681244642hq1kpnc87as'],
+      [ActivityTypeEnum.PlanEntitlementDeleted, 'text_1795681244642pqdx58sovxo'],
+      [ActivityTypeEnum.PlanEntitlementUpdated, 'text_1795681244642rjqw91vilsx'],
       [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],
       [ActivityTypeEnum.PlanWalletCreated, 'text_1795093921133goym1lmktoq'],
       [ActivityTypeEnum.PlanWalletDeleted, 'text_1795093921133a8yyd8l1i37'],

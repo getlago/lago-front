@@ -226,6 +226,32 @@ describe('buildDocumentData', () => {
           expect(result.paymentMethod).toBe('text_173799550683709p2rqkoqd5')
         })
       })
+
+      describe('WHEN the customer is also linked to a provider', () => {
+        it('THEN should still use the manual payment label key', () => {
+          const result = buildPaymentDocumentData({
+            ...basePaymentInput,
+            paymentType: PaymentTypeEnum.Manual,
+            paymentProviderType: ProviderTypeEnum.Stripe,
+          })
+
+          expect(result.paymentMethod).toBe('text_173799550683709p2rqkoqd5')
+        })
+      })
+    })
+
+    describe('GIVEN an x402 payment', () => {
+      describe('WHEN paymentType is X402', () => {
+        it('THEN should use the Coinbase x402 label key', () => {
+          const result = buildPaymentDocumentData({
+            ...basePaymentInput,
+            paymentType: PaymentTypeEnum.X402,
+            paymentProviderType: null,
+          })
+
+          expect(result.paymentMethod).toBe('text_1793137178564a1ls2ponepm')
+        })
+      })
     })
 
     describe('GIVEN different provider types', () => {
