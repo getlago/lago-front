@@ -41,6 +41,15 @@ describe('getMappingInfos', () => {
     })
   })
 
+  it('should show the QuickBooks external id, since QuickBooks items have no account code', () => {
+    const result = getMappingInfos(
+      { id: '123', externalId: 'qb-1', externalName: 'Consulting', externalAccountCode: '' },
+      IntegrationTypeEnum.Quickbooks,
+    )
+
+    expect(result).toEqual({ id: 'qb-1', name: 'Consulting' })
+  })
+
   it('should return undefined for unauthorized providers', () => {
     const validItemMapping = {
       id: '123',

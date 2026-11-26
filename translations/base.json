@@ -5136,6 +5136,7 @@
   "text_1791440702706mohkt5xwj1a": "Value must be a number",
   "text_1791921842761by5ureagbe9": "Contract created",
   "text_1791921974802th7lzdwh96w": "Contract updated",
+  "text_1795463201390brdh9tn75s0": "Contract published",
   "text_1791921974802xc0m2b09axm": "Contract started",
   "text_1791921974802gn196zpm2rp": "Contract terminated",
   "text_1791921974802vliv1zlrf36": "Contract canceled",
@@ -5605,7 +5606,16 @@
   "text_17954342416893m90kxj9h0j": "Production",
   "text_1795434241690xc2o8p8hgf7": "Company ID",
   "text_1795442089878h1a9gppfypr": "This QuickBooks company is already connected to this organization. Submit again to log in to another company.",
+  "text_17954348915427eym1cdesug": "QuickBooks item",
+  "text_17954348915439shx44q9w6e": "Please map Lago items to QuickBooks to finalize the connection.",
+  "text_1795450153419vz36ur4xxqt": "This customer will be created in QuickBooks after editing in Lago",
+  "text_1795450153419qsg9jme6t9o": "Customer from {{connectionName}}",
+  "text_1795450153419c7na4oxm1wr": "Pick an existing customer from {{connectionName}} to link it with this customer.",
+  "text_1795450153419mxue68940rx": "Search and select a customer",
+  "text_179551175424115ckjscs7o7": "The QuickBooks customer list is too large to load. Type the customer ID instead.",
+  "text_1795513116112pq114g3wdc4": "The {{connectionName}} customer list is too large to load. Type the ID of the customer to link it with this customer.",
   "text_179551691521620hug8ug71y": "Your browser blocked the QuickBooks login window. Allow pop-ups for this site, then try again.",
+  "text_1795519180458zs30h9yzidm": "QuickBooks account",
   "text_1795454086814mzvn73ebgux": "Contract wallet created",
   "text_1795454086814j2ad501cmlx": "Contract wallet deleted",
   "text_1795454086814egs32zmws65": "Contract wallet updated",
@@ -5615,5 +5625,7 @@
   "text_1795458691058olq3knc6zqw": "Clear currency search",
   "text_1795447103881sn8hk9lt6p3": "Update available",
   "text_1795447103881r6o3v1c9l0r": "A new version of the app is ready to use.",
-  "text_1795447103882bgclf5mgvyz": "Update now"
+  "text_1795447103882bgclf5mgvyz": "Update now",
+  "text_1795423996043g0y7ze8zabe": "Creating your production account ...",
+  "text_1795423996044mbp29b5w9nn": "You added a payment method. Your production account is now activated"
 }

@@ -90,6 +90,7 @@ export default {
     LAGO_US_FRONT_URL: '',
     LAGO_EU_FRONT_URL: '',
     LAGO_RECAPTCHA_SITE_KEY: '',
+    LAGO_BILLING_ACCOUNTS_URL: '',
     NANGO_PUBLIC_KEY: '',
     SENTRY_DSN: 'https://sentry.io/',
     LAGO_DISABLE_PDF_GENERATION: 'false',

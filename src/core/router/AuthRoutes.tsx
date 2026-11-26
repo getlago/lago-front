@@ -5,7 +5,7 @@ import { CREATE_ORGANIZATION_ROUTE } from './paths/createOrganization'
 import { CustomRouteObject } from './types'
 import { lazyLoad } from './utils'
 
-const { disableSignUp, selfServeEnabled } = envGlobalVar()
+const { disableSignUp, selfServeEnabled, billingAccountsUrl } = envGlobalVar()
 
 // ----------- Pages -----------
 const Login = lazyLoad(() => import('~/pages/auth/Login'))
@@ -13,6 +13,7 @@ const SignUp = lazyLoad(() => import('~/pages/auth/SignUp'))
 const SelfServeSignUp = lazyLoad(() => import('~/pages/auth/SelfServeSignUp'))
 const VerifyEmail = lazyLoad(() => import('~/pages/auth/VerifyEmail'))
 const CreateOrganization = lazyLoad(() => import('~/pages/auth/CreateOrganization'))
+const ActivateProduction = lazyLoad(() => import('~/pages/auth/ActivateProduction'))
 const ForgotPassword = lazyLoad(() => import('~/pages/auth/ForgotPassword'))
 const ResetPassword = lazyLoad(() => import('~/pages/auth/ResetPassword'))
 
@@ -34,6 +35,7 @@ export const RESET_PASSWORD_ROUTE = '/reset-password/:token'
 
 export const SIGN_UP_ROUTE = '/sign-up'
 const VERIFY_EMAIL_ROUTE = '/verify-email'
+const ACTIVATE_PRODUCTION_ROUTE = '/activate-production'
 
 export const INVITATION_ROUTE = '/invitation/:token'
 export const INVITATION_ROUTE_FORM = '/invitation/:token/form'
@@ -67,6 +69,15 @@ export const authRoutes: CustomRouteObject[] = [
         {
           path: CREATE_ORGANIZATION_ROUTE,
           element: <CreateOrganization />,
+          private: true,
+        },
+      ]
+    : []),
+  ...(selfServeEnabled && billingAccountsUrl
+    ? [
+        {
+          path: ACTIVATE_PRODUCTION_ROUTE,
+          element: <ActivateProduction />,
           private: true,
         },
       ]

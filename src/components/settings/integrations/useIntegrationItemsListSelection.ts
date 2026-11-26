@@ -41,8 +41,8 @@ export const useIntegrationItemsListSelection = () => {
     useState<keyof typeof SelectedItemTypeEnum>(initialItemType)
 
   useEffect(() => {
-    // Update url with the search param depending on the selected item type
-    setSearchParams({ item_type: selectedItemType })
+    // Replaces the history entry, so Back leaves the page instead of re-selecting the tab.
+    setSearchParams({ item_type: selectedItemType }, { replace: true })
   }, [selectedItemType, setSearchParams])
 
   useEffect(() => {

@@ -1,9 +1,7 @@
-import { LazyQueryExecFunction } from '@apollo/client'
 import type { AutocompleteRenderInputParams } from '@mui/material/Autocomplete'
 import type { PopperProps as MuiPopperProps } from '@mui/material/Popper'
 import { ReactNode } from 'react'
 
-import { Exact, InputMaybe } from '~/generated/graphql'
 import { UseDebouncedSearch } from '~/hooks/useDebouncedSearch'
 
 import { TextInputProps } from '../TextInput'
@@ -51,15 +49,7 @@ interface BasicComboboxProps extends Omit<ComboBoxInputProps, 'params' | 'search
   onOpen?: () => void
   /** Open the options menu as soon as the input receives focus */
   openOnFocus?: boolean
-  searchQuery?: LazyQueryExecFunction<
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    any,
-    Exact<{
-      page?: InputMaybe<number> | undefined
-      limit?: InputMaybe<number> | undefined
-      searchTerm?: InputMaybe<string> | undefined
-    }>
-  >
+  searchQuery?: Parameters<UseDebouncedSearch>[0]
   fetchOnMount?: boolean
   containerClassName?: string
   'data-test'?: string
