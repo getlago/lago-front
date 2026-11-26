@@ -9,10 +9,15 @@ import {
   FEATURE_PRIVILEGE_HIDE_OPTIONS_BUTTON_TEST_ID,
   FEATURE_PRIVILEGE_NAME_INPUT_TEST_ID,
 } from '~/components/features/FeaturePrivilegeAccordion'
-import { addToast, hasDefinedGQLError } from '~/core/apolloClient'
+import { addToast, hasDefinedGQLError, isSilencedGQLError } from '~/core/apolloClient'
 import { EXISTING_CODE_ERROR_MESSAGE } from '~/core/form/existingCodeError'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
-import { FeatureForFeatureFormFragment, PrivilegeValueTypeEnum } from '~/generated/graphql'
+import {
+  FeatureForFeatureFormFragment,
+  LagoApiError,
+  PrivilegeValueTypeEnum,
+} from '~/generated/graphql'
+import { MAX_FEATURE_PRIVILEGES } from '~/pages/features/featureForm/constants'
 import { REQUIRED_FIELD_ERROR } from '~/pages/features/featureForm/validationSchema'
 import { render, testMockNavigateFn } from '~/test-utils'
 
@@ -24,6 +29,7 @@ import FeatureForm, {
   FEATURE_FORM_DESCRIPTION_DELETE_TEST_ID,
   FEATURE_FORM_DESCRIPTION_INPUT_TEST_ID,
   FEATURE_FORM_NAME_INPUT_TEST_ID,
+  FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID,
   FEATURE_FORM_SHOW_DESCRIPTION_BUTTON_TEST_ID,
   FEATURE_FORM_SUBMIT_BUTTON_TEST_ID,
 } from '../FeatureForm'
@@ -91,7 +97,10 @@ jest.mock('~/core/utils/domUtils', () => ({
   scrollToAndClickElement: jest.fn(),
 }))
 
-type MutationHookOptions = { onCompleted: (data: Record<string, { id: string }>) => void }
+type MutationHookOptions = {
+  onCompleted: (data: Record<string, { id: string }>) => void
+  context?: { silentErrorCodes?: unknown[]; silentErrorDetails?: unknown[] }
+}
 
 const mockUseGetFeatureQuery = jest.fn()
 const mockCreateFeature = jest.fn()
@@ -135,6 +144,17 @@ const existingFeature: FeatureForFeatureFormFragment = {
     },
   ],
 }
+
+const featureWithPrivileges = (count: number): FeatureForFeatureFormFragment => ({
+  ...existingFeature,
+  privileges: Array.from({ length: count }, (_, index) => ({
+    id: `privilege-${index}`,
+    name: `Privilege ${index}`,
+    code: `privilege_${index}`,
+    valueType: PrivilegeValueTypeEnum.Boolean,
+    config: { selectOptions: null },
+  })),
+})
 
 // The multiline description renders a `<textarea>`, every other field an `<input>`
 const inputIn = (testId: string): HTMLInputElement => {
@@ -630,6 +650,156 @@ describe('FeatureForm', () => {
         act(() => updateFeatureOptions.onCompleted({ updateFeature: { id: 'feature-1' } }))
 
         expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
+  describe('GIVEN a feature holding the maximum number of privileges', () => {
+    describe('WHEN rendering the page', () => {
+      it('THEN should disable the add privilege button', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).toBeDisabled()
+      })
+
+      it('THEN should explain the limit next to it', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN one privilege below the limit', () => {
+      it('THEN should keep the add privilege button enabled', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES - 1) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+      })
+
+      it('THEN should not show the limit hint', async () => {
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES - 1) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(
+          screen.queryByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN a privilege is deleted', () => {
+      it('THEN should enable the add privilege button again', async () => {
+        const user = userEvent.setup()
+
+        mockUseGetFeatureQuery.mockReturnValue({
+          data: { feature: featureWithPrivileges(MAX_FEATURE_PRIVILEGES) },
+          loading: false,
+        })
+
+        await renderPage({ featureId: 'feature-1' })
+
+        await user.click(screen.getAllByTestId(FEATURE_PRIVILEGE_DELETE_BUTTON_TEST_ID)[0])
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).not.toBeDisabled()
+        expect(
+          screen.queryByTestId(FEATURE_FORM_PRIVILEGE_LIMIT_HINT_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN a feature saved above the privilege limit', () => {
+    const overTheLimit = featureWithPrivileges(MAX_FEATURE_PRIVILEGES + 1)
+
+    beforeEach(() => {
+      mockUseGetFeatureQuery.mockReturnValue({ data: { feature: overTheLimit }, loading: false })
+    })
+
+    describe('WHEN rendering the page', () => {
+      it('THEN should disable the add privilege button', async () => {
+        await renderPage({ featureId: 'feature-1' })
+
+        expect(screen.getByTestId(FEATURE_FORM_ADD_PRIVILEGE_BUTTON_TEST_ID)).toBeDisabled()
+      })
+    })
+
+    describe('WHEN submitting without adding a privilege', () => {
+      it('THEN should still update the feature with all of them', async () => {
+        const user = userEvent.setup()
+
+        await renderPage({ featureId: 'feature-1' })
+
+        await user.click(screen.getByTestId(FEATURE_FORM_SUBMIT_BUTTON_TEST_ID))
+
+        await waitFor(() =>
+          expect(mockUpdateFeature).toHaveBeenCalledWith({
+            variables: {
+              input: expect.objectContaining({
+                id: 'feature-1',
+                privileges: expect.arrayContaining([
+                  {
+                    name: 'Privilege 0',
+                    code: 'privilege_0',
+                    valueType: PrivilegeValueTypeEnum.Boolean,
+                    config: undefined,
+                  },
+                ]),
+              }),
+            },
+          }),
+        )
+
+        expect(mockUpdateFeature.mock.calls[0][0].variables.input.privileges).toHaveLength(
+          MAX_FEATURE_PRIVILEGES + 1,
+        )
+      })
+    })
+  })
+
+  describe('GIVEN the backend refuses the save', () => {
+    const silencingOf = (details: Record<string, string[]>): boolean =>
+      isSilencedGQLError({
+        extensions: { code: LagoApiError.UnprocessableEntity, details },
+        silentErrorCodes: createFeatureOptions.context?.silentErrorCodes ?? [],
+        silentErrorDetails: createFeatureOptions.context?.silentErrorDetails ?? [],
+      })
+
+    // Regression: the form used to silence every `unprocessable_entity`, so a refusal
+    // it does not handle left the user with no feedback at all.
+    describe('WHEN the refusal is one the form does not handle', () => {
+      it('THEN should leave it to the global error handler', async () => {
+        await renderPage()
+
+        expect(silencingOf({ base: ['too_many_privileges'] })).toBe(false)
+      })
+    })
+
+    describe('WHEN the refusal is one the form surfaces itself', () => {
+      it.each([
+        ['a duplicated privilege code', { 'privilege.code': ['value_is_duplicated'] }],
+        ['an already taken feature code', { code: ['value_already_exist'] }],
+      ])('THEN should keep %s silent', async (_, details) => {
+        await renderPage()
+
+        expect(silencingOf(details)).toBe(true)
       })
     })
   })
