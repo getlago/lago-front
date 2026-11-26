@@ -105,4 +105,40 @@ describe('useDeleteAlertDialog', () => {
       })
     })
   })
+
+  describe('GIVEN the delete request fails on the network', () => {
+    describe('WHEN the deletion is confirmed', () => {
+      it('THEN should keep the dialog open and show a danger toast instead of a success one', async () => {
+        const { result } = renderDialogHook([
+          {
+            request: { query: DestroyContractAlertDocument, variables: { input: { id: 'a1' } } },
+            error: new Error('Network error'),
+          },
+        ])
+
+        act(() => result.current.openDeleteAlertDialog({ alertKind: 'contract', id: 'a1' }))
+
+        const args = getLastDialogArgs()
+
+        expect(args.closeOnError).toBe(false)
+
+        let caughtError: Error | undefined
+
+        await act(async () => {
+          try {
+            await args.onAction()
+          } catch (error) {
+            caughtError = error as Error
+          }
+        })
+
+        expect(caughtError).toBeDefined()
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+
+        act(() => args.onError?.(caughtError as Error))
+
+        expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      })
+    })
+  })
 })

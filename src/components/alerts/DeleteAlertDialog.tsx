@@ -63,6 +63,13 @@ export const useDeleteAlertDialog = (): UseDeleteAlertDialogReturn => {
         isContract ? 'text_17957029944428x4cu34cga9' : 'text_1746611635509rkns7krj9zq',
       ),
       colorVariant: 'danger',
+      closeOnError: false,
+      onError: () => {
+        addToast({
+          severity: 'danger',
+          translateKey: 'text_622f7a3dc32ce100c46a5154',
+        })
+      },
       actionText: translate(
         isContract ? 'text_17465469243924wwxl5pgoxi' : 'text_6271200984178801ba8bdf0c',
       ),
