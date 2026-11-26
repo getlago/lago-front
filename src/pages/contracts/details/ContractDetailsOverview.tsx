@@ -1,12 +1,30 @@
+import { gql } from '@apollo/client'
 import { ReactNode } from 'react'
 import { useParams } from 'react-router'
 
 import { ContractOverviewSectionsEnum } from '~/core/constants/tabsOptions'
-import { CurrencyEnum } from '~/generated/graphql'
+import {
+  CurrencyEnum,
+  FeatureFlagEnum,
+  useGetContractAlertsCountForOverviewNavQuery,
+} from '~/generated/graphql'
+import { useCurrentUser } from '~/hooks/useCurrentUser'
+import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 
+import { ContractAlertsSection } from './ContractAlertsSection'
 import { ContractOverviewNav } from './ContractOverviewNav'
 import { ContractOverviewSection } from './ContractOverviewSection'
 import { ContractRateCardsSection } from './ContractRateCardsSection'
+
+gql`
+  query getContractAlertsCountForOverviewNav($contractId: ID!) {
+    contractAlerts(contractId: $contractId, limit: 1) {
+      metadata {
+        totalCount
+      }
+    }
+  }
+`
 
 const isOverviewSection = (value?: string): value is ContractOverviewSectionsEnum =>
   Object.values(ContractOverviewSectionsEnum).includes(value as ContractOverviewSectionsEnum)
@@ -16,6 +34,7 @@ type ContractDetailsOverviewProps = {
   rateCardsCount?: number
   loading?: boolean
   isRateCardsLocked: boolean
+  isAlertsReadOnly: boolean
 }
 
 export const ContractDetailsOverview = ({
@@ -23,11 +42,32 @@ export const ContractDetailsOverview = ({
   rateCardsCount,
   loading = false,
   isRateCardsLocked,
+  isAlertsReadOnly,
 }: ContractDetailsOverviewProps): JSX.Element => {
   const { id = '', section } = useParams()
-  const activeSection = isOverviewSection(section)
-    ? section
-    : ContractOverviewSectionsEnum.contractOverview
+  const { hasFeatureFlag } = useOrganizationInfos()
+  const { isPremium } = useCurrentUser()
+  const isAlertsEnabled = hasFeatureFlag(FeatureFlagEnum.ContractAlerts)
+
+  const getActiveSection = (): ContractOverviewSectionsEnum => {
+    if (!isOverviewSection(section)) return ContractOverviewSectionsEnum.contractOverview
+    if (section === ContractOverviewSectionsEnum.alerts && !isAlertsEnabled) {
+      return ContractOverviewSectionsEnum.contractOverview
+    }
+
+    return section
+  }
+
+  const activeSection = getActiveSection()
+
+  // no-cache: `contractAlerts` is keyed without page/limit, so caching this `limit: 1`
+  // result would overwrite the list section's page and blank it.
+  const { data: alertsCountData, loading: alertsCountLoading } =
+    useGetContractAlertsCountForOverviewNavQuery({
+      variables: { contractId: id },
+      skip: !id || !isAlertsEnabled || !isPremium,
+      fetchPolicy: 'no-cache',
+    })
 
   const renderSection = (): ReactNode => {
     if (activeSection === ContractOverviewSectionsEnum.rateCards) {
@@ -40,6 +80,10 @@ export const ContractDetailsOverview = ({
       )
     }
 
+    if (activeSection === ContractOverviewSectionsEnum.alerts) {
+      return <ContractAlertsSection contractId={id} isReadOnly={isAlertsReadOnly} />
+    }
+
     return <ContractOverviewSection />
   }
 
@@ -50,6 +94,9 @@ export const ContractDetailsOverview = ({
         activeSection={activeSection}
         rateCardsCount={rateCardsCount}
         loading={loading}
+        isAlertsEnabled={isAlertsEnabled}
+        alertsCount={alertsCountData?.contractAlerts?.metadata.totalCount}
+        alertsCountLoading={alertsCountLoading}
       />
       <div className="min-w-0 flex-1">{renderSection()}</div>
     </div>

@@ -27,6 +27,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
 import { usePermissions } from '~/hooks/usePermissions'
 
+import { isContractAlertsReadOnly } from './details/ContractAlertsSection'
 import { ContractDetailsOverview } from './details/ContractDetailsOverview'
 import { ContractUsageSection } from './details/ContractUsageSection'
 
@@ -162,6 +163,7 @@ const ContractDetails = (): JSX.Element => {
                   currency={contract?.currency}
                   rateCardsCount={contract?.appliedRateCardsCount}
                   isRateCardsLocked={contract?.status !== ContractStatusEnum.Pending}
+                  isAlertsReadOnly={isContractAlertsReadOnly(contract?.status)}
                   loading={loading}
                 />
               </DetailsPage.Container>
