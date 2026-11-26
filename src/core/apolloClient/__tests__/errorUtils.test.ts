@@ -9,6 +9,7 @@ import {
   isSilencedGQLError,
   LagoGQLError,
   PspErrorCode,
+  redactSensitiveVariables,
 } from '~/core/apolloClient/errorUtils'
 
 const createApolloError: (details: Record<string, string | string[]>) => ApolloError = (details) =>
@@ -300,6 +301,71 @@ describe('buildGraphQLErrorFingerprint', () => {
           'unknown',
           'not_voidable',
         ])
+      })
+    })
+  })
+})
+
+describe('redactSensitiveVariables', () => {
+  describe('GIVEN mutation variables carrying credentials', () => {
+    it('THEN masks every credential-shaped key, at any depth', () => {
+      const variables = {
+        input: {
+          name: 'Coinbase',
+          cdpApiKeyId: 'key-id',
+          cdpApiKeySecret: 'secret',
+          secretKey: 'sk_test',
+          webhookToken: 'tok',
+          password: 'pwd',
+          private_key: 'pk',
+          networks: ['eip155:8453'],
+          payoutAddresses: { evm: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed' },
+          items: [{ apiKey: 'nested' }],
+        },
+      }
+
+      expect(redactSensitiveVariables(variables)).toEqual({
+        input: {
+          name: 'Coinbase',
+          cdpApiKeyId: '[Filtered]',
+          cdpApiKeySecret: '[Filtered]',
+          secretKey: '[Filtered]',
+          webhookToken: '[Filtered]',
+          password: '[Filtered]',
+          private_key: '[Filtered]',
+          networks: ['eip155:8453'],
+          payoutAddresses: { evm: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed' },
+          items: [{ apiKey: '[Filtered]' }],
+        },
+      })
+    })
+
+    it('THEN keeps empty credential keys visible and leaves the input untouched', () => {
+      const variables = { input: { secretKey: null, apiKey: 'value' } }
+
+      expect(redactSensitiveVariables(variables)).toEqual({
+        input: { secretKey: null, apiKey: '[Filtered]' },
+      })
+      expect(variables.input.apiKey).toBe('value')
+    })
+  })
+
+  describe('GIVEN a variable validation error that echoes the refused input', () => {
+    it('THEN masks the credentials inside its extensions', () => {
+      const error = {
+        message: 'Variable $input of type UpdateX402ConnectionInput! was provided invalid value',
+        extensions: {
+          value: { id: 'conn-id', cdpApiKeySecret: 'secret' },
+          problems: [{ path: ['networks'], explanation: 'Expected value to not be null' }],
+        },
+      }
+
+      expect(redactSensitiveVariables(error)).toEqual({
+        message: error.message,
+        extensions: {
+          value: { id: 'conn-id', cdpApiKeySecret: '[Filtered]' },
+          problems: error.extensions.problems,
+        },
       })
     })
   })
