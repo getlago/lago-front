@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Button } from './button'
 import { Checkbox } from './checkbox'
 import docs from './checkbox.md?raw'
 
@@ -37,6 +38,31 @@ export const States: Story = {
         Columns: unchecked, checked, indeterminate. Hover or Tab to focus; switch themes in the
         toolbar. Field compositions live under Field.
       </p>
+    </div>
+  ),
+}
+
+export const FormReset: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      {[false, true].map((cancelReset) => (
+        <form
+          key={String(cancelReset)}
+          aria-label={cancelReset ? 'Canceled reset' : 'Normal reset'}
+          className="flex flex-col items-start gap-4"
+          onReset={(event) => {
+            if (cancelReset) event.preventDefault()
+          }}
+        >
+          <p className="v2-text-caption text-text-muted">
+            {cancelReset
+              ? 'Change the selection, then reset: your selection is preserved.'
+              : 'Change the selection, then reset: the default is restored.'}
+          </p>
+          <Checkbox name="email" value="enabled" aria-label="Email notifications" defaultChecked />
+          <Button type="reset">Reset</Button>
+        </form>
+      ))}
     </div>
   ),
 }

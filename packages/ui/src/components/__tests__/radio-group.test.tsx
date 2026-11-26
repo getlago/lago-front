@@ -160,3 +160,25 @@ it('returns to no selection on reset and honors cancellation of changes', async 
   await user.click(screen.getByRole('radio'))
   expect(screen.getByRole('radio')).not.toBeChecked()
 })
+
+it('preserves the selected and submitted radio value when reset is canceled', async () => {
+  const user = userEvent.setup()
+
+  render(
+    <form aria-label="Canceled reset" onReset={(event) => event.preventDefault()}>
+      <RadioGroup name="collection" defaultValue="automatic">
+        <RadioGroupItem value="automatic" aria-label="Automatic" />
+        <RadioGroupItem value="manual" aria-label="Manual" />
+      </RadioGroup>
+      <button type="reset">Reset</button>
+    </form>,
+  )
+  const form = screen.getByRole('form')
+
+  if (!(form instanceof HTMLFormElement)) throw new Error('Expected form')
+  await user.click(screen.getByRole('radio', { name: 'Manual' }))
+  await user.click(screen.getByRole('button', { name: 'Reset' }))
+  expect(screen.getByRole('radio', { name: 'Manual' })).toBeChecked()
+  expect(screen.getByRole('radio', { name: 'Automatic' })).not.toBeChecked()
+  expect(new FormData(form).get('collection')).toBe('manual')
+})

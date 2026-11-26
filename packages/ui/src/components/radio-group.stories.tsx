@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
+import { Button } from './button'
 import { RadioGroup, RadioGroupItem } from './radio-group'
 import docs from './radio-group.md?raw'
 
@@ -50,6 +51,34 @@ export const States: Story = {
       <p className="v2-text-caption text-text-muted">
         Hover and Tab to focus; arrows select an option. Field compositions live under Field.
       </p>
+    </div>
+  ),
+}
+
+export const FormReset: Story = {
+  render: () => (
+    <div className="flex flex-col gap-8">
+      {[false, true].map((cancelReset) => (
+        <form
+          key={String(cancelReset)}
+          aria-label={cancelReset ? 'Canceled reset' : 'Normal reset'}
+          className="flex flex-col items-start gap-4"
+          onReset={(event) => {
+            if (cancelReset) event.preventDefault()
+          }}
+        >
+          <p className="v2-text-caption text-text-muted">
+            {cancelReset
+              ? 'Change the selection, then reset: your selection is preserved.'
+              : 'Change the selection, then reset: the default is restored.'}
+          </p>
+          <RadioGroup name="collection" defaultValue="automatic" aria-label="Collection">
+            <RadioGroupItem value="automatic" aria-label="Automatic" />
+            <RadioGroupItem value="manual" aria-label="Manual" />
+          </RadioGroup>
+          <Button type="reset">Reset</Button>
+        </form>
+      ))}
     </div>
   ),
 }

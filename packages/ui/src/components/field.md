@@ -68,7 +68,7 @@ RadioGroup replaces FieldGroup for mutually exclusive options. Connect its aria-
 
 ## Accessibility
 
-Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Checkbox and RadioGroupItem highlight on associated FieldLabel hover; clicking the label activates its control. Other controls retain their existing hover behavior.
+Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering an associated FieldLabel highlights its editable control: Input, Input Group, Textarea, Combobox, Select, Checkbox or RadioGroupItem. Clicking the label focuses, opens or selects its control as appropriate. Description and help hover do not highlight the control; disabled, read-only and focused states keep their existing appearance.
 
 For Select or Combobox, connect labels and error references to the appropriate interactive control. Radio and checkbox groups need group semantics such as fieldset/legend; individual checkboxes still need their own labels. Field does not replace those semantics.
 

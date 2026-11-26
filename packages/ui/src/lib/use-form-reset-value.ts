@@ -28,9 +28,10 @@ export function useFormResetValue<Value>(
     if (controlled || !form) return
     let active = true
     const reset = (event: Event): void => {
-      queueMicrotask(() => {
+      // Wait until React's delegated onReset handler can cancel the native reset.
+      setTimeout(() => {
         if (active && !event.defaultPrevented) setLocalValue(defaultValue)
-      })
+      }, 0)
     }
 
     form.addEventListener('reset', reset)
