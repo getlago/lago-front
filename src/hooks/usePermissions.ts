@@ -67,6 +67,7 @@ gql`
       invoicesUpdate
       invoicesView
       invoicesVoid
+      copyToProductionCreate
       invoicesSend
       organizationEmailsUpdate
       organizationEmailsView
