@@ -496,6 +496,7 @@ describe('useContractAlertDrawer', () => {
         await typeInto(getNameInput(), 'My alert')
         await pickAlertType(ContractAlertTypeEnum.UsageUnits)
         await screen.findByTestId(SCOPE_ROW_PRODUCT_TEST_ID)
+        await select(SCOPE_ROW_PRODUCT_TEST_ID, 'product_p')
 
         await act(async () => {
           fireEvent.click(
@@ -588,6 +589,7 @@ describe('useContractAlertDrawer', () => {
         await typeInto(getNameInput(), 'My alert')
         await pickAlertType(ContractAlertTypeEnum.UsageUnits)
         await screen.findByTestId(SCOPE_ROW_PRODUCT_TEST_ID)
+        await select(SCOPE_ROW_PRODUCT_TEST_ID, 'product_p')
         await typeInto(screen.getByPlaceholderText('0.00'), '10')
 
         expect(screen.getByTestId(SCOPE_ROW_PRODUCT_TEST_ID)).toBeValid()
@@ -608,6 +610,7 @@ describe('useContractAlertDrawer', () => {
         await typeInto(getNameInput(), 'My alert')
         await pickAlertType(ContractAlertTypeEnum.UsageUnits)
         await screen.findByTestId(SCOPE_ROW_PRODUCT_TEST_ID)
+        await select(SCOPE_ROW_PRODUCT_TEST_ID, 'product_p')
         await typeInto(screen.getByPlaceholderText('0.00'), '10')
 
         await act(async () => {

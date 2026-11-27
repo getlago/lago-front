@@ -130,6 +130,17 @@ describe('contract alert mappers', () => {
           { type: 'product', productCode: 'P', productFilterCode: 'F', withProductFilters: true },
           [{ type: CONTRACT_SCOPE, productCode: 'P', productFilterCodes: ['F'] }],
         ],
+        [
+          'an added filter without sending the row state',
+          {
+            type: 'product',
+            productCode: 'P',
+            productFilterCode: 'F',
+            withProductFilters: false,
+            isFilterAdded: true,
+          },
+          [{ type: CONTRACT_SCOPE, productCode: 'P', productFilterCodes: ['F'] }],
+        ],
       ])('THEN should map %s', (_, scope, expected) => {
         const input = mapFromFormToApi(buildValues({ scope }), CREATE)
 

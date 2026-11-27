@@ -181,7 +181,7 @@ describe('ScopeRow', () => {
 
   describe('GIVEN the product options', () => {
     describe('WHEN a single product is available', () => {
-      it('THEN should prefill it and disable the product select', async () => {
+      it('THEN should leave the product select empty and enabled', async () => {
         await renderRow({
           products: {
             data: [
@@ -192,8 +192,8 @@ describe('ScopeRow', () => {
           },
         })
 
-        expect(latestValue?.productCode).toBe('P1')
-        expect(getSelect(SCOPE_ROW_PRODUCT_TEST_ID)).toBeDisabled()
+        expect(latestValue?.productCode).toBe('')
+        expect(getSelect(SCOPE_ROW_PRODUCT_TEST_ID)).not.toBeDisabled()
       })
     })
   })

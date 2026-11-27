@@ -72,7 +72,6 @@ export const ScopeRow = withFieldGroup({
     const isFilterAdded = useStore(group.store, (state) => !!state.values.isFilterAdded)
 
     const singleType = getSingleAvailableValue(typeOptions)
-    const singleProduct = getSingleAvailableValue(products.data)
     const isFilterShown = isFilterAdded || !!productFilterCode
     const isRemovable = !!onRemove && !disabled
 
@@ -81,12 +80,6 @@ export const ScopeRow = withFieldGroup({
 
       group.setFieldValue('type', singleType)
     }, [disabled, singleType, type, group])
-
-    useEffect(() => {
-      if (disabled || !singleProduct || productCode) return
-
-      group.setFieldValue('productCode', singleProduct)
-    }, [disabled, singleProduct, productCode, group])
 
     useEffect(() => {
       if (disabled || isFilterShown || lockedWithProductFilters === undefined) return
@@ -190,7 +183,7 @@ export const ScopeRow = withFieldGroup({
               <field.ComboBoxField
                 dataTest={SCOPE_ROW_PRODUCT_TEST_ID}
                 containerClassName="min-w-0 flex-1"
-                disabled={disabled || !!singleProduct}
+                disabled={disabled}
                 placeholder={translate('text_179577859961567clw9dm4g9')}
                 data={products.data}
                 renderGroupHeader={products.renderGroupHeader}
