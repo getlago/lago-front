@@ -52,6 +52,10 @@ Adding a paginated list:
      before the page-1 refetch; `network-only` skips that stale read → clean skeleton → page 1.
      Applied to the 7 customer tabs (subscriptions, payments, creditNotes, appliedCoupons,
      activityLogs, wallets, customerInvoices). Full-page lists don't need it (they don't remount).
+   - **`network-only` lists take `nextFetchPolicy: 'cache-first'`**, never `'network-only'`: a
+     `network-only` next policy sends the list back to the network on every later cache write
+     it reads (e.g. after a mutation's `refetchQueries`), so one create shows several loading
+     passes. Reference: `ContractAlertsSection`.
    - Pager inside a child component (e.g. `InvoicesList`, `CreditNotesTable`, `CustomerInvoicesList`)
      → thread an optional `onPageChange` prop down and pass `goToPage` (fallback: `fetchMore`).
    - `sticky` → table `containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"`

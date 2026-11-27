@@ -94,6 +94,12 @@ Notes:
   through `drawer.update({ children })`, called from an effect keyed on stable references.
   `update` is the same function for the hook's lifetime and does nothing once the drawer is
   closed. Do not build an external store for it. Reference: `useInvoicingSettingsDrawer`.
+  Calling it before the opened drawer is visible (its data was already cached at open) is
+  safe: `useDrawer` shows the latest props again once the drawer becomes visible.
+- **A programmatic `drawer.close()` skips `FormDrawer`'s `onClose`.** Whatever `onClose`
+  resets (the form, the open context that drives the hook's queries) must also be reset on
+  the success path that calls `drawer.close()`, or those queries stay active after the
+  drawer closed and refetch with the page's lists. Reference: `useContractAlertDrawer`.
 - Reference sites: `usePlanSettingsDrawer`, `useSubscriptionInformationDrawer`,
   `useCreditsDrawer`, `useRecurringRuleDrawer`.
 
