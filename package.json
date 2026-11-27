@@ -72,7 +72,7 @@
     "@types/jest": "catalog:",
     "@types/lodash": "4.17.26",
     "@types/luxon": "3.7.6",
-    "@types/node": "24.19.2",
+    "@types/node": "26.6.6",
     "@types/prismjs": "1.26.6",
     "@types/rails__actioncable": "8.0.3",
     "@types/react": "catalog:",
@@ -200,7 +200,7 @@
     }
   },
   "engines": {
-    "node": "24.22.2"
+    "node": "26.13.1"
   },
   "browserslist": [
     "> 1%",
