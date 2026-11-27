@@ -29,6 +29,19 @@ export const addUnsupportedDateIssue = (
   return true
 }
 
+// Like `addUnsupportedDateIssue`, parse-only: for a field whose own rule already rejects the 1970 floor with better copy.
+export const addUnparseableDateIssue = (
+  ctx: z.RefinementCtx,
+  value: string | null | undefined,
+  path: (string | number)[],
+): boolean => {
+  if (!value || DateTime.fromISO(value).isValid) return false
+
+  ctx.addIssue({ code: 'custom', message: UNSUPPORTED_DATE_ERROR, path })
+
+  return true
+}
+
 /**
  * Rejects an end date that is not strictly after both `startDate` and today. Shared by
  * every billing object with a start/end date pair (subscriptions, contracts): the rule

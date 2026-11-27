@@ -9,6 +9,7 @@ import {
   SubscriptionDatesOffsetHelperComponent,
   SubscriptionDatesOffsetHelperComponentProps,
 } from '~/components/customers/subscriptions/SubscriptionDatesOffsetHelperComponent'
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import { GetOrganizationInfosDocument, TimezoneEnum } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { render } from '~/test-utils'
@@ -78,6 +79,17 @@ describe('SubscriptionDatesOffsetHelperComponent', () => {
     await prepare()
 
     expect(screen.getByTestId(DATA_TEST_ID)).toBeInTheDocument()
+  })
+
+  describe('GIVEN a date that does not exist', () => {
+    it.each([
+      ['start date', { subscriptionAt: INVALID_DATE_VALUE }],
+      ['end date', { subscriptionAt: FIXED_SUBSCRIPTION_AT, endingAt: INVALID_DATE_VALUE }],
+    ])('THEN should render no helper for an unparseable %s', async (_, dates) => {
+      await prepare({ customerTimezone: TimezoneEnum.TzUtc, ...dates })
+
+      expect(screen.queryByTestId(DATA_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 
   // Regression: today was read in the ambient zone, which the mounted DatePicker used to pin to

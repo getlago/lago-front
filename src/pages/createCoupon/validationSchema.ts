@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon'
 import { z } from 'zod'
 
+import { addUnparseableDateIssue } from '~/formValidation/zodCustoms'
 import {
   BillableMetricsForCouponsFragment,
   CouponExpiration,
@@ -116,9 +117,18 @@ export const couponValidationSchema = z
     message: COUPON_EXPIRATION_REQUIRED_ERROR,
     path: ['expirationAt'],
   })
+  .superRefine((data, ctx) => {
+    if (data.expiration === CouponExpiration.TimeLimit) {
+      addUnparseableDateIssue(ctx, data.expirationAt, ['expirationAt'])
+    }
+  })
   .refine(
     (data) => {
       if (data.expiration !== CouponExpiration.TimeLimit || !data.expirationAt) {
+        return true
+      }
+
+      if (!DateTime.fromISO(data.expirationAt).isValid) {
         return true
       }
 

@@ -1,5 +1,6 @@
-import { Settings } from 'luxon'
+import { DateTime, Settings } from 'luxon'
 
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import { BillingTimeEnum, PlanInterval } from '~/generated/graphql'
 
 import { getBillingTimeHelperKey } from '../getBillingTimeHelperKey'
@@ -15,6 +16,31 @@ describe('getBillingTimeHelperKey', () => {
       const result = getBillingTimeHelperKey(BillingTimeEnum.Calendar, SUB_AT_MID_MONTH, undefined)
 
       expect(result).toBeUndefined()
+    })
+  })
+
+  describe('GIVEN a subscription date that does not exist', () => {
+    const originalNow = Settings.now
+    const midMonth = DateTime.utc(2026, 5, 15).toMillis()
+
+    beforeAll(() => {
+      Settings.now = () => midMonth
+    })
+
+    afterAll(() => {
+      Settings.now = originalNow
+    })
+
+    it('THEN should read it as no date instead of an invalid day', () => {
+      expect(
+        getBillingTimeHelperKey(
+          BillingTimeEnum.Anniversary,
+          INVALID_DATE_VALUE,
+          PlanInterval.Monthly,
+        ),
+      ).toEqual(
+        getBillingTimeHelperKey(BillingTimeEnum.Anniversary, undefined, PlanInterval.Monthly),
+      )
     })
   })
 

@@ -25,6 +25,8 @@ export const dateErrorCodes = {
 } as const
 export const MIN_SUPPORTED_DATE = DateTime.fromISO('1970-01-01T00:00:00.000Z', { zone: 'utc' })
 export const UNSUPPORTED_DATE_ERROR = 'text_62cd78ea9bff25e3391b2459'
+// Stored by `DatePickerField` while the typed date does not exist, for the schema to reject.
+export const INVALID_DATE_VALUE = 'invalid-date'
 export const MIN_AMOUNT_SHOULD_BE_LOWER_THAN_MAX_ERROR = 'minAmountShouldBeLowerThanMax'
 
 /**** Selectors ****/

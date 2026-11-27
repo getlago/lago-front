@@ -2,6 +2,7 @@ import { act, renderHook, screen, waitFor, within } from '@testing-library/react
 import userEvent from '@testing-library/user-event'
 import { ReactElement } from 'react'
 
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import { ResolvablePaymentTerm } from '~/core/utils/paymentTerm'
 import { PaymentTermTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
@@ -412,6 +413,28 @@ describe('useSubscriptionSettingsDrawer', () => {
         })
 
         expect(mockOnSave).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the start date does not exist and the end date is valid', () => {
+    describe('WHEN the save button is clicked', () => {
+      it('THEN should not flag the end date as before the start date', async () => {
+        const user = userEvent.setup()
+
+        openAndRenderDrawer({
+          ...populatedValues,
+          startDate: INVALID_DATE_VALUE,
+          endDate: '2025-01-01',
+        })
+
+        await user.click(screen.getByTestId(SUBSCRIPTION_SETTINGS_DRAWER_SAVE_TEST_ID))
+
+        await waitFor(() => {
+          expect(mockOnSave).not.toHaveBeenCalled()
+        })
+
+        expect(screen.queryByText('End date must be after start date')).not.toBeInTheDocument()
       })
     })
   })
