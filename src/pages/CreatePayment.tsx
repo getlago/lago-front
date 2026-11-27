@@ -299,7 +299,6 @@ const CreatePayment = () => {
                           loading={payableInvoicesLoading}
                           disabled={!!params.invoiceId}
                           disableClearable={!!params.invoiceId}
-                          displayErrorText={false}
                         />
                       )}
                     </form.AppField>
