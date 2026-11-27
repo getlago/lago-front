@@ -68,13 +68,17 @@ export const mapFromApiToForm = (
     value: isUnits ? stripTrailingZeros(value) : String(deserializeAmount(value, currency)),
     notifyOn: recurring ? setResolved(notifyOn, false) : withTriggered(notifyOn),
   }))
+  const recurringLast = [
+    ...thresholds.filter(({ recurring }) => !recurring),
+    ...thresholds.filter(({ recurring }) => recurring),
+  ]
 
   return {
     name: alert.name ?? '',
     code: alert.code,
     alertType: alert.alertType,
     scope: mapScopeFromApi(alert),
-    thresholds,
+    thresholds: recurringLast,
   }
 }
 

@@ -220,6 +220,27 @@ describe('contract alert mappers', () => {
       })
     })
 
+    describe('WHEN the recurring threshold does not come last', () => {
+      it('THEN should move it after the one-time thresholds and keep their order', () => {
+        const values = mapFromApiToForm(
+          buildAlert({
+            thresholds: [
+              { code: null, recurring: true, value: '50', notifyOn: [NotifyOnEnum.Triggered] },
+              { code: null, recurring: false, value: '100', notifyOn: [NotifyOnEnum.Triggered] },
+              { code: null, recurring: false, value: '200', notifyOn: [NotifyOnEnum.Triggered] },
+            ],
+          }),
+          CurrencyEnum.Eur,
+        )
+
+        expect(values.thresholds.map(({ value, recurring }) => [value, recurring])).toEqual([
+          ['100', false],
+          ['200', false],
+          ['50', true],
+        ])
+      })
+    })
+
     describe('WHEN mapping its scope', () => {
       it.each([
         [

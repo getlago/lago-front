@@ -209,7 +209,7 @@ const AlertThresholds = ({
       notifyOn: [NotifyOnEnum.Triggered],
     }
 
-    if (!recurring && hasRecurringThreshold && recurringIndex > 0) {
+    if (!recurring && hasRecurringThreshold) {
       thresholdsToUpdate.splice(recurringIndex, 0, newThreshold)
     } else {
       thresholdsToUpdate.push(newThreshold)
