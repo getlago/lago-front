@@ -2,12 +2,12 @@ import { gql } from '@apollo/client'
 import { useCallback } from 'react'
 import { generatePath, useParams } from 'react-router'
 
+import { useDeleteAlertDialog } from '~/components/alerts/DeleteAlertDialog'
 import { Button } from '~/components/designSystem/Button'
 import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Icon } from '~/components/designSystem/Icon'
 import { Table } from '~/components/designSystem/Table/Table'
 import { Typography } from '~/components/designSystem/Typography'
-import { useDeleteAlertDialog } from '~/components/subscriptions/alerts/DeleteAlertDialog'
 import { useNavigate } from '~/core/router'
 import {
   CREATE_ALERT_CUSTOMER_SUBSCRIPTION_ROUTE,
@@ -221,7 +221,7 @@ export const SubscriptionAlertsList = ({
                     title: translate('text_17465469243924wwxl5pgoxi'),
                     startIcon: 'trash',
                     onAction: () => {
-                      openDeleteAlertDialog({ id })
+                      openDeleteAlertDialog({ alertKind: 'subscription', id })
                     },
                   },
                 ]

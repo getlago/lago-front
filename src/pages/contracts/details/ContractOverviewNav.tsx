@@ -18,6 +18,7 @@ type ContractOverviewNavItem = {
   icon: IconName
   labelKey: string
   count?: number
+  isCountLoading?: boolean
 }
 
 type ContractOverviewNavProps = {
@@ -25,6 +26,9 @@ type ContractOverviewNavProps = {
   activeSection: ContractOverviewSectionsEnum
   rateCardsCount?: number
   loading?: boolean
+  isAlertsEnabled: boolean
+  alertsCount?: number
+  alertsCountLoading: boolean
 }
 
 export const ContractOverviewNav = ({
@@ -32,6 +36,9 @@ export const ContractOverviewNav = ({
   activeSection,
   rateCardsCount,
   loading = false,
+  isAlertsEnabled,
+  alertsCount,
+  alertsCountLoading,
 }: ContractOverviewNavProps): JSX.Element => {
   const { translate } = useInternationalization()
   const overviewPath = generatePath(CONTRACT_DETAILS_TAB_ROUTE, {
@@ -50,12 +57,22 @@ export const ContractOverviewNav = ({
       icon: 'book',
       labelKey: 'text_1783104239825nxqno33u945',
       count: rateCardsCount,
+      isCountLoading: loading,
     },
   ]
 
+  if (isAlertsEnabled) {
+    items.push({
+      section: ContractOverviewSectionsEnum.alerts,
+      icon: 'bell',
+      labelKey: 'text_17465238490269pahbvl3s2m',
+      count: alertsCount,
+      isCountLoading: alertsCountLoading,
+    })
+  }
+
   const renderCount = (item: ContractOverviewNavItem): JSX.Element | undefined => {
-    if (item.section !== ContractOverviewSectionsEnum.rateCards) return undefined
-    if (loading) return <Skeleton variant="text" className="w-4" />
+    if (item.isCountLoading) return <Skeleton variant="text" className="w-4" />
     if (item.count === undefined) return undefined
 
     return (

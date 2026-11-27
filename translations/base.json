@@ -5607,5 +5607,11 @@
   "text_1795423996044mbp29b5w9nn": "You added a payment method. Your production account is now activated",
   "text_1795681244642pqdx58sovxo": "Plan entitlement deleted",
   "text_1795681244642rjqw91vilsx": "Plan entitlement updated",
-  "text_1795681244642hq1kpnc87as": "Plan entitlement created"
+  "text_1795681244642hq1kpnc87as": "Plan entitlement created",
+  "text_1795702994442gdk6vkd25gr": "Alerts send a webhook when the contract usage crosses a threshold, over the billing period of each charge.",
+  "text_1795702994442o415rqxuz0p": "Add alert",
+  "text_1795702994442lrhuqa6ghhj": "No alerts have been added yet",
+  "text_17957029944424sxnh050euf": "Alerts defined on this contract will appear here.",
+  "text_1795702994442p3vvyfr6njx": "Unlock alerts on this contract",
+  "text_17957029944428x4cu34cga9": "Deleting this alert removes it from the contract and stops its webhooks. This action cannot be undone."
 }
