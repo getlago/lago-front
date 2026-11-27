@@ -177,6 +177,7 @@ export type AlertThresholdsProps = {
   recurringSwitchSubLabel?: string
   codePlaceholder?: string
   codeErrors: Record<number, string>
+  valueErrors?: Record<number, string>
 }
 
 const AlertThresholds = ({
@@ -194,6 +195,7 @@ const AlertThresholds = ({
   recurringSwitchSubLabel,
   codePlaceholder = 'text_1747921154885jqsl0c9xhro',
   codeErrors,
+  valueErrors,
 }: AlertThresholdsProps): JSX.Element => {
   const { translate } = useInternationalization()
   const copyKeys = reversedThreshold ? DECREASING_COPY_KEYS : INCREASING_COPY_KEYS
@@ -315,26 +317,32 @@ const AlertThresholds = ({
                   </Typography>
                 ),
                 content: (row, i) => {
-                  const shouldDisplayError = isThresholdValueValid(
+                  const isOverlapping = isThresholdValueValid(
                     i,
                     row.value,
                     nonRecurringThresholds,
                     reversedThreshold,
                   )
+                  const valueError = valueErrors?.[i]
+                  const shouldDisplayError = isOverlapping || !!valueError
 
-                  const tooltipTitle = translate(
-                    reversedThreshold
-                      ? 'text_1773223136519pcuvc8zwoyf'
-                      : 'text_1724252232460i4tv7384iiy',
-                    {
-                      value: nonRecurringThresholds[i - 1]?.value,
-                    },
-                  )
+                  const getTooltipTitle = (): string => {
+                    if (!isOverlapping) return valueError ? translate(valueError) : ''
+
+                    return translate(
+                      reversedThreshold
+                        ? 'text_1773223136519pcuvc8zwoyf'
+                        : 'text_1724252232460i4tv7384iiy',
+                      {
+                        value: nonRecurringThresholds[i - 1]?.value,
+                      },
+                    )
+                  }
 
                   return (
                     <Tooltip
                       placement="top"
-                      title={tooltipTitle}
+                      title={getTooltipTitle()}
                       disableHoverListener={!shouldDisplayError}
                     >
                       <ValueInput
@@ -437,24 +445,35 @@ const AlertThresholds = ({
                     )}
                   </Typography>
                 ),
-                content: (row) => (
-                  <ValueInput
-                    currency={currency}
-                    onChange={(value) => {
-                      setThresholdValue({
-                        index: recurringIndex,
-                        key: 'value',
-                        newValue: String(value) || undefined,
-                      })
-                    }}
-                    shouldHandleUnits={shouldHandleUnits}
-                    translate={translate}
-                    value={row.value}
-                    unitsLabel={unitsLabel}
-                    allowNegativeValues={allowNegativeValues}
-                    allowDecimalUnits={allowDecimalUnits}
-                  />
-                ),
+                content: (row) => {
+                  const valueError = valueErrors?.[recurringIndex]
+
+                  return (
+                    <Tooltip
+                      placement="top"
+                      title={valueError ? translate(valueError) : ''}
+                      disableHoverListener={!valueError}
+                    >
+                      <ValueInput
+                        currency={currency}
+                        onChange={(value) => {
+                          setThresholdValue({
+                            index: recurringIndex,
+                            key: 'value',
+                            newValue: String(value) || undefined,
+                          })
+                        }}
+                        shouldDisplayError={!!valueError}
+                        shouldHandleUnits={shouldHandleUnits}
+                        translate={translate}
+                        value={row.value}
+                        unitsLabel={unitsLabel}
+                        allowNegativeValues={allowNegativeValues}
+                        allowDecimalUnits={allowDecimalUnits}
+                      />
+                    </Tooltip>
+                  )
+                },
               },
               {
                 size: 140,

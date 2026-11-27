@@ -9,6 +9,7 @@ import { isWholeContractTaken, toScopeKey } from './alertScope'
 
 const MANDATORY_ERROR = 'text_624ea7c29103fd010732ab7d'
 const REQUIRED_ERROR = 'text_1771342994699klxu2paz7g8'
+const POSITIVE_VALUE_ERROR = 'text_1795802708078t9ythhvdvd5'
 
 export const SCOPE_ALREADY_TAKEN_ERROR = 'text_1795778599616lwvfo71dmzd'
 
@@ -59,7 +60,11 @@ const refineThresholdValues = (thresholds: ThresholdInput[], ctx: z.RefinementCt
   thresholds.forEach((threshold, index) => {
     if (!isThresholdValueInvalid(threshold, index, thresholds)) return
 
-    ctx.addIssue({ code: 'custom', path: ['thresholds', index, 'value'], message: REQUIRED_ERROR })
+    ctx.addIssue({
+      code: 'custom',
+      path: ['thresholds', index, 'value'],
+      message: threshold.recurring ? POSITIVE_VALUE_ERROR : REQUIRED_ERROR,
+    })
   })
 }
 

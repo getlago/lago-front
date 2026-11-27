@@ -5681,5 +5681,8 @@
   "text_1795788761952p7rvsj0a7jb": "All products",
   "text_1795788761952z950mwwnvax": "Product: {{productName}}",
   "text_1795788761952xv920y6zhgk": "Product: {{productName}} and all filters",
-  "text_17957887619522gmmevjwqbp": "Filter: {{filterName}} from {{productName}}"
+  "text_17957887619522gmmevjwqbp": "Filter: {{filterName}} from {{productName}}",
+  "text_1795792049850v4zjojr03cb": "This value is already used by another threshold",
+  "text_1795792049850r32kntpkx3v": "Notify when resolved is not available on the recurring threshold",
+  "text_1795802708078t9ythhvdvd5": "Value must be greater than 0"
 }

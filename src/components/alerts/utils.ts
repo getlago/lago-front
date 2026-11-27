@@ -29,19 +29,20 @@ export const withTriggered = (notifyOn: NotifyOnEnum[] | null | undefined): Noti
   return values.includes(NotifyOnEnum.Triggered) ? values : [NotifyOnEnum.Triggered, ...values]
 }
 
-export const getThresholdCodeErrorsFromForm = (
+export const getThresholdFieldErrorsFromForm = (
   errors: Record<string, readonly StandardSchemaV1Issue[]> | undefined,
+  field: 'code' | 'value' = 'code',
 ): Record<number, string> => {
-  const codeErrors: Record<number, string> = {}
+  const fieldErrors: Record<number, string> = {}
 
   Object.entries(errors ?? {}).forEach(([path, issues]) => {
-    const match = /^thresholds\[(\d+)\]\.code$/.exec(path)
+    const match = new RegExp(String.raw`^thresholds\[(\d+)\]\.${field}$`).exec(path)
     const message = issues[0]?.message
 
-    if (match && message) codeErrors[Number(match[1])] = message
+    if (match && message) fieldErrors[Number(match[1])] = message
   })
 
-  return codeErrors
+  return fieldErrors
 }
 
 export const getThresholdCodeErrors = (

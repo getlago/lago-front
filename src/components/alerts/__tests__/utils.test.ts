@@ -1,6 +1,6 @@
 import {
   getThresholdCodeErrors,
-  getThresholdCodeErrorsFromForm,
+  getThresholdFieldErrorsFromForm,
   patchThreshold,
   setResolved,
   SortableThreshold,
@@ -296,10 +296,10 @@ describe('getThresholdCodeErrors', () => {
   })
 })
 
-describe('getThresholdCodeErrorsFromForm', () => {
+describe('getThresholdFieldErrorsFromForm', () => {
   it('maps nested code issues without recomputing their rule', () => {
     expect(
-      getThresholdCodeErrorsFromForm({
+      getThresholdFieldErrorsFromForm({
         'thresholds[1].code': [{ message: 'fake-refine-rule', path: ['thresholds', 1, 'code'] }],
         'thresholds[0].value': [{ message: 'invalid-value' }],
         code: [{ message: 'invalid-alert-code' }],
@@ -308,6 +308,30 @@ describe('getThresholdCodeErrorsFromForm', () => {
   })
 
   it('clears cells when the form no longer has issues', () => {
-    expect(getThresholdCodeErrorsFromForm(undefined)).toEqual({})
+    expect(getThresholdFieldErrorsFromForm(undefined)).toEqual({})
+  })
+})
+
+describe('getThresholdFieldErrorsFromForm with a field', () => {
+  const FORM_ERRORS = {
+    'thresholds[0].value': [{ message: 'value-issue', path: ['thresholds', 0, 'value'] }],
+    'thresholds[2].notifyOn': [{ message: 'notify-issue', path: ['thresholds', 2, 'notifyOn'] }],
+    'thresholds[1].code': [{ message: 'code-issue', path: ['thresholds', 1, 'code'] }],
+    'thresholds[3].valueExtra': [{ message: 'lookalike-issue' }],
+    value: [{ message: 'top-level-issue' }],
+  }
+
+  it.each([
+    ['value', { 0: 'value-issue' }],
+    ['code', { 1: 'code-issue' }],
+  ] as const)(
+    'GIVEN the %s field THEN should only map that field issues by row',
+    (field, expected) => {
+      expect(getThresholdFieldErrorsFromForm(FORM_ERRORS, field)).toEqual(expected)
+    },
+  )
+
+  it('GIVEN no form errors THEN should report nothing', () => {
+    expect(getThresholdFieldErrorsFromForm(undefined, 'value')).toEqual({})
   })
 })
