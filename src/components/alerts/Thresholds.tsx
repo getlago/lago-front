@@ -50,6 +50,7 @@ const ValueInput = ({
   value,
   unitsLabel,
   allowNegativeValues,
+  allowDecimalUnits,
 }: {
   currency: CurrencyEnum
   onChange: (value: string) => void
@@ -59,11 +60,12 @@ const ValueInput = ({
   translate: TranslateFunc
   unitsLabel?: string
   allowNegativeValues?: boolean
+  allowDecimalUnits?: boolean
 }): JSX.Element => {
   if (shouldHandleUnits) {
     const beforeChangeFormatter: ValueFormatterType[] = [
       ...(allowNegativeValues ? [] : [ValueFormatter.positiveNumber]),
-      ValueFormatter.int,
+      allowDecimalUnits ? ValueFormatter.quinDecimal : ValueFormatter.int,
     ]
 
     return (
@@ -73,7 +75,7 @@ const ValueInput = ({
         error={shouldDisplayError}
         value={value}
         onChange={onChange}
-        placeholder="0"
+        placeholder={allowDecimalUnits ? '0.00' : '0'}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -170,6 +172,9 @@ export type AlertThresholdsProps = {
   unitsTitle?: string
   reversedThreshold?: boolean
   allowNegativeValues?: boolean
+  allowDecimalUnits?: boolean
+  maxRows?: number
+  recurringSwitchSubLabel?: string
   codeErrors: Record<number, string>
 }
 
@@ -183,6 +188,9 @@ const AlertThresholds = ({
   unitsTitle,
   reversedThreshold,
   allowNegativeValues,
+  allowDecimalUnits,
+  maxRows,
+  recurringSwitchSubLabel,
   codeErrors,
 }: AlertThresholdsProps): JSX.Element => {
   const { translate } = useInternationalization()
@@ -190,6 +198,7 @@ const AlertThresholds = ({
 
   const recurringIndex = thresholds.findIndex((t) => t.recurring)
   const hasRecurringThreshold = recurringIndex !== -1
+  const isAtMaxRows = maxRows !== undefined && thresholds.length >= maxRows
 
   const addThreshold = ({ recurring = false }: { recurring?: boolean } = {}) => {
     const thresholdsToUpdate = [...thresholds]
@@ -260,6 +269,7 @@ const AlertThresholds = ({
           className="mb-2 ml-auto"
           startIcon="plus"
           variant="inline"
+          disabled={isAtMaxRows}
           onClick={() => addThreshold()}
           data-test={THRESHOLDS_ADD_ROW_TEST_ID}
         >
@@ -340,6 +350,7 @@ const AlertThresholds = ({
                         value={row.value}
                         unitsLabel={unitsLabel}
                         allowNegativeValues={allowNegativeValues}
+                        allowDecimalUnits={allowDecimalUnits}
                       />
                     </Tooltip>
                   )
@@ -385,9 +396,10 @@ const AlertThresholds = ({
         className="w-fit cursor-pointer"
         data-test={THRESHOLDS_RECURRING_SWITCH_TEST_ID}
         checked={hasRecurringThreshold}
+        disabled={!hasRecurringThreshold && isAtMaxRows}
         onChange={onSwitchClick}
         label={translate(copyKeys.recurringSwitchLabel)}
-        subLabel={translate(copyKeys.recurringSwitchSubLabel)}
+        subLabel={translate(recurringSwitchSubLabel ?? copyKeys.recurringSwitchSubLabel)}
       />
       {hasRecurringThreshold && (
         <div className="-mx-4 -my-1 overflow-auto px-4 py-1">
@@ -438,6 +450,7 @@ const AlertThresholds = ({
                     value={row.value}
                     unitsLabel={unitsLabel}
                     allowNegativeValues={allowNegativeValues}
+                    allowDecimalUnits={allowDecimalUnits}
                   />
                 ),
               },

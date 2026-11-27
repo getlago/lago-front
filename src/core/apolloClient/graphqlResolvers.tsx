@@ -35,6 +35,7 @@ export const typeDefs = gql`
     login_method_not_authorized
 
     # Validation errors
+    alert_already_exists
     coupon_is_not_reusable
     is_succeeded
     currencies_does_not_match
@@ -54,6 +55,7 @@ export const typeDefs = gql`
     plan_overlapping
     product_already_priced
     product_filter_already_priced
+    product_required_for_units
     url_is_invalid
     user_already_exists
     user_does_not_exist

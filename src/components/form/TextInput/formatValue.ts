@@ -3,6 +3,7 @@ export enum ValueFormatter {
   decimal = 'decimal', // Truncate numbers to 2 decimals
   triDecimal = 'triDecimal', // Truncate numbers to 3 decimals
   quadDecimal = 'quadDecimal', // Truncate numbers to 4 decimals
+  quinDecimal = 'quinDecimal',
   sextDecimal = 'sextDecimal', // Truncate numbers to 6 decimals
   positiveNumber = 'positiveNumber',
   code = 'code', // Replace all the spaces by "_"
@@ -14,7 +15,7 @@ export enum ValueFormatter {
 
 export type ValueFormatterType = keyof typeof ValueFormatter
 const numberFormatter = new RegExp(
-  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.sextDecimal}|${ValueFormatter.positiveNumber}`,
+  `${ValueFormatter.int}|${ValueFormatter.decimal}|${ValueFormatter.triDecimal}|${ValueFormatter.quadDecimal}|${ValueFormatter.quinDecimal}|${ValueFormatter.sextDecimal}|${ValueFormatter.positiveNumber}`,
 )
 
 type FormatterFunctions = ValueFormatterType[] | ValueFormatterType
@@ -23,6 +24,7 @@ const DECIMAL_TRUNCATIONS: ReadonlyArray<readonly [ValueFormatterType, RegExp]> 
   [ValueFormatter.decimal, /^-?\d+(?:\.\d{0,2})?/],
   [ValueFormatter.triDecimal, /^-?\d+(?:\.\d{0,3})?/],
   [ValueFormatter.quadDecimal, /^-?\d+(?:\.\d{0,4})?/],
+  [ValueFormatter.quinDecimal, /^-?\d+(?:\.\d{0,5})?/],
   [ValueFormatter.sextDecimal, /^-?\d+(?:\.\d{0,6})?/],
   [ValueFormatter.chargeDecimal, /^-?\d+(?:\.\d{0,15})?/],
 ]

@@ -4,7 +4,12 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
 import { CENTRALIZED_DIALOG_NAME } from '~/components/dialogs/const'
-import { ContractStatusEnum, GetContractAlertsForAlertsSectionDocument } from '~/generated/graphql'
+import {
+  ContractAlertTypeEnum,
+  ContractStatusEnum,
+  CurrencyEnum,
+  GetContractAlertsForAlertsSectionDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import {
@@ -21,6 +26,7 @@ NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn()
 const mockOpenDeleteAlertDialog = jest.fn()
+const mockOpenContractAlertDrawer = jest.fn()
 let mockIsPremium = true
 
 jest.mock('~/hooks/usePermissions', () => ({
@@ -35,15 +41,25 @@ jest.mock('~/components/alerts/DeleteAlertDialog', () => ({
   useDeleteAlertDialog: () => ({ openDeleteAlertDialog: mockOpenDeleteAlertDialog }),
 }))
 
+jest.mock('~/components/contracts/drawers/contractAlert/useContractAlertDrawer', () => ({
+  useContractAlertDrawer: () => ({ openDrawer: mockOpenContractAlertDrawer }),
+}))
+
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({
     translate: (key: string) => key,
   }),
 }))
 
+const drawerFields = {
+  alertType: ContractAlertTypeEnum.UsageUnits,
+  scope: [],
+  thresholds: [],
+}
+
 const alertsFixture = [
-  { id: 'alert-a', name: 'Alert A', code: 'alert_a', __typename: 'ContractAlert' },
-  { id: 'alert-b', name: null, code: 'alert_b', __typename: 'ContractAlert' },
+  { id: 'alert-a', name: 'Alert A', code: 'alert_a', __typename: 'ContractAlert', ...drawerFields },
+  { id: 'alert-b', name: null, code: 'alert_b', __typename: 'ContractAlert', ...drawerFields },
 ]
 
 const buildListMock = (
@@ -77,12 +93,19 @@ const buildListMock = (
 
 const renderSection = (
   mocks: TestMocksType,
-  { isReadOnly = false }: { isReadOnly?: boolean } = {},
+  {
+    isReadOnly = false,
+    currency = CurrencyEnum.Eur,
+  }: { isReadOnly?: boolean; currency?: CurrencyEnum | null } = {},
 ) =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>
-        <ContractAlertsSection contractId="contract-1" isReadOnly={isReadOnly} />
+        <ContractAlertsSection
+          contractId="contract-1"
+          currency={currency ?? undefined}
+          isReadOnly={isReadOnly}
+        />
       </NiceModal.Provider>
     </AllTheProviders>,
   )
@@ -140,6 +163,49 @@ describe('ContractAlertsSection', () => {
 
         expect(screen.getByTestId(CONTRACT_ALERTS_EDIT_ACTION_TEST_ID)).toBeInTheDocument()
         expect(screen.getByTestId(CONTRACT_ALERTS_DELETE_ACTION_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN add alert is clicked', () => {
+      it('THEN should open the create drawer with the contract and its currency', async () => {
+        renderSection([buildListMock(alertsFixture)])
+        await waitFor(() => expect(screen.getByText('Alert A')).toBeInTheDocument())
+
+        fireEvent.click(screen.getByTestId(CONTRACT_ALERTS_ADD_ALERT_TEST_ID))
+
+        expect(mockOpenContractAlertDrawer).toHaveBeenCalledWith({
+          contractId: 'contract-1',
+          currency: CurrencyEnum.Eur,
+        })
+      })
+    })
+
+    describe('WHEN edit is clicked on a row', () => {
+      it('THEN should open the edit drawer with that alert', async () => {
+        renderSection([buildListMock(alertsFixture)])
+        await waitFor(() => expect(screen.getByText('Alert A')).toBeInTheDocument())
+
+        fireEvent.click(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)[0])
+        fireEvent.click(screen.getByTestId(CONTRACT_ALERTS_EDIT_ACTION_TEST_ID))
+
+        expect(mockOpenContractAlertDrawer).toHaveBeenCalledWith({
+          contractId: 'contract-1',
+          currency: CurrencyEnum.Eur,
+          alert: expect.objectContaining({ id: 'alert-a' }),
+        })
+      })
+    })
+
+    describe('WHEN the contract currency is not loaded yet', () => {
+      it('THEN should disable add alert and hide edit', async () => {
+        renderSection([buildListMock(alertsFixture)], { currency: null })
+        await waitFor(() => expect(screen.getByText('Alert A')).toBeInTheDocument())
+
+        expect(screen.getByTestId(CONTRACT_ALERTS_ADD_ALERT_TEST_ID)).toBeDisabled()
+
+        fireEvent.click(screen.getAllByTestId(OPEN_ACTION_BUTTON_TEST_ID)[0])
+
+        expect(screen.queryByTestId(CONTRACT_ALERTS_EDIT_ACTION_TEST_ID)).not.toBeInTheDocument()
       })
     })
 

@@ -611,3 +611,81 @@ it('renders a new validator rule on its indexed code cell', async () => {
   expect(screen.getByDisplayValue('warn')).toHaveAttribute('aria-invalid', 'false')
   expect(screen.getByDisplayValue('hard')).toHaveAttribute('aria-invalid', 'true')
 })
+
+describe('GIVEN the opt-in props of the thresholds table', () => {
+  const buildRows = (count: number, withRecurring = false): ThresholdInput[] =>
+    Array.from({ length: count }, (_, index) => ({
+      code: '',
+      value: String((index + 1) * 10),
+      recurring: withRecurring && index === count - 1,
+      notifyOn: [NotifyOnEnum.Triggered],
+    }))
+
+  const getSwitchInput = (): HTMLInputElement =>
+    within(screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)).getByRole('checkbox')
+
+  describe('WHEN maxRows is reached with non-recurring rows only', () => {
+    it('THEN should disable both the add button and the recurring switch', async () => {
+      await renderComponent(buildRows(20), { maxRows: 20 })
+
+      expect(screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)).toBeDisabled()
+      expect(getSwitchInput()).toBeDisabled()
+    })
+  })
+
+  describe('WHEN maxRows is reached with a recurring row', () => {
+    it('THEN should disable the add button but keep the switch enabled to remove it', async () => {
+      await renderComponent(buildRows(20, true), { maxRows: 20 })
+
+      expect(screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)).toBeDisabled()
+      expect(getSwitchInput()).not.toBeDisabled()
+    })
+  })
+
+  describe('WHEN maxRows is not given', () => {
+    it('THEN should keep the add button enabled at any length', async () => {
+      await renderComponent(buildRows(25))
+
+      expect(screen.getByTestId(THRESHOLDS_ADD_ROW_TEST_ID)).not.toBeDisabled()
+      expect(getSwitchInput()).not.toBeDisabled()
+    })
+  })
+
+  describe('WHEN typing a units value', () => {
+    it.each([
+      ['allowDecimalUnits', { allowDecimalUnits: true }, '1.123456', '1.12345'],
+      ['the default units formatter', {}, '1.5', '1'],
+    ])('THEN %s should store the formatted value', async (_, props, typed, expected) => {
+      const setThresholdValue = jest.fn()
+
+      await renderComponent([{ code: '', value: '', recurring: false }], {
+        shouldHandleUnits: true,
+        setThresholdValue,
+        ...props,
+      })
+
+      const input = screen.getByPlaceholderText(
+        'allowDecimalUnits' in props ? '0.00' : '0',
+      ) as HTMLInputElement
+
+      fireEvent.change(input, { target: { value: typed } })
+
+      expect(setThresholdValue).toHaveBeenLastCalledWith(
+        expect.objectContaining({ index: 0, key: 'value', newValue: expected }),
+      )
+    })
+  })
+
+  describe('WHEN a recurring sub-label is given', () => {
+    it('THEN should replace the default recurring sub-label', async () => {
+      await renderComponent(getMockThresholds(), {
+        recurringSwitchSubLabel: 'custom-sub-label',
+      })
+
+      const recurringSwitch = screen.getByTestId(THRESHOLDS_RECURRING_SWITCH_TEST_ID)
+
+      expect(recurringSwitch).toHaveTextContent('custom-sub-label')
+      expect(recurringSwitch).not.toHaveTextContent(/above the last threshold/)
+    })
+  })
+})

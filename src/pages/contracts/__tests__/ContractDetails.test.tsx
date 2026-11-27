@@ -38,6 +38,11 @@ const mockHasPermissions = jest.fn()
 const mockCanTerminateContract = jest.fn()
 let mockIsPremium = true
 
+jest.mock('~/components/drawers/useDrawer', () => ({
+  useDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: jest.fn() }),
+  useFormDrawer: () => ({ open: jest.fn(), close: jest.fn(), update: jest.fn() }),
+}))
+
 jest.mock('~/components/contracts/useCopyContractExternalId', () => ({
   useCopyContractExternalId: () => ({
     copyContractExternalId: mockCopyContractExternalId,

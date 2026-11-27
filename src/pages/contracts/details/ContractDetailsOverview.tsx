@@ -79,7 +79,9 @@ export const ContractDetailsOverview = ({
     }
 
     if (activeSection === ContractOverviewSectionsEnum.alerts) {
-      return <ContractAlertsSection contractId={id} isReadOnly={isAlertsReadOnly} />
+      return (
+        <ContractAlertsSection contractId={id} currency={currency} isReadOnly={isAlertsReadOnly} />
+      )
     }
 
     return <ContractOverviewSection />
