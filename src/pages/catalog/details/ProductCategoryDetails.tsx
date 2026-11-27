@@ -7,6 +7,10 @@ import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
 import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
+import {
   ProductCatalogTabsOptionsEnum,
   ProductCategoryDetailsTabsOptionsEnum,
 } from '~/core/constants/tabsOptions'
@@ -16,6 +20,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionItemTypeEnum,
   LagoApiError,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
@@ -66,6 +71,7 @@ const ProductCategoryDetails = () => {
   const { hasPermissions } = usePermissions()
   const { openDrawer: openEditProductCategoryDrawer } = useProductCategoryDrawer()
   const { openDeleteProductCategoryDialog } = useDeleteProductCategoryDialog()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const { data, loading, error } = useGetProductCategoryForDetailsQuery({
     variables: { id: productCategoryId as string },
@@ -108,6 +114,19 @@ const ProductCategoryDetails = () => {
                 callback: () => navigate(PRODUCTS_LIST_PATH),
               })
             }
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction,
+          onClick: (closePopper) => {
+            copyToProduction({
+              itemType: CopyToProductionItemTypeEnum.ProductCategory,
+              id: productCategoryId as string,
+              code: productCategory?.code ?? '',
+            })
             closePopper()
           },
         },

@@ -2,6 +2,10 @@ import { useCallback } from 'react'
 import { generatePath } from 'react-router'
 
 import { ActionColumn, ActionItem } from '~/components/designSystem/Table/types'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { addToast } from '~/core/apolloClient'
 import { CatalogPlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { CATALOG_PLAN_DETAILS_ROUTE } from '~/core/router'
@@ -9,6 +13,7 @@ import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
   CatalogPlanForCatalogPlanDrawerFragment,
   CatalogPlanForDeleteCatalogPlanDialogFragment,
+  CopyToProductionItemTypeEnum,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -39,6 +44,7 @@ export const useCatalogPlanTableActions = (): {
   const { hasPermissions } = usePermissions()
   const { openDrawer: openCatalogPlanDrawer } = useCatalogPlanDrawer()
   const { openDeleteCatalogPlanDialog } = useDeleteCatalogPlanDialog()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const canUpdateCatalogPlans = hasPermissions(['plansUpdate'])
   const canDeleteCatalogPlans = hasPermissions(['plansDelete'])
@@ -103,14 +109,30 @@ export const useCatalogPlanTableActions = (): {
         })
       }
 
+      if (canCopyToProduction) {
+        items.push({
+          startIcon: 'outside',
+          title: translate('text_1795431906432py065218gdv'),
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          onAction: ({ id, code }) =>
+            copyToProduction({
+              itemType: CopyToProductionItemTypeEnum.CatalogPlan,
+              id,
+              code,
+            }),
+        })
+      }
+
       return items
     },
     [
       canUpdateCatalogPlans,
       canDeleteCatalogPlans,
+      canCopyToProduction,
       translate,
       openCatalogPlanDrawer,
       openDeleteCatalogPlanDialog,
+      copyToProduction,
     ],
   )
 

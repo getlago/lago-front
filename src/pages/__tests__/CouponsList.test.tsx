@@ -1,7 +1,8 @@
 import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
-import { CouponStatusEnum } from '~/generated/graphql'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponsList from '../CouponsList'
@@ -97,6 +98,17 @@ jest.mock('~/generated/graphql', () => ({
 
 jest.mock('~/core/constants/statusCouponMapping', () => ({
   couponStatusMapping: () => ({ type: 'success', label: 'Active' }),
+}))
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('CouponsList', () => {
@@ -299,6 +311,62 @@ describe('CouponsList', () => {
           couponId: 'coupon-1',
         })
       })
+    })
+  })
+
+  describe('GIVEN copy to production', () => {
+    const COPY_ROW = {
+      id: 'coupon-1',
+      name: 'Coupon',
+      code: 'coupon',
+      status: CouponStatusEnum.Active,
+      appliedCouponsCount: 0,
+    }
+
+    const getCopyAction = (row: typeof COPY_ROW = COPY_ROW) => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof COPY_ROW,
+      ) => ActionItem<typeof COPY_ROW>[]
+
+      return actionColumn(row).find(
+        (action) => action.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the row action copies the item to production', () => {
+      mockCanCopyToProduction = true
+
+      render(<CouponsList />)
+
+      const moveAction = getCopyAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(COPY_ROW)
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.Coupon,
+        id: COPY_ROW.id,
+        code: COPY_ROW.code,
+      })
+    })
+
+    it('WHEN the coupon is terminated THEN there is no copy to production row action', () => {
+      mockCanCopyToProduction = true
+
+      render(<CouponsList />)
+
+      expect(getCopyAction({ ...COPY_ROW, status: CouponStatusEnum.Terminated })).toBeUndefined()
+    })
+
+    it('WHEN the member cannot copy items THEN there is no copy to production row action', () => {
+      render(<CouponsList />)
+
+      expect(getCopyAction()).toBeUndefined()
     })
   })
 })

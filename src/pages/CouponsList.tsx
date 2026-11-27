@@ -16,6 +16,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
@@ -27,8 +31,10 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionItemTypeEnum,
   CouponCaptionFragmentDoc,
   CouponsQuery,
+  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   TerminateCouponFragmentDoc,
   useCouponsLazyQuery,
@@ -84,6 +90,7 @@ const CouponsList = () => {
   const navigate = useNavigate()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const actions = usePermissionsCouponActions()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -157,6 +164,20 @@ const CouponsList = () => {
             appliedCouponsCount: coupon.appliedCouponsCount,
           })
         },
+      })
+    }
+
+    if (canCopyToProduction && coupon.status !== CouponStatusEnum.Terminated) {
+      result.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+        onAction: () =>
+          copyToProduction({
+            itemType: CopyToProductionItemTypeEnum.Coupon,
+            id: coupon.id,
+            code: coupon.code,
+          }),
       })
     }
 

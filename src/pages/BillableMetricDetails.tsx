@@ -8,6 +8,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -18,7 +22,11 @@ import {
   useNavigate,
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { LagoApiError, useGetBillableMetricForHeaderDetailsQuery } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  LagoApiError,
+  useGetBillableMetricForHeaderDetailsQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useNotFoundRedirect } from '~/hooks/useNotFoundRedirect'
@@ -42,6 +50,7 @@ const BillableMetricDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
     variables: {
@@ -107,6 +116,19 @@ const BillableMetricDetails = () => {
               callback: () => {
                 navigate(generatePath(BILLABLE_METRICS_ROUTE))
               },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction,
+          onClick: (closePopper) => {
+            copyToProduction({
+              itemType: CopyToProductionItemTypeEnum.BillableMetric,
+              id: billableMetricId as string,
+              code: billableMetric?.code ?? '',
             })
             closePopper()
           },

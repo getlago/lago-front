@@ -8,8 +8,13 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { CatalogPlanDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { CurrencyEnum, GetCatalogPlanForDetailsDocument } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  CurrencyEnum,
+  GetCatalogPlanForDetailsDocument,
+} from '~/generated/graphql'
 import { TMembershipPermissions } from '~/hooks/usePermissions'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -27,6 +32,16 @@ const mockOpenCatalogPlanDrawer = jest.fn()
 const mockOpenDeleteCatalogPlanDialog = jest.fn()
 const mockHasPermissions = jest.fn()
 let mockIsPremium = true
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 jest.mock('~/pages/catalog/drawers/catalogPlan/useCatalogPlanDrawer', () => ({
   useCatalogPlanDrawer: () => ({ openDrawer: mockOpenCatalogPlanDrawer }),
@@ -322,5 +337,34 @@ describe('CatalogPlanDetails', () => {
 
     expect(screen.queryByRole('button', { name: EDIT_PLAN_KEY })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: DELETE_PLAN_KEY })).not.toBeInTheDocument()
+  })
+
+  describe('GIVEN copy to production', () => {
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the action copies the plan to production', async () => {
+      mockCanCopyToProduction = true
+
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('catalog-plan-details-actions'))[0])
+      await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.CatalogPlan,
+        id: 'plan-1',
+        code: 'premium',
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the action is not offered', async () => {
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('catalog-plan-details-actions'))[0])
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })
