@@ -2,7 +2,7 @@ import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
-import { CopyToProductionCopyableItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponsList from '../CouponsList'
@@ -349,7 +349,7 @@ describe('CouponsList', () => {
       moveAction?.onAction?.(COPY_ROW)
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
+        itemType: CopyToProductionItemTypeEnum.Coupon,
         id: COPY_ROW.id,
         code: COPY_ROW.code,
       })

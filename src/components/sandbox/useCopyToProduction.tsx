@@ -4,11 +4,7 @@ import { useRef } from 'react'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import {
-  CopyToProductionCopyableItemTypeEnum,
-  CopyToProductionItemTypeEnum,
-  useCopyToProductionMutation,
-} from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, useCopyToProductionMutation } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 import { useSandbox } from '~/hooks/useSandbox'
@@ -41,11 +37,8 @@ const ITEM_TYPE_TRANSLATION_KEYS: Record<CopyToProductionItemTypeEnum, string> =
   [CopyToProductionItemTypeEnum.BillableMetric]: 'text_1795431906433n4atjiccd3h',
   [CopyToProductionItemTypeEnum.Coupon]: 'text_17954319064331bw3yqfc0t2',
   [CopyToProductionItemTypeEnum.Feature]: 'text_1795431906433rlgowe4019k',
-  [CopyToProductionItemTypeEnum.PricingUnit]: 'text_1795431906433676fmxuhwig',
   [CopyToProductionItemTypeEnum.Product]: 'text_1795431906434ld1peo7t04a',
   [CopyToProductionItemTypeEnum.ProductCategory]: 'text_1795431906434cs56t3kl5lh',
-  [CopyToProductionItemTypeEnum.RateCard]: 'text_17954319064341xdvy2c5ckl',
-  [CopyToProductionItemTypeEnum.Tax]: 'text_1795431906434krghsz7ups4',
 }
 
 // Error codes of the copy, keyed by `code`, `itemType/code` or `code:field`, where a field is its path
@@ -73,7 +66,7 @@ const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
 }
 
 type CopyToProductionTarget = {
-  itemType: CopyToProductionCopyableItemTypeEnum
+  itemType: CopyToProductionItemTypeEnum
   id: string
   code: string
 }
@@ -217,10 +210,7 @@ export const useCopyToProduction: UseCopyToProduction = () => {
 
     if (!refusal) return showError()
 
-    const item = refusal.parent ?? {
-      itemType: target.itemType as string as CopyToProductionItemTypeEnum,
-      code: target.code,
-    }
+    const item = refusal.parent ?? { itemType: target.itemType, code: target.code }
 
     addToast({
       severity: 'info',

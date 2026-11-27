@@ -16,7 +16,7 @@ import {
 } from '~/core/constants/tabsOptions'
 import { PRODUCT_CATALOG_TAB_ROUTE, PRODUCT_DETAILS_ROUTE, useNavigate } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   LagoApiError,
   ProductForDeleteProductDialogFragmentDoc,
   ProductForDrawerFragmentDoc,
@@ -126,7 +126,7 @@ const ProductDetails = () => {
           hidden: !canCopyToProduction,
           onClick: (closePopper) => {
             copyToProduction({
-              itemType: CopyToProductionCopyableItemTypeEnum.Product,
+              itemType: CopyToProductionItemTypeEnum.Product,
               id: productId as string,
               code: product?.code ?? '',
             })

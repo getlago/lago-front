@@ -4,7 +4,7 @@ import { ReactElement } from 'react'
 
 import { CentralizedDialogProps } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { CopyToProductionCopyableItemTypeEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { useCopyToProduction } from '../useCopyToProduction'
@@ -69,7 +69,7 @@ const PRODUCT_CATEGORY_LABEL_KEY = 'text_1795431906434cs56t3kl5lh'
 const BILLABLE_METRIC_LABEL_KEY = 'text_1795431906433n4atjiccd3h'
 
 const TARGET = {
-  itemType: CopyToProductionCopyableItemTypeEnum.Product,
+  itemType: CopyToProductionItemTypeEnum.Product,
   id: 'product-1',
   code: 'storage',
 }
@@ -239,7 +239,7 @@ describe('useCopyToProduction', () => {
         failWith({ message: 'forbidden', extensions: { code: 'feature_unavailable' } })
 
         await confirm({
-          itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
+          itemType: CopyToProductionItemTypeEnum.BillableMetric,
           id: 'metric-1',
           code: 'gb',
         })

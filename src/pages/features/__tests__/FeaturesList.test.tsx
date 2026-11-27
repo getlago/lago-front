@@ -2,7 +2,7 @@ import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
-import { CopyToProductionCopyableItemTypeEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import FeaturesList from '../FeaturesList'
@@ -287,7 +287,7 @@ describe('FeaturesList', () => {
       moveAction?.onAction?.(COPY_ROW)
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.Feature,
+        itemType: CopyToProductionItemTypeEnum.Feature,
         id: COPY_ROW.id,
         code: COPY_ROW.code,
       })

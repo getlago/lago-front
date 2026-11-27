@@ -17,7 +17,7 @@ import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PRODUCT_CATEGORY_DETAILS_ROUTE } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
   ProductCategoryListItemFragment,
@@ -150,7 +150,7 @@ const ProductCategoriesList = () => {
         dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
         onAction: () =>
           copyToProduction({
-            itemType: CopyToProductionCopyableItemTypeEnum.ProductCategory,
+            itemType: CopyToProductionItemTypeEnum.ProductCategory,
             id: productCategory.id,
             code: productCategory.code,
           }),

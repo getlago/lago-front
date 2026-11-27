@@ -20,7 +20,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   FeatureForDeleteFeatureDialogFragmentDoc,
   LagoApiError,
   useGetFeatureForDetailsQuery,
@@ -109,7 +109,7 @@ const FeatureDetails = () => {
               hidden: !canCopyToProduction,
               onClick: (closePopper) => {
                 copyToProduction({
-                  itemType: CopyToProductionCopyableItemTypeEnum.Feature,
+                  itemType: CopyToProductionItemTypeEnum.Feature,
                   id: feature.id,
                   code: feature.code,
                 })

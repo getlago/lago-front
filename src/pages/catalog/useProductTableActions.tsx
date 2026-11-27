@@ -8,7 +8,7 @@ import {
 } from '~/components/sandbox/useCopyToProduction'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { PRODUCT_DETAILS_ROUTE } from '~/core/router'
-import { CopyToProductionCopyableItemTypeEnum, ProductForListFragment } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, ProductForListFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { usePermissions } from '~/hooks/usePermissions'
 
@@ -76,7 +76,7 @@ export const useProductTableActions = () => {
         dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
         onAction: () =>
           copyToProduction({
-            itemType: CopyToProductionCopyableItemTypeEnum.Product,
+            itemType: CopyToProductionItemTypeEnum.Product,
             id: product.id,
             code: product.code,
           }),

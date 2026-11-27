@@ -9,7 +9,7 @@ import {
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   GetProductForDetailsDocument,
   ProductTypeEnum,
 } from '~/generated/graphql'
@@ -285,7 +285,7 @@ describe('ProductDetails', () => {
       await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.Product,
+        itemType: CopyToProductionItemTypeEnum.Product,
         id: 'pitem-1',
         code: 'seats',
       })

@@ -6,7 +6,7 @@ import { ActionItem } from '~/components/designSystem/Table/types'
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   ProductForListFragment,
   ProductTypeEnum,
 } from '~/generated/graphql'
@@ -280,7 +280,7 @@ describe('ProductsList', () => {
       moveAction?.onAction?.(COPY_ROW)
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.Product,
+        itemType: CopyToProductionItemTypeEnum.Product,
         id: COPY_ROW.id,
         code: COPY_ROW.code,
       })

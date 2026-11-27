@@ -28,7 +28,7 @@ import {
 } from '~/core/router'
 import {
   BillableMetricItemFragment,
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   useBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -122,7 +122,7 @@ const BillableMetricsList = () => {
         dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
         onAction: () =>
           copyToProduction({
-            itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
+            itemType: CopyToProductionItemTypeEnum.BillableMetric,
             id,
             code,
           }),

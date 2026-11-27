@@ -9,7 +9,7 @@ import {
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   GetProductCategoryForDetailsDocument,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
@@ -264,7 +264,7 @@ describe('ProductCategoryDetails', () => {
       await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.ProductCategory,
+        itemType: CopyToProductionItemTypeEnum.ProductCategory,
         id: 'prod-1',
         code: 'object_storage',
       })

@@ -1606,22 +1606,13 @@ export enum ContractStatusEnum {
   Terminated = 'terminated'
 }
 
-/** Item types a user can copy from a sandbox to its production organization */
-export enum CopyToProductionCopyableItemTypeEnum {
-  BillableMetric = 'billable_metric',
-  Coupon = 'coupon',
-  Feature = 'feature',
-  Product = 'product',
-  ProductCategory = 'product_category'
-}
-
 /** Copy to production input arguments */
 export type CopyToProductionInput = {
   /** A unique identifier for the client performing the mutation. */
   clientMutationId?: InputMaybe<Scalars['String']['input']>;
   /** ID of the item in the sandbox */
   id: Scalars['ID']['input'];
-  itemType: CopyToProductionCopyableItemTypeEnum;
+  itemType: CopyToProductionItemTypeEnum;
 };
 
 /** A production item created by Copy to production */
@@ -1633,16 +1624,13 @@ export type CopyToProductionItem = {
   name?: Maybe<Scalars['String']['output']>;
 };
 
-/** Item types of Copy to production, including those only copied along with another item */
+/** Item types a user can copy from a sandbox to its production organization */
 export enum CopyToProductionItemTypeEnum {
   BillableMetric = 'billable_metric',
   Coupon = 'coupon',
   Feature = 'feature',
-  PricingUnit = 'pricing_unit',
   Product = 'product',
-  ProductCategory = 'product_category',
-  RateCard = 'rate_card',
-  Tax = 'tax'
+  ProductCategory = 'product_category'
 }
 
 export enum CountryCode {

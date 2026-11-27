@@ -26,10 +26,7 @@ import {
   UPDATE_FEATURE_ROUTE,
 } from '~/core/router/ObjectsRoutes'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
-import {
-  CopyToProductionCopyableItemTypeEnum,
-  useGetFeaturesListLazyQuery,
-} from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, useGetFeaturesListLazyQuery } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -269,7 +266,7 @@ const FeaturesList = () => {
                 startIcon: 'outside',
                 onAction: () =>
                   copyToProduction({
-                    itemType: CopyToProductionCopyableItemTypeEnum.Feature,
+                    itemType: CopyToProductionItemTypeEnum.Feature,
                     id: feature.id,
                     code: feature.code,
                   }),

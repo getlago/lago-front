@@ -1,6 +1,6 @@
 import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
-import { CopyToProductionCopyableItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponDetails from '../CouponDetails'
@@ -328,7 +328,7 @@ describe('CouponDetails', () => {
       moveItem?.onClick(closePopper)
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
+        itemType: CopyToProductionItemTypeEnum.Coupon,
         id: 'coupon-123',
         code: 'test-coupon',
       })

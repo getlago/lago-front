@@ -1,6 +1,6 @@
 import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
 import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
-import { CopyToProductionCopyableItemTypeEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillableMetricDetails from '../BillableMetricDetails'
@@ -277,7 +277,7 @@ describe('BillableMetricDetails', () => {
       moveItem?.onClick(closePopper)
 
       expect(mockCopyToProduction).toHaveBeenCalledWith({
-        itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
+        itemType: CopyToProductionItemTypeEnum.BillableMetric,
         id: 'bm-123',
         code: 'test-bm',
       })

@@ -20,7 +20,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   LagoApiError,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
@@ -123,7 +123,7 @@ const ProductCategoryDetails = () => {
           hidden: !canCopyToProduction,
           onClick: (closePopper) => {
             copyToProduction({
-              itemType: CopyToProductionCopyableItemTypeEnum.ProductCategory,
+              itemType: CopyToProductionItemTypeEnum.ProductCategory,
               id: productCategoryId as string,
               code: productCategory?.code ?? '',
             })

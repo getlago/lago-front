@@ -31,7 +31,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   CouponCaptionFragmentDoc,
   CouponsQuery,
   CouponStatusEnum,
@@ -174,7 +174,7 @@ const CouponsList = () => {
         dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
         onAction: () =>
           copyToProduction({
-            itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
+            itemType: CopyToProductionItemTypeEnum.Coupon,
             id: coupon.id,
             code: coupon.code,
           }),

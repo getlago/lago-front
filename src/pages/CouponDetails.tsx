@@ -23,7 +23,7 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   CouponStatusEnum,
   DeleteCouponFragmentDoc,
   LagoApiError,
@@ -136,7 +136,7 @@ const CouponDetails = () => {
           hidden: !canCopyToProduction || !coupon || coupon.status === CouponStatusEnum.Terminated,
           onClick: (closePopper) => {
             copyToProduction({
-              itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
+              itemType: CopyToProductionItemTypeEnum.Coupon,
               id: couponId as string,
               code: coupon?.code ?? '',
             })

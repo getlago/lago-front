@@ -23,7 +23,7 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
-  CopyToProductionCopyableItemTypeEnum,
+  CopyToProductionItemTypeEnum,
   LagoApiError,
   useGetBillableMetricForHeaderDetailsQuery,
 } from '~/generated/graphql'
@@ -126,7 +126,7 @@ const BillableMetricDetails = () => {
           hidden: !canCopyToProduction,
           onClick: (closePopper) => {
             copyToProduction({
-              itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
+              itemType: CopyToProductionItemTypeEnum.BillableMetric,
               id: billableMetricId as string,
               code: billableMetric?.code ?? '',
             })
