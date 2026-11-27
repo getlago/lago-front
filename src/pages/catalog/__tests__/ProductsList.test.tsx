@@ -3,8 +3,13 @@ import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
-import { ProductForListFragment, ProductTypeEnum } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  ProductForListFragment,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import ProductsList from '../ProductsList'
@@ -95,6 +100,17 @@ const defaultQueryState = {
 }
 
 const getTableProps = () => mockTableProps.mock.calls[0][0] as TableProps<ProductForListFragment>
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 describe('ProductsList', () => {
   beforeEach(() => {
@@ -228,5 +244,52 @@ describe('ProductsList', () => {
 
     expect(placeholder?.emptyState?.title).toBe('text_1783980718114wya9wp01m5i')
     expect(placeholder?.emptyState?.buttonTitle).toBeUndefined()
+  })
+
+  describe('GIVEN copy to production', () => {
+    const COPY_ROW = {
+      id: 'pitem-1',
+      name: 'Seats',
+      code: 'seats',
+      productType: ProductTypeEnum.Fixed,
+    }
+
+    const getCopyAction = () => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof COPY_ROW,
+      ) => ActionItem<typeof COPY_ROW>[]
+
+      return actionColumn(COPY_ROW).find(
+        (action) => action.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the row action copies the item to production', () => {
+      mockCanCopyToProduction = true
+
+      render(<ProductsList />)
+
+      const moveAction = getCopyAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(COPY_ROW)
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.Product,
+        id: COPY_ROW.id,
+        code: COPY_ROW.code,
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN there is no copy to production row action', () => {
+      render(<ProductsList />)
+
+      expect(getCopyAction()).toBeUndefined()
+    })
   })
 })
