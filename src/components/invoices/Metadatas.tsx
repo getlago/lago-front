@@ -1,5 +1,5 @@
 import { gql } from '@apollo/client'
-import { memo, useRef } from 'react'
+import { memo } from 'react'
 import { useParams } from 'react-router'
 
 import { Button } from '~/components/designSystem/Button'
@@ -13,7 +13,7 @@ import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { SectionHeader } from '~/styles/customer'
 import { tw } from '~/styles/utils'
 
-import { AddMetadataDrawer, AddMetadataDrawerRef } from './AddMetadataDrawer'
+import { useAddMetadataDrawer } from './addMetadataDrawer/useAddMetadataDrawer'
 
 gql`
   fragment CustomerMetadatasForInvoiceOverview on Customer {
@@ -64,8 +64,6 @@ const InfoLine = ({
 export const Metadatas = memo(({ className }: { className?: string }) => {
   const { translate } = useInternationalization()
   const { invoiceId } = useParams()
-  const addMetadataDrawerDialogRef = useRef<AddMetadataDrawerRef>(null)
-
   const { data, loading } = useGetInvoiceMetadatasQuery({
     variables: {
       id: invoiceId || '',
@@ -79,32 +77,49 @@ export const Metadatas = memo(({ className }: { className?: string }) => {
 
   const customerMetadatas = (customer?.metadata || []).filter((m) => m.displayInInvoice)
 
+  const { openDrawer } = useAddMetadataDrawer({ invoiceId: invoice?.id })
+
   if (loading) {
     return null
   }
 
   return (
-    <>
-      <section className={tw('mt-8 flex flex-col gap-6', className)}>
-        <SectionHeader variant="subhead1">
-          {translate('text_6405cac5c833dcf18cad019c')}
-          <Button
-            variant="quaternary"
-            align="left"
-            onClick={() => {
-              addMetadataDrawerDialogRef?.current?.openDrawer()
-            }}
-          >
-            {translate(
-              !!invoice?.metadata?.length
-                ? 'text_6405cac5c833dcf18cad0198'
-                : 'text_6405cac5c833dcf18cad0196',
-            )}
-          </Button>
-        </SectionHeader>
-        <div>
-          {invoice?.metadata?.length ? (
-            invoice?.metadata.map((metadata) => (
+    <section className={tw('mt-8 flex flex-col gap-6', className)}>
+      <SectionHeader variant="subhead1">
+        {translate('text_6405cac5c833dcf18cad019c')}
+        <Button variant="quaternary" align="left" onClick={openDrawer}>
+          {translate(
+            !!invoice?.metadata?.length
+              ? 'text_6405cac5c833dcf18cad0198'
+              : 'text_6405cac5c833dcf18cad0196',
+          )}
+        </Button>
+      </SectionHeader>
+      <div>
+        {invoice?.metadata?.length ? (
+          invoice?.metadata.map((metadata) => (
+            <InfoLine key={`customer-metadata-${metadata.id}`}>
+              <Typography variant="caption" color="grey600" noWrap>
+                {metadata.key}
+              </Typography>
+              <Typography variant="body" color="grey700">
+                {metadata.value}
+              </Typography>
+            </InfoLine>
+          ))
+        ) : (
+          <Typography variant="body" color="grey500">
+            {translate('text_6405cac5c833dcf18cad01a2')}
+          </Typography>
+        )}
+      </div>
+      {!!customerMetadatas.length && (
+        <>
+          <SectionHeader variant="subhead1">
+            {translate('text_63fdc195ee23e51024c607b8')}
+          </SectionHeader>
+          <div>
+            {customerMetadatas.map((metadata) => (
               <InfoLine key={`customer-metadata-${metadata.id}`}>
                 <Typography variant="caption" color="grey600" noWrap>
                   {metadata.key}
@@ -113,36 +128,11 @@ export const Metadatas = memo(({ className }: { className?: string }) => {
                   {metadata.value}
                 </Typography>
               </InfoLine>
-            ))
-          ) : (
-            <Typography variant="body" color="grey500">
-              {translate('text_6405cac5c833dcf18cad01a2')}
-            </Typography>
-          )}
-        </div>
-        {!!customerMetadatas.length && (
-          <>
-            <SectionHeader variant="subhead1">
-              {translate('text_63fdc195ee23e51024c607b8')}
-            </SectionHeader>
-            <div>
-              {customerMetadatas.map((metadata) => (
-                <InfoLine key={`customer-metadata-${metadata.id}`}>
-                  <Typography variant="caption" color="grey600" noWrap>
-                    {metadata.key}
-                  </Typography>
-                  <Typography variant="body" color="grey700">
-                    {metadata.value}
-                  </Typography>
-                </InfoLine>
-              ))}
-            </div>
-          </>
-        )}
-      </section>
-
-      {invoice && <AddMetadataDrawer ref={addMetadataDrawerDialogRef} invoiceId={invoice?.id} />}
-    </>
+            ))}
+          </div>
+        </>
+      )}
+    </section>
   )
 })
 

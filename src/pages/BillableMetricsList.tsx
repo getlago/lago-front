@@ -12,6 +12,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -22,7 +26,11 @@ import {
   UPDATE_BILLABLE_METRIC_ROUTE,
   useNavigate,
 } from '~/core/router'
-import { BillableMetricItemFragment, useBillableMetricsLazyQuery } from '~/generated/graphql'
+import {
+  BillableMetricItemFragment,
+  CopyToProductionItemTypeEnum,
+  useBillableMetricsLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
@@ -57,6 +65,7 @@ const BillableMetricsList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
@@ -71,7 +80,7 @@ const BillableMetricsList = () => {
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
   const canCreateBillableMetrics = hasPermissions(['billableMetricsCreate'])
 
-  const getActions = (id: string): ActionItem<{ id: string }>[] => {
+  const getActions = (id: string, code: string): ActionItem<{ id: string }>[] => {
     const actions: ActionItem<{ id: string }>[] = []
 
     if (canUpdateBillableMetrics) {
@@ -103,6 +112,20 @@ const BillableMetricsList = () => {
         onAction: () => {
           openDeleteBillableMetricDialog({ billableMetricId: id })
         },
+      })
+    }
+
+    if (canCopyToProduction) {
+      actions.push({
+        startIcon: 'outside',
+        title: translate('text_1795431906432py065218gdv'),
+        dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+        onAction: () =>
+          copyToProduction({
+            itemType: CopyToProductionItemTypeEnum.BillableMetric,
+            id,
+            code,
+          }),
       })
     }
 
@@ -151,8 +174,8 @@ const BillableMetricsList = () => {
     },
   ]
 
-  const getActionColumnTooltip = ({ id }: BillableMetricItemFragment) => {
-    const actions = getActions(id)
+  const getActionColumnTooltip = ({ id, code }: BillableMetricItemFragment) => {
+    const actions = getActions(id, code)
 
     if (!actions.length) return ''
 
@@ -249,7 +272,7 @@ const BillableMetricsList = () => {
           onRowActionLink={getRowLink}
           columns={columns}
           actionColumnTooltip={getActionColumnTooltip}
-          actionColumn={({ id }) => getActions(id)}
+          actionColumn={({ id, code }) => getActions(id, code)}
           placeholder={placeholder}
         />
       </PaginatedContent>

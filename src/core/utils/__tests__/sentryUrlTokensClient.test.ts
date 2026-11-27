@@ -1,7 +1,10 @@
 import * as Sentry from '@sentry/react'
 
 import { sentryEventHooks } from '../sentryEventHooks'
-import { scrubReplayEventUrlTokensIntegration } from '../sentryUrlTokens'
+import {
+  scrubDscUrlTokensIntegration,
+  scrubReplayEventUrlTokensIntegration,
+} from '../sentryUrlTokens'
 
 jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
   addToast: jest.fn(),
@@ -26,10 +29,12 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
     Sentry.init({
       dsn: 'https://public@sentry.test/1',
       tracesSampleRate: 1,
+      traceLifecycle: 'stream',
       // `Dedupe` would hide a leaked event behind an identical one from a previous test.
       integrations: (defaults) => [
         ...defaults.filter((integration) => integration.name !== 'Dedupe'),
         scrubReplayEventUrlTokensIntegration(),
+        scrubDscUrlTokensIntegration(),
       ],
       ...sentryEventHooks,
       transport: (options) =>
@@ -93,9 +98,11 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
   })
 
   describe('GIVEN the SSO callback forwards the user to the invitation form', () => {
-    describe('WHEN a transaction is recorded', () => {
-      it('THEN should redact the token from its name and span attributes', async () => {
+    describe('WHEN a pageload span tree is recorded', () => {
+      it('THEN should redact the token from the segment name, span attributes, the envelope trace header and the outgoing baggage header', async () => {
         window.history.pushState({}, '', `/invitation/${SECRET}/form?oktaCode=${SECRET}`)
+
+        let traceData: ReturnType<typeof Sentry.getTraceData> = {}
 
         Sentry.startSpan(
           {
@@ -104,6 +111,7 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
             attributes: { 'url.full': window.location.href },
           },
           () => {
+            traceData = Sentry.getTraceData()
             Sentry.startSpan(
               { name: 'child', op: 'ui.render', attributes: { 'http.url': window.location.href } },
               () => undefined,
@@ -112,17 +120,19 @@ describe('URL token scrubbing wired into a real Sentry client', () => {
         )
         await Sentry.flush()
 
-        expect(sentEvents).toHaveLength(1)
-        expect(sentEvents[0]).toEqual(
-          expect.objectContaining({
-            type: 'transaction',
-            transaction: '/invitation/[Filtered]/form',
-          }),
-        )
+        // The segment (root) span name, the `url.full`/`http.url` attributes, and the envelope's
+        // dynamic sampling context header (`trace.transaction`) all carry the raw path/query
+        expect(getSentPayloads()).toContain('"name":"/invitation/[Filtered]/form"')
         expect(getSentPayloads()).toContain(
           'http://localhost/invitation/[Filtered]/form?oktaCode=[Filtered]',
         )
+        expect(getSentPayloads()).toContain('"transaction":"/invitation/[Filtered]/form"')
         expect(getSentPayloads()).not.toContain(SECRET)
+
+        // `getTraceData()` is what the app's own instrumented fetch/XHR calls attach as the
+        // `baggage`/`sentry-trace` headers on every outgoing request, independent of the envelope
+        expect(traceData.baggage).toContain('Filtered')
+        expect(traceData.baggage).not.toContain(SECRET)
       })
     })
   })

@@ -1,6 +1,8 @@
 import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import FeaturesList from '../FeaturesList'
@@ -71,6 +73,17 @@ jest.mock('~/generated/graphql', () => ({
       variables: {},
     },
   ],
+}))
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('FeaturesList', () => {
@@ -242,6 +255,48 @@ describe('FeaturesList', () => {
           featureId: 'feat-1',
         })
       })
+    })
+  })
+
+  describe('GIVEN copy to production', () => {
+    const COPY_ROW = { id: 'feat-1', name: 'Test Feature', code: 'test' }
+
+    const getCopyAction = () => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof COPY_ROW,
+      ) => ActionItem<typeof COPY_ROW>[]
+
+      return actionColumn(COPY_ROW).find(
+        (action) => action.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the row action copies the item to production', () => {
+      mockCanCopyToProduction = true
+
+      render(<FeaturesList />)
+
+      const moveAction = getCopyAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(COPY_ROW)
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.Feature,
+        id: COPY_ROW.id,
+        code: COPY_ROW.code,
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN there is no copy to production row action', () => {
+      render(<FeaturesList />)
+
+      expect(getCopyAction()).toBeUndefined()
     })
   })
 })

@@ -7,9 +7,17 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { AppliedRateCardDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import { useNavigate } from '~/core/router'
-import { ProductTypeEnum, RatePhaseForDrawerFragment } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  ProductTypeEnum,
+  RatePhaseForDrawerFragment,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -77,6 +85,7 @@ const AppliedRateCardDetailsContent = ({
   })
 
   const { openEditAppliedRateCardUnitsDialog } = useEditAppliedRateCardUnitsDialog()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const isEditUnitsHidden =
     appliedRateCard.product.productType !== ProductTypeEnum.Fixed ||
@@ -124,6 +133,20 @@ const AppliedRateCardDetailsContent = ({
           disabled: removal.status === 'disabled',
           onClick: (closePopper) => {
             removeRateCard(appliedRateCard)
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          // Contract rate cards stay in the sandbox: only a plan's can be copied.
+          hidden: context !== 'plan' || !canCopyToProduction,
+          onClick: (closePopper) => {
+            copyToProduction({
+              itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+              id: appliedRateCard.id,
+              code: appliedRateCard.rateCard.code,
+            })
             closePopper()
           },
         },
