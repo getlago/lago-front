@@ -191,6 +191,7 @@ const CreateWallet = () => {
   const autoOpenPaymentConnectionDrawer = location.state?.openConnectionPaymentDrawer === true
   const autoOpenAdditionalIntegrationDrawer =
     location.state?.openAdditionalIntegrationDrawer === true
+  const autoOpenInvoicingSettingsDrawer = location.state?.openInvoicingSettingsDrawer === true
 
   const { customerId = '', walletId = '' } = useParams()
   const { translate } = useInternationalization()
@@ -420,6 +421,7 @@ const CreateWallet = () => {
               autoOpenAdditionalIntegrationDrawer={
                 autoOpenAdditionalIntegrationDrawer && !isLoading
               }
+              autoOpenInvoicingSettingsDrawer={autoOpenInvoicingSettingsDrawer && !isLoading}
               paymentTermInheritedFrom={paymentTermInheritedFrom}
             />
           </CenteredPage.Container>

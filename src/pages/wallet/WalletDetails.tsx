@@ -279,7 +279,7 @@ const WalletDetails = () => {
               }
             />
 
-            <WalletInformations wallet={wallet} />
+            <WalletInformations wallet={wallet} canEditWallet={canEditWallet} />
           </DetailsPage.Container>
         ),
       },

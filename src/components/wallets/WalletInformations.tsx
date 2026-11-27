@@ -1,4 +1,8 @@
+import { ReactNode } from 'react'
+import { generatePath } from 'react-router'
+
 import { BillingEntityLabel } from '~/components/billingEntity/BillingEntityLabel'
+import { ButtonLink } from '~/components/designSystem/ButtonLink'
 import { Chip } from '~/components/designSystem/Chip'
 import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
@@ -8,6 +12,7 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { useResolvedPaymentMethodValue } from '~/components/paymentMethodSelection/useResolvedPaymentMethodDisplay'
 import { ViewTypeEnum } from '~/core/constants/billingObjectViewTypes'
 import { intlFormatNumber } from '~/core/formats/intlFormatNumber'
+import { EDIT_WALLET_ROUTE } from '~/core/router'
 import { deserializeAmount, getCurrencyPrecision } from '~/core/serializers/serializeAmount'
 import { CurrencyEnum, FeatureFlagEnum, WalletDetailsFragment } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -20,24 +25,38 @@ import { tw } from '~/styles/utils'
 
 export const WALLET_INFORMATIONS_CONTAINER_TEST_ID = 'wallet-informations-container'
 export const WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID = 'wallet-informations-payment-section'
+export const WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID = 'wallet-informations-edit-invoicing'
 
 type WalletInformationsProps = {
   wallet?: WalletDetailsFragment | null
+  canEditWallet?: boolean
 }
 
-const SectionTitle = ({ title, subtitle }: { title: string; subtitle: string }) => (
-  <div className="flex flex-col">
-    <Typography variant="bodyHl" color="grey700">
-      {title}
-    </Typography>
+const SectionTitle = ({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string
+  subtitle: string
+  action?: ReactNode
+}) => (
+  <div className="flex items-start justify-between gap-4">
+    <div className="flex flex-col">
+      <Typography variant="bodyHl" color="grey700">
+        {title}
+      </Typography>
 
-    <Typography variant="caption" color="grey600">
-      {subtitle}
-    </Typography>
+      <Typography variant="caption" color="grey600">
+        {subtitle}
+      </Typography>
+    </div>
+
+    {action}
   </div>
 )
 
-const WalletInformations = ({ wallet }: WalletInformationsProps) => {
+const WalletInformations = ({ wallet, canEditWallet = false }: WalletInformationsProps) => {
   const { translate } = useInternationalization()
   const { getBillingObjectPaymentTermCopy } = usePaymentTerm()
   const paymentTermInheritedFrom = useInheritedPaymentTerm({
@@ -106,16 +125,11 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
   // With multi_connection on this row lives on the External apps tab (WalletExternalApps).
   const showPaymentMethodRow =
     !hasFeatureFlag(FeatureFlagEnum.MultiConnection) && paymentMethodValue !== '-'
-  const showPaymentSection = showPaymentMethodRow || showWalletInvoiceCustomSectionsRow
+  const customerId = wallet.customer?.id
 
   return (
     <div data-test={WALLET_INFORMATIONS_CONTAINER_TEST_ID} className="flex flex-col gap-12">
-      <section
-        className={tw(
-          sectionClassName,
-          !showAppliesToSection && !showPaymentSection && 'shadow-b-none',
-        )}
-      >
+      <section className={sectionClassName}>
         <SectionTitle
           title={translate('text_1772536695408sm7gfyxpi58')}
           subtitle={translate('text_1783584917380ry4fb4b5tpv')}
@@ -175,16 +189,12 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
               label: translate('text_17822197712865r9iwe3lgel'),
               value: wallet?.purchaseOrderNumber || '-',
             },
-            {
-              label: translate('text_1778660219891rv2r5gjmklq'),
-              value: paymentTermValue,
-            },
           ]}
         />
       </section>
 
       {showAppliesToSection && (
-        <section className={tw(sectionClassName, !showPaymentSection && 'shadow-b-none')}>
+        <section className={sectionClassName}>
           <SectionTitle
             title={translate('text_1772536695408hukog0udwpx')}
             subtitle={translate('text_17835849173808iwx5j9uoz4')}
@@ -229,46 +239,63 @@ const WalletInformations = ({ wallet }: WalletInformationsProps) => {
         </section>
       )}
 
-      {showPaymentSection && (
-        <section
-          data-test={WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID}
-          className={tw(sectionClassName, 'shadow-b-none')}
-        >
-          <SectionTitle
-            title={translate('text_1772536695408rpehpvkgn9s')}
-            subtitle={translate('text_1772536695408eev9wm37z9t')}
-          />
+      <section
+        data-test={WALLET_INFORMATIONS_PAYMENT_SECTION_TEST_ID}
+        className={tw(sectionClassName, 'shadow-b-none')}
+      >
+        <SectionTitle
+          title={translate('text_1772536695408rpehpvkgn9s')}
+          subtitle={translate('text_1772536695408eev9wm37z9t')}
+          action={
+            canEditWallet &&
+            customerId && (
+              <ButtonLink
+                buttonProps={{ variant: 'inline' }}
+                type="button"
+                to={generatePath(EDIT_WALLET_ROUTE, { walletId: wallet.id, customerId })}
+                routerState={{ openInvoicingSettingsDrawer: true }}
+                data-test={WALLET_INFORMATIONS_EDIT_INVOICING_TEST_ID}
+              >
+                {translate('text_63e51ef4985f0ebd75c212fc')}
+              </ButtonLink>
+            )
+          }
+        />
 
-          <DetailsPage.InfoGrid
-            grid={[
-              ...(showPaymentMethodRow
-                ? [
-                    {
-                      label: translate('text_1773043324341qj7t72i7qnk'),
-                      value: paymentMethodValue,
-                    },
-                    { label: '', value: '' },
-                  ]
-                : []),
-              ...(showWalletInvoiceCustomSectionsRow
-                ? [
-                    {
-                      label: translate('text_1773043324342n1x2iltnxvw'),
-                      value: (
-                        <InvoiceCustomSectionDisplay
-                          selectedSections={wallet?.selectedInvoiceCustomSections}
-                          skipSections={wallet?.skipInvoiceCustomSections}
-                          customerId={wallet?.customer?.id}
-                          viewType={ViewTypeEnum.WalletTopUp}
-                        />
-                      ),
-                    },
-                  ]
-                : []),
-            ]}
-          />
-        </section>
-      )}
+        <DetailsPage.InfoGrid
+          grid={[
+            ...(showPaymentMethodRow
+              ? [
+                  {
+                    label: translate('text_1773043324341qj7t72i7qnk'),
+                    value: paymentMethodValue,
+                  },
+                  { label: '', value: '' },
+                ]
+              : []),
+            {
+              label: translate('text_1778660219891rv2r5gjmklq'),
+              value: paymentTermValue,
+            },
+            { label: '', value: '' },
+            ...(showWalletInvoiceCustomSectionsRow
+              ? [
+                  {
+                    label: translate('text_1773043324342n1x2iltnxvw'),
+                    value: (
+                      <InvoiceCustomSectionDisplay
+                        selectedSections={wallet?.selectedInvoiceCustomSections}
+                        skipSections={wallet?.skipInvoiceCustomSections}
+                        customerId={customerId}
+                        viewType={ViewTypeEnum.WalletTopUp}
+                      />
+                    ),
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </section>
     </div>
   )
 }

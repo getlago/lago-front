@@ -149,6 +149,7 @@ const TestWrapper = ({
   autoOpenRuleDrawer = false,
   autoOpenPaymentConnectionDrawer = false,
   autoOpenAdditionalIntegrationDrawer = false,
+  autoOpenInvoicingSettingsDrawer = false,
 }: {
   defaultsOverride?: Partial<TWalletDataForm>
   initiallyEnabled?: boolean
@@ -156,6 +157,7 @@ const TestWrapper = ({
   autoOpenRuleDrawer?: boolean
   autoOpenPaymentConnectionDrawer?: boolean
   autoOpenAdditionalIntegrationDrawer?: boolean
+  autoOpenInvoicingSettingsDrawer?: boolean
 }) => {
   const form = useAppForm({
     defaultValues: {
@@ -193,6 +195,7 @@ const TestWrapper = ({
         autoOpenRuleDrawer={autoOpenRuleDrawer}
         autoOpenPaymentConnectionDrawer={autoOpenPaymentConnectionDrawer}
         autoOpenAdditionalIntegrationDrawer={autoOpenAdditionalIntegrationDrawer}
+        autoOpenInvoicingSettingsDrawer={autoOpenInvoicingSettingsDrawer}
       />
       {withValidation && (
         <button
@@ -219,6 +222,7 @@ type CapturedSelectorProps = {
   externalCustomerId?: string
   value?: unknown
   onChange?: (value: unknown) => void
+  autoOpen?: boolean
   'data-test'?: string
 }
 
@@ -491,6 +495,17 @@ describe('TopUpSection', () => {
 
         expect(props).toBeDefined()
         expect(props?.customerId).toBe('customer-id')
+      })
+
+      it.each([
+        ['without', false],
+        ['with', true],
+      ])('THEN should forward the invoicing auto-open intent %s it', (_, autoOpen) => {
+        render(<TestWrapper autoOpenInvoicingSettingsDrawer={autoOpen} />)
+
+        expect(lastSelectorCall(mockInvoicingSelector, ViewTypeEnum.WalletTopUp)?.autoOpen).toBe(
+          autoOpen,
+        )
       })
 
       it('THEN should wire the payment selector to the external customer id', () => {
