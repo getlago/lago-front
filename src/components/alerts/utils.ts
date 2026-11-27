@@ -36,7 +36,7 @@ export const getThresholdCodeErrorsFromForm = (
   const fieldErrors: Record<number, string> = {}
 
   Object.entries(errors ?? {}).forEach(([path, issues]) => {
-    const match = new RegExp(`^thresholds\\[(\\d+)\\]\\.${field}$`).exec(path)
+    const match = new RegExp(String.raw`^thresholds\[(\d+)\]\.${field}$`).exec(path)
     const message = issues[0]?.message
 
     if (match && message) fieldErrors[Number(match[1])] = message

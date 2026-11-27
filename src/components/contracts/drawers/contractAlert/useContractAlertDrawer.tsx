@@ -316,27 +316,7 @@ export const useContractAlertDrawer = (): {
         },
       })
 
-      if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
-        setCodeAlreadyExistsError(formApi)
-        return
-      }
-
-      if (hasDefinedGQLError('AlertAlreadyExists', errors, 'base')) {
-        setScopeError(
-          formApi,
-          value.scope ? 'scope.productCode' : 'scope',
-          SCOPE_ALREADY_TAKEN_ERROR,
-        )
-        await refetchExistingAlerts()
-        return
-      }
-
-      if (hasDefinedGQLError('ProductRequiredForUnits', errors, 'scope')) {
-        setScopeError(formApi, 'scope', 'text_624ea7c29103fd010732ab7d')
-        return
-      }
-
-      if (setThresholdErrors(formApi, errors)) return
+      if (await applyCreateErrors(formApi, errors, !!value.scope)) return
 
       if (!data?.createContractAlert) return
 
@@ -400,6 +380,30 @@ export const useContractAlertDrawer = (): {
       mainAction: renderMainAction(openContext, isDataReady),
     })
   }, [openContext, isDataReady, renderChildren, renderMainAction, updateDrawer])
+
+  const applyCreateErrors = async (
+    formApi: AnyFormApi,
+    errors: readonly GraphQLFormattedError[] | undefined,
+    hasScopeRow: boolean,
+  ): Promise<boolean> => {
+    if (hasDefinedGQLError('ValueAlreadyExist', errors, 'code')) {
+      setCodeAlreadyExistsError(formApi)
+      return true
+    }
+
+    if (hasDefinedGQLError('AlertAlreadyExists', errors, 'base')) {
+      setScopeError(formApi, hasScopeRow ? 'scope.productCode' : 'scope', SCOPE_ALREADY_TAKEN_ERROR)
+      await refetchExistingAlerts()
+      return true
+    }
+
+    if (hasDefinedGQLError('ProductRequiredForUnits', errors, 'scope')) {
+      setScopeError(formApi, 'scope', 'text_624ea7c29103fd010732ab7d')
+      return true
+    }
+
+    return setThresholdErrors(formApi, errors)
+  }
 
   const closeDrawer = (): void => {
     drawer.close()
