@@ -1,8 +1,9 @@
 import { act, render } from '@testing-library/react'
 
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { addToast } from '~/core/apolloClient'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
-import { CurrencyEnum } from '~/generated/graphql'
+import { CopyToProductionItemTypeEnum, CurrencyEnum } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
 
 import {
@@ -16,10 +17,21 @@ const PLAN_CODE_COPIED_KEY = 'text_1789030049528x3nlpl7hu7x'
 const EDIT_PLAN_KEY = 'text_1789030049528hmelti5lsxj'
 const DELETE_PLAN_KEY = 'text_1789030049528pjeaakmg1nc'
 const DELETE_LOCKED_TOOLTIP_KEY = 'text_1789030049528ow0evnxq68g'
+const COPY_TO_PRODUCTION_KEY = 'text_1795431906432py065218gdv'
 
 const mockOpenDrawer = jest.fn()
 const mockOpenDeleteDialog = jest.fn()
 const mockHasPermissions = jest.fn()
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 jest.mock('../drawers/catalogPlan/useCatalogPlanDrawer', () => ({
   useCatalogPlanDrawer: () => ({ openDrawer: mockOpenDrawer }),
@@ -73,6 +85,7 @@ describe('useCatalogPlanTableActions', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
+    mockCanCopyToProduction = false
   })
 
   it('GIVEN every permission THEN offers copy, edit and delete', () => {
@@ -126,6 +139,38 @@ describe('useCatalogPlanTableActions', () => {
     render(<Host />, { wrapper: AllTheProviders })
 
     expect(itemsFor(catalogPlan)[2].disabled).toBe(false)
+  })
+
+  describe('GIVEN copy to production', () => {
+    it('WHEN the member can copy items THEN the last action copies the plan to production', () => {
+      mockCanCopyToProduction = true
+      render(<Host />, { wrapper: AllTheProviders })
+
+      const copyItem = itemsFor(catalogPlan).at(-1)
+
+      expect(copyItem).toEqual(
+        expect.objectContaining({
+          title: COPY_TO_PRODUCTION_KEY,
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+        }),
+      )
+
+      act(() => {
+        void copyItem?.onAction(catalogPlan)
+      })
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.CatalogPlan,
+        id: 'plan-1',
+        code: 'premium',
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the action is not offered', () => {
+      render(<Host />, { wrapper: AllTheProviders })
+
+      expect(titles(catalogPlan)).not.toContain(COPY_TO_PRODUCTION_KEY)
+    })
   })
 
   it('GIVEN a row THEN links to its overview tab', () => {
