@@ -38,6 +38,7 @@ export const CONTRACT_ALERT_DRAWER_SKELETON_TEST_ID = 'contract-alert-drawer-ske
 const MAX_THRESHOLDS = 20
 const SETTINGS_DESCRIPTION_KEY = 'text_17957785996159r1uxvrhlad'
 const RECURRING_SWITCH_SUB_LABEL_KEY = 'text_1795778599616e66l28kno3y'
+const THRESHOLD_CODE_PLACEHOLDER_KEY = 'text_623b42ff8ee4e000ba87d0c4'
 
 type ContractAlertDrawerContentProps = {
   isEdition: boolean
@@ -229,6 +230,7 @@ export const ContractAlertDrawerContent = withForm({
           allowDecimalUnits
           maxRows={MAX_THRESHOLDS}
           recurringSwitchSubLabel={RECURRING_SWITCH_SUB_LABEL_KEY}
+          codePlaceholder={THRESHOLD_CODE_PLACEHOLDER_KEY}
         />
       )
     }
