@@ -5649,5 +5649,11 @@
   "text_1795619686245q43n7s1yga8": "The plan of the {{itemType}} {{code}} has contracts in production, so its pricing can't change.",
   "text_17956196862456c39s3e4ks1": "In production, the plan of the {{itemType}} {{code}} already prices the same product or product filter with another rate card.",
   "text_1795619686245iakqtpjfy7d": "In production, a feature of the {{itemType}} {{code}} lacks a privilege it uses. Add the privilege in production first.",
-  "text_1795632678714bebtdd5na4n": "In production, a feature of the {{itemType}} {{code}} has a privilege of another value type. Align the privilege in production first."
+  "text_1795632678714bebtdd5na4n": "In production, a feature of the {{itemType}} {{code}} has a privilege of another value type. Align the privilege in production first.",
+  "text_1795702994442gdk6vkd25gr": "Alerts send a webhook when the contract usage crosses a threshold, over the billing period of each charge.",
+  "text_1795702994442o415rqxuz0p": "Add alert",
+  "text_1795702994442lrhuqa6ghhj": "No alerts have been added yet",
+  "text_17957029944424sxnh050euf": "Alerts defined on this contract will appear here.",
+  "text_1795702994442p3vvyfr6njx": "Unlock alerts on this contract",
+  "text_17957029944428x4cu34cga9": "Deleting this alert removes it from the contract and stops its webhooks. This action cannot be undone."
 }

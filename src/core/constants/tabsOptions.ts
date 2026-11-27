@@ -160,4 +160,5 @@ export enum ContractDetailsTabsOptionsEnum {
 export enum ContractOverviewSectionsEnum {
   contractOverview = 'contract-overview',
   rateCards = 'rate-cards',
+  alerts = 'alerts',
 }

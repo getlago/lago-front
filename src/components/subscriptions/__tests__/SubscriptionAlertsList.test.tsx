@@ -12,7 +12,7 @@ jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: () => false }),
 }))
 
-jest.mock('~/components/subscriptions/alerts/DeleteAlertDialog', () => ({
+jest.mock('~/components/alerts/DeleteAlertDialog', () => ({
   useDeleteAlertDialog: () => ({ openDeleteAlertDialog: jest.fn() }),
 }))
 

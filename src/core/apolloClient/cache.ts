@@ -22,6 +22,7 @@ export const queryFieldPolicies: Record<string, FieldPolicy> = {
   appliedCoupons: createSinglePageFieldPolicy(),
   billableMetrics: createSinglePageFieldPolicy(),
   catalogPlans: createSinglePageFieldPolicy(),
+  contractAlerts: createSinglePageFieldPolicy(),
   contractAppliedRateCards: createSinglePageFieldPolicy(),
   contractUsages: createSinglePageFieldPolicy(),
   contracts: createSinglePageFieldPolicy(),
