@@ -37,6 +37,7 @@ const ACTION_STATUS_MAP: Record<string, ActionStatusConfig> = {
   org_created: { label: 'Org Created', type: StatusType.default },
   rollback: { label: 'Rollback', type: StatusType.warning },
   sandbox_linked: { label: 'Sandbox Linked', type: StatusType.default },
+  organization_activated: { label: 'Organization Activated', type: StatusType.default },
 }
 
 // A feature toggle carries its key in exactly one of the two feature-type columns; every other
@@ -190,6 +191,7 @@ export const AuditLogTable = ({
               entry.action === 'rollback' ||
               entry.action === 'org_created' ||
               entry.action === 'sandbox_linked' ||
+              entry.action === 'organization_activated' ||
               entry.rolledBack
             ) {
               return null

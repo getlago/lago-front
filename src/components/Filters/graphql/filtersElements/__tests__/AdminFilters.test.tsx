@@ -54,6 +54,15 @@ describe('Admin audit filters', () => {
     expect(setFilterValue).toHaveBeenCalledWith(AdminActionEnum.SandboxLinked)
   })
 
+  it('offers the organization activated action with its label', async () => {
+    const setFilterValue = jest.fn()
+
+    render(<FiltersItemAdminActions value={undefined} setFilterValue={setFilterValue} />)
+    fireEvent.mouseDown(screen.getByRole('combobox'))
+    fireEvent.click(await screen.findByRole('option', { name: 'Organization activated' }))
+    expect(setFilterValue).toHaveBeenCalledWith(AdminActionEnum.OrganizationActivated)
+  })
+
   it('selects the feature type accepted by the API', async () => {
     const setFilterValue = jest.fn()
 
