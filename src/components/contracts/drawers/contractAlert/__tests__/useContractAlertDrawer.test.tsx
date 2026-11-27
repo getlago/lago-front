@@ -674,7 +674,7 @@ describe('useContractAlertDrawer', () => {
         await typeInto(await screen.findByPlaceholderText('0.00'), '10')
         await submit()
 
-        await waitFor(() => expect(screen.getByPlaceholderText('Type a code')).toBeInvalid())
+        await waitFor(() => expect(document.querySelector('input[name="code"]')).toBeInvalid())
         expect(mockClose).not.toHaveBeenCalled()
       })
     })
