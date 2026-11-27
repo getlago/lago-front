@@ -123,12 +123,14 @@ const BillableMetricDetails = () => {
         {
           label: translate('text_1795431906432py065218gdv'),
           dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
-          hidden: !canCopyToProduction,
+          hidden: !canCopyToProduction || !billableMetric,
           onClick: (closePopper) => {
+            if (!billableMetric) return
+
             copyToProduction({
               itemType: CopyToProductionItemTypeEnum.BillableMetric,
-              id: billableMetricId as string,
-              code: billableMetric?.code ?? '',
+              id: billableMetric.id,
+              code: billableMetric.code,
             })
             closePopper()
           },

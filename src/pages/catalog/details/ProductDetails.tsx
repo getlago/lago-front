@@ -123,12 +123,14 @@ const ProductDetails = () => {
         {
           label: translate('text_1795431906432py065218gdv'),
           dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
-          hidden: !canCopyToProduction,
+          hidden: !canCopyToProduction || !product,
           onClick: (closePopper) => {
+            if (!product) return
+
             copyToProduction({
               itemType: CopyToProductionItemTypeEnum.Product,
-              id: productId as string,
-              code: product?.code ?? '',
+              id: product.id,
+              code: product.code,
             })
             closePopper()
           },

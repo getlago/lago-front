@@ -135,10 +135,12 @@ const CouponDetails = () => {
           dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
           hidden: !canCopyToProduction || !coupon || coupon.status === CouponStatusEnum.Terminated,
           onClick: (closePopper) => {
+            if (!coupon) return
+
             copyToProduction({
               itemType: CopyToProductionItemTypeEnum.Coupon,
-              id: couponId as string,
-              code: coupon?.code ?? '',
+              id: coupon.id,
+              code: coupon.code,
             })
             closePopper()
           },

@@ -120,12 +120,14 @@ const ProductCategoryDetails = () => {
         {
           label: translate('text_1795431906432py065218gdv'),
           dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
-          hidden: !canCopyToProduction,
+          hidden: !canCopyToProduction || !productCategory,
           onClick: (closePopper) => {
+            if (!productCategory) return
+
             copyToProduction({
               itemType: CopyToProductionItemTypeEnum.ProductCategory,
-              id: productCategoryId as string,
-              code: productCategory?.code ?? '',
+              id: productCategory.id,
+              code: productCategory.code,
             })
             closePopper()
           },
