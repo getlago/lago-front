@@ -243,14 +243,14 @@ export const useContractAlertDrawer = (): {
         })
 
         if (hasDefinedGQLError('NotFound', errors, 'alert')) {
-          drawer.close()
+          closeDrawer()
           return
         }
 
         if (!data?.updateContractAlert) return
 
         addToast({ severity: 'success', translateKey: 'text_1746623860224qwhtxyuophr' })
-        drawer.close()
+        closeDrawer()
         return
       }
 
@@ -295,7 +295,7 @@ export const useContractAlertDrawer = (): {
         return
       }
 
-      drawer.close()
+      closeDrawer()
     },
   })
 
@@ -346,6 +346,12 @@ export const useContractAlertDrawer = (): {
       mainAction: renderMainAction(openContext, isDataReady),
     })
   }, [openContext, isDataReady, renderChildren, renderMainAction, updateDrawer])
+
+  const closeDrawer = (): void => {
+    drawer.close()
+    form.reset(CONTRACT_ALERT_FORM_DEFAULTS)
+    setOpenContext(null)
+  }
 
   const openDrawer = (props: ContractAlertDrawerProps): void => {
     setOpenContext(props)

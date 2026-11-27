@@ -83,7 +83,7 @@ export const ContractAlertsSection = ({
     skip: !isPremium || !contractId,
     notifyOnNetworkStatusChange: true,
     fetchPolicy: 'network-only',
-    nextFetchPolicy: 'network-only',
+    nextFetchPolicy: 'cache-first',
   })
 
   const placeholder = buildSearchAwareTablePlaceholder({
