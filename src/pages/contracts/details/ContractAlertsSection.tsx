@@ -143,7 +143,7 @@ export const ContractAlertsSection = ({
             hasError={!!error}
             placeholder={placeholder}
             containerSize={0}
-            containerClassName="h-auto shrink-0 -mb-px"
+            containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"
             rowSize={72}
             onRowActionLink={({ id: alertId }) =>
               generatePath(CONTRACT_ALERT_DETAILS_ROUTE, { id: contractId, alertId })
