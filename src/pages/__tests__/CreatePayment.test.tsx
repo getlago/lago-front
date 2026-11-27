@@ -203,6 +203,21 @@ describe('CreatePayment', () => {
         expect(getInput('createdAt')).not.toHaveValue('')
       })
 
+      // The picker withholds a date that does not exist, so the caption has nothing to format.
+      it('THEN should hide the recorded-on caption for a date that does not exist', async () => {
+        const user = setupUser()
+
+        renderOnCreateRoute()
+
+        expect(screen.getByText('text_1737473550277yfvnl60zpiz')).toBeInTheDocument()
+
+        await user.click(getInput('createdAt'))
+        await user.keyboard('0230')
+
+        expect(getInput('createdAt').value).toMatch(/^02\/30\//)
+        expect(screen.queryByText('text_1737473550277yfvnl60zpiz')).not.toBeInTheDocument()
+      })
+
       it('THEN should leave the invoice combobox editable', () => {
         renderOnCreateRoute()
 

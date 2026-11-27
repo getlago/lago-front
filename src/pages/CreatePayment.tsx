@@ -14,6 +14,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { addToast } from '~/core/apolloClient'
+import { INVALID_DATE_VALUE } from '~/core/constants/form'
 import { paymentStatusMapping } from '~/core/constants/statusInvoiceMapping'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { getCurrencySymbol, intlFormatNumber } from '~/core/formats/intlFormatNumber'
@@ -223,9 +224,10 @@ const CreatePayment = () => {
     form.handleSubmit()
   }
 
-  const dateTime = intlFormatDateTime(createdAtValue ?? '', {
-    timezone,
-  })
+  const dateTime =
+    createdAtValue && createdAtValue !== INVALID_DATE_VALUE
+      ? intlFormatDateTime(createdAtValue, { timezone })
+      : undefined
 
   const getAmountCentsError = (hasError: boolean): string | false => {
     if (!hasError || !selectedInvoiceId) return false
@@ -370,12 +372,14 @@ const CreatePayment = () => {
                           />
                         )}
                       </form.AppField>
-                      <Typography variant="caption">
-                        {translate('text_1737473550277yfvnl60zpiz', {
-                          date: dateTime.date,
-                          hour: dateTime.time,
-                        })}
-                      </Typography>
+                      {!!dateTime && (
+                        <Typography variant="caption">
+                          {translate('text_1737473550277yfvnl60zpiz', {
+                            date: dateTime.date,
+                            hour: dateTime.time,
+                          })}
+                        </Typography>
+                      )}
                     </div>
 
                     <form.AppField name="reference">
