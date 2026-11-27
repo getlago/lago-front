@@ -7,7 +7,9 @@ import {
   CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID,
   CENTRALIZED_DIALOG_NAME,
 } from '~/components/dialogs/const'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import {
+  CopyToProductionItemTypeEnum,
   CurrencyEnum,
   DestroyPlanAppliedRateCardDocument,
   GetPlanAppliedRateCardsForRateCardsSectionDocument,
@@ -23,6 +25,16 @@ NiceModal.register(CENTRALIZED_DIALOG_NAME, CentralizedDialog)
 
 const mockHasPermissions = jest.fn().mockReturnValue(true)
 const mockOpenAppliedRateCardDrawer = jest.fn()
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
@@ -256,4 +268,38 @@ describe('CatalogPlanRateCardsSection', () => {
       expect(screen.queryByTestId(CATALOG_PLAN_ADD_RATE_CARD_TEST_ID)).not.toBeInTheDocument()
     },
   )
+
+  describe('GIVEN copy to production', () => {
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the row action copies the plan rate card to production', async () => {
+      mockCanCopyToProduction = true
+      const user = userEvent.setup()
+
+      renderSection([buildListMock([rowFixture])])
+      await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('open-action-button'))
+      await user.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+        id: 'applied-1',
+        code: 'enterprise',
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the row action is not offered', async () => {
+      const user = userEvent.setup()
+
+      renderSection([buildListMock([rowFixture])])
+      await waitFor(() => expect(screen.getByText('Product One')).toBeInTheDocument())
+
+      await user.click(screen.getByTestId('open-action-button'))
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
+  })
 })

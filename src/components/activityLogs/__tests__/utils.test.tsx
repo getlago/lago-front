@@ -41,6 +41,12 @@ describe('activityLogs utils', () => {
       )
     })
 
+    it('should format activity type with copied_to_production suffix', () => {
+      expect(formatActivityType(ActivityTypeEnum.ProductCategoryCopiedToProduction)).toBe(
+        'product_category.copied_to_production',
+      )
+    })
+
     it('should format activity type with ready_to_finalize suffix', () => {
       expect(formatActivityType(ActivityTypeEnum.InvoiceReadyToFinalize)).toBe(
         'invoice.ready_to_finalize',

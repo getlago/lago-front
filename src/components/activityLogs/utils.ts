@@ -47,6 +47,7 @@ export function formatActivityType(activityType: ActivityTypeEnum) {
   // quote_version_created reads quote.version_created, not quote_version.created.
   const actions = [
     'payment_status_updated',
+    'copied_to_production',
     'ready_to_finalize',
     'paid_credit_added',
     'version_created',
