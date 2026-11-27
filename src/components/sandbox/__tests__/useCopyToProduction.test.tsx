@@ -329,7 +329,9 @@ describe('useCopyToProduction', () => {
             code: 'seats_monthly',
           })
 
-          expect(toastMessage()).toBe(`${ALREADY_PRICED_KEY}|${PLAN_RATE_CARD_LABEL_KEY}|seats_monthly`)
+          expect(toastMessage()).toBe(
+            `${ALREADY_PRICED_KEY}|${PLAN_RATE_CARD_LABEL_KEY}|seats_monthly`,
+          )
         },
       )
 
