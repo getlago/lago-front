@@ -15,7 +15,13 @@ ARG BUILD_IMAGE=ghcr.io/getlago/lago-front-build:20261125-r2446@sha256:130289be2
 ARG RUNTIME_IMAGE=ghcr.io/getlago/lago-front-base:20261125-r2445@sha256:612b5711c1828cb8aa28ae4e2d3908e7f72ae860b13ad6b305dc1e03a0fc2803
 
 # --- deps stage --------------------------------------------------------------
-FROM ${BUILD_IMAGE} AS deps
+# deps and build run on the runner's own platform ($BUILDPLATFORM). The dist
+# is plain JS/CSS, identical for amd64 and arm64, so it is built once and
+# copied into each platform's runtime image. Built once per platform, each
+# arch got its own chunk hashes: with pods on both archs behind one Service,
+# a page served by one pod asked the other for chunks it did not have (404,
+# blank page).
+FROM --platform=$BUILDPLATFORM ${BUILD_IMAGE} AS deps
 
 WORKDIR /app
 
@@ -29,7 +35,7 @@ RUN --mount=type=cache,target=/root/.local/share/pnpm/store,sharing=locked \
 
 
 # --- build stage -------------------------------------------------------------
-FROM ${BUILD_IMAGE} AS build
+FROM --platform=$BUILDPLATFORM ${BUILD_IMAGE} AS build
 
 WORKDIR /app
 ENV NODE_OPTIONS="--max-old-space-size=4096"
