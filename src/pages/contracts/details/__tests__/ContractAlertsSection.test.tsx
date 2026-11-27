@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, RenderResult, screen, waitFor } from '@testing-library/react'
 
 import { OPEN_ACTION_BUTTON_TEST_ID } from '~/components/designSystem/Table/Table'
 import CentralizedDialog from '~/components/dialogs/CentralizedDialog'
@@ -78,7 +78,7 @@ const buildListMock = (
 const renderSection = (
   mocks: TestMocksType,
   { isReadOnly = false }: { isReadOnly?: boolean } = {},
-) =>
+): RenderResult =>
   render(
     <AllTheProviders forceTypenames mocks={mocks}>
       <NiceModal.Provider>

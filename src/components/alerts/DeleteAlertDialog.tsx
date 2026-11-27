@@ -1,8 +1,10 @@
-import { gql } from '@apollo/client'
+import { gql, useApolloClient } from '@apollo/client'
 
 import { useCentralizedDialog } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
 import {
+  GetContractAlertsForAlertsSectionDocument,
   useDestroyContractAlertMutation,
   useDestroySubscriptionAlertMutation,
 } from '~/generated/graphql'
@@ -33,20 +35,31 @@ type UseDeleteAlertDialogReturn = {
 
 export const useDeleteAlertDialog = (): UseDeleteAlertDialogReturn => {
   const centralizedDialog = useCentralizedDialog()
+  const client = useApolloClient()
   const { translate } = useInternationalization()
 
   const [destroySubscriptionAlert] = useDestroySubscriptionAlertMutation({
     refetchQueries: ['getAlertsOfSubscription'],
   })
   const [destroyContractAlert] = useDestroyContractAlertMutation({
-    refetchQueries: ['getContractAlertsForAlertsSection', 'getContractAlertsCountForOverviewNav'],
+    refetchQueries: ['getContractAlertsCountForOverviewNav'],
   })
 
   const destroyAlert = async ({ alertKind, id }: OpenDeleteAlertDialogArgs): Promise<boolean> => {
     if (alertKind === 'contract') {
       const result = await destroyContractAlert({ variables: { input: { id } } })
+      const deletedId = result.data?.destroyContractAlert?.id
 
-      return !!result.data?.destroyContractAlert?.id
+      if (!deletedId) return false
+
+      evictFromCache(client, {
+        id: deletedId,
+        __typename: 'ContractAlert',
+        listFieldName: 'contractAlerts',
+        listQueryDocument: GetContractAlertsForAlertsSectionDocument,
+      })
+
+      return true
     }
 
     const result = await destroySubscriptionAlert({ variables: { input: { id } } })
