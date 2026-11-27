@@ -22,8 +22,16 @@ export type ValidatedContractAlertFormValues = Omit<ContractAlertFormValues, 'al
 type CreateTarget = { kind: 'create'; contractId: string; currency: CurrencyEnum }
 type UpdateTarget = { kind: 'update'; id: string; currency: CurrencyEnum }
 
-const stripTrailingZeros = (value: string): string =>
-  value.includes('.') ? value.replace(/\.?0+$/, '') : value
+const stripTrailingZeros = (value: string): string => {
+  if (!value.includes('.')) return value
+
+  let end = value.length
+
+  while (value[end - 1] === '0') end--
+  if (value[end - 1] === '.') end--
+
+  return value.slice(0, end)
+}
 
 const mapScopeFromApi = ({
   scope: [entry],

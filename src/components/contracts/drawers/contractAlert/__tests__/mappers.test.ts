@@ -154,12 +154,14 @@ describe('contract alert mappers', () => {
       it('THEN should strip trailing zeros only', () => {
         const values = mapFromApiToForm(
           buildAlert({
-            thresholds: ['10.5', '10.0', '100.0', '0.12345'].map((value) => ({
-              code: null,
-              recurring: false,
-              value,
-              notifyOn: [NotifyOnEnum.Triggered],
-            })),
+            thresholds: ['10.5', '10.0', '100.0', '0.12345', '0.0', '20.50000', '1000'].map(
+              (value) => ({
+                code: null,
+                recurring: false,
+                value,
+                notifyOn: [NotifyOnEnum.Triggered],
+              }),
+            ),
           }),
           CurrencyEnum.Eur,
         )
@@ -169,6 +171,9 @@ describe('contract alert mappers', () => {
           '10',
           '100',
           '0.12345',
+          '0',
+          '20.5',
+          '1000',
         ])
       })
     })
