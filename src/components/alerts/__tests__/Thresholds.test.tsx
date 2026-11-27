@@ -690,3 +690,56 @@ describe('GIVEN the opt-in props of the thresholds table', () => {
     })
   })
 })
+
+describe('GIVEN the opt-in value errors of the thresholds table', () => {
+  describe('WHEN no value errors are given', () => {
+    it('THEN should keep every value cell valid', async () => {
+      await renderComponent(getMockThresholdsWithRecurring())
+
+      expect(screen.getByDisplayValue('100')).toHaveAttribute('aria-invalid', 'false')
+      expect(screen.getByDisplayValue('300')).toHaveAttribute('aria-invalid', 'false')
+    })
+  })
+
+  describe('WHEN a value error targets a non-recurring row', () => {
+    it('THEN should flag that row value cell only', async () => {
+      await renderComponent(getMockThresholdsWithRecurring(), { valueErrors: { 1: 'value-error' } })
+
+      expect(screen.getByDisplayValue('100')).toHaveAttribute('aria-invalid', 'false')
+      expect(screen.getByDisplayValue('200')).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByDisplayValue('300')).toHaveAttribute('aria-invalid', 'false')
+    })
+  })
+
+  describe('WHEN a value error targets the recurring row', () => {
+    it('THEN should flag the recurring value cell', async () => {
+      await renderComponent(getMockThresholdsWithRecurring(), { valueErrors: { 2: 'value-error' } })
+
+      expect(screen.getByDisplayValue('300')).toHaveAttribute('aria-invalid', 'true')
+      expect(screen.getByDisplayValue('200')).toHaveAttribute('aria-invalid', 'false')
+    })
+  })
+
+  describe('WHEN a row both overlaps the previous one and has a value error', () => {
+    it('THEN should explain the overlap rather than the value error', async () => {
+      await renderComponent(
+        [
+          { code: '', value: '100', recurring: false },
+          { code: '', value: '50', recurring: false },
+        ],
+        { valueErrors: { 1: 'value-error' } },
+      )
+
+      const overlappingInput = screen.getByDisplayValue('50')
+
+      expect(overlappingInput).toHaveAttribute('aria-invalid', 'true')
+
+      await act(async () => {
+        fireEvent.mouseEnter(overlappingInput)
+      })
+
+      expect(await screen.findByRole('tooltip')).toHaveTextContent(/overlaps with previous one/)
+      expect(screen.getByRole('tooltip')).not.toHaveTextContent('value-error')
+    })
+  })
+})

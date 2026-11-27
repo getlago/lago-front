@@ -4,7 +4,10 @@ import { act, fireEvent, render, screen, waitFor, within } from '@testing-librar
 import { GraphQLError } from 'graphql'
 import { useSyncExternalStore } from 'react'
 
-import { THRESHOLDS_ADD_ROW_TEST_ID } from '~/components/alerts/Thresholds'
+import {
+  THRESHOLDS_ADD_ROW_TEST_ID,
+  THRESHOLDS_CODE_ERROR_TEST_ID,
+} from '~/components/alerts/Thresholds'
 import { CREATE_MORE_SWITCH_TEST_ID } from '~/components/drawers/createMore/CreateMoreControl'
 import { FormDrawerProps } from '~/components/drawers/FormDrawer'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
@@ -352,6 +355,11 @@ const SILENT_ERROR_DETAILS = [
   LagoApiError.AlertAlreadyExists,
   LagoApiError.ProductRequiredForUnits,
   LagoApiError.ValueAlreadyExist,
+  LagoApiError.DuplicateThresholdValues,
+  LagoApiError.DuplicateThresholdCodes,
+  LagoApiError.RecurringValueIsNegative,
+  LagoApiError.TriggeredIsMandatory,
+  LagoApiError.RecurringNotSupported,
 ]
 
 describe('useContractAlertDrawer', () => {
@@ -679,6 +687,71 @@ describe('useContractAlertDrawer', () => {
       })
     })
 
+    describe('WHEN the backend rejects a threshold', () => {
+      const submitAmountAlert = async (details: Record<string, string[]>): Promise<void> => {
+        await renderHost([
+          scopeOptionsMock(),
+          existingAlertsMock(),
+          createMock(() => undefined, [graphQLError(details)]),
+        ])
+        await openDrawer()
+        await typeInto(getNameInput(), 'My alert')
+        await pickAlertType(ContractAlertTypeEnum.UsageAmount)
+        await typeInto(await screen.findByPlaceholderText('0.00'), '10')
+        await submit()
+      }
+
+      it.each([['duplicate_threshold_values'], ['recurring_value_is_negative']])(
+        'THEN should flag the value cell on %s and keep the drawer open',
+        async (code) => {
+          await submitAmountAlert({ 'thresholds[0].value': [code] })
+
+          await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeInvalid())
+          expect(mockClose).not.toHaveBeenCalled()
+        },
+      )
+
+      it('THEN should flag the code cell on duplicate_threshold_codes', async () => {
+        await submitAmountAlert({ 'thresholds[0].code': ['duplicate_threshold_codes'] })
+
+        expect(await screen.findByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).toBeInTheDocument()
+        expect(mockClose).not.toHaveBeenCalled()
+      })
+
+      it.each([['triggered_is_mandatory'], ['recurring_not_supported']])(
+        'THEN should flag the value cell on the notify code %s',
+        async (code) => {
+          await submitAmountAlert({ 'thresholds[0].notifyOn': [code] })
+
+          await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeInvalid())
+          expect(mockClose).not.toHaveBeenCalled()
+        },
+      )
+
+      it.each([
+        ['a generic code on a threshold', { 'thresholds[0].value': ['value_is_invalid'] }],
+        ['a list-level code', { thresholds: ['too_many_thresholds'] }],
+      ])('THEN should leave %s to the fallback toast', async (_, details) => {
+        await submitAmountAlert(details)
+
+        await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeValid())
+        expect(screen.queryByTestId(THRESHOLDS_CODE_ERROR_TEST_ID)).not.toBeInTheDocument()
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+
+      it('THEN should clear the value error once the value is edited', async () => {
+        await submitAmountAlert({ 'thresholds[0].value': ['duplicate_threshold_values'] })
+
+        const valueInput = screen.getByPlaceholderText('0.00')
+
+        await waitFor(() => expect(valueInput).toBeInvalid())
+
+        await typeInto(valueInput, '20')
+
+        await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeValid())
+      })
+    })
+
     describe('WHEN the name is edited', () => {
       it('THEN should prompt before closing', async () => {
         await renderHost([scopeOptionsMock(), existingAlertsMock()])
@@ -750,6 +823,26 @@ describe('useContractAlertDrawer', () => {
           operationName: 'updateContractAlert',
           silentErrorDetails: SILENT_ERROR_DETAILS,
         })
+      })
+    })
+
+    describe('WHEN the backend rejects a duplicate threshold value', () => {
+      it('THEN should flag the value cell and keep the drawer open', async () => {
+        await renderHost([
+          scopeOptionsMock(),
+          updateMock(
+            () => undefined,
+            [graphQLError({ 'thresholds[0].value': ['duplicate_threshold_values'] })],
+          ),
+        ])
+        await openDrawer({ alert: EXISTING_ALERT })
+        await screen.findByTestId(SCOPE_ROW_PRODUCT_TEST_ID)
+
+        await typeInto(getNameInput(), 'Renamed alert')
+        await submit()
+
+        await waitFor(() => expect(screen.getByDisplayValue('10')).toBeInvalid())
+        expect(mockClose).not.toHaveBeenCalled()
       })
     })
 

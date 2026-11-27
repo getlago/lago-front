@@ -1,5 +1,6 @@
 import { gql } from '@apollo/client'
-import { AnyFormApi, revalidateLogic } from '@tanstack/react-form'
+import { AnyFormApi, revalidateLogic, StandardSchemaV1Issue } from '@tanstack/react-form'
+import { GraphQLFormattedError } from 'graphql'
 import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { setCodeAlreadyExistsError } from '~/components/alerts/utils'
@@ -147,7 +148,21 @@ const MUTATION_CONTEXT = {
     LagoApiError.AlertAlreadyExists,
     LagoApiError.ProductRequiredForUnits,
     LagoApiError.ValueAlreadyExist,
+    LagoApiError.DuplicateThresholdValues,
+    LagoApiError.DuplicateThresholdCodes,
+    LagoApiError.RecurringValueIsNegative,
+    LagoApiError.TriggeredIsMandatory,
+    LagoApiError.RecurringNotSupported,
   ],
+}
+
+const THRESHOLD_ERROR_PATH = /^thresholds\[(\d+)\]\.(value|code|notifyOn)$/
+const THRESHOLD_ERROR_MESSAGES: Record<string, string> = {
+  [LagoApiError.DuplicateThresholdValues]: 'text_1795792049850v4zjojr03cb',
+  [LagoApiError.RecurringValueIsNegative]: 'text_1771342994699klxu2paz7g8',
+  [LagoApiError.DuplicateThresholdCodes]: 'text_17924397105421fihqq5j6ns',
+  [LagoApiError.TriggeredIsMandatory]: 'text_1771342994699klxu2paz7g8',
+  [LagoApiError.RecurringNotSupported]: 'text_1795792049850r32kntpkx3v',
 }
 
 export type ContractAlertDrawerProps = {
@@ -165,6 +180,41 @@ const setScopeError = (
 
   formApi.setErrorMap({ onDynamic: { fields } })
   scrollToFirstInputError(CONTRACT_ALERT_FORM_ID, fields)
+}
+
+const setThresholdErrors = (
+  formApi: AnyFormApi,
+  errors: readonly GraphQLFormattedError[] | undefined,
+): boolean => {
+  const details = errors?.[0]?.extensions?.details
+
+  if (!details || typeof details !== 'object') return false
+
+  const fields: Record<string, StandardSchemaV1Issue[]> = {}
+
+  Object.entries(details).forEach(([key, codes]) => {
+    const match = THRESHOLD_ERROR_PATH.exec(key)
+    const code = Array.isArray(codes)
+      ? codes.find(
+          (value): value is string =>
+            typeof value === 'string' && value in THRESHOLD_ERROR_MESSAGES,
+        )
+      : undefined
+
+    if (!match || !code) return
+
+    const field = match[2] === 'notifyOn' ? 'value' : match[2]
+
+    fields[`thresholds[${match[1]}].${field}`] = [
+      { message: THRESHOLD_ERROR_MESSAGES[code], path: ['thresholds', Number(match[1]), field] },
+    ]
+  })
+
+  if (!Object.keys(fields).length) return false
+
+  formApi.setErrorMap({ onDynamic: { form: fields, fields } })
+
+  return true
 }
 
 export const useContractAlertDrawer = (): {
@@ -247,6 +297,8 @@ export const useContractAlertDrawer = (): {
           return
         }
 
+        if (setThresholdErrors(formApi, errors)) return
+
         if (!data?.updateContractAlert) return
 
         addToast({ severity: 'success', translateKey: 'text_1746623860224qwhtxyuophr' })
@@ -283,6 +335,8 @@ export const useContractAlertDrawer = (): {
         setScopeError(formApi, 'scope', 'text_624ea7c29103fd010732ab7d')
         return
       }
+
+      if (setThresholdErrors(formApi, errors)) return
 
       if (!data?.createContractAlert) return
 

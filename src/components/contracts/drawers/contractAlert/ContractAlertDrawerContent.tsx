@@ -73,6 +73,7 @@ export const ContractAlertDrawerContent = withForm({
     const thresholds = useStore(form.store, (state) => state.values.thresholds)
     const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
     const codeErrors = getThresholdCodeErrorsFromForm(dynamicErrors)
+    const valueErrors = getThresholdCodeErrorsFromForm(dynamicErrors, 'value')
 
     const { setThresholds, setThresholdValue } = useMemo(() => createThresholdSetters(form), [form])
 
@@ -221,6 +222,7 @@ export const ContractAlertDrawerContent = withForm({
       return (
         <AlertThresholds
           codeErrors={codeErrors}
+          valueErrors={valueErrors}
           thresholds={thresholds}
           setThresholds={setThresholds}
           setThresholdValue={setThresholdValue}

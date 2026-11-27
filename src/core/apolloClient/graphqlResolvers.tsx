@@ -40,6 +40,8 @@ export const typeDefs = gql`
     is_succeeded
     currencies_does_not_match
     does_not_match_item_amounts
+    duplicate_threshold_codes
+    duplicate_threshold_values
     email_already_used
     invalid_status
     invite_already_exists
@@ -56,6 +58,9 @@ export const typeDefs = gql`
     product_already_priced
     product_filter_already_priced
     product_required_for_units
+    recurring_not_supported
+    recurring_value_is_negative
+    triggered_is_mandatory
     url_is_invalid
     user_already_exists
     user_does_not_exist

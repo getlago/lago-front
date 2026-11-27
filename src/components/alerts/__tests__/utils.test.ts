@@ -311,3 +311,27 @@ describe('getThresholdCodeErrorsFromForm', () => {
     expect(getThresholdCodeErrorsFromForm(undefined)).toEqual({})
   })
 })
+
+describe('getThresholdCodeErrorsFromForm with a field', () => {
+  const FORM_ERRORS = {
+    'thresholds[0].value': [{ message: 'value-issue', path: ['thresholds', 0, 'value'] }],
+    'thresholds[2].notifyOn': [{ message: 'notify-issue', path: ['thresholds', 2, 'notifyOn'] }],
+    'thresholds[1].code': [{ message: 'code-issue', path: ['thresholds', 1, 'code'] }],
+    'thresholds[3].valueExtra': [{ message: 'lookalike-issue' }],
+    value: [{ message: 'top-level-issue' }],
+  }
+
+  it.each([
+    ['value', { 0: 'value-issue' }],
+    ['code', { 1: 'code-issue' }],
+  ] as const)(
+    'GIVEN the %s field THEN should only map that field issues by row',
+    (field, expected) => {
+      expect(getThresholdCodeErrorsFromForm(FORM_ERRORS, field)).toEqual(expected)
+    },
+  )
+
+  it('GIVEN no form errors THEN should report nothing', () => {
+    expect(getThresholdCodeErrorsFromForm(undefined, 'value')).toEqual({})
+  })
+})
