@@ -35,6 +35,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanRateCardCreated]: 'text_1791921974802ltk52urixbp',
   [ActivityTypeEnum.PlanRateCardDeleted]: 'text_17919219748027k069qsq455',
   [ActivityTypeEnum.PlanRateCardUpdated]: 'text_1791921974802pda62e0zdtv',
+  [ActivityTypeEnum.PlanRateCardCopiedToProduction]: 'text_179579307534542xjwmjsb0y',
   [ActivityTypeEnum.PlanWalletCreated]: 'text_1795093921133goym1lmktoq',
   [ActivityTypeEnum.PlanWalletDeleted]: 'text_1795093921133a8yyd8l1i37',
   [ActivityTypeEnum.PlanWalletUpdated]: 'text_1795093921133stwkpx4uv8x',
@@ -92,6 +93,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.PlanCreated]: 'text_17474046566311qv73xswmnm',
   [ActivityTypeEnum.PlanDeleted]: 'text_1747404656631vh02b35uq80',
   [ActivityTypeEnum.PlanUpdated]: 'text_1747404656631mkfxe18tzkx',
+  [ActivityTypeEnum.PlanCopiedToProduction]: 'text_179579307534548e2gpyiemrg',
   [ActivityTypeEnum.ProductCategoryCreated]: 'text_1786365890845g3bnsrpvkkn',
   [ActivityTypeEnum.ProductCategoryDeleted]: 'text_1786365890845nletp3u06fp',
   [ActivityTypeEnum.ProductCategoryUpdated]: 'text_17863658908458ygd1210nj1',
@@ -192,6 +194,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.PlanCreated:
       case ActivityTypeEnum.PlanDeleted:
       case ActivityTypeEnum.PlanUpdated:
+      case ActivityTypeEnum.PlanCopiedToProduction:
         parameters = {
           code: activityObject.code,
         }
@@ -229,6 +232,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.PlanRateCardCreated:
       case ActivityTypeEnum.PlanRateCardDeleted:
       case ActivityTypeEnum.PlanRateCardUpdated:
+      case ActivityTypeEnum.PlanRateCardCopiedToProduction:
       case ActivityTypeEnum.PlanWalletCreated:
       case ActivityTypeEnum.PlanWalletDeleted:
       case ActivityTypeEnum.PlanWalletUpdated:

@@ -81,6 +81,7 @@ describe('useActivityLogsInformation', () => {
       [ActivityTypeEnum.PlanEntitlementDeleted, 'text_1795681244642pqdx58sovxo'],
       [ActivityTypeEnum.PlanEntitlementUpdated, 'text_1795681244642rjqw91vilsx'],
       [ActivityTypeEnum.PlanRateCardCreated, 'text_1791921974802ltk52urixbp'],
+      [ActivityTypeEnum.PlanRateCardCopiedToProduction, 'text_179579307534542xjwmjsb0y'],
       [ActivityTypeEnum.PlanWalletCreated, 'text_1795093921133goym1lmktoq'],
       [ActivityTypeEnum.PlanWalletDeleted, 'text_1795093921133a8yyd8l1i37'],
       [ActivityTypeEnum.PlanWalletUpdated, 'text_1795093921133stwkpx4uv8x'],
@@ -95,6 +96,7 @@ describe('useActivityLogsInformation', () => {
 
     it.each([
       [ActivityTypeEnum.BillableMetricCopiedToProduction, 'text_1795793075337v018byteyw2', 'code'],
+      [ActivityTypeEnum.PlanCopiedToProduction, 'text_179579307534548e2gpyiemrg', 'code'],
       [ActivityTypeEnum.CouponCopiedToProduction, 'text_1795793075339qrkwpru7akp', 'couponCode'],
       [ActivityTypeEnum.FeatureCopiedToProduction, 'text_17957930753404g3xlvt79fp', 'featureCode'],
       [

@@ -5641,5 +5641,9 @@
   "text_17957930753404g3xlvt79fp": "Feature {{featureCode}} was copied to production",
   "text_1795793075341zvlricdmzwp": "Product category {{productCategoryCode}} was copied to production",
   "text_1795793075342fmsv59d8i7n": "Product {{productCode}} was copied to production",
-  "text_17957930753430kgtot0j0d2": "Rate card {{rateCardCode}} was copied to production"
+  "text_17957930753430kgtot0j0d2": "Rate card {{rateCardCode}} was copied to production",
+  "text_179579307534548e2gpyiemrg": "Plan {{code}} was copied to production",
+  "text_179579307534542xjwmjsb0y": "Plan rate card copied to production",
+  "text_179561968624506z4suovzxj": "plan",
+  "text_1795619686245tlzbtzvn6vz": "plan rate card"
 }

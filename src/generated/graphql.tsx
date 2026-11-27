@@ -216,6 +216,8 @@ export enum ActivityTypeEnum {
   PaymentRecorded = 'payment_recorded',
   /** payment_request.created */
   PaymentRequestCreated = 'payment_request_created',
+  /** plan.copied_to_production */
+  PlanCopiedToProduction = 'plan_copied_to_production',
   /** plan.created */
   PlanCreated = 'plan_created',
   /** plan.deleted */
@@ -226,6 +228,8 @@ export enum ActivityTypeEnum {
   PlanEntitlementDeleted = 'plan_entitlement_deleted',
   /** plan_entitlement.updated */
   PlanEntitlementUpdated = 'plan_entitlement_updated',
+  /** plan_rate_card.copied_to_production */
+  PlanRateCardCopiedToProduction = 'plan_rate_card_copied_to_production',
   /** plan_rate_card.created */
   PlanRateCardCreated = 'plan_rate_card_created',
   /** plan_rate_card.deleted */
@@ -1639,8 +1643,10 @@ export type CopyToProductionItem = {
 /** Item types a user can copy from a sandbox to its production organization */
 export enum CopyToProductionItemTypeEnum {
   BillableMetric = 'billable_metric',
+  CatalogPlan = 'catalog_plan',
   Coupon = 'coupon',
   Feature = 'feature',
+  PlanRateCard = 'plan_rate_card',
   Product = 'product',
   ProductCategory = 'product_category'
 }

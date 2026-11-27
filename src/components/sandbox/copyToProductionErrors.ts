@@ -11,8 +11,10 @@ const UNKNOWN_ITEM_TYPE_TRANSLATION_KEY = 'text_17954414475352pip2ykpd9z'
 
 const ITEM_TYPE_TRANSLATION_KEYS: Record<CopyToProductionItemTypeEnum, string> = {
   [CopyToProductionItemTypeEnum.BillableMetric]: 'text_1795431906433n4atjiccd3h',
+  [CopyToProductionItemTypeEnum.CatalogPlan]: 'text_179561968624506z4suovzxj',
   [CopyToProductionItemTypeEnum.Coupon]: 'text_17954319064331bw3yqfc0t2',
   [CopyToProductionItemTypeEnum.Feature]: 'text_1795431906433rlgowe4019k',
+  [CopyToProductionItemTypeEnum.PlanRateCard]: 'text_1795619686245tlzbtzvn6vz',
   [CopyToProductionItemTypeEnum.Product]: 'text_1795431906434ld1peo7t04a',
   [CopyToProductionItemTypeEnum.ProductCategory]: 'text_1795431906434cs56t3kl5lh',
 }
