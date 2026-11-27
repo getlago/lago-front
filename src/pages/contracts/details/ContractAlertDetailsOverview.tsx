@@ -99,7 +99,12 @@ export const ContractAlertDetailsOverview = ({
 
   const unitsLabel = translate('text_6282085b4f283b0102655884')
 
-  const thresholdRows = alert.thresholds.map(({ code, recurring, value, notifyOn }, index) => [
+  const orderedThresholds = [
+    ...alert.thresholds.filter(({ recurring }) => !recurring),
+    ...alert.thresholds.filter(({ recurring }) => recurring),
+  ]
+
+  const thresholdRows = orderedThresholds.map(({ code, recurring, value, notifyOn }, index) => [
     getThresholdLabel(recurring, index),
     formatContractAlertThresholdValue({ value, alertType: alert.alertType, currency, unitsLabel }),
     code || '-',
@@ -123,7 +128,9 @@ export const ContractAlertDetailsOverview = ({
           grid={[
             {
               label: translate('text_1773051593208t1k4f2qw7z9'),
-              value: <span data-test={CONTRACT_ALERT_OVERVIEW_NAME_TEST_ID}>{alert.name}</span>,
+              value: (
+                <span data-test={CONTRACT_ALERT_OVERVIEW_NAME_TEST_ID}>{alert.name || '-'}</span>
+              ),
             },
             {
               label: translate('text_1773051593209lul0ssht3rk'),

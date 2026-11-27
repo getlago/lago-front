@@ -214,6 +214,34 @@ describe('ContractAlertDetailsOverview', () => {
     })
   })
 
+  describe('GIVEN the recurring threshold comes first in the API response', () => {
+    it('THEN should list it last and label the first one-time threshold', () => {
+      renderOverview(
+        buildAlert({
+          thresholds: [
+            buildThreshold({ value: '50', recurring: true }),
+            buildThreshold({ value: '100' }),
+            buildThreshold({ value: '200' }),
+          ],
+        }),
+      )
+
+      expect(getThresholdRows().map(([label, value]) => [label, value])).toEqual([
+        ['When usage reaches', '100 units'],
+        ['Then', '200 units'],
+        ['Then every', '50 units'],
+      ])
+    })
+  })
+
+  describe('GIVEN an alert without a name', () => {
+    it('THEN should display a dash', () => {
+      renderOverview(buildAlert({ name: null }))
+
+      expect(screen.getByTestId(CONTRACT_ALERT_OVERVIEW_NAME_TEST_ID)).toHaveTextContent('-')
+    })
+  })
+
   describe('GIVEN only a recurring threshold', () => {
     it('THEN should display a single then every row', () => {
       renderOverview(

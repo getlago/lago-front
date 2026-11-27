@@ -279,6 +279,23 @@ describe('ContractAlertDetails', () => {
     })
   })
 
+  describe('GIVEN a partial response with a non not-found error', () => {
+    it('THEN should render the error placeholder without redirecting', async () => {
+      await renderPage([
+        {
+          request,
+          result: {
+            data: { contractAlert: null, contract: buildContract() },
+            errors: [{ message: 'Internal error', extensions: { code: 'internal_error' } }],
+          },
+        },
+      ])
+
+      expect(await screen.findByTestId(GENERIC_PLACEHOLDER_TEST_ID)).toBeInTheDocument()
+      expect(testMockNavigateFn).not.toHaveBeenCalled()
+    })
+  })
+
   describe('GIVEN the delete action', () => {
     it('THEN should navigate back to the alerts section once deleted', async () => {
       await renderPage([detailsQueryMock(buildAlert(), buildContract())])

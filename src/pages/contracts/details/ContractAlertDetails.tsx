@@ -112,7 +112,7 @@ const ContractAlertDetailsContent = ({
           { label: getContractDisplayName(contract), path: alertsSectionPath },
           { label: translate(ALERT_BREADCRUMB_TRANSLATION_KEY) },
         ]}
-        entity={{ viewName: alert.name || '', metadata: alert.code }}
+        entity={{ viewName: alert.name || '-', metadata: alert.code }}
         actions={{
           items: [
             {
@@ -179,7 +179,7 @@ const ContractAlertDetails = (): JSX.Element | null => {
   const contract = data?.contract
   const alert = data?.contractAlert
   const isMismatch =
-    !!data && (!contract || !alert || alert.contractExternalId !== contract.externalId)
+    !!data && !error && (!contract || !alert || alert.contractExternalId !== contract.externalId)
 
   useNotFoundRedirect({
     error,
