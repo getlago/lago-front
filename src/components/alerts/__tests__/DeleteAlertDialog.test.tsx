@@ -131,6 +131,51 @@ describe('useDeleteAlertDialog', () => {
     })
   })
 
+  describe('GIVEN an onDeleted callback', () => {
+    describe('WHEN the mutation returns the deleted id', () => {
+      it('THEN should call onDeleted once after the success toast', async () => {
+        const onDeleted = jest.fn()
+        const { result } = renderDialogHook(buildMocks(jest.fn(), jest.fn()))
+
+        act(() =>
+          result.current.openDeleteAlertDialog({ alertKind: 'contract', id: 'a1', onDeleted }),
+        )
+
+        await act(async () => {
+          await getLastDialogArgs().onAction()
+        })
+
+        expect(onDeleted).toHaveBeenCalledTimes(1)
+        expect(jest.mocked(addToast).mock.invocationCallOrder[0]).toBeLessThan(
+          onDeleted.mock.invocationCallOrder[0],
+        )
+      })
+    })
+
+    describe('WHEN the mutation returns no id', () => {
+      it('THEN should not call onDeleted', async () => {
+        const onDeleted = jest.fn()
+        const { result } = renderDialogHook([
+          {
+            request: { query: DestroyContractAlertDocument, variables: { input: { id: 'a1' } } },
+            result: { data: { destroyContractAlert: null } },
+          },
+        ])
+
+        act(() =>
+          result.current.openDeleteAlertDialog({ alertKind: 'contract', id: 'a1', onDeleted }),
+        )
+
+        await act(async () => {
+          await getLastDialogArgs().onAction()
+        })
+
+        expect(onDeleted).not.toHaveBeenCalled()
+        expect(addToast).not.toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+      })
+    })
+  })
+
   describe('GIVEN both alert kinds', () => {
     describe('WHEN their dialogs open', () => {
       it('THEN should share the title but use kind-specific description and action', () => {

@@ -1,4 +1,5 @@
 import { gql } from '@apollo/client'
+import { generatePath } from 'react-router'
 
 import { useDeleteAlertDialog } from '~/components/alerts/DeleteAlertDialog'
 import { useContractAlertDrawer } from '~/components/contracts/drawers/contractAlert/useContractAlertDrawer'
@@ -11,6 +12,7 @@ import { Typography } from '~/components/designSystem/Typography'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
 import PremiumFeature from '~/components/premium/PremiumFeature'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
+import { CONTRACT_ALERT_DETAILS_ROUTE } from '~/core/router'
 import {
   ContractAlertForAlertsSectionFragment,
   ContractAlertForDrawerFragmentDoc,
@@ -143,6 +145,9 @@ export const ContractAlertsSection = ({
             containerSize={0}
             containerClassName="h-auto shrink-0 -mb-px border-t border-grey-300"
             rowSize={72}
+            onRowActionLink={({ id: alertId }) =>
+              generatePath(CONTRACT_ALERT_DETAILS_ROUTE, { id: contractId, alertId })
+            }
             columns={[
               {
                 key: 'name',

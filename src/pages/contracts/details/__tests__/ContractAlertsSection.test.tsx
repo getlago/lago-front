@@ -154,6 +154,22 @@ describe('ContractAlertsSection', () => {
       })
     })
 
+    describe('WHEN the list resolves', () => {
+      it('THEN should link each row to its alert details page', async () => {
+        renderSection([buildListMock(alertsFixture)])
+        await waitFor(() => expect(screen.getByText('Alert A')).toBeInTheDocument())
+
+        const hrefs = screen.getAllByRole('link').map((link) => link.getAttribute('href'))
+
+        expect(hrefs).toEqual(
+          expect.arrayContaining([
+            '/contracts/contract-1/alerts/alert-a',
+            '/contracts/contract-1/alerts/alert-b',
+          ]),
+        )
+      })
+    })
+
     describe('WHEN the row menu is opened on an editable contract', () => {
       it('THEN should offer edit and delete', async () => {
         renderSection([buildListMock(alertsFixture)])
