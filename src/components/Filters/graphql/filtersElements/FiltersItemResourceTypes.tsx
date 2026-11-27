@@ -17,6 +17,10 @@ export const FiltersItemResourceTypes = ({
   const { translate } = useInternationalization()
   const { displayInDialog } = useFilters()
   const { getResourceType } = useActivityLogsInformation()
+  const resourceTypes = Object.entries(ResourceTypeEnum).map(([resourceTypeName, resourceType]) => ({
+    label: getResourceType(resourceTypeName),
+    value: resourceType,
+  }))
 
   return (
     <MultipleComboBox
@@ -26,17 +30,14 @@ export const FiltersItemResourceTypes = ({
       disableClearable
       disableCloseOnSelect
       placeholder={translate('text_66ab42d4ece7e6b7078993b1')}
-      data={Object.values(ResourceTypeEnum).map((resourceType) => ({
-        label: getResourceType(resourceType),
-        value: resourceType,
-      }))}
+      data={resourceTypes}
       onChange={(invoiceType) => {
         setFilterValue(String(invoiceType.map((v) => v.value).join(',')))
       }}
       value={value
         ?.split(',')
         .filter((v) => !!v)
-        .map((v) => ({ value: v }))}
+        .map((v) => resourceTypes.find(({ value: resourceType }) => resourceType === v) ?? { value: v })}
     />
   )
 }
