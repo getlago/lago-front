@@ -175,6 +175,7 @@ export type AlertThresholdsProps = {
   allowDecimalUnits?: boolean
   maxRows?: number
   recurringSwitchSubLabel?: string
+  codePlaceholder?: string
   codeErrors: Record<number, string>
   valueErrors?: Record<number, string>
 }
@@ -192,6 +193,7 @@ const AlertThresholds = ({
   allowDecimalUnits,
   maxRows,
   recurringSwitchSubLabel,
+  codePlaceholder = 'text_1747921154885jqsl0c9xhro',
   codeErrors,
   valueErrors,
 }: AlertThresholdsProps): JSX.Element => {
@@ -254,7 +256,7 @@ const AlertThresholds = ({
           variant="outlined"
           error={!!codeError}
           data-test={codeError ? THRESHOLDS_CODE_ERROR_TEST_ID : undefined}
-          placeholder={translate('text_1747921154885jqsl0c9xhro')}
+          placeholder={translate(codePlaceholder)}
           value={row.code ?? ''}
           onChange={(value) => {
             setThresholdValue({ index, key: 'code', newValue: value === '' ? undefined : value })

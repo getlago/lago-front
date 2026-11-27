@@ -689,6 +689,15 @@ describe('GIVEN the opt-in props of the thresholds table', () => {
       expect(recurringSwitch).not.toHaveTextContent(/above the last threshold/)
     })
   })
+
+  describe('WHEN a code placeholder is given', () => {
+    it('THEN should use it on the threshold code inputs instead of the default', async () => {
+      await renderComponent(getMockThresholds(), { codePlaceholder: 'custom-code-placeholder' })
+
+      expect(screen.getAllByPlaceholderText('custom-code-placeholder').length).toBeGreaterThan(0)
+      expect(screen.queryByPlaceholderText('Type a threshold code')).not.toBeInTheDocument()
+    })
+  })
 })
 
 describe('GIVEN the opt-in value errors of the thresholds table', () => {
