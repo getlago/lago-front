@@ -57,6 +57,19 @@ describe('cachePersistor', () => {
       })
     })
 
+    describe('GIVEN an agent-claim URL', () => {
+      it('THEN should skip persistence entirely (no persistor, no restore)', async () => {
+        window.history.pushState({}, '', '/agent-claim/storefront-id')
+
+        const { setupCachePersistor } = await loadModule()
+        const result = await setupCachePersistor('1.0.0')
+
+        expect(result).toBeNull()
+        expect(mockCtor).not.toHaveBeenCalled()
+        expect(mockRestore).not.toHaveBeenCalled()
+      })
+    })
+
     describe('GIVEN a non-portal URL', () => {
       it('THEN should purge only stale version-keyed blobs, keep the current and unrelated keys, then restore', async () => {
         mockKeys.mockResolvedValue([CURRENT_KEY, STALE_KEY, UNRELATED_KEY])

@@ -7,6 +7,7 @@ import { ReactNode } from 'react'
 import { FORM_DIALOG_NAME } from '~/components/dialogs/const'
 import FormDialog from '~/components/dialogs/FormDialog'
 import { LocalUsageChargeInput } from '~/components/plans/types'
+import { addToast } from '~/core/apolloClient'
 import { FORM_ERRORS_ENUM } from '~/core/constants/form'
 import {
   ChargeCreateInput,
@@ -14,12 +15,39 @@ import {
   CreateChargeDocument,
   CurrencyEnum,
   DestroyChargeDocument,
+  LagoApiError,
   UpdateChargeDocument,
 } from '~/generated/graphql'
 
 import { useChargeMutationsWithCascade } from '../useChargeMutationsWithCascade'
 
 NiceModal.register(FORM_DIALOG_NAME, FormDialog)
+
+jest.mock('~/core/apolloClient', () => ({
+  ...jest.requireActual('~/core/apolloClient'),
+  addToast: jest.fn(),
+}))
+
+const mockCreateOptions = jest.fn()
+const mockUpdateOptions = jest.fn()
+
+jest.mock('~/generated/graphql', () => {
+  const actual = jest.requireActual('~/generated/graphql')
+
+  return {
+    ...actual,
+    useCreateChargeMutation: (options: unknown) => {
+      mockCreateOptions(options)
+
+      return actual.useCreateChargeMutation(options)
+    },
+    useUpdateChargeMutation: (options: unknown) => {
+      mockUpdateOptions(options)
+
+      return actual.useUpdateChargeMutation(options)
+    },
+  }
+})
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
   useInternationalization: () => ({ translate: (k: string) => k }),
@@ -353,5 +381,76 @@ describe('useChargeMutationsWithCascade', () => {
     })
 
     expect(outcome).toBe(false)
+  })
+
+  describe('GIVEN an Agentic Storefront sells the plan', () => {
+    describe('WHEN the hook is mounted', () => {
+      it('THEN should silence the plan-sold refusal on create and update', () => {
+        renderHook(
+          () =>
+            useChargeMutationsWithCascade({
+              planId: PLAN_ID,
+              hasOverriddenPlans: false,
+              currency: CurrencyEnum.Usd,
+            }),
+          {
+            wrapper: wrapper([]),
+          },
+        )
+
+        const expectedContext = expect.objectContaining({
+          context: {
+            silentErrorCodes: [
+              LagoApiError.UnprocessableEntity,
+              LagoApiError.PlanSoldByAgentStorefront,
+            ],
+          },
+        })
+
+        expect(mockCreateOptions).toHaveBeenCalledWith(expectedContext)
+        expect(mockUpdateOptions).toHaveBeenCalledWith(expectedContext)
+      })
+    })
+
+    describe('WHEN the API refuses the save', () => {
+      it('THEN should show one danger toast and keep the drawer open', async () => {
+        ;(addToast as jest.Mock).mockClear()
+
+        const createMock: MockedResponse = {
+          request: { query: CreateChargeDocument },
+          variableMatcher: () => true,
+          result: {
+            errors: [
+              new GraphQLError('Refused', {
+                extensions: { code: LagoApiError.PlanSoldByAgentStorefront },
+              }),
+            ],
+          },
+        }
+
+        const { result } = renderHook(
+          () =>
+            useChargeMutationsWithCascade({
+              planId: PLAN_ID,
+              hasOverriddenPlans: false,
+              currency: CurrencyEnum.Usd,
+            }),
+          {
+            wrapper: wrapper([createMock]),
+          },
+        )
+
+        let outcome: boolean | FORM_ERRORS_ENUM.existingCode | undefined
+
+        await act(async () => {
+          outcome = await result.current.handleSaveCharge(buildCharge(), null)
+        })
+
+        expect(outcome).toBe(false)
+        expect((addToast as jest.Mock).mock.calls).toEqual([
+          [expect.objectContaining({ severity: 'danger' })],
+        ])
+      })
+    })
   })
 })

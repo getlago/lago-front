@@ -4,13 +4,20 @@ import { GraphQLFormattedError } from 'graphql'
 import {
   buildGraphQLErrorFingerprint,
   extractThirdPartyErrorMessage,
+  getDetailError,
   getGraphQLErrorCode,
   hasDefinedGQLError,
   isSilencedGQLError,
   LagoGQLError,
+  onNetworkError,
   PspErrorCode,
   redactSensitiveVariables,
 } from '~/core/apolloClient/errorUtils'
+import { addToast } from '~/core/apolloClient/reactiveVars/toastVar'
+
+jest.mock('~/core/apolloClient/reactiveVars/toastVar', () => ({
+  addToast: jest.fn(),
+}))
 
 const createApolloError: (details: Record<string, string | string[]>) => ApolloError = (details) =>
   ({
@@ -302,6 +309,54 @@ describe('buildGraphQLErrorFingerprint', () => {
           'not_voidable',
         ])
       })
+    })
+  })
+})
+
+describe('getDetailError', () => {
+  const MESSAGES = { invalid_claim_code: 'invalid-claim-code-message' }
+
+  it.each([
+    [
+      'the field carries a known code',
+      { claimCode: ['invalid_claim_code'] },
+      MESSAGES.invalid_claim_code,
+    ],
+    ['the field carries an unknown code', { claimCode: ['something_else'] }, undefined],
+    ['the code sits on another field', { email: ['invalid_claim_code'] }, undefined],
+    ['the field value is not a list', { claimCode: 'invalid_claim_code' }, undefined],
+    ['the details are missing', undefined, undefined],
+    ['the details are not an object', 'invalid_claim_code', undefined],
+  ])('GIVEN %s THEN should return the expected message', (_, details, expected) => {
+    expect(getDetailError(details, 'claimCode', MESSAGES)).toBe(expected)
+  })
+})
+
+describe('onNetworkError', () => {
+  beforeEach(() => {
+    jest.clearAllMocks()
+  })
+
+  describe('GIVEN an ApolloError carrying a network error', () => {
+    it('THEN should show one danger toast', () => {
+      onNetworkError(new ApolloError({ networkError: new Error('offline') }))
+
+      expect(addToast).toHaveBeenCalledTimes(1)
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+    })
+  })
+
+  describe('GIVEN an error that is not a network failure', () => {
+    it.each([
+      ['a plain Error', new Error('Submit failed')],
+      [
+        'an ApolloError with only GraphQL errors',
+        new ApolloError({ graphQLErrors: [{ message: 'Unprocessable Entity' }] }),
+      ],
+    ])('THEN should not toast for %s', (_, error) => {
+      onNetworkError(error)
+
+      expect(addToast).not.toHaveBeenCalled()
     })
   })
 })

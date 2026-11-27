@@ -108,6 +108,12 @@ describe('scrubUrlTokens', () => {
     })
   })
 
+  describe('GIVEN the agent claim page URL', () => {
+    it('THEN should redact the storefront id', () => {
+      expect(scrubUrlTokens(`https://app.test/agent-claim/${SECRET}`)).not.toContain(SECRET)
+    })
+  })
+
   describe('GIVEN an already redacted string', () => {
     it('THEN should return it unchanged', () => {
       const redacted = scrubUrlTokens(`/invitation/${SECRET}/form?code=${SECRET}`)
@@ -165,6 +171,32 @@ describe('scrubUrlTokens', () => {
         variables: {
           input: { token: '[Filtered]', newPassword: '[Filtered]', email: 'jane@acme.com' },
         },
+      })
+    })
+  })
+
+  describe('GIVEN the variables of an agent claim mutation', () => {
+    it('THEN should redact the claim and verification codes and keep the email', () => {
+      const variables = {
+        input: { claimCode: 'ABCD-1234', verificationCode: '123456', email: 'jane@acme.com' },
+      }
+
+      expect(scrubUrlTokens(variables)).toEqual({
+        input: { claimCode: '[Filtered]', verificationCode: '[Filtered]', email: 'jane@acme.com' },
+      })
+    })
+  })
+
+  describe('GIVEN the variables of an agent claim page query', () => {
+    it('THEN should redact the storefront id at the root and inside an input', () => {
+      const variables = {
+        storefrontId: SECRET,
+        input: { storefrontId: SECRET, email: 'jane@acme.com' },
+      }
+
+      expect(scrubUrlTokens(variables)).toEqual({
+        storefrontId: '[Filtered]',
+        input: { storefrontId: '[Filtered]', email: 'jane@acme.com' },
       })
     })
   })
@@ -235,6 +267,7 @@ describe('scrubUrlTokens', () => {
 describe('hasUrlToken', () => {
   it.each([
     [`https://app.test/customer-portal/${SECRET}`, true],
+    [`https://app.test/agent-claim/${SECRET}`, true],
     [`https://app.test/verify-email?token=${SECRET}`, true],
     ['https://app.test/acme/customers?page=2', false],
   ])('GIVEN %s THEN should return %s', (url, expected) => {

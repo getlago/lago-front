@@ -6,7 +6,7 @@ import { GraphQLFormattedError, parse } from 'graphql'
 import { addToast } from '~/core/apolloClient/reactiveVars'
 import { LagoApiError } from '~/generated/graphql'
 
-import { initializeApolloClient } from '../init'
+import { initializeApolloClient, setAuthErrorHandler } from '../init'
 
 type ErrorHandler = (response: ErrorResponse) => void
 
@@ -151,6 +151,39 @@ describe('initializeApolloClient error link', () => {
 
         expect(addToast).not.toHaveBeenCalled()
         expect(captureException).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN an unauthorized GraphQL error', () => {
+    const onAuthError = jest.fn()
+
+    beforeEach(() => {
+      setAuthErrorHandler(onAuthError)
+    })
+
+    afterEach(() => {
+      window.history.pushState({}, '', '/')
+    })
+
+    describe('WHEN it happens on an admin page', () => {
+      it('THEN should run the auth error handler', () => {
+        window.history.pushState({}, '', '/acme/customers')
+        triggerGraphQLError(LagoApiError.Unauthorized)
+
+        expect(onAuthError).toHaveBeenCalledTimes(1)
+      })
+    })
+
+    describe.each([
+      ['the agent claim page', '/agent-claim/storefront-id'],
+      ['the customer portal', '/customer-portal/portal-token'],
+    ])('WHEN it happens on %s', (_, pathname) => {
+      it('THEN should keep the admin session', () => {
+        window.history.pushState({}, '', pathname)
+        triggerGraphQLError(LagoApiError.Unauthorized)
+
+        expect(onAuthError).not.toHaveBeenCalled()
       })
     })
   })

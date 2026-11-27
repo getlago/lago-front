@@ -30,6 +30,7 @@ import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSa
 import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
 import { useAddX402Dialog } from '~/components/settings/integrations/AddX402Dialog'
 import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
+import { useAddAgentStorefrontDialog } from '~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog'
 import {
   DOCUMENTATION_AIRBYTE,
   DOCUMENTATION_HIGHTTOUCH,
@@ -39,6 +40,7 @@ import {
 import { IntegrationsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   ADYEN_INTEGRATION_ROUTE,
+  AGENT_STOREFRONT_INTEGRATION_ROUTE,
   ANROK_INTEGRATION_ROUTE,
   AVALARA_INTEGRATION_ROUTE,
   CASHFREE_INTEGRATION_ROUTE,
@@ -67,6 +69,7 @@ import { useCurrentUser } from '~/hooks/useCurrentUser'
 import { useOrganizationInfos } from '~/hooks/useOrganizationInfos'
 import { usePermissions } from '~/hooks/usePermissions'
 import Adyen from '~/public/images/adyen.svg'
+import AgentStorefront from '~/public/images/agentic-storefront.svg'
 import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
@@ -92,6 +95,7 @@ export const INTEGRATIONS_HUBSPOT_TEST_ID = 'integrations-hubspot'
 export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
 export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
 export const INTEGRATIONS_SEGMENT_TEST_ID = 'integrations-segment'
+export const INTEGRATIONS_AGENT_STOREFRONT_TEST_ID = 'integrations-agent-storefront'
 export const INTEGRATIONS_QUICKBOOKS_TEST_ID = 'integrations-quickbooks'
 
 gql`
@@ -153,6 +157,9 @@ gql`
         ... on SalesforceIntegration {
           id
         }
+        ... on AgentStorefrontIntegration {
+          id
+        }
       }
     }
   }
@@ -165,6 +172,7 @@ const Integrations = () => {
   const { organization, hasFeatureFlag } = useOrganizationInfos()
   const premiumIntegrations = organization?.premiumIntegrations
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
+  const isAgentStorefrontEnabled = hasFeatureFlag(FeatureFlagEnum.AgentStorefront)
   const isX402Enabled = isPremium && hasFeatureFlag(FeatureFlagEnum.X402Payments)
   // `withX402` reads the license and the flag: query once both are known, not once per answer.
   const isWaitingForX402Access = !organization || (isCurrentUserLoading && !currentUser)
@@ -186,6 +194,7 @@ const Integrations = () => {
   const { openAddFlutterwaveDialog } = useAddFlutterwaveDialog()
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
+  const { openAddAgentStorefrontDialog } = useAddAgentStorefrontDialog()
   const { openAddX402Dialog } = useAddX402Dialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
@@ -241,6 +250,9 @@ const Integrations = () => {
   const hasAccessToSalesforcePremiumIntegration = !!premiumIntegrations?.includes(
     PremiumIntegrationTypeEnum.Salesforce,
   )
+  const hasAccessToAgentStorefrontPremiumIntegration = !!premiumIntegrations?.includes(
+    PremiumIntegrationTypeEnum.AgentStorefront,
+  )
   const hasNetsuiteIntegration = data?.integrations?.collection?.some(
     (integration) => integration?.__typename === 'NetsuiteIntegration',
   )
@@ -262,6 +274,9 @@ const Integrations = () => {
   const hasSalesforceIntegration = data?.integrations?.collection.some(
     (integration) => integration.__typename === 'SalesforceIntegration',
   )
+  const hasAgentStorefrontIntegration = data?.integrations?.collection?.some(
+    (integration) => integration?.__typename === 'AgentStorefrontIntegration',
+  )
 
   // Every value the Lago tab renders from, so the header refreshes its content when one changes.
   const lagoTabSnapshotKey = JSON.stringify([
@@ -270,6 +285,7 @@ const Integrations = () => {
     isProductCatalogEnabled,
     isX402Enabled,
     hasX402Integration,
+    isAgentStorefrontEnabled,
     hasTaxManagement,
     premiumIntegrations,
     data?.paymentProviders?.collection.map((provider) => provider.__typename),
@@ -581,6 +597,48 @@ const Integrations = () => {
                             }
                           }}
                           fullWidth
+                        />
+                      )}
+                      {isAgentStorefrontEnabled && (
+                        <Selector
+                          data-test={INTEGRATIONS_AGENT_STOREFRONT_TEST_ID}
+                          fullWidth
+                          title={translate('text_1795083825203aqsrrdi5tii')}
+                          subtitle={translate('text_1795083825204u0cvlpt2mav')}
+                          endContent={getEndContent({
+                            showSparkles: !hasAccessToAgentStorefrontPremiumIntegration,
+                            showConnectedBadge: hasAgentStorefrontIntegration,
+                          })}
+                          hoverActions={getHoverActions(
+                            hasAccessToAgentStorefrontPremiumIntegration &&
+                              hasAgentStorefrontIntegration,
+                            generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              {<AgentStorefront />}
+                            </Avatar>
+                          }
+                          onClick={() => {
+                            if (!hasAccessToAgentStorefrontPremiumIntegration) {
+                              void openPremiumWarningDialog({
+                                title: translate('text_661ff6e56ef7e1b7c542b1ea'),
+                                description: translate('text_661ff6e56ef7e1b7c542b1f6'),
+                                mailtoSubject: translate('text_1795083825205440vn60teym'),
+                                mailtoBody: translate('text_1795083825206u05enrn2opg'),
+                              })
+                            } else if (hasAgentStorefrontIntegration || !canCreateIntegration) {
+                              navigate(
+                                generatePath(AGENT_STOREFRONT_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddAgentStorefrontDialog()
+                            }
+                          }}
                         />
                       )}
                       {!isProductCatalogEnabled && (

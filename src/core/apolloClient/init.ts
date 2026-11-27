@@ -15,7 +15,7 @@ import {
   updateAuthTokenVar,
 } from '~/core/apolloClient/reactiveVars'
 import { buildWebSocketUrl } from '~/core/apolloClient/websocketUrl'
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
+import { isPublicTokenPath } from '~/core/router/utils/isPublicTokenPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 import { LagoApiError } from '~/generated/graphql'
 
@@ -206,11 +206,11 @@ export const initializeApolloClient = async () => {
         const isUnauthorized = extensions && AUTH_ERRORS.includes(extensions?.code as LagoApiError)
 
         if (isUnauthorized) {
-          // Skip logout in customer portal context — the portal handles auth errors
-          // via query data (isUnauthenticated flag) and doesn't use the onAuthError callback
-          const isCustomerPortal = isCustomerPortalPath(window.location.pathname)
+          // Skip logout on public token pages: they send no admin Bearer, so an
+          // authenticated root query failing there must not end the admin session
+          const isPublicPath = isPublicTokenPath(window.location.pathname)
 
-          if (!isCustomerPortal && onAuthError) {
+          if (!isPublicPath && onAuthError) {
             onAuthError()
           }
         }

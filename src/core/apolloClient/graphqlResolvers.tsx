@@ -25,6 +25,10 @@ export const typeDefs = gql`
     cannot_link_organization_to_itself
     not_found
     unprocessable_entity
+    premium_integration_missing
+    agent_storefront_has_enrolled_agents
+    payment_provider_used_by_agent_storefront
+    plan_sold_by_agent_storefront
 
     # Authentication & authentication errors
     token_encoding_error
@@ -40,6 +44,7 @@ export const typeDefs = gql`
     currencies_does_not_match
     does_not_match_item_amounts
     email_already_used
+    events_targeting_wallets_disabled
     invalid_status
     invite_already_exists
     invite_email_mistmatch
@@ -51,7 +56,10 @@ export const typeDefs = gql`
     no_active_subscription
     not_voidable
     payment_processor_is_currently_handling_payment
+    payment_provider_not_found
+    plan_not_usage_only
     plan_overlapping
+    wallet_refresh_unavailable
     product_already_priced
     product_filter_already_priced
     url_is_invalid

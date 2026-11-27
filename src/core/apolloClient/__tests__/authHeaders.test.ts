@@ -26,6 +26,7 @@ jest.mock('~/hooks/useDeveloperTool', () => ({
 
 const PORTAL_TOKEN = 'portal-token-abc'
 const PORTAL_PATH = `/customer-portal/${PORTAL_TOKEN}`
+const CLAIM_PATH = '/agent-claim/storefront-id'
 const ADMIN_PATH = '/acme/customers'
 const SELF_SERVE_FLAGS: Array<[string, boolean]> = [
   ['on', true],
@@ -38,6 +39,17 @@ describe('buildAuthHeaders', () => {
     localStorage.clear()
     mockGetCurrentOrganizationId.mockReturnValue(null)
     mockEnvGlobalVar.mockReturnValue({ selfServeEnabled: false })
+  })
+
+  describe('GIVEN the agent claim route', () => {
+    describe('WHEN an admin session also exists', () => {
+      it('THEN should send no headers', () => {
+        localStorage.setItem('auth_token', 'expired-admin-jwt')
+        mockGetCurrentOrganizationId.mockReturnValue('org-123')
+
+        expect(buildAuthHeaders(CLAIM_PATH)).toEqual({})
+      })
+    })
   })
 
   describe('GIVEN a customer portal route', () => {
@@ -227,6 +239,14 @@ describe('buildCableSubprotocols', () => {
       localStorage.setItem('auth_token', 'admin-jwt')
 
       expect(buildCableSubprotocols(PORTAL_PATH)).toEqual([])
+    })
+  })
+
+  describe('WHEN on the agent claim route', () => {
+    it('THEN should not send the admin token', () => {
+      localStorage.setItem('auth_token', 'admin-jwt')
+
+      expect(buildCableSubprotocols(CLAIM_PATH)).toEqual([])
     })
   })
 

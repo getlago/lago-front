@@ -18,6 +18,7 @@ import { useDialogActions } from './useDialogActions'
 
 export type FormDialogOpeningDialogProps = FormDialogProps & {
   canOpenDialog?: boolean
+  disableOpenDialog?: boolean
   openDialogText: string
   otherDialogProps: CentralizedDialogProps
 }
@@ -35,6 +36,7 @@ const FormDialogOpeningDialog = create(
     onEntered,
     form,
     canOpenDialog,
+    disableOpenDialog,
     openDialogText,
     otherDialogProps,
   }: FormDialogOpeningDialogProps) => {
@@ -65,6 +67,7 @@ const FormDialogOpeningDialog = create(
           <Button
             danger
             variant="quaternary"
+            disabled={disableOpenDialog}
             onClick={() => {
               const otherDialogPromise = centralizedDialog.open(otherDialogProps)
 

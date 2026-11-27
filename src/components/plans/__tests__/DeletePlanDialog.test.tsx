@@ -10,6 +10,7 @@ import {
   DIALOG_TITLE_TEST_ID,
 } from '~/components/dialogs/const'
 import { addToast } from '~/core/apolloClient'
+import { LagoApiError } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import { useDeletePlanDialog } from '../DeletePlanDialog'
@@ -167,7 +168,10 @@ describe('DeletePlanDialog', () => {
       })
 
       await waitFor(() => {
-        expect(mockDeletePlan).toHaveBeenCalledWith({ variables: { input: { id: 'plan-123' } } })
+        expect(mockDeletePlan).toHaveBeenCalledWith({
+          variables: { input: { id: 'plan-123' } },
+          context: { silentErrorCodes: [LagoApiError.PlanSoldByAgentStorefront] },
+        })
       })
     })
 
@@ -238,6 +242,47 @@ describe('DeletePlanDialog', () => {
 
       expect(mockCallback).not.toHaveBeenCalled()
       expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+    })
+
+    it('THEN a plan sold by an Agentic Storefront shows one dedicated danger toast and skips the callback', async () => {
+      const mockCallback = jest.fn()
+
+      mockDeletePlan.mockResolvedValue({
+        data: { destroyPlan: null },
+        errors: [
+          {
+            message: 'Method Not Allowed',
+            extensions: { code: LagoApiError.PlanSoldByAgentStorefront },
+          },
+        ],
+      })
+
+      await act(() =>
+        render(
+          <NiceModalWrapper>
+            <TestWrapper callback={mockCallback} />
+          </NiceModalWrapper>,
+        ),
+      )
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId('open-dialog-btn'))
+      })
+
+      await waitFor(() => {
+        expect(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID)).toBeInTheDocument()
+      })
+
+      await act(async () => {
+        await userEvent.click(screen.getByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID))
+      })
+
+      await waitFor(() => {
+        expect(addToast).toHaveBeenCalledTimes(1)
+      })
+
+      expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'danger' }))
+      expect(mockCallback).not.toHaveBeenCalled()
     })
   })
 })

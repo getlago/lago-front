@@ -8,7 +8,7 @@ import {
 } from '~/core/apolloClient/reactiveVars'
 import { CREATE_ORGANIZATION_ROUTE } from '~/core/router/paths/createOrganization'
 import { getCustomerPortalToken } from '~/core/router/utils/getCustomerPortalToken'
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
+import { isPublicTokenPath } from '~/core/router/utils/isPublicTokenPath'
 import { getItemFromLS } from '~/core/utils/localStorage'
 
 type AdminCredentials = { token: string | undefined; organizationId: string | undefined }
@@ -19,7 +19,7 @@ const isCreateOrganizationPath = (pathname: string): boolean =>
 // Scoped by route: the API rejects an expired admin Bearer before reading
 // customer-portal-token, and a portal token sent on admin routes would leak.
 const resolveAdminCredentials = (pathname: string): AdminCredentials | null => {
-  if (isCustomerPortalPath(pathname)) return null
+  if (isPublicTokenPath(pathname)) return null
 
   return {
     token: getItemFromLS(AUTH_TOKEN_LS_KEY) || getItemFromLS(TMP_AUTH_TOKEN_LS_KEY) || undefined,

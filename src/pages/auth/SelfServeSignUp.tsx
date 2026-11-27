@@ -12,7 +12,7 @@ import {
   PASSWORD_VALIDATION_KEYS,
   PasswordValidationHints,
 } from '~/components/form/PasswordValidationHints/PasswordValidationHints'
-import { envGlobalVar } from '~/core/apolloClient'
+import { envGlobalVar, getDetailError } from '~/core/apolloClient'
 import { scrollToFirstInputError } from '~/core/form/scrollToFirstInputError'
 import { LOGIN_ROUTE, SIGN_UP_ROUTE, useLocation } from '~/core/router'
 import { removeItemFromLS, setItemFromLS } from '~/core/utils/localStorage'
@@ -102,20 +102,6 @@ const getGoogleSignUpError = (code: string | null): string | undefined => {
   if (!code) return undefined
 
   return BANNER_ERRORS[code] || SIGN_UP_GENERIC_ERROR
-}
-
-const getDetailError = (
-  details: unknown,
-  field: string,
-  messages: Record<string, string>,
-): string | undefined => {
-  if (typeof details !== 'object' || details === null) return undefined
-
-  const codes = Object.entries(details).find(([key]) => key === field)?.[1]
-
-  if (!Array.isArray(codes)) return undefined
-
-  return codes.map((code) => (typeof code === 'string' ? messages[code] : undefined)).find(Boolean)
 }
 
 const toOrigin = (url: string): string | undefined => {

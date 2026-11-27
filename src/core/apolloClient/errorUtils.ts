@@ -3,6 +3,8 @@ import { GraphQLFormattedError } from 'graphql'
 
 import { LagoApiError } from '~/generated/graphql'
 
+import { addToast } from './reactiveVars/toastVar'
+
 export enum PspErrorCode {
   ThirdPartyError = 'third_party_error',
 }
@@ -77,6 +79,20 @@ export const isSilencedGQLError = ({
   return silentErrorDetails.some((code) => detailCodes.includes(code as string))
 }
 
+export const getDetailError = (
+  details: unknown,
+  field: string,
+  messages: Record<string, string>,
+): string | undefined => {
+  if (typeof details !== 'object' || details === null) return undefined
+
+  const codes = Object.entries(details).find(([key]) => key === field)?.[1]
+
+  if (!Array.isArray(codes)) return undefined
+
+  return codes.map((code) => (typeof code === 'string' ? messages[code] : undefined)).find(Boolean)
+}
+
 // --------------------- Graphql errors checker ---------------------
 export const hasDefinedGQLError = (
   errorCode: keyof typeof LagoApiError,
@@ -106,6 +122,12 @@ export const hasDefinedGQLError = (
   if (!!code) {
     return code === LagoApiError[errorCode]
   }
+}
+
+export const onNetworkError = (error: Error): void => {
+  if (!(error instanceof ApolloError) || !error.networkError) return
+
+  addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }
 
 const SENSITIVE_VARIABLE_KEY = /secret|api_?key|password|token|private_?key/i

@@ -418,6 +418,64 @@ describe('FormDialogOpeningDialog', () => {
     })
   })
 
+  describe('GIVEN disableOpenDialog', () => {
+    describe('WHEN it is true', () => {
+      it('THEN should render the open dialog button disabled and never open the other dialog', async () => {
+        const user = userEvent.setup()
+
+        render(
+          <NiceModalWrapper>
+            <TestComponent
+              dialogProps={{
+                ...defaultProps,
+                canOpenDialog: true,
+                disableOpenDialog: true,
+                openDialogText: 'Open Warning',
+              }}
+            />
+          </NiceModalWrapper>,
+        )
+
+        await waitFor(() => {
+          expect(screen.getByText('Open Warning')).toBeInTheDocument()
+        })
+
+        const openButton = screen.getByText('Open Warning').closest('button') as HTMLButtonElement
+
+        expect(openButton).toBeDisabled()
+
+        await user.click(openButton).catch(() => undefined)
+
+        expect(
+          screen.queryByTestId(CENTRALIZED_DIALOG_CONFIRM_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+        expect(screen.getByTestId(FORM_DIALOG_OPENING_DIALOG_TEST_ID)).toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN it is omitted', () => {
+      it('THEN should keep the open dialog button enabled', async () => {
+        render(
+          <NiceModalWrapper>
+            <TestComponent
+              dialogProps={{
+                ...defaultProps,
+                canOpenDialog: true,
+                openDialogText: 'Open Warning',
+              }}
+            />
+          </NiceModalWrapper>,
+        )
+
+        await waitFor(() => {
+          expect(screen.getByText('Open Warning')).toBeInTheDocument()
+        })
+
+        expect(screen.getByText('Open Warning').closest('button')).not.toBeDisabled()
+      })
+    })
+  })
+
   describe('Callbacks', () => {
     it('closes dialog when backdrop is clicked', async () => {
       const user = userEvent.setup()

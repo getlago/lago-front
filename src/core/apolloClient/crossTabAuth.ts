@@ -1,6 +1,6 @@
 import { ApolloClient } from '@apollo/client'
 
-import { isCustomerPortalPath } from '~/core/router/utils/isCustomerPortalPath'
+import { isPublicTokenPath } from '~/core/router/utils/isPublicTokenPath'
 
 import { adoptStoredSession } from './adoptStoredSession'
 import { clearLocalSession } from './cacheUtils'
@@ -50,9 +50,9 @@ export const reconcileSession = (client: ApolloClient<object>): Promise<void> =>
     return Promise.resolve()
   }
 
-  // The portal is token-scoped and never holds an admin session: sync the
-  // variable for the route guard, but never tear its cache down.
-  if (isCustomerPortalPath(window.location.pathname)) {
+  // The portal and the claim page never use the admin session: sync the
+  // variable for the route guard, but never tear their cache down.
+  if (isPublicTokenPath(window.location.pathname)) {
     setCurrentOrganizationId(null)
     authTokenVar(storedToken)
 
