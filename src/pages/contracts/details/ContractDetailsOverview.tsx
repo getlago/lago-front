@@ -2,6 +2,7 @@ import { gql } from '@apollo/client'
 import { ReactNode } from 'react'
 import { useParams } from 'react-router'
 
+import { Spinner } from '~/components/designSystem/Spinner'
 import { ContractOverviewSectionsEnum } from '~/core/constants/tabsOptions'
 import {
   CurrencyEnum,
@@ -45,13 +46,19 @@ export const ContractDetailsOverview = ({
   isAlertsReadOnly,
 }: ContractDetailsOverviewProps): JSX.Element => {
   const { id = '', section } = useParams()
-  const { hasFeatureFlag } = useOrganizationInfos()
+  const { hasFeatureFlag, organization, loading: organizationLoading } = useOrganizationInfos()
   const { isPremium } = useCurrentUser()
   const isAlertsEnabled = hasFeatureFlag(FeatureFlagEnum.ContractAlerts)
 
+  const isAlertsSectionRequested = section === ContractOverviewSectionsEnum.alerts
+
+  // `hasFeatureFlag` reads `organization.featureFlags`, so it is false until the
+  // organization resolves: falling back now would show the overview on an alerts URL.
+  const isResolvingAlertsFlag = isAlertsSectionRequested && organizationLoading && !organization
+
   const getActiveSection = (): ContractOverviewSectionsEnum => {
     if (!isOverviewSection(section)) return ContractOverviewSectionsEnum.contractOverview
-    if (section === ContractOverviewSectionsEnum.alerts && !isAlertsEnabled) {
+    if (isAlertsSectionRequested && !isAlertsEnabled && !isResolvingAlertsFlag) {
       return ContractOverviewSectionsEnum.contractOverview
     }
 
@@ -70,6 +77,8 @@ export const ContractDetailsOverview = ({
     })
 
   const renderSection = (): ReactNode => {
+    if (isResolvingAlertsFlag) return <Spinner />
+
     if (activeSection === ContractOverviewSectionsEnum.rateCards) {
       return (
         <ContractRateCardsSection

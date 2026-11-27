@@ -13,6 +13,8 @@ const mockNavProps = jest.fn()
 const mockAlertsSectionProps = jest.fn()
 let mockIsPremium = true
 let mockSection = 'alerts'
+let mockOrganization: { id: string } | undefined = { id: 'organization-1' }
+let mockOrganizationLoading = false
 
 jest.mock('react-router', () => ({
   ...jest.requireActual('react-router'),
@@ -20,7 +22,11 @@ jest.mock('react-router', () => ({
 }))
 
 jest.mock('~/hooks/useOrganizationInfos', () => ({
-  useOrganizationInfos: () => ({ hasFeatureFlag: mockHasFeatureFlag }),
+  useOrganizationInfos: () => ({
+    hasFeatureFlag: mockHasFeatureFlag,
+    organization: mockOrganization,
+    loading: mockOrganizationLoading,
+  }),
 }))
 
 jest.mock('~/hooks/useCurrentUser', () => ({
@@ -70,16 +76,19 @@ const buildCountMock = (onRequest: jest.Mock): TestMocksType[number] => ({
   },
 })
 
+const buildOverview = ({ isAlertsReadOnly = false } = {}): JSX.Element => (
+  <ContractDetailsOverview
+    currency={undefined}
+    isRateCardsLocked={false}
+    isAlertsReadOnly={isAlertsReadOnly}
+  />
+)
+
 const renderOverview = (mocks: TestMocksType, { isAlertsReadOnly = false } = {}) =>
-  render(
-    <AllTheProviders mocks={mocks}>
-      <ContractDetailsOverview
-        currency={undefined}
-        isRateCardsLocked={false}
-        isAlertsReadOnly={isAlertsReadOnly}
-      />
-    </AllTheProviders>,
-  )
+  render(<AllTheProviders mocks={mocks}>{buildOverview({ isAlertsReadOnly })}</AllTheProviders>)
+
+const rerenderOverview = (rerender: (ui: JSX.Element) => void, mocks: TestMocksType): void =>
+  rerender(<AllTheProviders mocks={mocks}>{buildOverview()}</AllTheProviders>)
 
 const flushRequests = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0))
 
@@ -88,6 +97,8 @@ describe('ContractDetailsOverview', () => {
     jest.clearAllMocks()
     mockIsPremium = true
     mockSection = 'alerts'
+    mockOrganization = { id: 'organization-1' }
+    mockOrganizationLoading = false
   })
 
   describe('GIVEN the contract_alerts flag is off', () => {
@@ -106,6 +117,35 @@ describe('ContractDetailsOverview', () => {
 
         await flushRequests()
         expect(onRequest).not.toHaveBeenCalled()
+      })
+    })
+  })
+
+  describe('GIVEN the organization is still loading', () => {
+    describe('WHEN the alerts section is requested by URL', () => {
+      it('THEN should render neither section and skip the count query until the flag resolves', async () => {
+        mockHasFeatureFlag.mockReturnValue(false)
+        mockOrganization = undefined
+        mockOrganizationLoading = true
+        const onRequest = jest.fn()
+
+        const mocks = [buildCountMock(onRequest)]
+        const { rerender } = renderOverview(mocks)
+
+        expect(screen.queryByTestId(OVERVIEW_SECTION_TEST_ID)).not.toBeInTheDocument()
+        expect(screen.queryByTestId(ALERTS_SECTION_TEST_ID)).not.toBeInTheDocument()
+
+        await flushRequests()
+        expect(onRequest).not.toHaveBeenCalled()
+
+        mockHasFeatureFlag.mockReturnValue(true)
+        mockOrganization = { id: 'organization-1' }
+        mockOrganizationLoading = false
+
+        rerenderOverview(rerender, mocks)
+
+        expect(screen.getByTestId(ALERTS_SECTION_TEST_ID)).toBeInTheDocument()
+        expect(screen.queryByTestId(OVERVIEW_SECTION_TEST_ID)).not.toBeInTheDocument()
       })
     })
   })
