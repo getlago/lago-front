@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 
 import { AlertNameAndCodeSection } from '~/components/alerts/AlertNameAndCodeSection'
 import AlertThresholds from '~/components/alerts/Thresholds'
-import { createThresholdSetters, getThresholdCodeErrorsFromForm } from '~/components/alerts/utils'
+import { createThresholdSetters, getThresholdFieldErrorsFromForm } from '~/components/alerts/utils'
 import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Skeleton } from '~/components/designSystem/Skeleton'
@@ -73,8 +73,8 @@ export const ContractAlertDrawerContent = withForm({
     const scopeProductCode = useStore(form.store, (state) => state.values.scope?.productCode)
     const thresholds = useStore(form.store, (state) => state.values.thresholds)
     const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
-    const codeErrors = getThresholdCodeErrorsFromForm(dynamicErrors)
-    const valueErrors = getThresholdCodeErrorsFromForm(dynamicErrors, 'value')
+    const codeErrors = getThresholdFieldErrorsFromForm(dynamicErrors)
+    const valueErrors = getThresholdFieldErrorsFromForm(dynamicErrors, 'value')
 
     const { setThresholds, setThresholdValue } = useMemo(() => createThresholdSetters(form), [form])
 

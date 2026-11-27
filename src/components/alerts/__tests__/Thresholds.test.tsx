@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 
-import { getThresholdCodeErrorsFromForm } from '~/components/alerts/utils'
+import { getThresholdFieldErrorsFromForm } from '~/components/alerts/utils'
 import { ComboBoxProps } from '~/components/form/ComboBox/types'
 import { CurrencyEnum, NotifyOnEnum, ThresholdInput } from '~/generated/graphql'
 import { AllTheProviders } from '~/test-utils'
@@ -602,7 +602,7 @@ it('renders a new validator rule on its indexed code cell', async () => {
       { code: 'hard', value: '100', recurring: false },
     ],
     {
-      codeErrors: getThresholdCodeErrorsFromForm({
+      codeErrors: getThresholdFieldErrorsFromForm({
         'thresholds[1].code': [{ message: 'fake-refine-rule', path: ['thresholds', 1, 'code'] }],
       }),
     },

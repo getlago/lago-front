@@ -9,7 +9,7 @@ import AlertThresholds, { isThresholdValueValid } from '~/components/alerts/Thre
 import { useAlertFormLeaveGuards } from '~/components/alerts/useAlertFormLeaveGuards'
 import {
   createThresholdSetters,
-  getThresholdCodeErrorsFromForm,
+  getThresholdFieldErrorsFromForm,
   setCodeAlreadyExistsError,
 } from '~/components/alerts/utils'
 import { Button } from '~/components/designSystem/Button'
@@ -293,7 +293,7 @@ const AlertForm = () => {
   })
 
   const dynamicErrors = useStore(form.store, (state) => state.errorMap.onDynamic)
-  const codeErrors = getThresholdCodeErrorsFromForm(dynamicErrors)
+  const codeErrors = getThresholdFieldErrorsFromForm(dynamicErrors)
   const isDirty = useStore(form.store, (state) => state.isDirty)
   const alertType = useStore(form.store, (state) => state.values.alertType)
   const billableMetricId = useStore(form.store, (state) => state.values.billableMetricId)

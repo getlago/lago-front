@@ -29,7 +29,7 @@ export const withTriggered = (notifyOn: NotifyOnEnum[] | null | undefined): Noti
   return values.includes(NotifyOnEnum.Triggered) ? values : [NotifyOnEnum.Triggered, ...values]
 }
 
-export const getThresholdCodeErrorsFromForm = (
+export const getThresholdFieldErrorsFromForm = (
   errors: Record<string, readonly StandardSchemaV1Issue[]> | undefined,
   field: 'code' | 'value' = 'code',
 ): Record<number, string> => {

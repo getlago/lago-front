@@ -167,7 +167,7 @@ describe('buildContractAlertSchema', () => {
     it('THEN should flag a recurring value of zero', () => {
       expect(
         getIssues(buildValues({ thresholds: [threshold('10'), threshold('0', true)] })),
-      ).toEqual([{ path: ['thresholds', 1, 'value'], message: expect.any(String) }])
+      ).toEqual([{ path: ['thresholds', 1, 'value'], message: 'text_1795802708078t9ythhvdvd5' }])
     })
 
     it('THEN should accept a recurring value lower than the last threshold', () => {

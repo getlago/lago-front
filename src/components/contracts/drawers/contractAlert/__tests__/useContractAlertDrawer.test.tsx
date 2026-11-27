@@ -358,7 +358,6 @@ const SILENT_ERROR_DETAILS = [
   LagoApiError.DuplicateThresholdValues,
   LagoApiError.DuplicateThresholdCodes,
   LagoApiError.RecurringValueIsNegative,
-  LagoApiError.TriggeredIsMandatory,
   LagoApiError.RecurringNotSupported,
 ]
 
@@ -718,19 +717,20 @@ describe('useContractAlertDrawer', () => {
         expect(mockClose).not.toHaveBeenCalled()
       })
 
-      it.each([['triggered_is_mandatory'], ['recurring_not_supported']])(
-        'THEN should flag the value cell on the notify code %s',
-        async (code) => {
-          await submitAmountAlert({ 'thresholds[0].notifyOn': [code] })
+      it('THEN should flag the value cell on the notify code recurring_not_supported', async () => {
+        await submitAmountAlert({ 'thresholds[0].notifyOn': ['recurring_not_supported'] })
 
-          await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeInvalid())
-          expect(mockClose).not.toHaveBeenCalled()
-        },
-      )
+        await waitFor(() => expect(screen.getByPlaceholderText('0.00')).toBeInvalid())
+        expect(mockClose).not.toHaveBeenCalled()
+      })
 
       it.each([
         ['a generic code on a threshold', { 'thresholds[0].value': ['value_is_invalid'] }],
         ['a list-level code', { thresholds: ['too_many_thresholds'] }],
+        [
+          'a notify code this form never triggers',
+          { 'thresholds[0].notifyOn': ['triggered_is_mandatory'] },
+        ],
       ])('THEN should leave %s to the fallback toast', async (_, details) => {
         await submitAmountAlert(details)
 

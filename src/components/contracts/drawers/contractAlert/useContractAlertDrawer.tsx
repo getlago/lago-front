@@ -151,7 +151,6 @@ const MUTATION_CONTEXT = {
     LagoApiError.DuplicateThresholdValues,
     LagoApiError.DuplicateThresholdCodes,
     LagoApiError.RecurringValueIsNegative,
-    LagoApiError.TriggeredIsMandatory,
     LagoApiError.RecurringNotSupported,
   ],
 }
@@ -159,9 +158,8 @@ const MUTATION_CONTEXT = {
 const THRESHOLD_ERROR_PATH = /^thresholds\[(\d+)\]\.(value|code|notifyOn)$/
 const THRESHOLD_ERROR_MESSAGES: Record<string, string> = {
   [LagoApiError.DuplicateThresholdValues]: 'text_1795792049850v4zjojr03cb',
-  [LagoApiError.RecurringValueIsNegative]: 'text_1771342994699klxu2paz7g8',
+  [LagoApiError.RecurringValueIsNegative]: 'text_1795802708078t9ythhvdvd5',
   [LagoApiError.DuplicateThresholdCodes]: 'text_17924397105421fihqq5j6ns',
-  [LagoApiError.TriggeredIsMandatory]: 'text_1771342994699klxu2paz7g8',
   [LagoApiError.RecurringNotSupported]: 'text_1795792049850r32kntpkx3v',
 }
 
