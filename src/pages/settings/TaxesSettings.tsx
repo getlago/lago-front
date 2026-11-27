@@ -68,6 +68,7 @@ const TaxesSettings = () => {
   const { openDeleteTaxDialog } = useDeleteTaxDialog()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
+  const canUpdateTaxes = hasPermissions(['organizationTaxesUpdate'])
   const { data, error, loading } = useGetTaxesSettingsInformationsQuery({
     variables: {
       limit: pageSize,
@@ -115,7 +116,7 @@ const TaxesSettings = () => {
               sublabel={translate('text_645ca29272ea80007df9d7af')}
               action={
                 <>
-                  {hasPermissions(['organizationTaxesUpdate']) && (
+                  {canUpdateTaxes && (
                     <Button
                       variant="inline"
                       disabled={loading}
@@ -149,6 +150,17 @@ const TaxesSettings = () => {
                 isLoading={loading}
                 data={collection ?? []}
                 loadingRowCount={pageSize}
+                placeholder={{
+                  emptyState: {
+                    title: translate('text_1743600025133454kb04evs6'),
+                    subtitle: translate('text_645bb193927b375079d28b7e'),
+                    ...(canUpdateTaxes && {
+                      buttonTitle: translate('text_645bb193927b375079d289af'),
+                      buttonVariant: 'primary',
+                      buttonAction: () => navigate(CREATE_TAX_ROUTE),
+                    }),
+                  },
+                }}
                 columns={[
                   {
                     key: 'name',
@@ -191,7 +203,7 @@ const TaxesSettings = () => {
                   )
                 }
                 actionColumn={
-                  !hasPermissions(['organizationTaxesUpdate'])
+                  !canUpdateTaxes
                     ? undefined
                     : (tax) => {
                         const actions: ActionItem<TaxItemForTaxSettingsFragment>[] = [
