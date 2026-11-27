@@ -19415,6 +19415,18 @@ export type GetContractsListQueryVariables = Exact<{
 
 export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, code?: string | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
+export type ContractAlertForDetailsFragment = { __typename?: 'ContractAlert', id: string, contractExternalId: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> };
+
+export type ContractForContractAlertDetailsFragment = { __typename?: 'Contract', id: string, name?: string | null, externalId: string, currency: CurrencyEnum, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null };
+
+export type GetContractAlertForDetailsQueryVariables = Exact<{
+  alertId: Scalars['ID']['input'];
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractAlertForDetailsQuery = { __typename?: 'Query', contractAlert?: { __typename?: 'ContractAlert', id: string, contractExternalId: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> } | null, contract?: { __typename?: 'Contract', id: string, name?: string | null, externalId: string, currency: CurrencyEnum, status: ContractStatusEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string } | null } | null };
+
 export type ContractAlertForAlertsSectionFragment = { __typename?: 'ContractAlert', id: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> };
 
 export type GetContractAlertsForAlertsSectionQueryVariables = Exact<{
@@ -27516,6 +27528,26 @@ export const ContractAlertForDrawerFragmentDoc = gql`
     recurring
     value
     notifyOn
+  }
+}
+    `;
+export const ContractAlertForDetailsFragmentDoc = gql`
+    fragment ContractAlertForDetails on ContractAlert {
+  id
+  contractExternalId
+  ...ContractAlertForDrawer
+}
+    ${ContractAlertForDrawerFragmentDoc}`;
+export const ContractForContractAlertDetailsFragmentDoc = gql`
+    fragment ContractForContractAlertDetails on Contract {
+  id
+  name
+  externalId
+  currency
+  status
+  plan {
+    id
+    name
   }
 }
     `;
@@ -52544,6 +52576,56 @@ export type GetContractsListQueryHookResult = ReturnType<typeof useGetContractsL
 export type GetContractsListLazyQueryHookResult = ReturnType<typeof useGetContractsListLazyQuery>;
 export type GetContractsListSuspenseQueryHookResult = ReturnType<typeof useGetContractsListSuspenseQuery>;
 export type GetContractsListQueryResult = Apollo.QueryResult<GetContractsListQuery, GetContractsListQueryVariables>;
+export const GetContractAlertForDetailsDocument = gql`
+    query getContractAlertForDetails($alertId: ID!, $contractId: ID!) {
+  contractAlert(id: $alertId) {
+    id
+    ...ContractAlertForDetails
+  }
+  contract(id: $contractId) {
+    id
+    ...ContractForContractAlertDetails
+  }
+}
+    ${ContractAlertForDetailsFragmentDoc}
+${ContractForContractAlertDetailsFragmentDoc}`;
+
+/**
+ * __useGetContractAlertForDetailsQuery__
+ *
+ * To run a query within a React component, call `useGetContractAlertForDetailsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractAlertForDetailsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractAlertForDetailsQuery({
+ *   variables: {
+ *      alertId: // value for 'alertId'
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractAlertForDetailsQuery(baseOptions: Apollo.QueryHookOptions<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables> & ({ variables: GetContractAlertForDetailsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>(GetContractAlertForDetailsDocument, options);
+      }
+export function useGetContractAlertForDetailsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>(GetContractAlertForDetailsDocument, options);
+        }
+// @ts-ignore
+export function useGetContractAlertForDetailsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>;
+export function useGetContractAlertForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertForDetailsQuery | undefined, GetContractAlertForDetailsQueryVariables>;
+export function useGetContractAlertForDetailsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>(GetContractAlertForDetailsDocument, options);
+        }
+export type GetContractAlertForDetailsQueryHookResult = ReturnType<typeof useGetContractAlertForDetailsQuery>;
+export type GetContractAlertForDetailsLazyQueryHookResult = ReturnType<typeof useGetContractAlertForDetailsLazyQuery>;
+export type GetContractAlertForDetailsSuspenseQueryHookResult = ReturnType<typeof useGetContractAlertForDetailsSuspenseQuery>;
+export type GetContractAlertForDetailsQueryResult = Apollo.QueryResult<GetContractAlertForDetailsQuery, GetContractAlertForDetailsQueryVariables>;
 export const GetContractAlertsForAlertsSectionDocument = gql`
     query getContractAlertsForAlertsSection($contractId: ID!, $page: Int, $limit: Int) {
   contractAlerts(contractId: $contractId, page: $page, limit: $limit) {

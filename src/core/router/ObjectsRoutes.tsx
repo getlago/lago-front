@@ -50,6 +50,9 @@ const FeatureDetails = lazyLoad(() => import('~/pages/features/FeatureDetails'))
 const WalletDetails = lazyLoad(() => import('~/pages/wallet/WalletDetails'))
 const WalletAlertForm = lazyLoad(() => import('~/pages/wallet/WalletAlertForm'))
 const ContractDetails = lazyLoad(() => import('~/pages/contracts/ContractDetails'))
+const ContractAlertDetails = lazyLoad(
+  () => import('~/pages/contracts/details/ContractAlertDetails'),
+)
 const ContractRateCardDetails = lazyLoad(
   () => import('~/pages/contracts/details/ContractRateCardDetails'),
 )
@@ -161,6 +164,7 @@ export const FEATURE_DETAILS_ROUTE = '/feature/:featureId/:tab'
 export const CONTRACT_DETAILS_ROUTE = '/contracts/:id'
 export const CONTRACT_DETAILS_TAB_ROUTE = '/contracts/:id/:tab'
 export const CONTRACT_DETAILS_SECTION_ROUTE = '/contracts/:id/overview/:section'
+export const CONTRACT_ALERT_DETAILS_ROUTE = '/contracts/:id/alerts/:alertId'
 export const CONTRACT_RATE_CARD_DETAILS_ROUTE = '/contracts/:id/rate-cards/:appliedRateCardId'
 export const CONTRACT_RATE_CARD_DETAILS_TAB_ROUTE =
   '/contracts/:id/rate-cards/:appliedRateCardId/:tab'
@@ -385,6 +389,13 @@ export const objectCreationRoutes: CustomRouteObject[] = [
 ]
 
 export const objectDetailsRoutes: CustomRouteObject[] = [
+  {
+    path: [CONTRACT_ALERT_DETAILS_ROUTE],
+    private: true,
+    element: <ContractAlertDetails />,
+    permissions: ['contractsView'],
+    featureFlag: FeatureFlagEnum.ContractAlerts,
+  },
   {
     path: [CONTRACT_RATE_CARD_PHASE_DETAILS_ROUTE, CONTRACT_RATE_CARD_PHASE_DETAILS_TAB_ROUTE],
     private: true,

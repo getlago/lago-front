@@ -27,6 +27,7 @@ gql`
 type OpenDeleteAlertDialogArgs = {
   alertKind: 'subscription' | 'contract'
   id: string
+  onDeleted?: () => void
 }
 
 type UseDeleteAlertDialogReturn = {
@@ -95,6 +96,7 @@ export const useDeleteAlertDialog = (): UseDeleteAlertDialogReturn => {
             message: translate('text_1746611635508k9cmy2th6r1'),
             severity: 'success',
           })
+          args.onDeleted?.()
         }
       },
     })

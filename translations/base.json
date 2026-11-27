@@ -5676,5 +5676,10 @@
   "text_1795778599615fga421zvhhs": "Alert thresholds",
   "text_1795778599616ayrbqz1dotj": "Lago sends a webhook when usage crosses a threshold. Enable Notify when resolved (requires a threshold code) to also receive one when usage falls below it.",
   "text_1795778599616e66l28kno3y": "An alert is triggered each time usage grows by this step after the last threshold.",
-  "text_1795778599616lwvfo71dmzd": "An alert already exists on this scope. Select another product or filter."
+  "text_1795778599616lwvfo71dmzd": "An alert already exists on this scope. Select another product or filter.",
+  "text_1795788761951w6wez7qaamp": "Alert",
+  "text_1795788761952p7rvsj0a7jb": "All products",
+  "text_1795788761952z950mwwnvax": "Product: {{productName}}",
+  "text_1795788761952xv920y6zhgk": "Product: {{productName}} and all filters",
+  "text_17957887619522gmmevjwqbp": "Filter: {{filterName}} from {{productName}}"
 }
