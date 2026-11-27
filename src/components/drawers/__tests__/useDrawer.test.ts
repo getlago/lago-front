@@ -180,7 +180,24 @@ describe('useFormDrawer', () => {
         rerender()
         result.current.update({ children: 'new content' })
 
-        expect(mockShow).toHaveBeenCalledTimes(1)
+        expect(mockShow).toHaveBeenLastCalledWith(props)
+        expect(mockShow).not.toHaveBeenCalledWith({ ...props, children: 'new content' })
+      })
+    })
+
+    describe('WHEN it runs before the opened drawer becomes visible', () => {
+      it('THEN should show the merged props again once the drawer is visible', () => {
+        mockVisible = false
+        const { result, rerender } = renderHook(() => useFormDrawer())
+
+        result.current.open(props)
+        result.current.update({ children: 'new content' })
+        mockShow.mockClear()
+        mockVisible = true
+        rerender()
+
+        expect(mockShow).toHaveBeenCalledWith({ ...props, children: 'new content' })
+        mockVisible = false
       })
     })
   })

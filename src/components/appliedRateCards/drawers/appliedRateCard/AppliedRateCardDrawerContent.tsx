@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client'
 import { useStore } from '@tanstack/react-form'
-import { ReactNode, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { AppliedRateCardUnitsField } from '~/components/appliedRateCards/AppliedRateCardUnitsField'
 import { buildRateCardForRatePhaseFields } from '~/components/appliedRateCards/buildRateCardForRatePhaseFields'
@@ -18,9 +18,9 @@ import { Alert } from '~/components/designSystem/Alert'
 import { Button } from '~/components/designSystem/Button'
 import { Tooltip } from '~/components/designSystem/Tooltip'
 import { Typography } from '~/components/designSystem/Typography'
-import { ComboboxDataGrouped } from '~/components/form/ComboBox'
 import { CenteredPage } from '~/components/layouts/CenteredPage'
 import { SectionHeader } from '~/components/plans/details-v2/shared/SectionHeader'
+import { buildProductsComboboxData } from '~/components/products/buildProductsComboboxData'
 import {
   MUI_INPUT_BASE_ROOT_CLASSNAME,
   SEARCH_PRODUCT_FILTER_FOR_APPLIED_RATE_CARD_CLASSNAME,
@@ -29,13 +29,12 @@ import { scrollToAndClickElement } from '~/core/utils/domUtils'
 import {
   ActiveRateForRatePhaseFragmentDoc,
   CurrencyEnum,
-  ProductForAppliedRateCardDrawerFragment,
   ProductTypeEnum,
   useGetProductFiltersForAppliedRateCardDrawerLazyQuery,
   useGetProductsForAppliedRateCardDrawerLazyQuery,
   useGetRateCardsForAppliedRateCardDrawerLazyQuery,
 } from '~/generated/graphql'
-import { TranslateFunc, useInternationalization } from '~/hooks/core/useInternationalization'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { withForm } from '~/hooks/forms/useAppform'
 import { usePermissions } from '~/hooks/usePermissions'
 import type { useRateCardDrawer } from '~/pages/catalog/drawers/rateCard/useRateCardDrawer'
@@ -148,51 +147,6 @@ gql`
 
   ${ActiveRateForRatePhaseFragmentDoc}
 `
-
-const STANDALONE_PRODUCTS_GROUP_KEY = 'standalone-products'
-
-const getDisplayName = (entity: { name: string; invoiceDisplayName?: string | null }): string =>
-  entity.invoiceDisplayName || entity.name
-
-const buildProductsComboboxData = (
-  products: ProductForAppliedRateCardDrawerFragment[],
-  translate: TranslateFunc,
-): { data: ComboboxDataGrouped[]; renderGroupHeader: Record<string, ReactNode> } => {
-  const renderGroupHeader: Record<string, ReactNode> = {}
-
-  const data = products.map((product) => {
-    const category = product.productCategory
-    const group = category?.code ?? STANDALONE_PRODUCTS_GROUP_KEY
-
-    if (!renderGroupHeader[group]) {
-      renderGroupHeader[group] = (
-        <div className="flex items-center gap-1">
-          <Typography variant="captionHl" color="grey700" noWrap>
-            {category ? getDisplayName(category) : translate('text_1791833366841w7sywhfkvcq')}
-          </Typography>
-          <Typography variant="caption" color="grey600" noWrap>
-            {category ? category.code : `• ${translate('text_17918333668416t409ijtqn3')}`}
-          </Typography>
-        </div>
-      )
-    }
-
-    return {
-      value: product.id,
-      label: category
-        ? translate('text_1791833366841uuvaufyxeoc', {
-            productName: getDisplayName(product),
-            productCategoryName: getDisplayName(category),
-          })
-        : getDisplayName(product),
-      labelNode: product.name,
-      description: product.code,
-      group,
-    }
-  })
-
-  return { data, renderGroupHeader }
-}
 
 const toPhaseReferences = (phases: RatePhaseFormValues[]): RatePhaseReference[] =>
   phases.map(({ code, name }) => ({ code, name }))

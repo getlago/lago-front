@@ -1558,12 +1558,9 @@ export type ContractAlert = {
   name?: Maybe<Scalars['String']['output']>;
   /** Last observed value, judged against the threshold values and carrying the same scale. */
   previousValue: Scalars['String']['output'];
-  product?: Maybe<Product>;
-  productFilter?: Maybe<ProductFilter>;
+  scope: Array<ContractAlertScope>;
   thresholds: Array<AlertThreshold>;
   updatedAt: Scalars['ISO8601DateTime']['output'];
-  /** On a product scope, whether the usage of the product's filters counts too. False counts the product's own fees only. */
-  withProductFilters: Scalars['Boolean']['output'];
 };
 
 /** ContractAlertCollection type */
@@ -1574,6 +1571,25 @@ export type ContractAlertCollection = {
   /** Pagination Metadata for navigating the Pagination */
   metadata: CollectionMetadata;
 };
+
+export type ContractAlertScope = {
+  __typename?: 'ContractAlertScope';
+  product: Product;
+  productFilters?: Maybe<Array<ProductFilter>>;
+  type: ContractAlertScopeTypeEnum;
+  withProductFilters?: Maybe<Scalars['Boolean']['output']>;
+};
+
+export type ContractAlertScopeInput = {
+  productCode: Scalars['String']['input'];
+  productFilterCodes?: InputMaybe<Array<Scalars['String']['input']>>;
+  type: ContractAlertScopeTypeEnum;
+  withProductFilters?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+export enum ContractAlertScopeTypeEnum {
+  Contract = 'contract'
+}
 
 export enum ContractAlertTypeEnum {
   UsageAmount = 'usage_amount',
@@ -2398,10 +2414,8 @@ export type CreateContractAlertInput = {
   code: Scalars['String']['input'];
   contractId: Scalars['ID']['input'];
   name?: InputMaybe<Scalars['String']['input']>;
-  productFilterId?: InputMaybe<Scalars['ID']['input']>;
-  productId?: InputMaybe<Scalars['ID']['input']>;
+  scope: Array<ContractAlertScopeInput>;
   thresholds: Array<ThresholdInput>;
-  withProductFilters?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 /** Attach rate card to contract input arguments */
@@ -6189,6 +6203,7 @@ export enum LagoApiError {
   MissingAddress = 'MissingAddress',
   NotEnoughAddressesInfo = 'NotEnoughAddressesInfo',
   TaxCodeAssociatedWithItemCodeNotFound = 'TaxCodeAssociatedWithItemCodeNotFound',
+  AlertAlreadyExists = 'alert_already_exists',
   CannotLinkOrganizationToItself = 'cannot_link_organization_to_itself',
   CaptchaFailed = 'captcha_failed',
   CaptchaUnavailable = 'captcha_unavailable',
@@ -6243,6 +6258,7 @@ export enum LagoApiError {
   ProductExternalIdUnknown = 'productExternalIdUnknown',
   ProductAlreadyPriced = 'product_already_priced',
   ProductFilterAlreadyPriced = 'product_filter_already_priced',
+  ProductRequiredForUnits = 'product_required_for_units',
   ProductionAlreadyHasSandbox = 'production_already_has_sandbox',
   ProductionIsASandbox = 'production_is_a_sandbox',
   ResendLimitReached = 'resend_limit_reached',
@@ -14734,6 +14750,37 @@ export type CreateContractMutationVariables = Exact<{
 
 export type CreateContractMutation = { __typename?: 'Mutation', createContract?: { __typename?: 'Contract', id: string, externalId: string, code?: string | null, name?: string | null, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null, customer: { __typename?: 'Customer', id: string, externalId: string, displayName: string, applicableTimezone: TimezoneEnum, billingEntity: { __typename?: 'BillingEntity', id: string } }, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null } | null };
 
+export type ContractAlertForDrawerFragment = { __typename?: 'ContractAlert', id: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> };
+
+export type GetContractAlertDrawerScopeOptionsQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractAlertDrawerScopeOptionsQuery = { __typename?: 'Query', contract?: { __typename?: 'Contract', id: string, appliedRateCards: Array<{ __typename?: 'ContractAppliedRateCard', id: string, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productType: ProductTypeEnum, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, rateCard: { __typename?: 'RateCard', id: string, productFilter?: { __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null } }> } | null };
+
+export type GetContractAlertsForAlertDrawerQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetContractAlertsForAlertDrawerQuery = { __typename?: 'Query', contractAlerts: { __typename?: 'ContractAlertCollection', collection: Array<{ __typename?: 'ContractAlert', id: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, code: string }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, code: string }> | null }> }> } };
+
+export type CreateContractAlertMutationVariables = Exact<{
+  input: CreateContractAlertInput;
+}>;
+
+
+export type CreateContractAlertMutation = { __typename?: 'Mutation', createContractAlert?: { __typename?: 'ContractAlert', id: string } | null };
+
+export type UpdateContractAlertMutationVariables = Exact<{
+  input: UpdateContractAlertInput;
+}>;
+
+
+export type UpdateContractAlertMutation = { __typename?: 'Mutation', updateContractAlert?: { __typename?: 'ContractAlert', id: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> } | null };
+
 export type TerminateContractMutationVariables = Exact<{
   input: TerminateContractInput;
 }>;
@@ -19368,7 +19415,7 @@ export type GetContractsListQueryVariables = Exact<{
 
 export type GetContractsListQuery = { __typename?: 'Query', contracts: { __typename?: 'ContractCollection', collection: Array<{ __typename?: 'Contract', id: string, name?: string | null, externalId: string, status: ContractStatusEnum, startedAt?: any | null, endedAt?: any | null, code?: string | null, billingAnchorDate?: any | null, billingEntityId?: string | null, consolidateInvoice: boolean, skipInvoiceCustomSections: boolean, purchaseOrderNumber?: string | null, paymentMethodType: PaymentMethodTypeEnum, plan?: { __typename?: 'CatalogPlan', id: string, name: string, code: string } | null, customer: { __typename?: 'Customer', id: string, applicableTimezone: TimezoneEnum, externalId: string, displayName: string, billingEntity: { __typename?: 'BillingEntity', id: string } }, selectedInvoiceCustomSections?: Array<{ __typename?: 'InvoiceCustomSection', id: string, name: string }> | null, paymentMethod?: { __typename?: 'PaymentMethod', id: string } | null }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
-export type ContractAlertForAlertsSectionFragment = { __typename?: 'ContractAlert', id: string, name?: string | null, code: string };
+export type ContractAlertForAlertsSectionFragment = { __typename?: 'ContractAlert', id: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> };
 
 export type GetContractAlertsForAlertsSectionQueryVariables = Exact<{
   contractId: Scalars['ID']['input'];
@@ -19377,7 +19424,7 @@ export type GetContractAlertsForAlertsSectionQueryVariables = Exact<{
 }>;
 
 
-export type GetContractAlertsForAlertsSectionQuery = { __typename?: 'Query', contractAlerts: { __typename?: 'ContractAlertCollection', collection: Array<{ __typename?: 'ContractAlert', id: string, name?: string | null, code: string }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
+export type GetContractAlertsForAlertsSectionQuery = { __typename?: 'Query', contractAlerts: { __typename?: 'ContractAlertCollection', collection: Array<{ __typename?: 'ContractAlert', id: string, name?: string | null, code: string, alertType: ContractAlertTypeEnum, scope: Array<{ __typename?: 'ContractAlertScope', type: ContractAlertScopeTypeEnum, withProductFilters?: boolean | null, product: { __typename?: 'Product', id: string, name: string, code: string, invoiceDisplayName?: string | null, productCategory?: { __typename?: 'ProductCategory', id: string, name: string, code: string, invoiceDisplayName?: string | null } | null }, productFilters?: Array<{ __typename?: 'ProductFilter', id: string, name: string, code: string, invoiceDisplayName?: string | null }> | null }>, thresholds: Array<{ __typename?: 'AlertThreshold', code?: string | null, recurring: boolean, value: string, notifyOn: Array<NotifyOnEnum> }> }>, metadata: { __typename?: 'CollectionMetadata', currentPage: number, totalPages: number, totalCount: number } } };
 
 export type GetContractAlertsCountForOverviewNavQueryVariables = Exact<{
   contractId: Scalars['ID']['input'];
@@ -27436,13 +27483,50 @@ export const ContractForContractsListFragmentDoc = gql`
   ...ContractForContractsListItem
 }
     ${ContractForContractsListItemFragmentDoc}`;
+export const ContractAlertForDrawerFragmentDoc = gql`
+    fragment ContractAlertForDrawer on ContractAlert {
+  id
+  name
+  code
+  alertType
+  scope {
+    type
+    withProductFilters
+    product {
+      id
+      name
+      code
+      invoiceDisplayName
+      productCategory {
+        id
+        name
+        code
+        invoiceDisplayName
+      }
+    }
+    productFilters {
+      id
+      name
+      code
+      invoiceDisplayName
+    }
+  }
+  thresholds {
+    code
+    recurring
+    value
+    notifyOn
+  }
+}
+    `;
 export const ContractAlertForAlertsSectionFragmentDoc = gql`
     fragment ContractAlertForAlertsSection on ContractAlert {
   id
   name
   code
+  ...ContractAlertForDrawer
 }
-    `;
+    ${ContractAlertForDrawerFragmentDoc}`;
 export const ContractForContractDetailsOverviewFragmentDoc = gql`
     fragment ContractForContractDetailsOverview on Contract {
   id
@@ -31707,6 +31791,199 @@ export function useCreateContractMutation(baseOptions?: Apollo.MutationHookOptio
 export type CreateContractMutationHookResult = ReturnType<typeof useCreateContractMutation>;
 export type CreateContractMutationResult = Apollo.MutationResult<CreateContractMutation>;
 export type CreateContractMutationOptions = Apollo.BaseMutationOptions<CreateContractMutation, CreateContractMutationVariables>;
+export const GetContractAlertDrawerScopeOptionsDocument = gql`
+    query getContractAlertDrawerScopeOptions($contractId: ID!) {
+  contract(id: $contractId) {
+    id
+    appliedRateCards {
+      id
+      product {
+        id
+        name
+        code
+        invoiceDisplayName
+        productType
+        productCategory {
+          id
+          name
+          code
+          invoiceDisplayName
+        }
+      }
+      rateCard {
+        id
+        productFilter {
+          id
+          name
+          code
+          invoiceDisplayName
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractAlertDrawerScopeOptionsQuery__
+ *
+ * To run a query within a React component, call `useGetContractAlertDrawerScopeOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractAlertDrawerScopeOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractAlertDrawerScopeOptionsQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useGetContractAlertDrawerScopeOptionsQuery(baseOptions: Apollo.QueryHookOptions<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables> & ({ variables: GetContractAlertDrawerScopeOptionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>(GetContractAlertDrawerScopeOptionsDocument, options);
+      }
+export function useGetContractAlertDrawerScopeOptionsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>(GetContractAlertDrawerScopeOptionsDocument, options);
+        }
+// @ts-ignore
+export function useGetContractAlertDrawerScopeOptionsSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>;
+export function useGetContractAlertDrawerScopeOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertDrawerScopeOptionsQuery | undefined, GetContractAlertDrawerScopeOptionsQueryVariables>;
+export function useGetContractAlertDrawerScopeOptionsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>(GetContractAlertDrawerScopeOptionsDocument, options);
+        }
+export type GetContractAlertDrawerScopeOptionsQueryHookResult = ReturnType<typeof useGetContractAlertDrawerScopeOptionsQuery>;
+export type GetContractAlertDrawerScopeOptionsLazyQueryHookResult = ReturnType<typeof useGetContractAlertDrawerScopeOptionsLazyQuery>;
+export type GetContractAlertDrawerScopeOptionsSuspenseQueryHookResult = ReturnType<typeof useGetContractAlertDrawerScopeOptionsSuspenseQuery>;
+export type GetContractAlertDrawerScopeOptionsQueryResult = Apollo.QueryResult<GetContractAlertDrawerScopeOptionsQuery, GetContractAlertDrawerScopeOptionsQueryVariables>;
+export const GetContractAlertsForAlertDrawerDocument = gql`
+    query getContractAlertsForAlertDrawer($contractId: ID!, $limit: Int) {
+  contractAlerts(contractId: $contractId, limit: $limit) {
+    collection {
+      id
+      alertType
+      scope {
+        withProductFilters
+        product {
+          id
+          code
+        }
+        productFilters {
+          id
+          code
+        }
+      }
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetContractAlertsForAlertDrawerQuery__
+ *
+ * To run a query within a React component, call `useGetContractAlertsForAlertDrawerQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractAlertsForAlertDrawerQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractAlertsForAlertDrawerQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetContractAlertsForAlertDrawerQuery(baseOptions: Apollo.QueryHookOptions<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables> & ({ variables: GetContractAlertsForAlertDrawerQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>(GetContractAlertsForAlertDrawerDocument, options);
+      }
+export function useGetContractAlertsForAlertDrawerLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>(GetContractAlertsForAlertDrawerDocument, options);
+        }
+// @ts-ignore
+export function useGetContractAlertsForAlertDrawerSuspenseQuery(baseOptions?: Apollo.SuspenseQueryHookOptions<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>;
+export function useGetContractAlertsForAlertDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>): Apollo.UseSuspenseQueryResult<GetContractAlertsForAlertDrawerQuery | undefined, GetContractAlertsForAlertDrawerQueryVariables>;
+export function useGetContractAlertsForAlertDrawerSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>(GetContractAlertsForAlertDrawerDocument, options);
+        }
+export type GetContractAlertsForAlertDrawerQueryHookResult = ReturnType<typeof useGetContractAlertsForAlertDrawerQuery>;
+export type GetContractAlertsForAlertDrawerLazyQueryHookResult = ReturnType<typeof useGetContractAlertsForAlertDrawerLazyQuery>;
+export type GetContractAlertsForAlertDrawerSuspenseQueryHookResult = ReturnType<typeof useGetContractAlertsForAlertDrawerSuspenseQuery>;
+export type GetContractAlertsForAlertDrawerQueryResult = Apollo.QueryResult<GetContractAlertsForAlertDrawerQuery, GetContractAlertsForAlertDrawerQueryVariables>;
+export const CreateContractAlertDocument = gql`
+    mutation createContractAlert($input: CreateContractAlertInput!) {
+  createContractAlert(input: $input) {
+    id
+  }
+}
+    `;
+export type CreateContractAlertMutationFn = Apollo.MutationFunction<CreateContractAlertMutation, CreateContractAlertMutationVariables>;
+
+/**
+ * __useCreateContractAlertMutation__
+ *
+ * To run a mutation, you first call `useCreateContractAlertMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateContractAlertMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createContractAlertMutation, { data, loading, error }] = useCreateContractAlertMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateContractAlertMutation(baseOptions?: Apollo.MutationHookOptions<CreateContractAlertMutation, CreateContractAlertMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateContractAlertMutation, CreateContractAlertMutationVariables>(CreateContractAlertDocument, options);
+      }
+export type CreateContractAlertMutationHookResult = ReturnType<typeof useCreateContractAlertMutation>;
+export type CreateContractAlertMutationResult = Apollo.MutationResult<CreateContractAlertMutation>;
+export type CreateContractAlertMutationOptions = Apollo.BaseMutationOptions<CreateContractAlertMutation, CreateContractAlertMutationVariables>;
+export const UpdateContractAlertDocument = gql`
+    mutation updateContractAlert($input: UpdateContractAlertInput!) {
+  updateContractAlert(input: $input) {
+    id
+    ...ContractAlertForDrawer
+  }
+}
+    ${ContractAlertForDrawerFragmentDoc}`;
+export type UpdateContractAlertMutationFn = Apollo.MutationFunction<UpdateContractAlertMutation, UpdateContractAlertMutationVariables>;
+
+/**
+ * __useUpdateContractAlertMutation__
+ *
+ * To run a mutation, you first call `useUpdateContractAlertMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateContractAlertMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateContractAlertMutation, { data, loading, error }] = useUpdateContractAlertMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateContractAlertMutation(baseOptions?: Apollo.MutationHookOptions<UpdateContractAlertMutation, UpdateContractAlertMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateContractAlertMutation, UpdateContractAlertMutationVariables>(UpdateContractAlertDocument, options);
+      }
+export type UpdateContractAlertMutationHookResult = ReturnType<typeof useUpdateContractAlertMutation>;
+export type UpdateContractAlertMutationResult = Apollo.MutationResult<UpdateContractAlertMutation>;
+export type UpdateContractAlertMutationOptions = Apollo.BaseMutationOptions<UpdateContractAlertMutation, UpdateContractAlertMutationVariables>;
 export const TerminateContractDocument = gql`
     mutation terminateContract($input: TerminateContractInput!) {
   terminateContract(input: $input) {

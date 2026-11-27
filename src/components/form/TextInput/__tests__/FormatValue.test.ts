@@ -63,6 +63,7 @@ describe('Text input formatValue', () => {
       'decimal',
       'triDecimal',
       'quadDecimal',
+      'quinDecimal',
       'sextDecimal',
       'chargeDecimal',
       'positiveNumber',
@@ -156,6 +157,17 @@ describe('Text input formatValue', () => {
     expect(stringValue).toBe(null)
     expect(minus).toBe('-')
     expect(writtingDecimals).toBe('-29.')
+  })
+
+  it('should return a number with 5 decimals for "quinDecimal" formatter', () => {
+    expect(formatValue(-12, 'quinDecimal')).toBe('-12')
+    expect(formatValue(0, 'quinDecimal')).toBe('0')
+    expect(formatValue(-13.4594841, 'quinDecimal')).toBe('-13.45948')
+    expect(formatValue('1.123456', 'quinDecimal')).toBe('1.12345')
+    expect(formatValue('.5', 'quinDecimal')).toBe('0.5')
+    expect(formatValue('random string', 'quinDecimal')).toBe(null)
+    expect(formatValue('-', 'quinDecimal')).toBe('-')
+    expect(formatValue('29.', 'quinDecimal')).toBe('29.')
   })
 
   it('should return a number with 6 decimals for "sextDecimal" formatter', () => {

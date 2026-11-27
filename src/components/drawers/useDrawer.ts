@@ -25,8 +25,14 @@ const useRegisteredDrawer = <Props extends Record<string, unknown>>(
 
   // The drawer can also close itself (cancel, submit), so hiding forgets the props too.
   useEffect(() => {
-    if (!visible) openProps.current = null
-  }, [visible])
+    if (!visible) {
+      openProps.current = null
+
+      return
+    }
+
+    if (openProps.current) void show(openProps.current)
+  }, [visible, show])
 
   const update = useCallback(
     (props: Partial<Props>): void => {

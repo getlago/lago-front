@@ -13,6 +13,8 @@ type AlertNameAndCodeSectionProps = {
   nameLabel: string
   /** True when the edited alert already has a code: it is never overwritten. */
   hasExistingCode: boolean
+  isCodeDisabled?: boolean
+  descriptionKey?: string
 }
 
 /**
@@ -25,7 +27,13 @@ export const AlertNameAndCodeSection = withFieldGroup({
     nameLabel: '',
     hasExistingCode: false,
   } as AlertNameAndCodeSectionProps,
-  render: function AlertNameAndCodeSectionRender({ group, nameLabel, hasExistingCode }) {
+  render: function AlertNameAndCodeSectionRender({
+    group,
+    nameLabel,
+    hasExistingCode,
+    isCodeDisabled,
+    descriptionKey = 'text_1746629929876gdgxt1v86eq',
+  }) {
     const { translate } = useInternationalization()
 
     // The code is derived from the name until the user takes ownership of it,
@@ -40,7 +48,7 @@ export const AlertNameAndCodeSection = withFieldGroup({
       <section className="pb-12 shadow-b not-last-child:mb-6">
         <div className="not-last-child:mb-2">
           <Typography variant="subhead1">{translate('text_1746629929876zz4937djyc8')}</Typography>
-          <Typography variant="caption">{translate('text_1746629929876gdgxt1v86eq')}</Typography>
+          <Typography variant="caption">{translate(descriptionKey)}</Typography>
         </div>
         <div className="flex gap-6 *:flex-1">
           <group.AppField name="name" listeners={{ onChange: onNameChange }}>
@@ -56,6 +64,7 @@ export const AlertNameAndCodeSection = withFieldGroup({
               <field.TextInputField
                 label={translate('text_62876e85e32e0300e1803127')}
                 placeholder={translate('text_623b42ff8ee4e000ba87d0c4')}
+                disabled={isCodeDisabled}
               />
             )}
           </group.AppField>

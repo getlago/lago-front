@@ -1,6 +1,7 @@
 import { gql } from '@apollo/client'
 
 import { useDeleteAlertDialog } from '~/components/alerts/DeleteAlertDialog'
+import { useContractAlertDrawer } from '~/components/contracts/drawers/contractAlert/useContractAlertDrawer'
 import { PaginatedContent } from '~/components/designSystem/Pagination/PaginatedContent'
 import { usePageSearchParam } from '~/components/designSystem/Pagination/usePageSearchParam'
 import { buildSearchAwareTablePlaceholder } from '~/components/designSystem/Table/buildSearchAwareTablePlaceholder'
@@ -12,7 +13,9 @@ import PremiumFeature from '~/components/premium/PremiumFeature'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
   ContractAlertForAlertsSectionFragment,
+  ContractAlertForDrawerFragmentDoc,
   ContractStatusEnum,
+  CurrencyEnum,
   useGetContractAlertsForAlertsSectionQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -24,6 +27,7 @@ gql`
     id
     name
     code
+    ...ContractAlertForDrawer
   }
 
   query getContractAlertsForAlertsSection($contractId: ID!, $page: Int, $limit: Int) {
@@ -38,6 +42,8 @@ gql`
       }
     }
   }
+
+  ${ContractAlertForDrawerFragmentDoc}
 `
 
 export const CONTRACT_ALERTS_SECTION_TEST_ID = 'contract-alerts-section'
@@ -53,17 +59,20 @@ export const isContractAlertsReadOnly = (status?: ContractStatusEnum): boolean =
 
 type ContractAlertsSectionProps = {
   contractId: string
+  currency: CurrencyEnum | undefined
   isReadOnly: boolean
 }
 
 export const ContractAlertsSection = ({
   contractId,
+  currency,
   isReadOnly,
 }: ContractAlertsSectionProps): JSX.Element => {
   const { translate } = useInternationalization()
   const { isPremium } = useCurrentUser()
   const { hasPermissions } = usePermissions()
   const { openDeleteAlertDialog } = useDeleteAlertDialog()
+  const { openDrawer } = useContractAlertDrawer()
   const { page, goToPage } = usePageSearchParam()
   const canUpdateAlerts = hasPermissions(['contractsUpdate'])
 
@@ -89,13 +98,13 @@ export const ContractAlertsSection = ({
     if (!canUpdateAlerts) return []
 
     return [
-      isReadOnly
+      isReadOnly || !currency
         ? null
         : {
             title: translate('text_1746546924392wfvshvfrjos'),
             startIcon: 'pen',
             dataTest: CONTRACT_ALERTS_EDIT_ACTION_TEST_ID,
-            onAction: () => undefined,
+            onAction: () => openDrawer({ contractId, currency, alert }),
           },
       {
         title: translate('text_17465469243924wwxl5pgoxi'),
@@ -171,7 +180,10 @@ export const ContractAlertsSection = ({
           startIcon: 'plus',
           dataTest: CONTRACT_ALERTS_ADD_ALERT_TEST_ID,
           hidden: !isPremium || !canUpdateAlerts || isReadOnly,
-          onClick: () => undefined,
+          disabled: !currency,
+          onClick: () => {
+            if (currency) openDrawer({ contractId, currency })
+          },
         }}
       />
 
