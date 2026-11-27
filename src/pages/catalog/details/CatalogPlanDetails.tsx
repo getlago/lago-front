@@ -88,6 +88,7 @@ const CatalogPlanDetails = (): JSX.Element => {
             onDeleted: () => navigate(PLAN_PRICING_ROUTE),
           }).map((item) => ({
             label: item.title,
+            dataTest: item.dataTest,
             disabled: item.disabled,
             tooltip: item.tooltip,
             onClick: (closePopper: () => void) => {

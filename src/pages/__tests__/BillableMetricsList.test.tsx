@@ -1,6 +1,8 @@
 import { generatePath } from 'react-router'
 
 import { ActionItem } from '~/components/designSystem/Table/types'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillableMetricsList from '../BillableMetricsList'
@@ -71,6 +73,17 @@ jest.mock('~/generated/graphql', () => ({
     jest.fn(),
     { data: null, error: null, loading: false, fetchMore: jest.fn(), variables: {} },
   ],
+}))
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('BillableMetricsList', () => {
@@ -289,6 +302,48 @@ describe('BillableMetricsList', () => {
       actions[index]?.link?.({ id: 'bm-1' })
 
       expect(generatePath).toHaveBeenLastCalledWith(route, { billableMetricId: 'bm-1' })
+    })
+  })
+
+  describe('GIVEN copy to production', () => {
+    const COPY_ROW = { id: 'bm-1', name: 'Test BM', code: 'test' }
+
+    const getCopyAction = () => {
+      const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
+        item: typeof COPY_ROW,
+      ) => ActionItem<typeof COPY_ROW>[]
+
+      return actionColumn(COPY_ROW).find(
+        (action) => action.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID,
+      )
+    }
+
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the row action copies the item to production', () => {
+      mockCanCopyToProduction = true
+
+      render(<BillableMetricsList />)
+
+      const moveAction = getCopyAction()
+
+      expect(moveAction?.startIcon).toBe('outside')
+
+      moveAction?.onAction?.(COPY_ROW)
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.BillableMetric,
+        id: COPY_ROW.id,
+        code: COPY_ROW.code,
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN there is no copy to production row action', () => {
+      render(<BillableMetricsList />)
+
+      expect(getCopyAction()).toBeUndefined()
     })
   })
 })

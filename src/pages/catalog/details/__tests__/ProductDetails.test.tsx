@@ -6,8 +6,13 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { ProductDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductForDetailsDocument, ProductTypeEnum } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  GetProductForDetailsDocument,
+  ProductTypeEnum,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductDetails from '../ProductDetails'
@@ -126,6 +131,17 @@ const renderPage = (
     ),
   })
 }
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 describe('ProductDetails', () => {
   beforeEach(() => {
@@ -253,5 +269,34 @@ describe('ProductDetails', () => {
       expect(screen.getAllByTestId(ENTITY_SECTION_VIEW_NAME_TEST_ID)[0]).toHaveTextContent('Seats')
     })
     expect(screen.queryByTestId('product-item-details-actions')).not.toBeInTheDocument()
+  })
+
+  describe('GIVEN copy to production', () => {
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the action copies the item to production', async () => {
+      mockCanCopyToProduction = true
+
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+      await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.Product,
+        id: 'pitem-1',
+        code: 'seats',
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the action is not offered', async () => {
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-item-details-actions'))[0])
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })
