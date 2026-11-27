@@ -20,12 +20,15 @@ import {
 import {
   AdminFeatureTypeEnum,
   FeatureFlagEnum,
+  OrganizationActivationStatusEnum,
   OrganizationEnvironmentEnum,
   PremiumIntegrationTypeEnum,
   useAdminOrganizationQuery,
   useAdminToggleFeatureMutation,
 } from '~/generated/graphql'
+import { useInternationalization } from '~/hooks/core/useInternationalization'
 
+import { useActivateProductionDialog } from './adminOrganizationDetail/useActivateProductionDialog'
 import { useLinkSandboxDialog } from './adminOrganizationDetail/useLinkSandboxDialog'
 
 gql`
@@ -38,6 +41,8 @@ gql`
       premiumIntegrations
       featureFlags
       environment
+      selfServe
+      activationStatus
       productionOrganization {
         id
         name
@@ -66,12 +71,15 @@ export const ADMIN_ORGANIZATION_DETAIL_MANAGED_BY_PRODUCTION_TEST_ID =
   'admin-organization-detail-managed-by-production'
 export const ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID =
   'admin-organization-detail-link-sandbox-button'
+export const ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID =
+  'admin-organization-detail-activate-production-button'
 export const ADMIN_ORGANIZATION_DETAIL_SAVE_BUTTON_TEST_ID = 'admin-organization-detail-save-button'
 
 const AdminOrganizationDetail = () => {
   const { organizationId } = useParams<{ organizationId: string }>()
   const navigate = useNavigate()
   const { selfServeEnabled } = envGlobalVar()
+  const { translate } = useInternationalization()
 
   const { data, loading, refetch } = useAdminOrganizationQuery({
     variables: { organizationId: organizationId ?? '' },
@@ -83,6 +91,8 @@ const AdminOrganizationDetail = () => {
       void refetch()
     },
   })
+
+  const { openActivateProductionDialog } = useActivateProductionDialog()
 
   const [toggleFeature] = useAdminToggleFeatureMutation()
   const [isSaving, setIsSaving] = useState(false)
@@ -251,6 +261,11 @@ const AdminOrganizationDetail = () => {
 
   const isSandbox = org.environment === OrganizationEnvironmentEnum.Sandbox
   const counterpart = isSandbox ? org.productionOrganization : org.sandboxOrganization
+  const canActivateProduction =
+    selfServeEnabled &&
+    !isSandbox &&
+    org.selfServe &&
+    org.activationStatus === OrganizationActivationStatusEnum.PendingPaymentMethod
 
   const openOrganization = (id: string): void => {
     navigate(generatePath(ADMIN_ORGANIZATION_DETAIL_ROUTE, { organizationId: id }), {
@@ -287,6 +302,13 @@ const AdminOrganizationDetail = () => {
               dataTest: ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID,
               hidden: !selfServeEnabled || isSandbox || !!counterpart,
               onClick: () => openLinkSandboxDialog({ id: org.id, name: org.name }),
+            },
+            {
+              type: 'action',
+              label: translate('text_17957965058011hxk7hvivk8'),
+              dataTest: ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID,
+              hidden: !canActivateProduction,
+              onClick: () => openActivateProductionDialog({ id: org.id, name: org.name }),
             },
           ],
         }}

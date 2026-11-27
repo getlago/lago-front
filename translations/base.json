@@ -5645,5 +5645,12 @@
   "text_179579307534548e2gpyiemrg": "Plan {{code}} was copied to production",
   "text_179579307534542xjwmjsb0y": "Plan rate card copied to production",
   "text_179561968624506z4suovzxj": "plan",
-  "text_1795619686245tlzbtzvn6vz": "plan rate card"
+  "text_1795619686245tlzbtzvn6vz": "plan rate card",
+  "text_17957965058011hxk7hvivk8": "Activate production",
+  "text_1795796505801yxcwr6uspw2": "\"{{organizationName}}\" opens without waiting for a payment method, and its members can use production right away.",
+  "text_1795796505801y82a7xs98or": "Production activated.",
+  "text_1795796505801xnldd1batza": "Only a self-serve production organization can be activated.",
+  "text_1795796505801omkv0m0deui": "Self-serve is not enabled on this deployment, so organizations cannot be activated.",
+  "text_1795796505802z103l5kthw9": "The organization does not exist.",
+  "text_1795796505802i85frah4ogj": "Failed to activate the organization. Please try again."
 }

@@ -43,26 +43,29 @@ describe('AuditLogTable', () => {
     expect(onRollback).toHaveBeenCalledWith(entry, 'Reverting mistaken change')
   })
 
-  it.each(['rollback', 'org_created', 'sandbox_linked', 'already_rolled_back'])(
-    'hides rollback for %s',
-    (kind) => {
-      render(
-        <AuditLogTable
-          data={[
-            {
-              ...entry,
-              action: kind === 'already_rolled_back' ? 'toggle_off' : kind,
-              rolledBack: kind === 'already_rolled_back',
-            },
-          ]}
-          isLoading={false}
-          hasError={false}
-          onRollback={jest.fn()}
-        />,
-      )
-      expect(screen.queryByRole('button', { name: 'Rollback' })).not.toBeInTheDocument()
-    },
-  )
+  it.each([
+    'rollback',
+    'org_created',
+    'sandbox_linked',
+    'organization_activated',
+    'already_rolled_back',
+  ])('hides rollback for %s', (kind) => {
+    render(
+      <AuditLogTable
+        data={[
+          {
+            ...entry,
+            action: kind === 'already_rolled_back' ? 'toggle_off' : kind,
+            rolledBack: kind === 'already_rolled_back',
+          },
+        ]}
+        isLoading={false}
+        hasError={false}
+        onRollback={jest.fn()}
+      />,
+    )
+    expect(screen.queryByRole('button', { name: 'Rollback' })).not.toBeInTheDocument()
+  })
 
   it('labels a sandbox link entry', () => {
     render(
@@ -74,6 +77,25 @@ describe('AuditLogTable', () => {
       />,
     )
     expect(screen.getByText('Sandbox Linked')).toBeInTheDocument()
+  })
+
+  it('labels an organization activation entry', () => {
+    render(
+      <AuditLogTable
+        data={[
+          {
+            ...entry,
+            action: 'organization_activated',
+            featureType: 'organization',
+            featureKey: 'org',
+          },
+        ]}
+        isLoading={false}
+        hasError={false}
+        onRollback={jest.fn()}
+      />,
+    )
+    expect(screen.getByText('Organization Activated')).toBeInTheDocument()
   })
 
   it('renders integration changes and missing organization metadata', () => {

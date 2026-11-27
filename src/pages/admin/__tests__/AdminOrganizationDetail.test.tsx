@@ -8,12 +8,14 @@ import {
   AdminFeatureTypeEnum,
   AdminOrganizationQuery,
   FeatureFlagEnum,
+  OrganizationActivationStatusEnum,
   OrganizationEnvironmentEnum,
   PremiumIntegrationTypeEnum,
 } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import AdminOrganizationDetail, {
+  ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID,
   ADMIN_ORGANIZATION_DETAIL_COUNTERPART_LINK_TEST_ID,
   ADMIN_ORGANIZATION_DETAIL_ENVIRONMENT_TEST_ID,
   ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID,
@@ -28,6 +30,7 @@ const mockToggle = jest.fn()
 const mockNavigate = jest.fn()
 const mockRefetch = jest.fn()
 const mockOpenLinkSandboxDialog = jest.fn()
+const mockOpenActivateProductionDialog = jest.fn()
 
 type UseLinkSandboxDialogProps = Parameters<typeof useLinkSandboxDialog>[0]
 
@@ -42,6 +45,8 @@ const mockOrg: AdminOrganization = {
   premiumIntegrations: [integration],
   featureFlags: [flag],
   environment: OrganizationEnvironmentEnum.Production,
+  selfServe: false,
+  activationStatus: OrganizationActivationStatusEnum.Active,
   productionOrganization: null,
   sandboxOrganization: null,
 }
@@ -74,6 +79,11 @@ jest.mock('../adminOrganizationDetail/useLinkSandboxDialog', () => ({
     return { openLinkSandboxDialog: mockOpenLinkSandboxDialog }
   },
 }))
+jest.mock('../adminOrganizationDetail/useActivateProductionDialog', () => ({
+  useActivateProductionDialog: () => ({
+    openActivateProductionDialog: mockOpenActivateProductionDialog,
+  }),
+}))
 
 const setSelfServeEnabled = (selfServeEnabled: boolean): void => {
   const actualEnv = jest.requireActual('~/core/apolloClient').envGlobalVar()
@@ -85,19 +95,27 @@ const toggle = (name: string): void => {
   fireEvent.click(screen.getByRole('checkbox', { name }))
 }
 
-const renderWithOrganization = (overrides: Partial<AdminOrganization>): void => {
+const setOrganization = (overrides: Partial<AdminOrganization>): void => {
   mockQuery = {
     data: { adminOrganization: { ...mockOrg, ...overrides } },
     loading: false,
     refetch: mockRefetch,
   }
-  render(
-    <>
-      <MainHeader />
-      <AdminOrganizationDetail />
-    </>,
-    { useParams: { organizationId: 'org' } },
-  )
+}
+
+const OrganizationDetailWithHeader = (): JSX.Element => (
+  <>
+    <MainHeader />
+    <AdminOrganizationDetail />
+  </>
+)
+
+const renderWithOrganization = (
+  overrides: Partial<AdminOrganization>,
+): ReturnType<typeof render> => {
+  setOrganization(overrides)
+
+  return render(<OrganizationDetailWithHeader />, { useParams: { organizationId: 'org' } })
 }
 
 describe('AdminOrganizationDetail', () => {
@@ -422,6 +440,94 @@ describe('AdminOrganizationDetail', () => {
 
         expect(
           screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_LINK_SANDBOX_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+  })
+
+  describe('GIVEN the activate production header action', () => {
+    const PENDING_SELF_SERVE_PRODUCTION: Partial<AdminOrganization> = {
+      environment: OrganizationEnvironmentEnum.Production,
+      selfServe: true,
+      activationStatus: OrganizationActivationStatusEnum.PendingPaymentMethod,
+      productionOrganization: null,
+      sandboxOrganization: SANDBOX_LINK,
+    }
+
+    describe('WHEN self-serve is enabled AND the organization is a pending self-serve production', () => {
+      beforeEach(() => {
+        setSelfServeEnabled(true)
+        renderWithOrganization(PENDING_SELF_SERVE_PRODUCTION)
+      })
+
+      it('THEN should display the action', () => {
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
+        ).toHaveTextContent('Activate production')
+      })
+
+      it('THEN should open the activate production dialog for this organization on click', () => {
+        fireEvent.click(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
+        )
+
+        expect(mockOpenActivateProductionDialog).toHaveBeenCalledWith({ id: 'org', name: 'Acme' })
+      })
+    })
+
+    describe('WHEN the organization becomes active after the activation', () => {
+      it('THEN should hide the action', () => {
+        setSelfServeEnabled(true)
+        const { rerender } = renderWithOrganization(PENDING_SELF_SERVE_PRODUCTION)
+
+        expect(
+          screen.getByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
+        ).toBeInTheDocument()
+
+        setOrganization({
+          ...PENDING_SELF_SERVE_PRODUCTION,
+          activationStatus: OrganizationActivationStatusEnum.Active,
+        })
+        rerender(<OrganizationDetailWithHeader />)
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN self-serve is disabled', () => {
+      it('THEN should hide the action', () => {
+        setSelfServeEnabled(false)
+        renderWithOrganization(PENDING_SELF_SERVE_PRODUCTION)
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
+        ).not.toBeInTheDocument()
+      })
+    })
+
+    describe('WHEN the organization is not a pending self-serve production', () => {
+      it.each([
+        [
+          'an active self-serve production organization',
+          { activationStatus: OrganizationActivationStatusEnum.Active },
+        ],
+        ['a production organization that is not self-serve', { selfServe: false }],
+        [
+          'a sandbox organization',
+          {
+            environment: OrganizationEnvironmentEnum.Sandbox,
+            productionOrganization: PRODUCTION_LINK,
+            sandboxOrganization: null,
+          },
+        ],
+      ])('THEN should hide the action for %s', (_, overrides) => {
+        setSelfServeEnabled(true)
+        renderWithOrganization({ ...PENDING_SELF_SERVE_PRODUCTION, ...overrides })
+
+        expect(
+          screen.queryByTestId(ADMIN_ORGANIZATION_DETAIL_ACTIVATE_PRODUCTION_BUTTON_TEST_ID),
         ).not.toBeInTheDocument()
       })
     })

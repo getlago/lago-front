@@ -21,6 +21,7 @@ export const typeDefs = gql`
     sandbox_has_other_roles
     sandbox_has_other_member_roles
     sandbox_managed_by_production
+    organization_not_self_serve_production
     lock_acquisition_failed
     cannot_link_organization_to_itself
     not_found
