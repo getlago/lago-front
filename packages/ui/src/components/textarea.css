@@ -4,9 +4,7 @@
   resize: vertical;
 }
 .v2-textarea:read-only,
-.v2-textarea:not(:disabled):not(:read-only):not(:focus):hover:not(
-    :where(.v2-field:has([data-slot='field-label']:hover) *)
-  ) {
+.v2-textarea:not(:disabled):not(:read-only):not(:focus):hover {
   background-color: var(--color-surface-subtle);
 }
 .v2-textarea:focus {
@@ -21,9 +19,7 @@
   background-color: var(--color-surface);
   border-color: var(--color-danger-border);
 }
-.v2-textarea[aria-invalid='true']:not(:disabled):not(:read-only):not(:focus):hover:not(
-    :where(.v2-field:has([data-slot='field-label']:hover) *)
-  ) {
+.v2-textarea[aria-invalid='true']:not(:disabled):not(:read-only):not(:focus):hover {
   background-color: var(--color-surface-subtle);
 }
 .v2-textarea:disabled {
@@ -40,6 +36,11 @@
     field-sizing: content;
     resize: none;
   }
+}
+
+:where(.v2-field:has(> [data-slot='field-content'] [data-slot='field-label']:hover))
+  .v2-textarea:not(:disabled):not(:read-only):not(:focus) {
+  background-color: var(--color-surface-subtle);
 }
 @media (forced-colors: active) {
   .v2-textarea:focus {

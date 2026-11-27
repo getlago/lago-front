@@ -75,7 +75,7 @@ Clicking a decorative addon, gap or group padding focuses the input. Disabled co
 
 36px height, 8px radius, 12px horizontal padding and **8px gaps** between prefix, control and suffix. Addons hug their content; the control fills the remaining width and scrolls long input text. Keep addons concise at narrow widths. Use body typography, text-muted addons and 14px icon-muted icons.
 
-The group owns the background, border and 4px focus ring. Hovering the control or its addons highlights the full group; hovering the external label or description leaves its background unchanged. It follows Input's empty, filled, hover, focus, disabled, read-only, invalid, invalid + hover and invalid + focus states in both themes. Invalid focus retains the danger border and standard focus ring. Autofill follows the group's background. Field content-to-control spacing remains 8px; control-to-error spacing is 4px.
+The group owns the background, border and 4px focus ring. Hovering the control, its addons or its FieldLabel highlights the full group, including prefix and suffix. Hovering the description does not. Label hover does not override disabled, read-only or focused states. It follows Input's empty, filled, hover, focus, disabled, read-only, invalid, invalid + hover and invalid + focus states in both themes. Invalid focus retains the danger border and standard focus ring. Autofill follows the group's background. Field content-to-control spacing remains 8px; control-to-error spacing is 4px.
 
 ## References
 

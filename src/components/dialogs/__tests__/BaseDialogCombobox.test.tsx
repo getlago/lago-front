@@ -9,6 +9,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from 'lago-ui/combobox'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'lago-ui/select'
 import postcss from 'postcss'
 import tailwindcss from 'tailwindcss'
 
@@ -21,7 +22,7 @@ import { render } from '~/test-utils'
 import config from '../../../../tailwind.config'
 import BaseDialog from '../BaseDialog'
 
-it.each(['combobox', 'amount'])(
+it.each(['combobox', 'amount', 'select'])(
   'keeps the %s body-portalled results above the app dialog and selects an option',
   async (kind) => {
     await initializeTranslations()
@@ -54,6 +55,25 @@ it.each(['combobox', 'amount'])(
     const height = jest.spyOn(HTMLElement.prototype, 'clientHeight', 'get').mockReturnValue(256)
 
     const renderControl = (): JSX.Element => {
+      if (kind === 'select')
+        return (
+          <Select
+            items={[
+              { value: 'month', label: 'Monthly' },
+              { value: 'year', label: 'Yearly' },
+            ]}
+            defaultValue="month"
+            onValueChange={changed}
+          >
+            <SelectTrigger aria-label="Billing period">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="month" label="Monthly" />
+              <SelectItem value="year" label="Yearly" />
+            </SelectContent>
+          </Select>
+        )
       if (kind === 'amount')
         return (
           <AmountInput
@@ -104,13 +124,17 @@ it.each(['combobox', 'amount'])(
           {renderControl()}
         </BaseDialog>,
       )
+      const controlLabel = kind === 'select' ? 'Billing period' : 'Quote owner'
+      const optionLabel = kind === 'select' ? 'Yearly' : 'Sam'
       await user.click(
-        screen.getByRole('combobox', { name: kind === 'amount' ? 'Currency, USD' : 'Quote owner' }),
+        screen.getByRole('combobox', { name: kind === 'amount' ? 'Currency, USD' : controlLabel }),
       )
       const option = await screen.findByRole('option', {
-        name: kind === 'amount' ? 'EUR Euro' : 'Sam',
+        name: kind === 'amount' ? 'EUR Euro' : optionLabel,
       })
-      const positioner = option.closest('.v2-combobox-positioner') as HTMLElement
+      const positioner = option.closest(
+        '.v2-combobox-positioner, .v2-select-positioner',
+      ) as HTMLElement
       const dialogRoot = screen
         .getAllByRole('dialog')
         .find((dialog) => dialog.closest('.MuiDialog-root'))
@@ -122,10 +146,12 @@ it.each(['combobox', 'amount'])(
       )
       await user.click(option)
       if (kind === 'amount') expect(changed).toHaveBeenCalledWith(CurrencyEnum.Eur)
-      else expect(changed).toHaveBeenCalledWith('Sam', expect.anything())
+      else
+        expect(changed).toHaveBeenCalledWith(kind === 'select' ? 'year' : 'Sam', expect.anything())
       await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument())
       if (kind === 'amount')
         expect(screen.getByRole('textbox', { name: 'Amount' })).toHaveValue('123.45')
+      else if (kind === 'select') expect(screen.getByRole('combobox')).toHaveTextContent('Yearly')
       else expect(screen.getByRole('combobox')).toHaveValue('Sam')
       expect(closeDialog).not.toHaveBeenCalled()
     } finally {

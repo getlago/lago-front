@@ -1,0 +1,54 @@
+.v2-select-trigger {
+  background: var(--color-surface);
+  border-color: var(--color-border-control);
+}
+.v2-select-trigger:not(:disabled):not([aria-readonly='true']):hover:not(
+    :where(:focus-visible, [data-popup-open])
+  ),
+.v2-field:has(> [data-slot='field-content'] [data-slot='field-label']:hover)
+  > .v2-select-trigger:not(:disabled):not([aria-readonly='true']):not(
+    :where(:focus-visible, [data-popup-open])
+  ),
+.v2-select-trigger[aria-readonly='true'] {
+  background: var(--color-surface-subtle);
+}
+.v2-select-trigger:not(:disabled):not([aria-readonly='true']):is(
+    :focus-visible,
+    [data-popup-open]
+  ) {
+  background: var(--color-surface);
+}
+.v2-select-trigger:not(:disabled):focus-visible,
+.v2-select-trigger[data-popup-open] {
+  border-color: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-select-trigger[aria-invalid='true'],
+.v2-select-trigger[aria-invalid='true']:focus-visible,
+.v2-select-trigger[aria-invalid='true'][data-popup-open] {
+  border-color: var(--color-danger-border);
+}
+.v2-select-trigger[aria-readonly='true'] .v2-select-icon {
+  display: none;
+}
+.v2-select-trigger:disabled {
+  background: var(--color-disabled);
+  border-color: var(--color-disabled-border);
+  color: var(--color-disabled-foreground);
+  cursor: not-allowed;
+}
+.v2-select-trigger:disabled *,
+.v2-select-item[data-disabled] * {
+  color: inherit;
+}
+.v2-select-list {
+  max-height: min(320px, var(--available-height));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+@media (forced-colors: active) {
+  .v2-select-trigger:focus-visible,
+  .v2-select-trigger[data-popup-open] {
+    outline: 2px solid Highlight;
+  }
+}

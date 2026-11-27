@@ -43,7 +43,7 @@ Keep wrappers only for meaningful internal layout, such as a group of choices. F
 
 ## Accessibility
 
-Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering a FieldLabel does not highlight its control; clicking the label still focuses the control.
+Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering a FieldLabel highlights its editable Input, Input Group, Textarea, Combobox or Select. Clicking the label focuses or opens its control. Description and help hover do not highlight the control; disabled, read-only and focused states keep their existing appearance.
 
 For Select or Combobox, connect labels and error references to the appropriate interactive control. Radio and checkbox groups need group semantics such as fieldset/legend; individual checkboxes still need their own labels. Field does not replace those semantics.
 
@@ -55,7 +55,7 @@ Field CSS owns sibling spacing: 8px by default and 4px before a direct FieldErro
 
 ## References
 
-Storybook includes With Input, With Input Group and With Textarea galleries. Each shows empty, filled, disabled, read-only and invalid fields; hover and focus are exercised on the editable controls.
+Storybook includes With Input, With Input Group, With Textarea and With Select galleries. Each shows empty, filled, disabled, read-only and invalid fields; hover and focus are exercised on the editable controls.
 
 - [Input](./input.md)
 - [Input Group](./input-group.md)
@@ -64,3 +64,5 @@ Storybook includes With Input, With Input Group and With Textarea galleries. Eac
 - Tests: `__tests__/field.test.tsx`
 
 Combobox combinations live in Field Storybook: single, chips inside, chips above, free-text inside, free-text above and popup. Each shows empty, filled, disabled, read-only and invalid states. Free-text defaults to arbitrary values and an Add action without fetching suggestions.
+
+Select uses the same direct-child composition and spacing. Connect FieldLabel to SelectTrigger, and set description/error references and aria-invalid on that trigger. Select follows the shared label-hover behavior and owns its standalone invalid state. See [Select](./select.md).
