@@ -71,9 +71,8 @@ type CopyToProductionTarget = {
   code: string
 }
 
-// The item a message names: the copied one, or the parent to copy first.
 type NamedItem = {
-  itemType: CopyToProductionItemTypeEnum
+  itemType?: CopyToProductionItemTypeEnum
   code: string
 }
 
@@ -83,12 +82,17 @@ type Refusal = {
   parent?: NamedItem
 }
 
-// The API can answer item types added after this build was deployed.
-const getItemTypeKey = (itemType: CopyToProductionItemTypeEnum): string => {
-  const key: string | undefined = ITEM_TYPE_TRANSLATION_KEYS[itemType]
+const COPYABLE_ITEM_TYPES: readonly string[] = Object.values(CopyToProductionItemTypeEnum)
 
-  return key ?? UNKNOWN_ITEM_TYPE_TRANSLATION_KEY
-}
+// The API can answer item types added after this build was deployed.
+const isCopyToProductionItemType = (value: unknown): value is CopyToProductionItemTypeEnum =>
+  typeof value === 'string' && COPYABLE_ITEM_TYPES.includes(value)
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  !!value && typeof value === 'object' && !Array.isArray(value)
+
+const getItemTypeKey = (itemType?: CopyToProductionItemTypeEnum): string =>
+  (itemType && ITEM_TYPE_TRANSLATION_KEYS[itemType]) ?? UNKNOWN_ITEM_TYPE_TRANSLATION_KEY
 
 // Fields are request paths, such as `rates[0].rateModel`.
 const getFieldPath = (field: string): string => field.replace(/\[\d+\]/g, '')
@@ -97,9 +101,9 @@ const getLastFieldKey = (field: string): string => getFieldPath(field).split('.'
 
 const getRefusalKey = (
   { code, field }: Refusal,
-  itemType: CopyToProductionItemTypeEnum,
+  itemType?: CopyToProductionItemTypeEnum,
 ): string | undefined =>
-  REFUSAL_TRANSLATION_KEYS[`${itemType}/${code}`] ??
+  (itemType && REFUSAL_TRANSLATION_KEYS[`${itemType}/${code}`]) ??
   (field && REFUSAL_TRANSLATION_KEYS[`${code}:${getFieldPath(field)}`]) ??
   (field && REFUSAL_TRANSLATION_KEYS[`${code}:${getLastFieldKey(field)}`]) ??
   REFUSAL_TRANSLATION_KEYS[code]
@@ -121,7 +125,8 @@ const getFirstCode = (value: unknown): string | undefined => {
 const getRefusalFromErrors = (errors?: readonly GraphQLFormattedError[]): Refusal | null => {
   const extensions = errors?.[0]?.extensions
   const code = extensions?.code
-  const details = (extensions?.details as Record<string, unknown> | undefined) ?? {}
+  const rawDetails = extensions?.details
+  const details = isRecord(rawDetails) ? rawDetails : {}
 
   if (typeof code !== 'string') return null
 
@@ -129,7 +134,7 @@ const getRefusalFromErrors = (errors?: readonly GraphQLFormattedError[]): Refusa
     return {
       code,
       parent: {
-        itemType: details.itemType as CopyToProductionItemTypeEnum,
+        itemType: isCopyToProductionItemType(details.itemType) ? details.itemType : undefined,
         code: typeof details.code === 'string' ? details.code : '',
       },
     }
@@ -155,9 +160,9 @@ const isTargetNotFound = (
   !!errors?.some((error) => {
     if (error.extensions?.code !== 'not_found') return false
 
-    const details = error.extensions.details as object | undefined
+    const details = error.extensions.details
 
-    return !details || toCamelCase(target.itemType) in details
+    return !isRecord(details) || toCamelCase(target.itemType) in details
   })
 
 type UseCopyToProduction = () => {
@@ -184,13 +189,11 @@ export const useCopyToProduction: UseCopyToProduction = () => {
     addToast({ severity: 'danger', translateKey: ERROR_TRANSLATION_KEY })
   }
 
-  // The deleted item's list is refetched, so it stops offering the item.
   const showNotFound = (): void => {
     addToast({ severity: 'info', translateKey: NOT_FOUND_TRANSLATION_KEY })
     void client.refetchQueries({ include: 'active' })
   }
 
-  // Links to production when the user can open it from this session.
   const showSuccess = (code: string): void => {
     addToast({
       severity: 'success',

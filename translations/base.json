@@ -5630,7 +5630,7 @@
   "text_17955199987175qsul4nkfxe": "The {{itemType}} {{code}} doesn't use the currency of its plan in production.",
   "text_1795539325659cdyvy8085m1": "This item was deleted from your sandbox, so it can't be copied to production.",
   "text_1795597376102tkbcu8a4f52": "The {{itemType}} {{code}} uses a pricing model that its product or billable metric in production doesn't support. Change it in your sandbox first.",
-  "text_1795619366911o3vnwd5udy6": "The {{itemType}} {{code}} needs a premium license that your production account doesn't have.",
+  "text_1795619366911o3vnwd5udy6": "The {{itemType}} {{code}}, or an item copied with it, needs a feature that your production account doesn't have.",
   "text_1795619366911a8sk62vg94f": "In production, a product of the {{itemType}} {{code}} lacks a product filter it uses. Add the filter in production first.",
   "text_1795630961583o318oscsu8g": "In production, the billable metric of the {{itemType}} {{code}} lacks a filter value it uses. Add the value in production first.",
   "text_1795632118353nbberbjhk7i": "The {{itemType}} {{code}} uses a custom aggregation, which can't be copied to production. Set it up in production instead.",

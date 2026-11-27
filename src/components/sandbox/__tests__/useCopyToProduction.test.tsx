@@ -63,6 +63,8 @@ const UNSUPPORTED_KEY = 'text_1795431906433m4kipo8c27k'
 const RATE_MISMATCH_KEY = 'text_1795597376102tkbcu8a4f52'
 const FILTER_VALUE_MISSING_KEY = 'text_1795630961583o318oscsu8g'
 const CUSTOM_AGGREGATION_KEY = 'text_1795632118353nbberbjhk7i'
+const FEATURE_UNAVAILABLE_KEY = 'text_1795619366911o3vnwd5udy6'
+const COUPON_LABEL_KEY = 'text_17954319064331bw3yqfc0t2'
 const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const PRODUCT_LABEL_KEY = 'text_1795431906434ld1peo7t04a'
 const PRODUCT_CATEGORY_LABEL_KEY = 'text_1795431906434cs56t3kl5lh'
@@ -245,6 +247,18 @@ describe('useCopyToProduction', () => {
         })
 
         expect(toastMessage()).toBe(`${CUSTOM_AGGREGATION_KEY}|${BILLABLE_METRIC_LABEL_KEY}|gb`)
+      })
+
+      it('GIVEN a feature that production lacks for an item copied along THEN it names the copied item', async () => {
+        failWith({ message: 'forbidden', extensions: { code: 'feature_unavailable' } })
+
+        await confirm({
+          itemType: CopyToProductionItemTypeEnum.Coupon,
+          id: 'coupon-1',
+          code: 'welcome',
+        })
+
+        expect(toastMessage()).toBe(`${FEATURE_UNAVAILABLE_KEY}|${COUPON_LABEL_KEY}|welcome`)
       })
 
       it('GIVEN a code it does not know THEN it says the item cannot be copied', async () => {

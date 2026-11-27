@@ -9678,7 +9678,6 @@ export type Query = {
   invoices: InvoiceCollection;
   /** Query memberships of an organization */
   memberships: MembershipCollection;
-  /** Previews moving a sandbox item to the sandbox's production organization */
   /** Query MRR of an organization */
   mrrs: MrrCollection;
   /** Query a single order */
