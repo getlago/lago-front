@@ -46,12 +46,14 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.BillableMetricCreated]: 'text_17474046566318icwya96cm4',
   [ActivityTypeEnum.BillableMetricDeleted]: 'text_17474046566319c9b81v2r5b',
   [ActivityTypeEnum.BillableMetricUpdated]: 'text_17474046566311zhsu2i0thx',
+  [ActivityTypeEnum.BillableMetricCopiedToProduction]: 'text_1795793075337v018byteyw2',
   [ActivityTypeEnum.BillingEntitiesCreated]: 'text_1747404806714wz80iiebunk',
   [ActivityTypeEnum.BillingEntitiesDeleted]: 'text_1747404806714fiv08w2gvok',
   [ActivityTypeEnum.BillingEntitiesUpdated]: 'text_1747404806714s6gku7iz6n0',
   [ActivityTypeEnum.CouponCreated]: 'text_1747404806714yvdfvc0bveg',
   [ActivityTypeEnum.CouponDeleted]: 'text_1747404806714vk3273sh3d1',
   [ActivityTypeEnum.CouponUpdated]: 'text_1747404806714pksbcbh2a0l',
+  [ActivityTypeEnum.CouponCopiedToProduction]: 'text_1795793075339qrkwpru7akp',
   [ActivityTypeEnum.CreditNoteCreated]: 'text_1747404806714iqx0zaabim9',
   [ActivityTypeEnum.CreditNoteGenerated]: 'text_1747404806714x3lucaeii8l',
   [ActivityTypeEnum.CreditNoteRefundFailure]: 'text_1747404806714jb0pjc1kh7r',
@@ -62,6 +64,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.FeatureCreated]: 'text_1754570508183f0dl9q0pqtx',
   [ActivityTypeEnum.FeatureDeleted]: 'text_1754570508183pw3m9k2lv68',
   [ActivityTypeEnum.FeatureUpdated]: 'text_1754570508183pw3m9k2lv69',
+  [ActivityTypeEnum.FeatureCopiedToProduction]: 'text_17957930753404g3xlvt79fp',
   [ActivityTypeEnum.InvoiceCreated]: 'text_174740465663205ip0mama6w',
   [ActivityTypeEnum.InvoiceDeleted]: 'text_17842142209100wegryv1st3',
   [ActivityTypeEnum.InvoiceDrafted]: 'text_1747404656632jux35a9cxrt',
@@ -92,9 +95,11 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.ProductCategoryCreated]: 'text_1786365890845g3bnsrpvkkn',
   [ActivityTypeEnum.ProductCategoryDeleted]: 'text_1786365890845nletp3u06fp',
   [ActivityTypeEnum.ProductCategoryUpdated]: 'text_17863658908458ygd1210nj1',
+  [ActivityTypeEnum.ProductCategoryCopiedToProduction]: 'text_1795793075341zvlricdmzwp',
   [ActivityTypeEnum.ProductCreated]: 'text_17863658908457bi7j06nkm1',
   [ActivityTypeEnum.ProductDeleted]: 'text_1786365890845upo9l4n9ec8',
   [ActivityTypeEnum.ProductUpdated]: 'text_17863658908452gqonndfq1c',
+  [ActivityTypeEnum.ProductCopiedToProduction]: 'text_1795793075342fmsv59d8i7n',
   [ActivityTypeEnum.ProductFilterCreated]: 'text_1786365890845d2vq3ufddsd',
   [ActivityTypeEnum.ProductFilterDeleted]: 'text_1786365890845pml4uzbtp7c',
   [ActivityTypeEnum.ProductFilterUpdated]: 'text_1786365890845pt4roxdajsk',
@@ -106,6 +111,7 @@ const activityTypeTranslations: Record<ActivityTypeEnum, string> = {
   [ActivityTypeEnum.RateCardCreated]: 'text_1786367738116xtz2r6c9eoz',
   [ActivityTypeEnum.RateCardDeleted]: 'text_1786367738117541mevhwa63',
   [ActivityTypeEnum.RateCardUpdated]: 'text_1786367738117gbjclk29or1',
+  [ActivityTypeEnum.RateCardCopiedToProduction]: 'text_17957930753430kgtot0j0d2',
   [ActivityTypeEnum.SubscriptionCanceled]: 'text_1777471747994p4c7cm9pri6',
   [ActivityTypeEnum.SubscriptionIncomplete]: 'text_17774717479940xot2f14xbr',
   [ActivityTypeEnum.SubscriptionStarted]: 'text_1747404806714xgkold0s07a',
@@ -182,6 +188,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.BillableMetricCreated:
       case ActivityTypeEnum.BillableMetricDeleted:
       case ActivityTypeEnum.BillableMetricUpdated:
+      case ActivityTypeEnum.BillableMetricCopiedToProduction:
       case ActivityTypeEnum.PlanCreated:
       case ActivityTypeEnum.PlanDeleted:
       case ActivityTypeEnum.PlanUpdated:
@@ -199,6 +206,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.CouponCreated:
       case ActivityTypeEnum.CouponDeleted:
       case ActivityTypeEnum.CouponUpdated:
+      case ActivityTypeEnum.CouponCopiedToProduction:
         parameters = {
           couponCode: activityObject.code,
         }
@@ -286,6 +294,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.FeatureCreated:
       case ActivityTypeEnum.FeatureDeleted:
       case ActivityTypeEnum.FeatureUpdated:
+      case ActivityTypeEnum.FeatureCopiedToProduction:
         parameters = {
           featureCode: activityObject.code,
         }
@@ -314,6 +323,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ProductCategoryCreated:
       case ActivityTypeEnum.ProductCategoryDeleted:
       case ActivityTypeEnum.ProductCategoryUpdated:
+      case ActivityTypeEnum.ProductCategoryCopiedToProduction:
         parameters = {
           productCategoryCode: activityObject.code,
         }
@@ -321,6 +331,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.ProductCreated:
       case ActivityTypeEnum.ProductDeleted:
       case ActivityTypeEnum.ProductUpdated:
+      case ActivityTypeEnum.ProductCopiedToProduction:
         parameters = {
           productCode: activityObject.code,
         }
@@ -351,6 +362,7 @@ export const useActivityLogsInformation = () => {
       case ActivityTypeEnum.RateCardCreated:
       case ActivityTypeEnum.RateCardDeleted:
       case ActivityTypeEnum.RateCardUpdated:
+      case ActivityTypeEnum.RateCardCopiedToProduction:
         parameters = {
           rateCardCode: activityObject.code,
         }

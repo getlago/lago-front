@@ -93,6 +93,31 @@ describe('useActivityLogsInformation', () => {
       )
     })
 
+    it.each([
+      [ActivityTypeEnum.BillableMetricCopiedToProduction, 'text_1795793075337v018byteyw2', 'code'],
+      [ActivityTypeEnum.CouponCopiedToProduction, 'text_1795793075339qrkwpru7akp', 'couponCode'],
+      [ActivityTypeEnum.FeatureCopiedToProduction, 'text_17957930753404g3xlvt79fp', 'featureCode'],
+      [
+        ActivityTypeEnum.ProductCategoryCopiedToProduction,
+        'text_1795793075341zvlricdmzwp',
+        'productCategoryCode',
+      ],
+      [ActivityTypeEnum.ProductCopiedToProduction, 'text_1795793075342fmsv59d8i7n', 'productCode'],
+      [
+        ActivityTypeEnum.RateCardCopiedToProduction,
+        'text_17957930753430kgtot0j0d2',
+        'rateCardCode',
+      ],
+    ])('should return description for %s with the copied code', (activityType, key, parameter) => {
+      const { result } = renderHook(() => useActivityLogsInformation())
+
+      expect(
+        result.current.getActivityDescription(activityType, {
+          activityObject: { code: 'copied_code' },
+        }),
+      ).toBe(`translated:${key}:${JSON.stringify({ [parameter]: 'copied_code' })}`)
+    })
+
     it('should return description for AppliedCouponCreated', () => {
       const { result } = renderHook(() => useActivityLogsInformation())
       const activityObject = {

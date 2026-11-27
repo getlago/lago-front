@@ -5635,5 +5635,11 @@
   "text_1795630961583o318oscsu8g": "In production, the billable metric of the {{itemType}} {{code}} lacks a filter value it uses. Add the value in production first.",
   "text_1795632118353nbberbjhk7i": "The {{itemType}} {{code}} uses a custom aggregation, which can't be copied to production. Set it up in production instead.",
   "text_17957683665190k45li34638": "Copy",
-  "text_1795768366519ycewco9f1qj": "{{code}} copied to <a href=\"{{href}}\">production</a>."
+  "text_1795768366519ycewco9f1qj": "{{code}} copied to <a href=\"{{href}}\">production</a>.",
+  "text_1795793075337v018byteyw2": "Billable metric {{code}} was copied to production",
+  "text_1795793075339qrkwpru7akp": "{{couponCode}} was copied to production",
+  "text_17957930753404g3xlvt79fp": "Feature {{featureCode}} was copied to production",
+  "text_1795793075341zvlricdmzwp": "Product category {{productCategoryCode}} was copied to production",
+  "text_1795793075342fmsv59d8i7n": "Product {{productCode}} was copied to production",
+  "text_17957930753430kgtot0j0d2": "Rate card {{rateCardCode}} was copied to production"
 }

@@ -100,6 +100,8 @@ export enum ActivityTypeEnum {
   AppliedCouponCreated = 'applied_coupon_created',
   /** applied_coupon.deleted */
   AppliedCouponDeleted = 'applied_coupon_deleted',
+  /** billable_metric.copied_to_production */
+  BillableMetricCopiedToProduction = 'billable_metric_copied_to_production',
   /** billable_metric.created */
   BillableMetricCreated = 'billable_metric_created',
   /** billable_metric.deleted */
@@ -136,6 +138,8 @@ export enum ActivityTypeEnum {
   ContractWalletDeleted = 'contract_wallet_deleted',
   /** contract_wallet.updated */
   ContractWalletUpdated = 'contract_wallet_updated',
+  /** coupon.copied_to_production */
+  CouponCopiedToProduction = 'coupon_copied_to_production',
   /** coupon.created */
   CouponCreated = 'coupon_created',
   /** coupon.deleted */
@@ -156,6 +160,8 @@ export enum ActivityTypeEnum {
   CustomerUpdated = 'customer_updated',
   /** email.sent */
   EmailSent = 'email_sent',
+  /** feature.copied_to_production */
+  FeatureCopiedToProduction = 'feature_copied_to_production',
   /** feature.created */
   FeatureCreated = 'feature_created',
   /** feature.deleted */
@@ -234,12 +240,16 @@ export enum ActivityTypeEnum {
   PlanWalletDeleted = 'plan_wallet_deleted',
   /** plan_wallet.updated */
   PlanWalletUpdated = 'plan_wallet_updated',
+  /** product_category.copied_to_production */
+  ProductCategoryCopiedToProduction = 'product_category_copied_to_production',
   /** product_category.created */
   ProductCategoryCreated = 'product_category_created',
   /** product_category.deleted */
   ProductCategoryDeleted = 'product_category_deleted',
   /** product_category.updated */
   ProductCategoryUpdated = 'product_category_updated',
+  /** product.copied_to_production */
+  ProductCopiedToProduction = 'product_copied_to_production',
   /** product.created */
   ProductCreated = 'product_created',
   /** product.deleted */
@@ -262,6 +272,8 @@ export enum ActivityTypeEnum {
   QuoteVersionCreated = 'quote_version_created',
   /** quote.voided */
   QuoteVoided = 'quote_voided',
+  /** rate_card.copied_to_production */
+  RateCardCopiedToProduction = 'rate_card_copied_to_production',
   /** rate_card.created */
   RateCardCreated = 'rate_card_created',
   /** rate_card.deleted */
