@@ -113,16 +113,33 @@ export const isProductDisabled = (
   alertType: string,
   productCode: string,
   filterCodes: string[],
-): boolean =>
-  takenKeys.has(toScopeKey({ alertType, productCode, withProductFilters: false })) &&
-  takenKeys.has(toScopeKey({ alertType, productCode, withProductFilters: true })) &&
-  filterCodes.every((filterCode) => isFilterDisabled(takenKeys, alertType, productCode, filterCode))
+): boolean => {
+  const isProductOnlyTaken = takenKeys.has(
+    toScopeKey({ alertType, productCode, withProductFilters: false }),
+  )
+  const isAllFiltersTaken = takenKeys.has(
+    toScopeKey({ alertType, productCode, withProductFilters: true }),
+  )
+
+  if (!filterCodes.length) return isProductOnlyTaken || isAllFiltersTaken
+
+  return (
+    isProductOnlyTaken &&
+    isAllFiltersTaken &&
+    filterCodes.every((filterCode) =>
+      isFilterDisabled(takenKeys, alertType, productCode, filterCode),
+    )
+  )
+}
 
 export const getLockedWithProductFilters = (
   takenKeys: Set<string>,
   alertType: string,
   productCode: string,
+  filterCodes: string[],
 ): boolean | undefined => {
+  if (!filterCodes.length) return false
+
   const isProductOnlyTaken = takenKeys.has(
     toScopeKey({ alertType, productCode, withProductFilters: false }),
   )

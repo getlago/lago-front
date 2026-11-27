@@ -78,7 +78,10 @@ export const ContractAlertDrawerContent = withForm({
 
     const isWholeContractRequired = isWholeContractTaken(takenScopeKeys)
     const isScopeRemovable =
-      alertType === ContractAlertTypeEnum.UsageAmount && !isWholeContractRequired && !isEdition
+      alertType === ContractAlertTypeEnum.UsageAmount &&
+      !isWholeContractRequired &&
+      !isEdition &&
+      !isEdition
 
     const alertTypeOptions = [
       {
@@ -120,7 +123,12 @@ export const ContractAlertDrawerContent = withForm({
 
     const lockedWithProductFilters =
       alertType && scopeProductCode && !isEdition
-        ? getLockedWithProductFilters(takenScopeKeys, alertType, scopeProductCode)
+        ? getLockedWithProductFilters(
+            takenScopeKeys,
+            alertType,
+            scopeProductCode,
+            getFilterCodes(scopeProductCode),
+          )
         : undefined
 
     const truncateThresholdsToCurrency = (): void => {
@@ -263,7 +271,9 @@ export const ContractAlertDrawerContent = withForm({
                   disabled={isEdition}
                   data={alertTypeOptions}
                   helperText={
-                    alertType === ContractAlertTypeEnum.UsageAmount && !isWholeContractRequired
+                    alertType === ContractAlertTypeEnum.UsageAmount &&
+                    !isWholeContractRequired &&
+                    !isEdition
                       ? translate('text_1795778599615zdlvj7tbk1i')
                       : undefined
                   }

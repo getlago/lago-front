@@ -236,12 +236,13 @@ describe('AlertThresholds Component', () => {
       const callArgs = setThresholds.mock.calls[0][0]
 
       expect(callArgs).toHaveLength(2)
-      expect(callArgs[1]).toEqual({
+      expect(callArgs[0]).toEqual({
         code: '',
         value: '',
         recurring: false,
         notifyOn: [NotifyOnEnum.Triggered],
       })
+      expect(callArgs[1]).toEqual(thresholds[0])
     })
 
     it('should handle empty threshold array', async () => {

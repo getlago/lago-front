@@ -156,7 +156,7 @@ describe('alertScope', () => {
       })
 
       it('THEN should lock the checkbox off', () => {
-        expect(getLockedWithProductFilters(keys, UNITS, 'P')).toBe(false)
+        expect(getLockedWithProductFilters(keys, UNITS, 'P', ['F1', 'F2'])).toBe(false)
       })
     })
 
@@ -166,7 +166,24 @@ describe('alertScope', () => {
         ['only the all-filters key is taken', taken([UNITS, 'P', null, true]), false],
         ['neither is taken', taken(), undefined],
       ])('THEN %s', (_, keys, expected) => {
-        expect(getLockedWithProductFilters(keys, UNITS, 'P')).toBe(expected)
+        expect(getLockedWithProductFilters(keys, UNITS, 'P', ['F1'])).toBe(expected)
+      })
+    })
+
+    describe('WHEN the product has no filters', () => {
+      it.each([
+        ['the product-only key is taken', taken([UNITS, 'P', null, false])],
+        ['the all-filters key is taken', taken([UNITS, 'P', null, true])],
+      ])('THEN should disable the product once %s', (_, keys) => {
+        expect(isProductDisabled(keys, UNITS, 'P', [])).toBe(true)
+      })
+
+      it('THEN should keep the product enabled while neither key is taken', () => {
+        expect(isProductDisabled(taken(), UNITS, 'P', [])).toBe(false)
+      })
+
+      it('THEN should lock the checkbox off', () => {
+        expect(getLockedWithProductFilters(taken(), UNITS, 'P', [])).toBe(false)
       })
     })
 
