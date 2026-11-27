@@ -14,11 +14,13 @@ import {
   formatFiltersForAppliedRateCardsQuery,
 } from '~/components/Filters'
 import { PageSectionTitle } from '~/components/layouts/Section'
+import { useCopyToProduction } from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { APPLIED_RATE_CARD_LIST_FILTER_PREFIX } from '~/core/constants/filters'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { CATALOG_PLAN_RATE_CARD_DETAILS_ROUTE } from '~/core/router'
 import {
+  CopyToProductionItemTypeEnum,
   CurrencyEnum,
   PlanAppliedRateCardForAppliedRateCardsTableFragmentDoc,
   useGetPlanAppliedRateCardsForRateCardsSectionLazyQuery,
@@ -88,6 +90,7 @@ export const CatalogPlanRateCardsSection = ({
   const { page, goToPage } = usePageSearchParam()
   const [searchParams] = useSearchParams()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const filtersForQuery = useMemo(
     () => formatFiltersForAppliedRateCardsQuery(searchParams),
@@ -185,6 +188,16 @@ export const CatalogPlanRateCardsSection = ({
         }
         onCopyRateCardCode={copyRateCardCode}
         onRemoveRateCard={removeRateCard}
+        onCopyToProduction={
+          canCopyToProduction
+            ? (row) =>
+                copyToProduction({
+                  itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+                  id: row.id,
+                  code: row.rateCard.code,
+                })
+            : undefined
+        }
       />
     </section>
   )

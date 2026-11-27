@@ -28,6 +28,7 @@ const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
   [LagoApiError.OrganizationInactive]: 'text_1795431906433mautyr4e7ta',
   copy_to_production_item_inactive: 'text_1795431906433ulcrysmgdpl',
   copy_to_production_target_deleted: 'text_1795431906433ctng1qj5wb8',
+  copy_to_production_privilege_mismatch: 'text_1795632678714bebtdd5na4n',
   [`${CopyToProductionItemTypeEnum.BillableMetric}/${LagoApiError.FeatureUnavailable}`]:
     CUSTOM_AGGREGATION_TRANSLATION_KEY,
   'value_is_mandatory:customAggregator': CUSTOM_AGGREGATION_TRANSLATION_KEY,
@@ -41,6 +42,10 @@ const REFUSAL_TRANSLATION_KEYS: Record<string, string> = {
   'not_allowed_with_proration:rateModel': 'text_1795597376102tkbcu8a4f52',
   [`${LagoApiError.NotFound}:productFilter`]: 'text_1795619366911a8sk62vg94f',
   [`${LagoApiError.ValueIsInvalid}:values.value`]: 'text_1795630961583o318oscsu8g',
+  [`${LagoApiError.NotFound}:privilege`]: 'text_1795619686245iakqtpjfy7d',
+  plan_locked: 'text_1795619686245q43n7s1yga8',
+  product_already_priced: 'text_17956196862456c39s3e4ks1',
+  product_filter_already_priced: 'text_17956196862456c39s3e4ks1',
 }
 
 export type CopyToProductionTarget = {

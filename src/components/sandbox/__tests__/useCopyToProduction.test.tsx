@@ -69,6 +69,12 @@ const UNKNOWN_ITEM_TYPE_KEY = 'text_17954414475352pip2ykpd9z'
 const PRODUCT_LABEL_KEY = 'text_1795431906434ld1peo7t04a'
 const PRODUCT_CATEGORY_LABEL_KEY = 'text_1795431906434cs56t3kl5lh'
 const BILLABLE_METRIC_LABEL_KEY = 'text_1795431906433n4atjiccd3h'
+const CATALOG_PLAN_LABEL_KEY = 'text_179561968624506z4suovzxj'
+const PLAN_RATE_CARD_LABEL_KEY = 'text_1795619686245tlzbtzvn6vz'
+const PLAN_LOCKED_KEY = 'text_1795619686245q43n7s1yga8'
+const PRIVILEGE_MISMATCH_KEY = 'text_1795632678714bebtdd5na4n'
+const PRIVILEGE_MISSING_KEY = 'text_1795619686245iakqtpjfy7d'
+const ALREADY_PRICED_KEY = 'text_17956196862456c39s3e4ks1'
 
 const TARGET = {
   itemType: CopyToProductionItemTypeEnum.Product,
@@ -259,6 +265,91 @@ describe('useCopyToProduction', () => {
         })
 
         expect(toastMessage()).toBe(`${FEATURE_UNAVAILABLE_KEY}|${COUPON_LABEL_KEY}|welcome`)
+      })
+
+      it('GIVEN a rate card whose plan is not live THEN it names the plan', async () => {
+        failWith({
+          message: 'forbidden',
+          extensions: {
+            code: 'copy_to_production_parent_missing',
+            details: { itemType: 'catalog_plan', code: 'growth' },
+          },
+        })
+
+        await confirm({
+          itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+          id: 'plan-rate-card-1',
+          code: 'seats_monthly',
+        })
+
+        expect(toastMessage()).toBe(`${PARENT_MISSING_KEY}|${CATALOG_PLAN_LABEL_KEY}|growth`)
+      })
+
+      it('GIVEN a live plan with contracts THEN it says its pricing cannot change', async () => {
+        failWith({
+          message: 'Unprocessable Entity',
+          extensions: { code: 'unprocessable_entity', details: { plan: ['plan_locked'] } },
+        })
+
+        await confirm({
+          itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+          id: 'plan-rate-card-1',
+          code: 'seats_monthly',
+        })
+
+        expect(toastMessage()).toBe(`${PLAN_LOCKED_KEY}|${PLAN_RATE_CARD_LABEL_KEY}|seats_monthly`)
+      })
+
+      it('GIVEN a feature in production without a privilege the plan uses THEN it says so', async () => {
+        failWith({
+          message: 'Resource not found',
+          extensions: { code: 'not_found', details: { privilege: ['not_found'] } },
+        })
+
+        await confirm({
+          itemType: CopyToProductionItemTypeEnum.CatalogPlan,
+          id: 'plan-1',
+          code: 'enterprise',
+        })
+
+        expect(toastMessage()).toBe(`${PRIVILEGE_MISSING_KEY}|${CATALOG_PLAN_LABEL_KEY}|enterprise`)
+      })
+
+      it.each(['product_already_priced', 'product_filter_already_priced'])(
+        'GIVEN the plan in production prices the slice already (%s) THEN it says so',
+        async (code) => {
+          failWith({
+            message: 'Unprocessable Entity',
+            extensions: { code: 'unprocessable_entity', details: { rateCard: [code] } },
+          })
+
+          await confirm({
+            itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+            id: 'plan-rate-card-1',
+            code: 'seats_monthly',
+          })
+
+          expect(toastMessage()).toBe(
+            `${ALREADY_PRICED_KEY}|${PLAN_RATE_CARD_LABEL_KEY}|seats_monthly`,
+          )
+        },
+      )
+
+      it('GIVEN a live privilege of another value type THEN it says so', async () => {
+        failWith({
+          message: 'forbidden',
+          extensions: { code: 'copy_to_production_privilege_mismatch' },
+        })
+
+        await confirm({
+          itemType: CopyToProductionItemTypeEnum.CatalogPlan,
+          id: 'plan-1',
+          code: 'enterprise',
+        })
+
+        expect(toastMessage()).toBe(
+          `${PRIVILEGE_MISMATCH_KEY}|${CATALOG_PLAN_LABEL_KEY}|enterprise`,
+        )
       })
 
       it('GIVEN a code it does not know THEN it says the item cannot be copied', async () => {

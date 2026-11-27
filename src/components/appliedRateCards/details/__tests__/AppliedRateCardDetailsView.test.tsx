@@ -10,6 +10,8 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import {
@@ -86,6 +88,17 @@ jest.mock('~/components/appliedRateCards/dialogs/useEditAppliedRateCardUnitsDial
   }),
 }))
 
+let mockCanCopyToProduction = true
+const mockCopyToProduction = jest.fn()
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
+
 jest.mock('~/hooks/usePermissions', () => ({
   usePermissions: () => ({ hasPermissions: mockHasPermissions }),
 }))
@@ -153,7 +166,40 @@ describe('AppliedRateCardDetailsView', () => {
     jest.clearAllMocks()
     mockHasPermissions.mockReturnValue(true)
     mockIsPremium = true
+    mockCanCopyToProduction = true
     window.history.pushState({}, '', '/')
+  })
+
+  describe('GIVEN copy to production', () => {
+    it('WHEN the member can copy items THEN the action copies the plan rate card to production', async () => {
+      renderView(PLAN_DATA)
+
+      await openActions()
+      await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.PlanRateCard,
+        id: APPLIED_RATE_CARD_ID,
+        code: PLAN_DATA.appliedRateCard.rateCard.code,
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the action is not offered', async () => {
+      mockCanCopyToProduction = false
+      renderView(PLAN_DATA)
+
+      await openActions()
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
+
+    it('WHEN the card belongs to a contract THEN the action is not offered', async () => {
+      renderView(CONTRACT_DATA)
+
+      await openActions()
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 
   describe('GIVEN a plan card', () => {
@@ -328,6 +374,7 @@ describe('AppliedRateCardDetailsView', () => {
         mockHasPermissions.mockImplementation(
           (permissions: string[]) => !permissions.includes('plansUpdate'),
         )
+        mockCanCopyToProduction = false
 
         renderView(FIXED_PLAN_DATA)
 
@@ -387,6 +434,8 @@ describe('AppliedRateCardDetailsView', () => {
       mockHasPermissions.mockImplementation(
         (permissions: string[]) => !permissions.includes('plansUpdate'),
       )
+      // Only admins copy to production, and an admin can update plans.
+      mockCanCopyToProduction = false
 
       renderView(PLAN_DATA)
 
