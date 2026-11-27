@@ -1,7 +1,8 @@
-import type { addIntegration } from '@sentry/react'
+import type { addIntegration, getClient } from '@sentry/react'
 
-// `@sentry/react` does not re-export the `Integration` type
+// `@sentry/react` does not re-export the `Integration` or `Client` types
 type Integration = Parameters<typeof addIntegration>[0]
+type Client = NonNullable<ReturnType<typeof getClient>>
 
 const FILTERED = '[Filtered]'
 
@@ -70,4 +71,15 @@ export const hasUrlToken = (url: string): boolean => scrubString(url) !== url
 export const scrubReplayEventUrlTokensIntegration = (): Integration => ({
   name: 'ScrubReplayEventUrlTokens',
   processEvent: (event) => (event.type === 'replay_event' ? scrubUrlTokens(event) : event),
+})
+
+// The dynamic sampling context's `transaction` feeds both the envelope's trace header and
+// outgoing `baggage`/`sentry-trace` headers, set from the raw segment name before any `beforeSend*` hook runs
+export const scrubDscUrlTokensIntegration = (): Integration => ({
+  name: 'ScrubDscUrlTokens',
+  setup: (client: Client) => {
+    client.on('createDsc', (dsc) => {
+      if (dsc.transaction) dsc.transaction = scrubString(dsc.transaction)
+    })
+  },
 })

@@ -28,6 +28,7 @@ import { useAddNetsuiteDialog } from '~/components/settings/integrations/AddNets
 import { useAddQuickbooksDialog } from '~/components/settings/integrations/AddQuickbooksDialog'
 import { useAddSalesforceDialog } from '~/components/settings/integrations/AddSalesforceDialog'
 import { useAddStripeDialog } from '~/components/settings/integrations/AddStripeDialog'
+import { useAddX402Dialog } from '~/components/settings/integrations/AddX402Dialog'
 import { useAddXeroDialog } from '~/components/settings/integrations/AddXeroDialog'
 import { useAddAgentStorefrontDialog } from '~/components/settings/integrations/agentStorefront/AddAgentStorefrontDialog'
 import {
@@ -54,6 +55,7 @@ import {
   STRIPE_INTEGRATION_ROUTE,
   TAX_MANAGEMENT_INTEGRATION_ROUTE,
   useNavigate,
+  X402_INTEGRATION_ROUTE,
   XERO_INTEGRATION_ROUTE,
 } from '~/core/router'
 import {
@@ -72,6 +74,7 @@ import Airbyte from '~/public/images/airbyte.svg'
 import Anrok from '~/public/images/anrok.svg'
 import Avalara from '~/public/images/avalara.svg'
 import Cashfree from '~/public/images/cashfree.svg'
+import Coinbase from '~/public/images/coinbase.svg'
 import Flutterwave from '~/public/images/flutterwave.svg'
 import GoCardless from '~/public/images/gocardless.svg'
 import HightTouch from '~/public/images/hightouch.svg'
@@ -87,6 +90,7 @@ import Stripe from '~/public/images/stripe.svg'
 import Xero from '~/public/images/xero.svg'
 
 export const INTEGRATIONS_STRIPE_TEST_ID = 'integrations-stripe'
+export const INTEGRATIONS_X402_TEST_ID = 'integrations-x402'
 export const INTEGRATIONS_HUBSPOT_TEST_ID = 'integrations-hubspot'
 export const INTEGRATIONS_NETSUITE_TEST_ID = 'integrations-netsuite'
 export const INTEGRATIONS_SALESFORCE_TEST_ID = 'integrations-salesforce'
@@ -95,7 +99,13 @@ export const INTEGRATIONS_AGENT_STOREFRONT_TEST_ID = 'integrations-agent-storefr
 export const INTEGRATIONS_QUICKBOOKS_TEST_ID = 'integrations-quickbooks'
 
 gql`
-  query integrationsSetting($limit: Int) {
+  query integrationsSetting($limit: Int, $withX402: Boolean!) {
+    x402Connections(limit: 1) @include(if: $withX402) {
+      collection {
+        id
+      }
+    }
+
     paymentProviders(limit: $limit) {
       collection {
         ... on MoneyhashProvider {
@@ -158,10 +168,14 @@ gql`
 const Integrations = () => {
   const { translate } = useInternationalization()
   const navigate = useNavigate()
-  const { isPremium } = useCurrentUser()
-  const { organization: { premiumIntegrations } = {}, hasFeatureFlag } = useOrganizationInfos()
+  const { currentUser, isPremium, loading: isCurrentUserLoading } = useCurrentUser()
+  const { organization, hasFeatureFlag } = useOrganizationInfos()
+  const premiumIntegrations = organization?.premiumIntegrations
   const isProductCatalogEnabled = hasFeatureFlag(FeatureFlagEnum.ProductCatalog)
   const isAgentStorefrontEnabled = hasFeatureFlag(FeatureFlagEnum.AgentStorefront)
+  const isX402Enabled = isPremium && hasFeatureFlag(FeatureFlagEnum.X402Payments)
+  // `withX402` reads the license and the flag: query once both are known, not once per answer.
+  const isWaitingForX402Access = !organization || (isCurrentUserLoading && !currentUser)
 
   const { open: openPremiumWarningDialog } = usePremiumWarningDialog()
   const { openAddAnrokDialog } = useAddAnrokDialog()
@@ -181,11 +195,16 @@ const Integrations = () => {
   const { openAddHubspotDialog } = useAddHubspotDialog()
   const { openAddMoneyhashDialog } = useAddMoneyhashDialog()
   const { openAddAgentStorefrontDialog } = useAddAgentStorefrontDialog()
+  const { openAddX402Dialog } = useAddX402Dialog()
 
   const { data, loading } = useIntegrationsSettingQuery({
-    variables: { limit: 1000 },
+    variables: { limit: 1000, withX402: isX402Enabled },
+    skip: isWaitingForX402Access,
     nextFetchPolicy: 'cache-and-network',
   })
+  const isLoading = loading || isWaitingForX402Access
+  const hasX402Integration = !!data?.x402Connections?.collection.length
+  const isLagoTabLoading = isLoading && !data
 
   const { data: billingEntitiesData } = useGetBillingEntitiesQuery()
 
@@ -259,6 +278,20 @@ const Integrations = () => {
     (integration) => integration?.__typename === 'AgentStorefrontIntegration',
   )
 
+  // Every value the Lago tab renders from, so the header refreshes its content when one changes.
+  const lagoTabSnapshotKey = JSON.stringify([
+    isLagoTabLoading,
+    isPremium,
+    isProductCatalogEnabled,
+    isX402Enabled,
+    hasX402Integration,
+    isAgentStorefrontEnabled,
+    hasTaxManagement,
+    premiumIntegrations,
+    data?.paymentProviders?.collection.map((provider) => provider.__typename),
+    data?.integrations?.collection.map((integration) => integration.__typename),
+  ])
+
   const activeTabContent = useMainHeaderTabContent()
 
   const getEndContent = ({
@@ -300,9 +333,9 @@ const Integrations = () => {
       <MainHeader.Configure
         entity={{
           viewName: translate('text_62b1edddbf5f461ab9712750'),
-          viewNameLoading: loading,
+          viewNameLoading: isLoading,
           metadata: translate('text_62b1edddbf5f461ab9712765'),
-          metadataLoading: loading,
+          metadataLoading: isLoading,
         }}
         tabs={[
           {
@@ -315,10 +348,11 @@ const Integrations = () => {
                 integrationGroup: IntegrationsTabsOptionsEnum.Lago,
               }),
             ],
+            snapshotKey: lagoTabSnapshotKey,
             content: (
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
-                  {!!loading ? (
+                  {isLagoTabLoading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>
@@ -431,6 +465,37 @@ const Integrations = () => {
                           }
                         }}
                       />
+                      {isX402Enabled && (
+                        <Selector
+                          fullWidth
+                          data-test={INTEGRATIONS_X402_TEST_ID}
+                          title={translate('text_1793132394868hxknwaa4mx4')}
+                          subtitle={translate('text_62b1edddbf5f461ab9712795')}
+                          icon={
+                            <Avatar size="big" variant="connector-full">
+                              <Coinbase />
+                            </Avatar>
+                          }
+                          endContent={getEndContent({ showConnectedBadge: hasX402Integration })}
+                          hoverActions={getHoverActions(
+                            hasX402Integration,
+                            generatePath(X402_INTEGRATION_ROUTE, {
+                              integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                            }),
+                          )}
+                          onClick={() => {
+                            if (hasX402Integration) {
+                              navigate(
+                                generatePath(X402_INTEGRATION_ROUTE, {
+                                  integrationGroup: IntegrationsTabsOptionsEnum.Lago,
+                                }),
+                              )
+                            } else {
+                              openAddX402Dialog()
+                            }
+                          }}
+                        />
+                      )}
                       {!isProductCatalogEnabled && (
                         <Selector
                           title={translate('text_63e26d8308d03687188221a5')}
@@ -803,7 +868,7 @@ const Integrations = () => {
               <SettingsPaddedContainer className="gap-8">
                 <SettingsListWrapper>
                   <Alert type="warning">{translate('text_1736764955395763x9k5gqkj')}</Alert>
-                  {!!loading ? (
+                  {isLoading ? (
                     <SettingsListItemLoadingSkeleton count={2} />
                   ) : (
                     <SettingsListItem>

@@ -129,3 +129,23 @@ export const onNetworkError = (error: Error): void => {
 
   addToast({ severity: 'danger', translateKey: 'text_622f7a3dc32ce100c46a5154' })
 }
+
+const SENSITIVE_VARIABLE_KEY = /secret|api_?key|password|token|private_?key/i
+const REDACTED_VALUE = '[Filtered]'
+
+const isPlainObject = (value: unknown): value is Record<string, unknown> =>
+  Object.prototype.toString.call(value) === '[object Object]'
+
+export const redactSensitiveVariables = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(redactSensitiveVariables)
+  if (!isPlainObject(value)) return value
+
+  return Object.fromEntries(
+    Object.entries(value).map(([key, entry]) => [
+      key,
+      SENSITIVE_VARIABLE_KEY.test(key) && entry !== null && entry !== undefined
+        ? REDACTED_VALUE
+        : redactSensitiveVariables(entry),
+    ]),
+  )
+}
