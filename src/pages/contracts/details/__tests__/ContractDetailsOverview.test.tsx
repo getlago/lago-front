@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, RenderResult, screen, waitFor } from '@testing-library/react'
 
 import { GetContractAlertsCountForOverviewNavDocument } from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
@@ -70,7 +70,7 @@ const buildCountMock = (onRequest: jest.Mock): TestMocksType[number] => ({
   },
 })
 
-const renderOverview = (mocks: TestMocksType, { isAlertsReadOnly = false } = {}) =>
+const renderOverview = (mocks: TestMocksType, { isAlertsReadOnly = false } = {}): RenderResult =>
   render(
     <AllTheProviders mocks={mocks}>
       <ContractDetailsOverview

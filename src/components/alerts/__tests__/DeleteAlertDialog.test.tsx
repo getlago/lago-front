@@ -1,9 +1,14 @@
-import { act, renderHook } from '@testing-library/react'
+import { act, renderHook, RenderHookResult } from '@testing-library/react'
 import { ReactNode } from 'react'
 
 import { CentralizedDialogProps } from '~/components/dialogs/CentralizedDialog'
 import { addToast } from '~/core/apolloClient'
-import { DestroyContractAlertDocument, DestroySubscriptionAlertDocument } from '~/generated/graphql'
+import { evictFromCache } from '~/core/apolloClient/evictFromCache'
+import {
+  DestroyContractAlertDocument,
+  DestroySubscriptionAlertDocument,
+  GetContractAlertsForAlertsSectionDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, TestMocksType } from '~/test-utils'
 
 import { useDeleteAlertDialog } from '../DeleteAlertDialog'
@@ -17,6 +22,10 @@ jest.mock('~/components/dialogs/CentralizedDialog', () => ({
 jest.mock('~/core/apolloClient', () => ({
   ...jest.requireActual('~/core/apolloClient'),
   addToast: jest.fn(),
+}))
+
+jest.mock('~/core/apolloClient/evictFromCache', () => ({
+  evictFromCache: jest.fn(),
 }))
 
 jest.mock('~/hooks/core/useInternationalization', () => ({
@@ -44,7 +53,9 @@ const buildMocks = (onContract: jest.Mock, onSubscription: jest.Mock): TestMocks
   },
 ]
 
-const renderDialogHook = (mocks: TestMocksType) =>
+const renderDialogHook = (
+  mocks: TestMocksType,
+): RenderHookResult<ReturnType<typeof useDeleteAlertDialog>, unknown> =>
   renderHook(() => useDeleteAlertDialog(), {
     wrapper: ({ children }: { children: ReactNode }) => (
       <AllTheProviders mocks={mocks}>{children}</AllTheProviders>
@@ -59,11 +70,21 @@ describe('useDeleteAlertDialog', () => {
   })
 
   describe.each([
-    { alertKind: 'contract' as const, expectedContractCalls: 1, expectedSubscriptionCalls: 0 },
-    { alertKind: 'subscription' as const, expectedContractCalls: 0, expectedSubscriptionCalls: 1 },
+    {
+      alertKind: 'contract' as const,
+      expectedContractCalls: 1,
+      expectedSubscriptionCalls: 0,
+      expectedEvictions: 1,
+    },
+    {
+      alertKind: 'subscription' as const,
+      expectedContractCalls: 0,
+      expectedSubscriptionCalls: 1,
+      expectedEvictions: 0,
+    },
   ])(
     'GIVEN a $alertKind alert',
-    ({ alertKind, expectedContractCalls, expectedSubscriptionCalls }) => {
+    ({ alertKind, expectedContractCalls, expectedSubscriptionCalls, expectedEvictions }) => {
       describe('WHEN the deletion is confirmed', () => {
         it('THEN should send only the matching mutation and show a success toast', async () => {
           const onContract = jest.fn()
@@ -83,10 +104,32 @@ describe('useDeleteAlertDialog', () => {
           expect(onContract).toHaveBeenCalledTimes(expectedContractCalls)
           expect(onSubscription).toHaveBeenCalledTimes(expectedSubscriptionCalls)
           expect(addToast).toHaveBeenCalledWith(expect.objectContaining({ severity: 'success' }))
+          expect(evictFromCache).toHaveBeenCalledTimes(expectedEvictions)
         })
       })
     },
   )
+
+  describe('GIVEN a deleted contract alert', () => {
+    describe('WHEN the mutation returns its id', () => {
+      it('THEN should evict it from the alerts list cache', async () => {
+        const { result } = renderDialogHook(buildMocks(jest.fn(), jest.fn()))
+
+        act(() => result.current.openDeleteAlertDialog({ alertKind: 'contract', id: 'a1' }))
+
+        await act(async () => {
+          await getLastDialogArgs().onAction()
+        })
+
+        expect(evictFromCache).toHaveBeenCalledWith(expect.anything(), {
+          id: 'a1',
+          __typename: 'ContractAlert',
+          listFieldName: 'contractAlerts',
+          listQueryDocument: GetContractAlertsForAlertsSectionDocument,
+        })
+      })
+    })
+  })
 
   describe('GIVEN both alert kinds', () => {
     describe('WHEN their dialogs open', () => {
