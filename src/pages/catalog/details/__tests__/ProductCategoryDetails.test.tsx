@@ -6,11 +6,11 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
-import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   GetProductCategoryForDetailsDocument,
-  MoveToLiveMovableItemTypeEnum,
 } from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
@@ -113,12 +113,15 @@ const renderPage = (
   })
 }
 
-const mockMoveToLive = jest.fn()
-let mockCanMoveToLive = false
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
 
-jest.mock('~/components/sandbox/useMoveToLive', () => ({
-  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
-  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('ProductCategoryDetails', () => {
@@ -247,31 +250,32 @@ describe('ProductCategoryDetails', () => {
     expect(screen.queryByTestId('product-details-delete')).not.toBeInTheDocument()
   })
 
-  describe('GIVEN move to live mode', () => {
+  describe('GIVEN copy to production', () => {
     afterEach(() => {
-      mockCanMoveToLive = false
+      mockCanCopyToProduction = false
     })
 
-    it('WHEN the member can move items THEN the action moves the item to live mode', async () => {
-      mockCanMoveToLive = true
+    it('WHEN the member can copy items THEN the action copies the item to production', async () => {
+      mockCanCopyToProduction = true
 
       await act(() => renderPage())
 
       await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
-      await userEvent.click(screen.getByTestId(MOVE_TO_LIVE_ACTION_TEST_ID))
+      await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
 
-      expect(mockMoveToLive).toHaveBeenCalledWith({
-        itemType: MoveToLiveMovableItemTypeEnum.ProductCategory,
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionCopyableItemTypeEnum.ProductCategory,
         id: 'prod-1',
+        code: 'object_storage',
       })
     })
 
-    it('WHEN the member cannot move items THEN the action is not offered', async () => {
+    it('WHEN the member cannot copy items THEN the action is not offered', async () => {
       await act(() => renderPage())
 
       await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
 
-      expect(screen.queryByTestId(MOVE_TO_LIVE_ACTION_TEST_ID)).not.toBeInTheDocument()
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
     })
   })
 })

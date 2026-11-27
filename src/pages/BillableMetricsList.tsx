@@ -12,7 +12,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -25,7 +28,7 @@ import {
 } from '~/core/router'
 import {
   BillableMetricItemFragment,
-  MoveToLiveMovableItemTypeEnum,
+  CopyToProductionCopyableItemTypeEnum,
   useBillableMetricsLazyQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -62,7 +65,7 @@ const BillableMetricsList = () => {
   const { hasPermissions } = usePermissions()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
   const { page, goToPage } = usePageSearchParam()
   const [getBillableMetrics, { data, error, loading, variables }] = useBillableMetricsLazyQuery({
@@ -77,7 +80,7 @@ const BillableMetricsList = () => {
   const canDeleteBillableMetrics = hasPermissions(['billableMetricsDelete'])
   const canCreateBillableMetrics = hasPermissions(['billableMetricsCreate'])
 
-  const getActions = (id: string): ActionItem<{ id: string }>[] => {
+  const getActions = (id: string, code: string): ActionItem<{ id: string }>[] => {
     const actions: ActionItem<{ id: string }>[] = []
 
     if (canUpdateBillableMetrics) {
@@ -112,12 +115,17 @@ const BillableMetricsList = () => {
       })
     }
 
-    if (canMoveToLive) {
+    if (canCopyToProduction) {
       actions.push({
         startIcon: 'outside',
         title: translate('text_1795431906432py065218gdv'),
-        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-        onAction: () => moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.BillableMetric, id }),
+        dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+        onAction: () =>
+          copyToProduction({
+            itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
+            id,
+            code,
+          }),
       })
     }
 
@@ -166,8 +174,8 @@ const BillableMetricsList = () => {
     },
   ]
 
-  const getActionColumnTooltip = ({ id }: BillableMetricItemFragment) => {
-    const actions = getActions(id)
+  const getActionColumnTooltip = ({ id, code }: BillableMetricItemFragment) => {
+    const actions = getActions(id, code)
 
     if (!actions.length) return ''
 
@@ -264,7 +272,7 @@ const BillableMetricsList = () => {
           onRowActionLink={getRowLink}
           columns={columns}
           actionColumnTooltip={getActionColumnTooltip}
-          actionColumn={({ id }) => getActions(id)}
+          actionColumn={({ id, code }) => getActions(id, code)}
           placeholder={placeholder}
         />
       </PaginatedContent>

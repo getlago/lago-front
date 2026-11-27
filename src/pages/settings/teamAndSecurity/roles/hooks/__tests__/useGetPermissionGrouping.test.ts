@@ -50,8 +50,8 @@ describe('useGetPermissionGrouping', () => {
     expect(result.current.permissionGrouping).not.toHaveProperty('other')
   })
 
-  it('leaves out the admin-only move to live permission', () => {
-    const { result } = renderHook(() => useGetPermissionGrouping(['MoveToLiveCreate']))
+  it('leaves out the admin-only copy to production permission', () => {
+    const { result } = renderHook(() => useGetPermissionGrouping(['CopyToProductionCreate']))
 
     expect(result.current.permissionGrouping).toEqual({})
   })

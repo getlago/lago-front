@@ -3,10 +3,10 @@ import { ReactNode } from 'react'
 
 import { TableProps } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
-import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import {
-  MoveToLiveMovableItemTypeEnum,
+  CopyToProductionCopyableItemTypeEnum,
   ProductForListFragment,
   ProductTypeEnum,
 } from '~/generated/graphql'
@@ -101,12 +101,15 @@ const defaultQueryState = {
 
 const getTableProps = () => mockTableProps.mock.calls[0][0] as TableProps<ProductForListFragment>
 
-const mockMoveToLive = jest.fn()
-let mockCanMoveToLive = false
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
 
-jest.mock('~/components/sandbox/useMoveToLive', () => ({
-  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
-  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('ProductsList', () => {
@@ -243,44 +246,50 @@ describe('ProductsList', () => {
     expect(placeholder?.emptyState?.buttonTitle).toBeUndefined()
   })
 
-  describe('GIVEN move to live mode', () => {
-    const MOVE_ROW = { id: 'pitem-1', name: 'Seats', productType: ProductTypeEnum.Fixed }
+  describe('GIVEN copy to production', () => {
+    const COPY_ROW = {
+      id: 'pitem-1',
+      name: 'Seats',
+      code: 'seats',
+      productType: ProductTypeEnum.Fixed,
+    }
 
-    const getMoveAction = () => {
+    const getCopyAction = () => {
       const actionColumn = mockTableProps.mock.calls[0]?.[0]?.actionColumn as (
-        item: typeof MOVE_ROW,
-      ) => ActionItem<typeof MOVE_ROW>[]
+        item: typeof COPY_ROW,
+      ) => ActionItem<typeof COPY_ROW>[]
 
-      return actionColumn(MOVE_ROW).find(
-        (action) => action.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID,
+      return actionColumn(COPY_ROW).find(
+        (action) => action.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID,
       )
     }
 
     afterEach(() => {
-      mockCanMoveToLive = false
+      mockCanCopyToProduction = false
     })
 
-    it('WHEN the member can move items THEN the row action moves the item to live mode', () => {
-      mockCanMoveToLive = true
+    it('WHEN the member can copy items THEN the row action copies the item to production', () => {
+      mockCanCopyToProduction = true
 
       render(<ProductsList />)
 
-      const moveAction = getMoveAction()
+      const moveAction = getCopyAction()
 
       expect(moveAction?.startIcon).toBe('outside')
 
-      moveAction?.onAction?.(MOVE_ROW)
+      moveAction?.onAction?.(COPY_ROW)
 
-      expect(mockMoveToLive).toHaveBeenCalledWith({
-        itemType: MoveToLiveMovableItemTypeEnum.Product,
-        id: MOVE_ROW.id,
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionCopyableItemTypeEnum.Product,
+        id: COPY_ROW.id,
+        code: COPY_ROW.code,
       })
     })
 
-    it('WHEN the member cannot move items THEN there is no move to live row action', () => {
+    it('WHEN the member cannot copy items THEN there is no copy to production row action', () => {
       render(<ProductsList />)
 
-      expect(getMoveAction()).toBeUndefined()
+      expect(getCopyAction()).toBeUndefined()
     })
   })
 })

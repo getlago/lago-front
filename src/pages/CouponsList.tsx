@@ -16,7 +16,10 @@ import { Typography } from '~/components/designSystem/Typography'
 import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { couponStatusMapping } from '~/core/constants/statusCouponMapping'
@@ -28,11 +31,11 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   CouponCaptionFragmentDoc,
   CouponsQuery,
   CouponStatusEnum,
   DeleteCouponFragmentDoc,
-  MoveToLiveMovableItemTypeEnum,
   TerminateCouponFragmentDoc,
   useCouponsLazyQuery,
 } from '~/generated/graphql'
@@ -87,7 +90,7 @@ const CouponsList = () => {
   const navigate = useNavigate()
   const { intlFormatDateTimeOrgaTZ } = useOrganizationInfos()
   const actions = usePermissionsCouponActions()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE)
@@ -164,13 +167,17 @@ const CouponsList = () => {
       })
     }
 
-    if (canMoveToLive && coupon.status !== CouponStatusEnum.Terminated) {
+    if (canCopyToProduction && coupon.status !== CouponStatusEnum.Terminated) {
       result.push({
         startIcon: 'outside',
         title: translate('text_1795431906432py065218gdv'),
-        dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+        dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
         onAction: () =>
-          moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Coupon, id: coupon.id }),
+          copyToProduction({
+            itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
+            id: coupon.id,
+            code: coupon.code,
+          }),
       })
     }
 

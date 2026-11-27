@@ -6,7 +6,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import {
   ProductCatalogTabsOptionsEnum,
   ProductCategoryDetailsTabsOptionsEnum,
@@ -17,8 +20,8 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   LagoApiError,
-  MoveToLiveMovableItemTypeEnum,
   ProductCategoryForDeleteProductCategoryDialogFragmentDoc,
   ProductCategoryForProductCategoryDrawerFragmentDoc,
   useGetProductCategoryForDetailsQuery,
@@ -68,7 +71,7 @@ const ProductCategoryDetails = () => {
   const { hasPermissions } = usePermissions()
   const { openDrawer: openEditProductCategoryDrawer } = useProductCategoryDrawer()
   const { openDeleteProductCategoryDialog } = useDeleteProductCategoryDialog()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const { data, loading, error } = useGetProductCategoryForDetailsQuery({
     variables: { id: productCategoryId as string },
@@ -116,12 +119,13 @@ const ProductCategoryDetails = () => {
         },
         {
           label: translate('text_1795431906432py065218gdv'),
-          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-          hidden: !canMoveToLive,
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction,
           onClick: (closePopper) => {
-            void moveToLive({
-              itemType: MoveToLiveMovableItemTypeEnum.ProductCategory,
+            copyToProduction({
+              itemType: CopyToProductionCopyableItemTypeEnum.ProductCategory,
               id: productCategoryId as string,
+              code: productCategory?.code ?? '',
             })
             closePopper()
           },

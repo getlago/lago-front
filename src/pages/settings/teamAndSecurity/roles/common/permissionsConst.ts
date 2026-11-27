@@ -5,7 +5,7 @@ import { PermissionGroupMapping, PermissionName } from './permissionsTypes'
 export const allPermissions = Object.keys(PermissionEnum) as Array<PermissionName>
 
 // Admin-only: the API checks the production admin role, so a custom role cannot grant it.
-export const hiddenPermissions: Array<PermissionName> = ['MoveToLiveCreate']
+export const hiddenPermissions: Array<PermissionName> = ['CopyToProductionCreate']
 
 export const usageGovernancePermissions: Array<PermissionName> = [
   'AttributedUsageView',

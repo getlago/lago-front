@@ -11,7 +11,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   COUPON_DETAILS_ROUTE,
@@ -20,10 +23,10 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   CouponStatusEnum,
   DeleteCouponFragmentDoc,
   LagoApiError,
-  MoveToLiveMovableItemTypeEnum,
   TerminateCouponFragmentDoc,
   useGetCouponForDetailsQuery,
 } from '~/generated/graphql'
@@ -66,7 +69,7 @@ const CouponDetails = () => {
   const { hasPermissions } = usePermissions()
   const couponActions = usePermissionsCouponActions()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
   const { data, loading, error } = useGetCouponForDetailsQuery({
@@ -129,12 +132,13 @@ const CouponDetails = () => {
         },
         {
           label: translate('text_1795431906432py065218gdv'),
-          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-          hidden: !canMoveToLive || !coupon || coupon.status === CouponStatusEnum.Terminated,
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction || !coupon || coupon.status === CouponStatusEnum.Terminated,
           onClick: (closePopper) => {
-            void moveToLive({
-              itemType: MoveToLiveMovableItemTypeEnum.Coupon,
+            copyToProduction({
+              itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
               id: couponId as string,
+              code: coupon?.code ?? '',
             })
             closePopper()
           },

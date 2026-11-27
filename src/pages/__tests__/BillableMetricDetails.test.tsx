@@ -1,6 +1,6 @@
 import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
-import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
-import { MoveToLiveMovableItemTypeEnum } from '~/generated/graphql'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionCopyableItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import BillableMetricDetails from '../BillableMetricDetails'
@@ -73,12 +73,15 @@ interface MainHeaderTabConfig {
   hidden?: boolean
 }
 
-const mockMoveToLive = jest.fn()
-let mockCanMoveToLive = false
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
 
-jest.mock('~/components/sandbox/useMoveToLive', () => ({
-  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
-  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('BillableMetricDetails', () => {
@@ -248,20 +251,20 @@ describe('BillableMetricDetails', () => {
     })
   })
 
-  describe('GIVEN move to live mode', () => {
+  describe('GIVEN copy to production', () => {
     const getMoveItem = (): MainHeaderDropdownItem | undefined => {
       const [dropdown] = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
         ?.items as MainHeaderDropdownAction[]
 
-      return dropdown?.items.find((item) => item.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID)
+      return dropdown?.items.find((item) => item.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID)
     }
 
     afterEach(() => {
-      mockCanMoveToLive = false
+      mockCanCopyToProduction = false
     })
 
-    it('WHEN the member can move items THEN the action moves the item to live mode', () => {
-      mockCanMoveToLive = true
+    it('WHEN the member can copy items THEN the action copies the item to production', () => {
+      mockCanCopyToProduction = true
       mockHasPermissions.mockReturnValue(true)
       const closePopper = jest.fn()
 
@@ -273,14 +276,15 @@ describe('BillableMetricDetails', () => {
 
       moveItem?.onClick(closePopper)
 
-      expect(mockMoveToLive).toHaveBeenCalledWith({
-        itemType: MoveToLiveMovableItemTypeEnum.BillableMetric,
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
         id: 'bm-123',
+        code: 'test-bm',
       })
       expect(closePopper).toHaveBeenCalled()
     })
 
-    it('WHEN the member cannot move items THEN the action is hidden', () => {
+    it('WHEN the member cannot copy items THEN the action is hidden', () => {
       mockHasPermissions.mockReturnValue(true)
 
       render(<BillableMetricDetails />)

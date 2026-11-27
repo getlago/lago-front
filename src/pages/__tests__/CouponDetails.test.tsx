@@ -1,6 +1,6 @@
 import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
-import { MOVE_TO_LIVE_ACTION_TEST_ID } from '~/components/sandbox/useMoveToLive'
-import { CouponStatusEnum, MoveToLiveMovableItemTypeEnum } from '~/generated/graphql'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionCopyableItemTypeEnum, CouponStatusEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import CouponDetails from '../CouponDetails'
@@ -86,18 +86,22 @@ interface MainHeaderTabConfig {
   hidden?: boolean
 }
 
-const mockMoveToLive = jest.fn()
-let mockCanMoveToLive = false
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
 
-jest.mock('~/components/sandbox/useMoveToLive', () => ({
-  ...jest.requireActual('~/components/sandbox/useMoveToLive'),
-  useMoveToLive: () => ({ canMoveToLive: mockCanMoveToLive, moveToLive: mockMoveToLive }),
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
 }))
 
 describe('CouponDetails', () => {
   const mockActiveCoupon = {
     id: 'coupon-123',
     name: 'Test Coupon',
+    code: 'test-coupon',
     status: CouponStatusEnum.Active,
     couponType: 'fixed_amount',
     percentageRate: null,
@@ -298,20 +302,20 @@ describe('CouponDetails', () => {
     })
   })
 
-  describe('GIVEN move to live mode', () => {
+  describe('GIVEN copy to production', () => {
     const getMoveItem = (): MainHeaderDropdownItem | undefined => {
       const [dropdown] = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
         ?.items as MainHeaderDropdownAction[]
 
-      return dropdown?.items.find((item) => item.dataTest === MOVE_TO_LIVE_ACTION_TEST_ID)
+      return dropdown?.items.find((item) => item.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID)
     }
 
     afterEach(() => {
-      mockCanMoveToLive = false
+      mockCanCopyToProduction = false
     })
 
-    it('WHEN the member can move items THEN the action moves the item to live mode', () => {
-      mockCanMoveToLive = true
+    it('WHEN the member can copy items THEN the action copies the item to production', () => {
+      mockCanCopyToProduction = true
       mockHasPermissions.mockReturnValue(true)
       const closePopper = jest.fn()
 
@@ -323,15 +327,16 @@ describe('CouponDetails', () => {
 
       moveItem?.onClick(closePopper)
 
-      expect(mockMoveToLive).toHaveBeenCalledWith({
-        itemType: MoveToLiveMovableItemTypeEnum.Coupon,
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionCopyableItemTypeEnum.Coupon,
         id: 'coupon-123',
+        code: 'test-coupon',
       })
       expect(closePopper).toHaveBeenCalled()
     })
 
     it('WHEN the coupon is terminated THEN the action is hidden', () => {
-      mockCanMoveToLive = true
+      mockCanCopyToProduction = true
       mockHasPermissions.mockReturnValue(true)
       mockUseGetCouponForDetailsQuery.mockReturnValue({
         data: { coupon: { ...mockActiveCoupon, status: CouponStatusEnum.Terminated } },
@@ -343,7 +348,7 @@ describe('CouponDetails', () => {
       expect(getMoveItem()?.hidden).toBe(true)
     })
 
-    it('WHEN the member cannot move items THEN the action is hidden', () => {
+    it('WHEN the member cannot copy items THEN the action is hidden', () => {
       mockHasPermissions.mockReturnValue(true)
 
       render(<CouponDetails />)

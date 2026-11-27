@@ -12,7 +12,10 @@ import { TypographyWithCopy } from '~/components/designSystem/TypographyWithCopy
 import { useDeleteFeatureDialog } from '~/components/features/DeleteFeatureDialog'
 import { formatCountToMetadata } from '~/components/MainHeader/formatCountToMetadata'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { SearchInput } from '~/components/SearchInput'
 import { DEFAULT_PAGE_SIZE } from '~/core/constants/pagination'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
@@ -23,7 +26,10 @@ import {
   UPDATE_FEATURE_ROUTE,
 } from '~/core/router/ObjectsRoutes'
 import { DateFormat, intlFormatDateTime } from '~/core/timezone'
-import { MoveToLiveMovableItemTypeEnum, useGetFeaturesListLazyQuery } from '~/generated/graphql'
+import {
+  CopyToProductionCopyableItemTypeEnum,
+  useGetFeaturesListLazyQuery,
+} from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 import { useDebouncedSearch } from '~/hooks/useDebouncedSearch'
 import { usePermissions } from '~/hooks/usePermissions'
@@ -81,7 +87,7 @@ const FeaturesList = () => {
 
   const canUpdateFeatures = hasPermissions(['featuresUpdate'])
   const canDeleteFeatures = hasPermissions(['featuresDelete'])
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const tablePlaceholder = useMemo(
     () => ({
@@ -256,13 +262,17 @@ const FeaturesList = () => {
               })
             }
 
-            if (canMoveToLive) {
+            if (canCopyToProduction) {
               actions.push({
                 title: translate('text_1795431906432py065218gdv'),
-                dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
+                dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
                 startIcon: 'outside',
                 onAction: () =>
-                  moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Feature, id: feature.id }),
+                  copyToProduction({
+                    itemType: CopyToProductionCopyableItemTypeEnum.Feature,
+                    id: feature.id,
+                    code: feature.code,
+                  }),
               })
             }
 

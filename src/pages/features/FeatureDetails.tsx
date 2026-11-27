@@ -8,7 +8,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { FeatureDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   FEATURE_DETAILS_ROUTE,
@@ -17,9 +20,9 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   FeatureForDeleteFeatureDialogFragmentDoc,
   LagoApiError,
-  MoveToLiveMovableItemTypeEnum,
   useGetFeatureForDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -48,7 +51,7 @@ const FeatureDetails = () => {
   const { featureId } = useParams()
 
   const { openDeleteFeatureDialog } = useDeleteFeatureDialog()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const {
     data: featureResult,
@@ -102,10 +105,14 @@ const FeatureDetails = () => {
             },
             {
               label: translate('text_1795431906432py065218gdv'),
-              dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-              hidden: !canMoveToLive,
+              dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+              hidden: !canCopyToProduction,
               onClick: (closePopper) => {
-                void moveToLive({ itemType: MoveToLiveMovableItemTypeEnum.Feature, id: feature.id })
+                copyToProduction({
+                  itemType: CopyToProductionCopyableItemTypeEnum.Feature,
+                  id: feature.id,
+                  code: feature.code,
+                })
                 closePopper()
               },
             },

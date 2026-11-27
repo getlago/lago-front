@@ -8,7 +8,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
-import { MOVE_TO_LIVE_ACTION_TEST_ID, useMoveToLive } from '~/components/sandbox/useMoveToLive'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { addToast } from '~/core/apolloClient'
 import { BillableMetricDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
@@ -20,8 +23,8 @@ import {
 } from '~/core/router'
 import { copyToClipboard } from '~/core/utils/copyToClipboard'
 import {
+  CopyToProductionCopyableItemTypeEnum,
   LagoApiError,
-  MoveToLiveMovableItemTypeEnum,
   useGetBillableMetricForHeaderDetailsQuery,
 } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
@@ -47,7 +50,7 @@ const BillableMetricDetails = () => {
   const { isPremium } = useCurrentUser()
 
   const { openDeleteBillableMetricDialog } = useDeleteBillableMetricDialog()
-  const { canMoveToLive, moveToLive } = useMoveToLive()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
 
   const { data, loading, error } = useGetBillableMetricForHeaderDetailsQuery({
     variables: {
@@ -119,12 +122,13 @@ const BillableMetricDetails = () => {
         },
         {
           label: translate('text_1795431906432py065218gdv'),
-          dataTest: MOVE_TO_LIVE_ACTION_TEST_ID,
-          hidden: !canMoveToLive,
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction,
           onClick: (closePopper) => {
-            void moveToLive({
-              itemType: MoveToLiveMovableItemTypeEnum.BillableMetric,
+            copyToProduction({
+              itemType: CopyToProductionCopyableItemTypeEnum.BillableMetric,
               id: billableMetricId as string,
+              code: billableMetric?.code ?? '',
             })
             closePopper()
           },
