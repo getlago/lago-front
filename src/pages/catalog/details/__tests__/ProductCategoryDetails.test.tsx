@@ -6,8 +6,12 @@ import {
   ENTITY_SECTION_METADATA_TEST_ID,
   ENTITY_SECTION_VIEW_NAME_TEST_ID,
 } from '~/components/MainHeader/mainHeaderTestIds'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { ProductCategoryDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
-import { GetProductCategoryForDetailsDocument } from '~/generated/graphql'
+import {
+  CopyToProductionItemTypeEnum,
+  GetProductCategoryForDetailsDocument,
+} from '~/generated/graphql'
 import { AllTheProviders, testMockNavigateFn } from '~/test-utils'
 
 import ProductCategoryDetails from '../ProductCategoryDetails'
@@ -108,6 +112,17 @@ const renderPage = (
     ),
   })
 }
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 describe('ProductCategoryDetails', () => {
   beforeEach(() => {
@@ -233,5 +248,34 @@ describe('ProductCategoryDetails', () => {
     expect(screen.queryByTestId('product-details-actions')).not.toBeInTheDocument()
     expect(screen.queryByTestId('product-details-edit')).not.toBeInTheDocument()
     expect(screen.queryByTestId('product-details-delete')).not.toBeInTheDocument()
+  })
+
+  describe('GIVEN copy to production', () => {
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the action copies the item to production', async () => {
+      mockCanCopyToProduction = true
+
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
+      await userEvent.click(screen.getByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID))
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.ProductCategory,
+        id: 'prod-1',
+        code: 'object_storage',
+      })
+    })
+
+    it('WHEN the member cannot copy items THEN the action is not offered', async () => {
+      await act(() => renderPage())
+
+      await userEvent.click((await screen.findAllByTestId('product-details-actions'))[0])
+
+      expect(screen.queryByTestId(COPY_TO_PRODUCTION_ACTION_TEST_ID)).not.toBeInTheDocument()
+    })
   })
 })

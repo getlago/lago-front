@@ -30,12 +30,19 @@ import {
   Fee,
   FeeAmountDetails,
   FeeAppliedTax,
+  FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLineGraduatedPercentageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc,
+  FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc,
   FeeForInvoiceDetailsTableFragmentDoc,
+  FeeForViewFeeDetailsDrawerFragmentDoc,
   FetchDraftInvoiceTaxesMutation,
   InvoiceStatusTypeEnum,
   LagoApiError,
   useFetchDraftInvoiceTaxesMutation,
   useGetCustomerQuery,
+  useGetOriginalFeeLazyQuery,
   usePreviewAdjustedFeeMutation,
   useRegenerateInvoiceMutation,
   useVoidInvoiceMutation,
@@ -70,7 +77,40 @@ gql`
     }
   }
 
+  fragment OriginalFeeForReset on Fee {
+    id
+    amountCents
+    invoiceDisplayName
+    preciseUnitAmount
+    units
+    invoiceIsRegeneration
+    pricingUnitUsage {
+      amountCents
+      conversionRate
+      preciseUnitAmount
+      shortName
+    }
+    ...FeeForInvoiceDetailsTableBodyLineGraduated
+    ...FeeForInvoiceDetailsTableBodyLineGraduatedPercentage
+    ...FeeForInvoiceDetailsTableBodyLineVolume
+    ...FeeForInvoiceDetailsTableBodyLinePackage
+    ...FeeForInvoiceDetailsTableBodyLinePercentage
+    ...FeeForViewFeeDetailsDrawer
+  }
+
+  query getOriginalFee($id: ID!) {
+    fee(id: $id) {
+      ...OriginalFeeForReset
+    }
+  }
+
   ${FeeForInvoiceDetailsTableFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineGraduatedFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineGraduatedPercentageFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLineVolumeFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLinePackageFragmentDoc}
+  ${FeeForInvoiceDetailsTableBodyLinePercentageFragmentDoc}
+  ${FeeForViewFeeDetailsDrawerFragmentDoc}
 `
 
 export type OnRegeneratedFeeAdd = (input: {
@@ -208,6 +248,9 @@ const CustomerInvoiceRegenerate = () => {
 
   const [voidInvoice] = useVoidInvoiceMutation()
   const [previewAdjustedFee] = usePreviewAdjustedFeeMutation()
+  const [getOriginalFee] = useGetOriginalFeeLazyQuery({
+    context: { silentError: true },
+  })
 
   const onAdd: OnRegeneratedFeeAdd = async (input) => {
     const previewedFee = await previewAdjustedFee({
@@ -250,14 +293,71 @@ const CustomerInvoiceRegenerate = () => {
     return setFees((f) => [...f, calculatedFee])
   }
 
-  const onDelete = (id: string) => {
+  const onDelete = async (id: string) => {
     // Use originalFeesRef to get untouched fee data, avoiding Apollo cache pollution
     const original = originalFeesRef.current?.find((f) => f.id === id)
 
-    if (original && !original.adjustedFee) {
+    if (!original) {
+      // Never-persisted fee added this editing session: nothing to reset to, drop it.
+      return setFees((f) => f.filter((fee) => fee.id !== id))
+    }
+
+    if (!original.adjustedFee) {
       return setFees((f) => f.map((fee) => (fee.id === id ? original : fee)))
     }
 
+    // Every fee is re-wrapped as adjusted on each void/regenerate round, so the root fee
+    // (fetched lazily by originalFeeId) is what reset must restore, not `original` itself.
+    if (original.originalFeeId) {
+      // `.catch` also covers a network error, which rejects instead of resolving with `errors`.
+      const originalFee = await getOriginalFee({ variables: { id: original.originalFeeId } })
+        .then(({ data }) => data?.fee)
+        .catch(() => undefined)
+
+      if (!originalFee) {
+        // Leave the fee as-is on a failed lookup so the user can retry, rather than
+        // losing the line (the exact outcome this reset logic exists to prevent).
+        return addToast({
+          message: translate('text_62b31e1f6a5b8b1b745ece48'),
+          severity: 'danger',
+        })
+      }
+
+      // A hand-added fee's root only ever lives on a regenerated invoice; a genuinely
+      // billed fee's root lives on the true original one, even if edited.
+      if (originalFee.invoiceIsRegeneration) {
+        return setFees((f) => f.filter((fee) => fee.id !== id))
+      }
+
+      const resetFee = {
+        ...original,
+        amountCents: originalFee.amountCents,
+        amountDetails: originalFee.amountDetails,
+        invoiceDisplayName: originalFee.invoiceDisplayName,
+        preciseUnitAmount: originalFee.preciseUnitAmount,
+        pricingUnitUsage: originalFee.pricingUnitUsage,
+        units: originalFee.units,
+        // The "View fee details" drawer reads these directly off the fee, so a reset
+        // must restore them too or it shows the adjusted fee's stale totals.
+        preciseAmountCents: originalFee.preciseAmountCents,
+        subTotalExcludingTaxesAmountCents: originalFee.subTotalExcludingTaxesAmountCents,
+        subTotalExcludingTaxesPreciseAmountCents:
+          originalFee.subTotalExcludingTaxesPreciseAmountCents,
+        taxesRate: originalFee.taxesRate,
+        taxesAmountCents: originalFee.taxesAmountCents,
+        taxesPreciseAmountCents: originalFee.taxesPreciseAmountCents,
+        totalAmountCents: originalFee.totalAmountCents,
+        preciseTotalAmountCents: originalFee.preciseTotalAmountCents,
+        presentationBreakdowns: originalFee.presentationBreakdowns,
+        adjustedFee: false,
+        adjustedFeeType: null,
+      }
+
+      return setFees((f) => f.map((fee) => (fee.id === id ? resetFee : fee)))
+    }
+
+    // A fee added by hand (not duplicated from an existing one) has no originalFeeId until a
+    // later round duplicates it, so reset on it has nothing to restore and falls back to delete.
     return setFees((f) => f.filter((fee) => fee.id !== id))
   }
 
@@ -277,21 +377,23 @@ const CustomerInvoiceRegenerate = () => {
       })
     }
 
-    const feesInput: VoidedInvoiceFeeInput[] = fees
-      .map((fee) => ({
+    const feesInput: VoidedInvoiceFeeInput[] = fees.map((fee) => ({
+      ...removeEmptyKeys({
         id: fee.id.includes(TEMPORARY_ID_PREFIX) ? null : fee.id,
         addOnId: fee?.addOn?.id,
         chargeId: fee?.charge?.id,
         chargeFilterId: fee?.chargeFilter?.id,
         description: fee?.description,
-        invoiceDisplayName: fee?.invoiceDisplayName,
         subscriptionId: fee?.subscription?.id,
         unitAmountCents: (fee as { wasOnlyUnitsUpdate?: boolean })?.wasOnlyUnitsUpdate
           ? null
           : fee?.preciseUnitAmount,
         units: fee?.units,
-      }))
-      .map((fee) => removeEmptyKeys(fee))
+      }),
+      // Always sent, even null: this is the fee's true current name, so null must clear
+      // it on the backend rather than being dropped and misread as "leave it as-is".
+      invoiceDisplayName: fee?.invoiceDisplayName ?? null,
+    }))
 
     await regenerateInvoice({
       variables: {

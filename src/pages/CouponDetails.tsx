@@ -11,6 +11,10 @@ import { DetailsPage } from '~/components/layouts/DetailsPage'
 import { MainHeader } from '~/components/MainHeader/MainHeader'
 import { MainHeaderAction } from '~/components/MainHeader/types'
 import { useMainHeaderTabContent } from '~/components/MainHeader/useMainHeaderTabContent'
+import {
+  COPY_TO_PRODUCTION_ACTION_TEST_ID,
+  useCopyToProduction,
+} from '~/components/sandbox/useCopyToProduction'
 import { CouponDetailsTabsOptionsEnum } from '~/core/constants/tabsOptions'
 import {
   COUPON_DETAILS_ROUTE,
@@ -19,6 +23,8 @@ import {
   useNavigate,
 } from '~/core/router'
 import {
+  CopyToProductionItemTypeEnum,
+  CouponStatusEnum,
   DeleteCouponFragmentDoc,
   LagoApiError,
   TerminateCouponFragmentDoc,
@@ -63,6 +69,7 @@ const CouponDetails = () => {
   const { hasPermissions } = usePermissions()
   const couponActions = usePermissionsCouponActions()
   const { openDialog: openDeleteDialog } = useDeleteCoupon()
+  const { canCopyToProduction, copyToProduction } = useCopyToProduction()
   const { openDialog: openTerminateDialog } = useTerminateCoupon()
 
   const { data, loading, error } = useGetCouponForDetailsQuery({
@@ -119,6 +126,21 @@ const CouponDetails = () => {
               callback: () => {
                 navigate(COUPONS_ROUTE)
               },
+            })
+            closePopper()
+          },
+        },
+        {
+          label: translate('text_1795431906432py065218gdv'),
+          dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+          hidden: !canCopyToProduction || !coupon || coupon.status === CouponStatusEnum.Terminated,
+          onClick: (closePopper) => {
+            if (!coupon) return
+
+            copyToProduction({
+              itemType: CopyToProductionItemTypeEnum.Coupon,
+              id: coupon.id,
+              code: coupon.code,
             })
             closePopper()
           },

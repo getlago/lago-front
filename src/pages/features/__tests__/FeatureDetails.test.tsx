@@ -1,3 +1,6 @@
+import { MainHeaderDropdownAction, MainHeaderDropdownItem } from '~/components/MainHeader/types'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
+import { CopyToProductionItemTypeEnum } from '~/generated/graphql'
 import { render } from '~/test-utils'
 
 import FeatureDetails from '../FeatureDetails'
@@ -56,15 +59,21 @@ jest.mock('~/generated/graphql', () => ({
     mockUseGetFeatureForDetailsQuery(options),
 }))
 
-interface MainHeaderDropdownAction {
-  type: string
-  items: { hidden?: boolean; label: string }[]
-}
-
 interface MainHeaderTabConfig {
   title: string
   hidden?: boolean
 }
+
+const mockCopyToProduction = jest.fn()
+let mockCanCopyToProduction = false
+
+jest.mock('~/components/sandbox/useCopyToProduction', () => ({
+  ...jest.requireActual('~/components/sandbox/useCopyToProduction'),
+  useCopyToProduction: () => ({
+    canCopyToProduction: mockCanCopyToProduction,
+    copyToProduction: mockCopyToProduction,
+  }),
+}))
 
 describe('FeatureDetails', () => {
   beforeEach(() => {
@@ -231,6 +240,48 @@ describe('FeatureDetails', () => {
 
         expect(activityLogsTab).toBeDefined()
       })
+    })
+  })
+
+  describe('GIVEN copy to production', () => {
+    const getMoveItem = (): MainHeaderDropdownItem | undefined => {
+      const [dropdown] = mockMainHeaderConfigure.mock.calls[0]?.[0]?.actions
+        ?.items as MainHeaderDropdownAction[]
+
+      return dropdown?.items.find((item) => item.dataTest === COPY_TO_PRODUCTION_ACTION_TEST_ID)
+    }
+
+    afterEach(() => {
+      mockCanCopyToProduction = false
+    })
+
+    it('WHEN the member can copy items THEN the action copies the item to production', () => {
+      mockCanCopyToProduction = true
+      mockHasPermissions.mockReturnValue(true)
+      const closePopper = jest.fn()
+
+      render(<FeatureDetails />)
+
+      const moveItem = getMoveItem()
+
+      expect(moveItem?.hidden).toBe(false)
+
+      moveItem?.onClick(closePopper)
+
+      expect(mockCopyToProduction).toHaveBeenCalledWith({
+        itemType: CopyToProductionItemTypeEnum.Feature,
+        id: 'feat-123',
+        code: 'test-feature',
+      })
+      expect(closePopper).toHaveBeenCalled()
+    })
+
+    it('WHEN the member cannot copy items THEN the action is hidden', () => {
+      mockHasPermissions.mockReturnValue(true)
+
+      render(<FeatureDetails />)
+
+      expect(getMoveItem()?.hidden).toBe(true)
     })
   })
 })

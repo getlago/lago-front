@@ -8,7 +8,10 @@ import { AppEnvEnum } from '~/core/constants/globalTypes'
 import { reportMissingAppEnv } from '~/core/utils/appEnv'
 import { installLagoWindowApi } from '~/core/utils/featureFlagsConsole'
 import { sentryEventHooks } from '~/core/utils/sentryEventHooks'
-import { scrubReplayEventUrlTokensIntegration } from '~/core/utils/sentryUrlTokens'
+import {
+  scrubDscUrlTokensIntegration,
+  scrubReplayEventUrlTokensIntegration,
+} from '~/core/utils/sentryUrlTokens'
 import { getInitialReplayIntegrations } from '~/core/utils/sessionReplay'
 import { createWorkerLoadErrorHandler } from '~/core/utils/workerLoadRecovery'
 
@@ -22,9 +25,17 @@ if (!!sentryDsn && appEnv !== AppEnvEnum.development) {
     integrations: [
       Sentry.browserTracingIntegration(),
       scrubReplayEventUrlTokensIntegration(),
+      scrubDscUrlTokensIntegration(),
       ...getInitialReplayIntegrations(),
     ],
     environment: appEnv,
+    // Explicit so `beforeSendSpan` scrubbing the root/segment span stays a guaranteed path
+    traceLifecycle: 'stream',
+    // Every other category is a server/edge-runtime feature, or (httpHeaders) filters headers
+    // this SDK never collects — neither has any code path in @sentry/browser
+    dataCollection: {
+      urlQueryParams: { deny: ['forwarded', '-ip', 'remote-', 'via', '-user'] },
+    },
     // Increase depth for nested objects (default is 3) to capture full GraphQL error details
     normalizeDepth: 10,
     // Increase max string length (default is 250) for error details

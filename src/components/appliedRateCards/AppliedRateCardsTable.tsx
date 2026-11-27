@@ -7,6 +7,7 @@ import { PaginatedContent } from '~/components/designSystem/Pagination/Paginated
 import { Table, TableColumn, TablePlaceholder } from '~/components/designSystem/Table/Table'
 import { ActionItem } from '~/components/designSystem/Table/types'
 import { Typography } from '~/components/designSystem/Typography'
+import { COPY_TO_PRODUCTION_ACTION_TEST_ID } from '~/components/sandbox/useCopyToProduction'
 import { CollectionMetadata } from '~/generated/graphql'
 import { useInternationalization } from '~/hooks/core/useInternationalization'
 
@@ -78,6 +79,7 @@ type AppliedRateCardsTableProps<T extends AppliedRateCardRow> = {
   onCopyRateCardCode: (row: T) => void
   onRemoveRateCard: (row: T) => void
   removal: RateCardRemoval
+  onCopyToProduction?: (row: T) => void
 }
 
 const getProductLabel = (row: AppliedRateCardRow): string => {
@@ -101,6 +103,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
   onCopyRateCardCode,
   onRemoveRateCard,
   removal,
+  onCopyToProduction,
 }: AppliedRateCardsTableProps<T>): JSX.Element => {
   const { translate } = useInternationalization()
   const groupedRows = groupRowsByCategory(rows)
@@ -146,6 +149,17 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
       startIcon: 'trash',
       disabled: removal.status === 'disabled',
       onAction: () => onRemoveRateCard(row),
+    }
+  }
+
+  const getCopyToProductionActionItem = (row: T): ActionItem<T> | null => {
+    if (!onCopyToProduction) return null
+
+    return {
+      title: translate('text_1795431906432py065218gdv'),
+      startIcon: 'outside',
+      dataTest: COPY_TO_PRODUCTION_ACTION_TEST_ID,
+      onAction: () => onCopyToProduction(row),
     }
   }
 
@@ -217,6 +231,7 @@ export const AppliedRateCardsTable = <T extends AppliedRateCardRow>({
               onAction: () => onCopyRateCardCode(row),
             },
             getRemoveActionItem(row),
+            getCopyToProductionActionItem(row),
           ]}
         />
       </PaginatedContent>
