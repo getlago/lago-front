@@ -8,7 +8,7 @@ catalog:
   '@testing-library/dom': 10.4.2
   '@testing-library/jest-dom': 7.0.1
   '@testing-library/react': 16.3.3
-  '@testing-library/user-event': 14.6.8
+  '@testing-library/user-event': 14.6.13
   '@trivago/prettier-plugin-sort-imports': 6.0.2
   '@types/jest': 30.0.0
   '@types/react': 18.3.31

@@ -84,7 +84,7 @@
     "baseline-browser-mapping": "2.11.39",
     "class-variance-authority": "catalog:",
     "cssnano": "9.9.0",
-    "cypress": "16.2.1",
+    "cypress": "16.3.0",
     "cypress-vite": "1.10.2",
     "dotenv": "18.0.10",
     "eslint": "catalog:",
