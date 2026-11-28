@@ -1,0 +1,115 @@
+.v2-choice-control {
+  --choice-fill: var(--color-surface);
+  --choice-border: var(--color-border-control);
+  position: relative;
+  display: inline-flex;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid var(--choice-border);
+  background: var(--choice-fill);
+  color: var(--color-inverse-foreground);
+  cursor: pointer;
+  outline: none;
+}
+.v2-checkbox {
+  border-radius: 6px;
+}
+.v2-radio-indicator {
+  background: currentColor;
+}
+.v2-radio {
+  border-radius: 50%;
+}
+.v2-choice-control:is([data-checked], [data-indeterminate]) {
+  --choice-fill: var(--color-action-primary);
+  --choice-border: var(--color-action-primary);
+}
+.v2-choice-control::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  content: '';
+}
+.v2-choice-control:where(
+  :not([data-checked]):not([data-indeterminate]):not([data-disabled]):not([data-readonly]):not(
+      :disabled
+    ):not(:focus-visible):hover
+),
+:where(
+    .v2-field:has(
+      > [data-slot='field-label']:hover,
+      > [data-slot='field-content'] [data-slot='field-label']:hover
+    )
+  )
+  > .v2-choice-control:where(
+    :not([data-checked]):not([data-indeterminate]):not([data-disabled]):not([data-readonly]):not(
+        :disabled
+      ):not(:focus-visible)
+  ) {
+  --choice-fill: var(--color-surface-subtle);
+}
+.v2-choice-control:where(
+    :is([data-checked], [data-indeterminate]):not([data-disabled]):not([data-readonly]):not(
+        :disabled
+      ):not(:focus-visible):hover
+  )::before,
+:where(
+    .v2-field:has(
+      > [data-slot='field-label']:hover,
+      > [data-slot='field-content'] [data-slot='field-label']:hover
+    )
+  )
+  > .v2-choice-control:where(
+    :is([data-checked], [data-indeterminate]):not([data-disabled]):not([data-readonly]):not(
+        :disabled
+      ):not(:focus-visible)
+  )::before {
+  background: var(--color-interactive-hover);
+}
+.v2-choice-control[data-readonly] {
+  --choice-fill: var(--color-surface);
+  cursor: default;
+}
+.v2-choice-control:is([data-checked], [data-indeterminate])[data-readonly] {
+  --choice-fill: var(--color-action-primary);
+}
+.v2-choice-control:focus-visible {
+  --choice-border: var(--color-focus-border);
+  box-shadow: 0 0 0 4px var(--color-focus-ring);
+}
+.v2-choice-control[aria-invalid='true'] {
+  --choice-border: var(--color-danger-foreground);
+}
+.v2-choice-control[data-disabled],
+.v2-choice-control:disabled {
+  --choice-fill: var(--color-disabled);
+  --choice-border: var(--color-disabled-foreground);
+  color: var(--color-disabled-foreground);
+  cursor: default;
+}
+.v2-choice-control:is([data-disabled], [data-readonly], :disabled)::before {
+  background: none;
+}
+@media (forced-colors: active) {
+  .v2-choice-control {
+    border-color: ButtonText;
+  }
+  .v2-choice-control:is([data-checked], [data-indeterminate]) {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+  .v2-choice-control:focus-visible {
+    outline: 2px solid Highlight;
+    outline-offset: 2px;
+  }
+  .v2-choice-control:is([data-disabled], :disabled) {
+    border-color: GrayText;
+    color: GrayText;
+  }
+}

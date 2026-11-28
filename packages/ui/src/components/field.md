@@ -22,7 +22,7 @@ import {
 
 ## API
 
-Field, FieldContent and FieldGroup accept native div props and refs. FieldLabel accepts native label props; FieldDescription and FieldError accept paragraph props. FieldError renders only when content exists. Field supports data-disabled for label and description styling. Set aria-invalid on the actual control to control its error appearance, and use FieldError to display the error message. FieldHelp accepts a translated accessible label and tooltip children; place it beside, not inside, FieldLabel. Share one TooltipProvider above the form.
+Field, FieldContent and FieldGroup accept native div props and refs. Field adds orientation="vertical" (default) or "horizontal". FieldGroup adds spacing="default" (16px) or "compact" (8px). FieldSet and FieldLegend accept native fieldset/legend props and refs. FieldLabel accepts native label props; FieldDescription and FieldError accept paragraph props. FieldError renders only when content exists. Field supports data-disabled for label and description styling. Set aria-invalid on the actual control to control its error appearance, and use FieldError to display the error message. FieldHelp accepts a translated accessible label and tooltip children; place it beside, not inside, FieldLabel. Share one TooltipProvider above the form.
 
 ## Examples
 
@@ -41,9 +41,34 @@ Combobox uses the same structure: place its root around Field so the label, desc
 
 Keep wrappers only for meaningful internal layout, such as a group of choices. Field spacing applies only to direct children, preserving those internal layouts.
 
+### Checkbox and radio composition
+
+```tsx
+<Field orientation="horizontal">
+  <Checkbox id="email" aria-describedby="email-description email-error" aria-invalid />
+  <FieldContent>
+    <FieldLabel htmlFor="email">Email notifications</FieldLabel>
+    <FieldDescription id="email-description">Send finalized invoices.</FieldDescription>
+  </FieldContent>
+  <FieldError id="email-error">Please review this option.</FieldError>
+</Field>
+```
+
+For label-only options, place FieldLabel directly after Checkbox or RadioGroupItem. Horizontal Field uses an 8px column gap and places a direct FieldError on a new full-width row with 4px spacing. No caller layout wrappers are needed. The 16px control aligns with the first 20px label line. FieldContent text can wrap.
+
+```tsx
+<FieldSet>
+  <FieldLegend>Email notifications</FieldLegend>
+  <FieldDescription>Choose which updates to send.</FieldDescription>
+  <FieldGroup spacing="compact">{/* Independent horizontal checkbox Fields */}</FieldGroup>
+</FieldSet>
+```
+
+RadioGroup replaces FieldGroup for mutually exclusive options. Connect its aria-labelledby to the FieldLegend ID. Keep selection, validation and form integration with the caller. A group error can be associated using aria-describedby without marking every checkbox invalid. Native fieldset disabled blocks interaction; pass disabled to each Checkbox when you also need Base UI's disabled state attributes. RadioGroup disabled propagates to its items.
+
 ## Accessibility
 
-Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering a FieldLabel does not highlight its control; clicking the label still focuses the control.
+Input and Textarea retain standalone invalid styling through aria-invalid without Field. Field handles layout, not validation. Hovering an associated FieldLabel highlights its editable control: Input, Input Group, Textarea, Combobox, Select, Checkbox or RadioGroupItem. Clicking the label focuses, opens or selects its control as appropriate. Description and help hover do not highlight the control; disabled, read-only and focused states keep their existing appearance.
 
 For Select or Combobox, connect labels and error references to the appropriate interactive control. Radio and checkbox groups need group semantics such as fieldset/legend; individual checkboxes still need their own labels. Field does not replace those semantics.
 

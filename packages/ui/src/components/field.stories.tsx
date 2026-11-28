@@ -19,6 +19,14 @@ import { Textarea } from './textarea'
 import { TooltipProvider } from './tooltip'
 
 import { AmountFieldStates } from '../stories/amount-input-field-examples'
+import {
+  CheckboxFields,
+  CheckboxGroupFields,
+  ChoiceFormReset,
+  RadioFields,
+  SelectAllCheckboxes,
+  verifyChoiceLayout,
+} from '../stories/choice-field-examples'
 import { ComboboxFieldStates } from '../stories/combobox-field-examples'
 
 const meta = {
@@ -225,3 +233,16 @@ export const WithComboboxPopup: Story = { render: () => <ComboboxFieldStates kin
 
 export const WithAmountInput: Story = { render: () => <AmountFieldStates selectable={false} /> }
 export const WithSelectableAmountInput: Story = { render: () => <AmountFieldStates selectable /> }
+
+export const WithCheckbox: Story = {
+  render: () => <CheckboxFields />,
+  play: ({ canvasElement }) => verifyChoiceLayout(canvasElement),
+}
+export const CheckboxGroup: Story = { render: () => <CheckboxGroupFields /> }
+export const CheckboxSelectAll: Story = { render: () => <SelectAllCheckboxes /> }
+export const WithRadioGroup: Story = {
+  render: () => <RadioFields />,
+  play: ({ canvasElement }) => verifyChoiceLayout(canvasElement),
+}
+
+export const WithChoiceReset: Story = { render: () => <ChoiceFormReset /> }

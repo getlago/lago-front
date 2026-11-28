@@ -29,10 +29,11 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 
 | Component    | Import                  | Guide                                               |
 | ------------ | ----------------------- | --------------------------------------------------- |
-| AmountInput  | `lago-ui/amount-input`  | [amount-input.md](src/components/amount-input.md) |
+| AmountInput  | `lago-ui/amount-input`  | [amount-input.md](src/components/amount-input.md)   |
 | Badge        | `lago-ui/badge`         | [badge.md](src/components/badge.md)                 |
 | Breadcrumb   | `lago-ui/breadcrumb`    | [breadcrumb.md](src/components/breadcrumb.md)       |
 | Button       | `lago-ui/button`        | [button.md](src/components/button.md)               |
+| Checkbox     | `lago-ui/checkbox`      | [checkbox.md](src/components/checkbox.md)           |
 | ColorTheme   | `lago-ui/color-theme`   | [color-theme.md](src/components/color-theme.md)     |
 | Combobox     | `lago-ui/combobox`      | [combobox.md](src/components/combobox.md)           |
 | DropdownMenu | `lago-ui/dropdown-menu` | [dropdown-menu.md](src/components/dropdown-menu.md) |
@@ -42,6 +43,7 @@ A new view is not automatically a v2 view, and adopting v2 in an existing view n
 | InputGroup   | `lago-ui/input-group`   | [input-group.md](src/components/input-group.md)     |
 | NumericBadge | `lago-ui/numeric-badge` | [numeric-badge.md](src/components/numeric-badge.md) |
 | OverflowTabs | `lago-ui/overflow-tabs` | [overflow-tabs.md](src/components/overflow-tabs.md) |
+| RadioGroup   | `lago-ui/radio-group`   | [radio-group.md](src/components/radio-group.md)     |
 | Separator    | `lago-ui/separator`     | [separator.md](src/components/separator.md)         |
 | Tabs         | `lago-ui/tabs`          | [tabs.md](src/components/tabs.md)                   |
 | Textarea     | `lago-ui/textarea`      | [textarea.md](src/components/textarea.md)           |
